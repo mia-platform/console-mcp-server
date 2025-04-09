@@ -2,7 +2,7 @@
 
 First off, thank you for considering contributing to this project.
 
-Please follow these guidelines for helping us to better address your issue, assessing changes, and helping you finalize 
+Please follow these guidelines for helping us to better address your issue, assessing changes, and helping you finalize
 your pull requests. There are many ways to contribute, from writing examples, improving the documentation, submitting
 bug reports and feature requests or writing code which can be incorporated into the module itself.
 
@@ -19,8 +19,8 @@ or you can start a discussion to report a bug, an indesired behavior of the appl
 Before opening a new thread, please verify whether there's already a discussion about the topic of your interest.
 You can find them:
 
-- in the [repository issues page];
-- in the official [Mia Platform Community Discussion] page;
+* in the [repository issues page];
+* in the official [Mia Platform Community Discussion] page;
 
 ### Reporting Bugs
 
@@ -59,7 +59,7 @@ about what a fork is, you can read the official [GitHub guide for working with f
 [Local Development section of the README]: ./README.md#local-development
 
 [repository issues page]: https://github.com/mia-platform/crud-service/issues
-[Mia Platform Community Discussion page]: https://github.com/mia-platform/community/discussions
+[Mia Platform Community Discussion]: https://github.com/mia-platform/community/discussions
 
 [GitHub guide about syncing a fork]: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork
 [GitHub guide for working with forks]: https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/working-with-forks
