@@ -15,12 +15,13 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
-import { version } from "../package.json"
+import { name, description, version } from "../package.json"
 
 // Create server instance
 const server = new McpServer({
-  name: "mia-platform-console",
+  name,
   version,
+  description,
   capabilities: {
     resources: {},
     tools: {},
