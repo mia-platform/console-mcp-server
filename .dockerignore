@@ -2,10 +2,16 @@
 .github
 .git
 build
+coverage
 node_modules
+.c8rc.json
 .dockerignore
+.editorconfig
 .gitignore
+.markdownlint.yaml
 .nvmrc
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
 Dockerfile
 eslint.config.mjs
 README.md

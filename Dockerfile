@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 
 COPY . .
 RUN npm run build
-RUN rm -fr src
+RUN rm -fr src tsconfig.json
 
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts
 
