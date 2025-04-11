@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { CatalogItem } from '@mia-platform/console-types'
 
@@ -26,10 +26,21 @@ function humanizeMarketplaceItem(item: CatalogItem): string {
     `ID: ${item.itemId}`,
     `Name: ${item.name}`,
     `Description: ${item.description}`,
-    `Category: ${item.category?.label || ""}`,
+    `Category: ${item.category?.label || ''}`,
     `Supported By: ${item.supportedBy}`,
-  ].join("\n")
+  ].join('\n')
 }
+
+const types = [
+  'application',
+  'example',
+  'extension',
+  'custom-resource',
+  'plugin',
+  'proxy',
+  'sidecar',
+  'template',
+] as const
 
 export function marketplaceTools(server: McpServer, client:APIClient) {
   server.tool(
@@ -37,14 +48,16 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
     'List marketplace items for a given company, or the public ones if no company is provided',
     {
       tenantId: z.string().optional(),
+      type: z.enum(types).optional()
     },
-    async ({ tenantId }) => {
+    async ({ tenantId, type }) => {
       try {
-        const params = new URLSearchParams({
-          perPage: '200',
-        })
+        const params = new URLSearchParams({})
         if (tenantId) {
-          params.append('includeTenantId', tenantId)
+          params.set('includeTenantId', tenantId)
+        }
+        if (type) {
+          params.set('types', type)
         }
 
         const data = await client.getPaginated<CatalogItem>(listMarketplacePath, params)
@@ -59,7 +72,7 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
           }
         }
 
-        const items = data.map(humanizeMarketplaceItem).join("\n---\n")
+        const items = data.map(humanizeMarketplaceItem).join('\n---\n')
         return {
           content: [
             {
