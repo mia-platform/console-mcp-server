@@ -10,6 +10,7 @@
     "build": "tsc",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
+    "local:test": "npm run build && npx @modelcontextprotocol/inspector -- node build/index.js start --stdio",
     "test": "node --test --import tsx src/**/*.test.ts"
   },
   "repository": {
@@ -23,7 +24,9 @@
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
+    "@mia-platform/console-types": "^0.35.1",
     "@modelcontextprotocol/sdk": "^1.9.0",
+    "commander": "^13.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

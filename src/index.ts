@@ -13,28 +13,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
-import { name, description, version } from "../package.json"
+import { Command } from 'commander';
+import { localServer, remoteServer, initializeMCPServer } from './mcp.js'
+import { name, description, version } from '../package.json';
 
-// Create server instance
-const server = new McpServer({
-  name,
-  version,
-  description,
-  capabilities: {
-    resources: {},
-    tools: {},
-  },
-})
+const program = new Command();
 
-async function main() {
-  const transport = new StdioServerTransport()
-  await server.connect(transport)
-  console.error("Weather MCP Server running on stdio")
+program.
+  name(name).
+  description(description).
+  version(version, '-v, --version');
+
+program.
+  command('start').
+  description('start the Mia-Platform Console MCP Server').
+  option('-p, --port <port>', 'port to run the server on', '3000').
+  option('--stdio', 'run the server locally', false).
+  option('--host', 'Mia-Platform Console host', 'https://console.cloud.mia-platform.eu').
+  action(({ host, port, stdio }) => {
+    initializeMCPServer(host)
+
+    if (stdio) {
+      return localServer().catch((error) => {
+        console.error('Fatal error:', error)
+        process.exit(1)
+      })
+    }
+
+    return remoteServer(port).catch((error) => {
+      console.error('Fatal error:', error)
+      process.exit(1)
+    })
+  })
+
+program.parse(process.argv)
+
+if (!program.args.length) {
+  program.help()
+  process.exit(0)
 }
-
-main().catch((error) => {
-  console.error("Fatal error in main():", error)
-  process.exit(1)
-})
