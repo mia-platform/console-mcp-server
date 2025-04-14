@@ -13,21 +13,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { name, version } from '../../package.json'
 import { constants } from '@mia-platform/console-types'
+import { request } from 'undici'
+import qs from 'node:querystring'
+import { name, version } from '../../package.json'
+import Dispatcher, { UndiciHeaders } from 'undici/types/dispatcher'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
 
 const UserAgent = `${name}/${version}`
+const m2mPath = '/api/m2m/oauth/token'
+const EXPIRATION_WINDOW_IN_SECONDS = 300
 
 export class APIClient {
 
   private baseURL: string
-  private token: string
+  private token: AccessToken | undefined
+  private clientID: string
+  private clientSecret: string
 
-  constructor(baseURL: string, token: string) {
+  constructor(baseURL: string, clientID: string, clientSecret: string) {
     this.baseURL = baseURL
-    this.token = token
+    this.clientID = clientID
+    this.clientSecret = clientSecret
   }
 
   async get<T>(path: string, params?: URLSearchParams): Promise<T> {
@@ -36,8 +44,8 @@ export class APIClient {
       url.search = params.toString()
     }
 
-    const response = await doRequest(url, 'GET', this.token)
-    return await response.json()
+    const { body } = await this.doRequest(url, 'GET')
+    return await body.json() as T
   }
 
   async getPaginated<T>(path: string, params?: URLSearchParams, startingPage=1, maxPage = 10): Promise<T[]> {
@@ -53,34 +61,92 @@ export class APIClient {
       params.set('page', `${page}`)
       url.search = params.toString()
 
-      const response = await doRequest(url, 'GET', this.token)
-      results.push(...(await response.json()))
-      const totalPages = response.headers.get(API_CONSOLE_TOTAL_PAGES_HEADER_KEY)
-      if (totalPages === null) {
+      const { body, headers } = await this.doRequest(url, 'GET')
+      results.push(...(await body.json() as T[]))
+      const totalPages = headers[API_CONSOLE_TOTAL_PAGES_HEADER_KEY]
+      if (totalPages === undefined || parseInt(totalPages as string, 10) <= page) {
         break
       }
     } while (page++ < maxPage)
 
     return results
   }
+
+  private async doRequest(url: URL, method: string): Promise<Dispatcher.ResponseData> {
+    await this.validateToken()
+
+    const response = await request(url, {
+      method: method,
+      headers: headers(this.token),
+    })
+
+    if (response.statusCode != 200) {
+      const data = await response.body.json() as Record<string, string>
+      const message = data.message || `Unknown error with status ${response.statusCode}`
+      throw new Error(message)
+    }
+
+    return response
+  }
+
+  private async validateToken(): Promise<void> {
+    if (!this.clientID || !this.clientSecret) {
+      return
+    }
+
+    if (this.token && !this.token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
+      return
+    }
+
+    this.token = await doAuthentication(this.baseURL, this.clientID, this.clientSecret)
+  }
 }
 
-function headers(token: string): HeadersInit {
+function headers(token: AccessToken | undefined): UndiciHeaders {
   return {
     'User-Agent': UserAgent,
     Accept: 'application/json',
-    ContentType: 'application/json',
-    ...token && { Authorization: `Bearer ${token}` },
+    'Content-Type': 'application/json',
+    ...token && { Authorization: `${token.token_type} ${token.access_token}` },
   }
 }
 
-async function doRequest(url: URL, method: string, token: string): Promise<Response> {
-  const response = await fetch(url, {headers: headers(token), method: method})
-  if (!response.ok) {
-    const data = await response.json() as Record<string, string>
-    const message = data.message || 'Unknown error with status ${response.status}'
+async function doAuthentication(basePath: string, clientId: string, clientCredentials: string): Promise<AccessToken> {
+  const url = new URL(m2mPath, basePath)
+  const { statusCode, body } = await request(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: `Basic ${Buffer.from(`${clientId}:${clientCredentials}`).toString('base64')}`,
+      'User-Agent': UserAgent,
+    },
+    body: qs.stringify({
+      grant_type: 'client_credentials',
+    }),
+  })
+
+  if (statusCode != 200) {
+    const data = await body.json() as Record<string, string>
+    const message = data.message || `Unknown error with status ${statusCode}`
     throw new Error(message)
   }
 
-  return response
+  const data = await body.json() as Record<string, string>
+  return new AccessToken(data.access_token, data.token_type, parseInt(data.expires_in, 10))
+}
+
+class AccessToken {
+  access_token: string
+  token_type: string
+  private expires_at: number
+
+  constructor(token: string, token_type: string, expires_in: number) {
+    this.access_token = token
+    this.token_type = token_type
+    this.expires_at = Date.now() + (expires_in * 1000)
+  }
+
+  expired (expirationWindowSeconds: number): boolean {
+    return this.expires_at - (Date.now() + expirationWindowSeconds * 1000) <= 0;
+  }
 }

@@ -31,8 +31,8 @@ const server = new McpServer({
   },
 })
 
-export function initializeMCPServer(host: string) {
-  const client = new APIClient(host, '')
+export function initializeMCPServer(host: string, clientID: string, clientSecret: string) {
+  const client = new APIClient(host, clientID, clientSecret)
   marketplaceTools(server, client)
 }
 

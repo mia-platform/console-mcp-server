@@ -29,9 +29,11 @@ program.
   description('start the Mia-Platform Console MCP Server').
   option('-p, --port <port>', 'port to run the server on', '3000').
   option('--stdio', 'run the server locally', false).
-  option('--host', 'Mia-Platform Console host', 'https://console.cloud.mia-platform.eu').
+  option('--host <host>', 'Mia-Platform Console host', 'https://console.cloud.mia-platform.eu').
   action(({ host, port, stdio }) => {
-    initializeMCPServer(host)
+    const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
+    const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
+    initializeMCPServer(host, clientID, clientSecret)
 
     if (stdio) {
       return localServer().catch((error) => {

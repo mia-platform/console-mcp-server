@@ -21,16 +21,6 @@ import { APIClient } from '../lib/client'
 
 const listMarketplacePath = '/api/marketplace/'
 
-function humanizeMarketplaceItem(item: CatalogItem): string {
-  return [
-    `ID: ${item.itemId}`,
-    `Name: ${item.name}`,
-    `Description: ${item.description}`,
-    `Category: ${item.category?.label || ''}`,
-    `Supported By: ${item.supportedBy}`,
-  ].join('\n')
-}
-
 const types = [
   'application',
   'example',
@@ -72,12 +62,11 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
           }
         }
 
-        const items = data.map(humanizeMarketplaceItem).join('\n---\n')
         return {
           content: [
             {
               type: 'text',
-              text: `Marketplace items for company ${tenantId || 'public'}:\n${items}`,
+              text: JSON.stringify(data),
             },
           ],
         }
