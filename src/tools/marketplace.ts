@@ -1,7 +1,7 @@
 // Copyright Mia srl
 // SPDX-License-Identifier: Apache-2.0
 
-// Licensed under the Apache License, Version 2.0 (the "License")
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 
@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { z } from 'zod'
 import { CatalogItem } from '@mia-platform/console-types'
 
@@ -30,6 +31,7 @@ const types = [
   'proxy',
   'sidecar',
   'template',
+  '', // allow empty string to indicate no type to filter
 ] as const
 
 export function marketplaceTools(server: McpServer, client:APIClient) {
@@ -40,7 +42,7 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
       tenantId: z.string().optional(),
       type: z.enum(types).optional()
     },
-    async ({ tenantId, type }) => {
+    async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
         const params = new URLSearchParams({})
         if (tenantId) {
@@ -51,17 +53,6 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
         }
 
         const data = await client.getPaginated<CatalogItem>(listMarketplacePath, params)
-        if (!data || data.length === 0) {
-          return {
-            content: [
-              {
-                type: 'text',
-                text: `No marketplace items found for company ${tenantId || 'public'}`,
-              },
-            ],
-          }
-        }
-
         return {
           content: [
             {

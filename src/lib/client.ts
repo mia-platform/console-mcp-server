@@ -1,14 +1,14 @@
 // Copyright Mia srl
 // SPDX-License-Identifier: Apache-2.0
 
-// Licensed under the Apache License, Version 2.0 (the 'License')
+// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 
 //     http://www.apache.org/licenses/LICENSE-2.0
 
 // Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an 'AS IS' BASIS,
+// distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
@@ -32,10 +32,10 @@ export class APIClient {
   private clientID: string
   private clientSecret: string
 
-  constructor(baseURL: string, clientID: string, clientSecret: string) {
+  constructor(baseURL: string, clientID?: string, clientSecret?: string) {
     this.baseURL = baseURL
-    this.clientID = clientID
-    this.clientSecret = clientSecret
+    this.clientID = clientID || ''
+    this.clientSecret = clientSecret || ''
   }
 
   async get<T>(path: string, params?: URLSearchParams): Promise<T> {
@@ -62,7 +62,8 @@ export class APIClient {
       url.search = params.toString()
 
       const { body, headers } = await this.doRequest(url, 'GET')
-      results.push(...(await body.json() as T[]))
+      const items = await body.json() as T[]
+      results.push(...items)
       const totalPages = headers[API_CONSOLE_TOTAL_PAGES_HEADER_KEY]
       if (totalPages === undefined || parseInt(totalPages as string, 10) <= page) {
         break
