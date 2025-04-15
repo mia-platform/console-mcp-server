@@ -1,12 +1,14 @@
 .devcontainer
 .github
 .git
+.vscode
 build
 coverage
 node_modules
 .c8rc.json
 .dockerignore
 .editorconfig
+.env*
 .gitignore
 .markdownlint.yaml
 .nvmrc
