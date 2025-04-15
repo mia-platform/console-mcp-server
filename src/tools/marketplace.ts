@@ -39,12 +39,12 @@ const types = [
 export function marketplaceTools (server: McpServer, client:APIClient) {
   server.tool(
     'list_marketplace',
-    'List marketplace items for a given company, or the public ones if no company is provided',
+    'List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified',
     {
-      tenantId: z.string().optional(),
-      type: z.enum(types).optional(),
+      tenantId: z.string().optional().describe('the id of the Mia-Platform Console company or tenant to filter'),
+      type: z.enum(types).optional().describe('type of marketplace item to filter, empty string means no filter'),
     },
-    async ({ tenantId, type }): Promise<CallToolResult> => {
+    async ({ tenantId: tenantId, type }): Promise<CallToolResult> => {
       try {
         const params = new URLSearchParams({})
         if (tenantId) {
