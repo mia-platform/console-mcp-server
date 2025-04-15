@@ -13,10 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
-import { z } from 'zod'
 import { CatalogItem } from '@mia-platform/console-types'
+
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+
+import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
 
@@ -34,13 +36,13 @@ const types = [
   '', // allow empty string to indicate no type to filter
 ] as const
 
-export function marketplaceTools(server: McpServer, client:APIClient) {
+export function marketplaceTools (server: McpServer, client:APIClient) {
   server.tool(
     'list_marketplace',
     'List marketplace items for a given company, or the public ones if no company is provided',
     {
       tenantId: z.string().optional(),
-      type: z.enum(types).optional()
+      type: z.enum(types).optional(),
     },
     async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
@@ -72,6 +74,6 @@ export function marketplaceTools(server: McpServer, client:APIClient) {
           ],
         }
       }
-    }
+    },
   )
 }

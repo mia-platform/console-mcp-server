@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { constants } from '@mia-platform/console-types'
-import { request } from 'undici'
 import qs from 'node:querystring'
-import { name, version } from '../../package.json'
+import { request } from 'undici'
 import Dispatcher, { UndiciHeaders } from 'undici/types/dispatcher'
+
+import { constants } from '@mia-platform/console-types'
+
+import { name, version } from '../../package.json'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
 
@@ -26,19 +28,18 @@ const m2mPath = '/api/m2m/oauth/token'
 const EXPIRATION_WINDOW_IN_SECONDS = 300
 
 export class APIClient {
-
   private baseURL: string
   private token: AccessToken | undefined
   private clientID: string
   private clientSecret: string
 
-  constructor(baseURL: string, clientID?: string, clientSecret?: string) {
+  constructor (baseURL: string, clientID?: string, clientSecret?: string) {
     this.baseURL = baseURL
     this.clientID = clientID || ''
     this.clientSecret = clientSecret || ''
   }
 
-  async get<T>(path: string, params?: URLSearchParams): Promise<T> {
+  async get<T> (path: string, params?: URLSearchParams): Promise<T> {
     const url = new URL(path, this.baseURL)
     if (params) {
       url.search = params.toString()
@@ -48,7 +49,7 @@ export class APIClient {
     return await body.json() as T
   }
 
-  async getPaginated<T>(path: string, params?: URLSearchParams, startingPage=1, maxPage = 10): Promise<T[]> {
+  async getPaginated<T> (path: string, params?: URLSearchParams, startingPage = 1, maxPage = 10): Promise<T[]> {
     const url = new URL(path, this.baseURL)
     if (!params) {
       params = new URLSearchParams()
@@ -73,7 +74,7 @@ export class APIClient {
     return results
   }
 
-  private async doRequest(url: URL, method: string): Promise<Dispatcher.ResponseData> {
+  private async doRequest (url: URL, method: string): Promise<Dispatcher.ResponseData> {
     await this.validateToken()
 
     const response = await request(url, {
@@ -90,7 +91,7 @@ export class APIClient {
     return response
   }
 
-  private async validateToken(): Promise<void> {
+  private async validateToken (): Promise<void> {
     if (!this.clientID || !this.clientSecret) {
       return
     }
@@ -103,7 +104,7 @@ export class APIClient {
   }
 }
 
-function headers(token: AccessToken | undefined): UndiciHeaders {
+function headers (token: AccessToken | undefined): UndiciHeaders {
   return {
     'User-Agent': UserAgent,
     Accept: 'application/json',
@@ -112,7 +113,7 @@ function headers(token: AccessToken | undefined): UndiciHeaders {
   }
 }
 
-async function doAuthentication(basePath: string, clientId: string, clientCredentials: string): Promise<AccessToken> {
+async function doAuthentication (basePath: string, clientId: string, clientCredentials: string): Promise<AccessToken> {
   const url = new URL(m2mPath, basePath)
   const { statusCode, body } = await request(url, {
     method: 'POST',
@@ -141,13 +142,13 @@ class AccessToken {
   token_type: string
   private expires_at: number
 
-  constructor(token: string, token_type: string, expires_in: number) {
+  constructor (token: string, token_type: string, expires_in: number) {
     this.access_token = token
     this.token_type = token_type
-    this.expires_at = Date.now() + (expires_in * 1000)
+    this.expires_at = Date.now() + expires_in * 1000
   }
 
   expired (expirationWindowSeconds: number): boolean {
-    return this.expires_at - (Date.now() + expirationWindowSeconds * 1000) <= 0;
+    return this.expires_at - (Date.now() + expirationWindowSeconds * 1000) <= 0
   }
 }

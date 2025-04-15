@@ -13,16 +13,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Command } from 'commander';
-import { localServer, remoteServer, initializeMCPServer } from './mcp.js'
-import { name, description, version } from '../package.json';
+import { Command } from 'commander'
 
-const program = new Command();
+import { description, name, version } from '../package.json'
+import { initializeMCPServer, localServer, remoteServer } from './mcp.js'
+
+const program = new Command()
 
 program.
   name(name).
   description(description).
-  version(version, '-v, --version');
+  version(version, '-v, --version')
 
 program.
   command('start').

@@ -15,6 +15,7 @@
 
 // @ts-check
 import eslint from '@eslint/js'
+import stylisticJs from '@stylistic/eslint-plugin-js'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
@@ -27,9 +28,81 @@ export default tseslint.config(
     ignores: [
       'node_modules/**',
       'build/**',
+      'coverage/**',
     ],
   },
   eslint.configs.recommended,
+  stylisticJs.configs.all,
   tseslint.configs.recommended,
   tseslint.configs.stylistic,
+  {
+    rules: {
+      'sort-imports': [
+        'error',
+        {
+          ignoreCase: true,
+          ignoreDeclarationSort: false,
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: [ 'none', 'all', 'single', 'multiple' ],
+          allowSeparatedGroups: true,
+        },
+      ],
+      '@stylistic/js/multiline-comment-style': 'off',
+      '@stylistic/js/lines-between-class-members': 'off',
+      '@stylistic/js/newline-per-chained-call': 'off',
+      '@stylistic/js/indent': [
+        'error',
+        2,
+      ],
+      '@stylistic/js/quotes': [
+        'error',
+        'single',
+        {
+          allowTemplateLiterals: true,
+        },
+      ],
+      '@stylistic/js/quote-props': [
+        'error',
+        'as-needed',
+      ],
+      '@stylistic/js/semi': [
+        'error',
+        'never',
+      ],
+      '@stylistic/js/comma-dangle': [
+        'error',
+        'always-multiline',
+      ],
+      '@stylistic/js/function-call-argument-newline': [
+        'error',
+        'consistent',
+      ],
+      '@stylistic/js/padded-blocks': [
+        'error',
+        'never',
+      ],
+      '@stylistic/js/object-curly-spacing': [
+        'error',
+        'always',
+      ],
+      '@stylistic/js/array-bracket-spacing': [
+        'error',
+        'always',
+      ],
+      '@stylistic/js/array-bracket-newline': [
+        'error',
+        'consistent',
+      ],
+      '@stylistic/js/array-element-newline': [
+        'error',
+        'consistent',
+      ],
+      '@stylistic/js/object-property-newline': [
+        'error',
+        {
+          allowAllPropertiesOnSameLine: true,
+        },
+      ],
+    },
+  },
 )

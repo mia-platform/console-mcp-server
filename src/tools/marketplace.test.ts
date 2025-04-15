@@ -13,24 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { test, suite, beforeEach } from 'node:test'
+import { beforeEach, suite, test } from 'node:test'
 import { MockAgent, setGlobalDispatcher } from 'undici'
+
 import { Client } from '@modelcontextprotocol/sdk/client/index'
-import { ListToolsResultSchema, CallToolResultSchema } from '@modelcontextprotocol/sdk/types'
+import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types'
 
 import { APIClient } from '../lib/client'
 import { marketplaceTools } from './marketplace'
-import { TestMCPServer }  from './utils.test'
+import { TestMCPServer } from './utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
 const publicElements = [
-  { id: 1, name: 'item', tenant: 'public'},
-  { id: 2, name: 'item', tenant: 'public'},
-  { id: 3, name: 'item', tenant: 'public'},
+  { id: 1, name: 'item', tenant: 'public' },
+  { id: 2, name: 'item', tenant: 'public' },
+  { id: 3, name: 'item', tenant: 'public' },
 ]
 
-const tenantElement = { id: 4, name: 'item', tenant: 'tenantID'}
+const tenantElement = { id: 4, name: 'item', tenant: 'tenantID' }
 
 suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
@@ -41,10 +42,10 @@ suite('setup marketplace tools', () => {
 
     const result = await client.request(
       {
-        method: "tools/list",
+        method: 'tools/list',
       },
       ListToolsResultSchema,
-    );
+    )
 
     t.assert.equal(result.tools.length, 1)
     t.assert.equal(result.tools[0].name, 'list_marketplace')
@@ -53,7 +54,7 @@ suite('setup marketplace tools', () => {
 
 suite('marketplace list tool', () => {
   let client: Client
-  beforeEach(async() => {
+  beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
       marketplaceTools(server, apiClient)
@@ -71,7 +72,7 @@ suite('marketplace list tool', () => {
       },
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     }).reply(200, publicElements)
 
@@ -85,9 +86,9 @@ suite('marketplace list tool', () => {
       },
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
-    }).reply(200, [...publicElements, tenantElement])
+    }).reply(200, [ ...publicElements, tenantElement ])
 
     agent.get(mockedEndpoint).intercept({
       path: '/api/marketplace/',
@@ -100,18 +101,18 @@ suite('marketplace list tool', () => {
       },
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
-    }).reply(500, {message: 'error message'})
+    }).reply(500, { message: 'error message' })
   })
 
   test('should return public elements', async (t) => {
     const result = await client.request({
-      method: "tools/call",
-        params: {
-          name: "list_marketplace",
-          arguments: {},
-        },
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace',
+        arguments: {},
+      },
     }, CallToolResultSchema)
 
     t.assert.deepEqual(result.content, [
@@ -124,18 +125,18 @@ suite('marketplace list tool', () => {
 
   test('should return public elements plus tenant ones', async (t) => {
     const result = await client.request({
-      method: "tools/call",
-        params: {
-          name: "list_marketplace",
-          arguments: {
-            tenantId: 'tenantID',
-          },
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace',
+        arguments: {
+          tenantId: 'tenantID',
         },
+      },
     }, CallToolResultSchema)
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify([...publicElements, tenantElement]),
+        text: JSON.stringify([ ...publicElements, tenantElement ]),
         type: 'text',
       },
     ])
@@ -143,14 +144,14 @@ suite('marketplace list tool', () => {
 
   test('should return error message if request return error', async (t) => {
     const result = await client.request({
-      method: "tools/call",
-        params: {
-          name: "list_marketplace",
-          arguments: {
-            tenantId: 'error',
-            type: 'example',
-          },
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace',
+        arguments: {
+          tenantId: 'error',
+          type: 'example',
         },
+      },
     }, CallToolResultSchema)
 
     t.assert.deepEqual(result.content, [

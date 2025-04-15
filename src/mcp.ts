@@ -16,9 +16,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
-import { name, description, version } from '../package.json'
-import { marketplaceTools } from './tools/marketplace'
 import { APIClient } from './lib/client'
+import { marketplaceTools } from './tools/marketplace'
+import { description, name, version } from '../package.json'
 
 // Create server instance
 const server = new McpServer({
@@ -32,17 +32,17 @@ const server = new McpServer({
   },
 })
 
-export function initializeMCPServer(host: string, clientID: string, clientSecret: string) {
+export function initializeMCPServer (host: string, clientID: string, clientSecret: string) {
   const client = new APIClient(host, clientID, clientSecret)
   marketplaceTools(server, client)
 }
 
-export async function localServer() {
+export async function localServer () {
   const transport = new StdioServerTransport()
   await server.connect(transport)
 }
 
-export async function remoteServer(port: string) {
+export async function remoteServer (port: string) {
   console.error('start runner on port', port)
   console.error('TODO: implement remote server')
 }

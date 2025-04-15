@@ -13,13 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 export type ToolsBuilder = (server: McpServer) => void
 
-export async function TestMCPServer(toolsBuilder: ToolsBuilder): Promise<Client> {
+export async function TestMCPServer (toolsBuilder: ToolsBuilder): Promise<Client> {
   const testServer = new McpServer({
     name: 'test server',
     version: '1.0',
@@ -32,7 +32,7 @@ export async function TestMCPServer(toolsBuilder: ToolsBuilder): Promise<Client>
 
   toolsBuilder(testServer)
 
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+  const [ clientTransport, serverTransport ] = InMemoryTransport.createLinkedPair()
   await Promise.all([
     testClient.connect(clientTransport),
     testServer.server.connect(serverTransport),
