@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Fastify from 'fastify'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
 import { APIClient } from './lib/client'
 import { marketplaceTools } from './tools/marketplace'
+import { sseServer } from './lib/serversse'
 import { description, name, version } from '../package.json'
 
 // Create server instance
@@ -43,6 +45,18 @@ export async function localServer () {
 }
 
 export async function remoteServer (port: string) {
-  console.error('start runner on port', port)
-  console.error('TODO: implement remote server')
+  const fastify = Fastify({
+    logger: true,
+  })
+
+  fastify.register(sseServer, {
+    server,
+  })
+
+  await fastify.listen({ port: parseInt(port, 10) }, function (err) {
+    if (err) {
+      fastify.log.error(err)
+      process.exit(1)
+    }
+  })
 }

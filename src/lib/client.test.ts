@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
 import { beforeEach, suite, test } from 'node:test'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
@@ -38,7 +37,7 @@ suite('http client test suite without authentication', () => {
     setGlobalDispatcher(agent)
   })
 
-  test('get request', async () => {
+  test('get request', async (t) => {
     const response: TestResponse = {
       message: 'success',
     }
@@ -56,10 +55,10 @@ suite('http client test suite without authentication', () => {
     }).reply(200, response)
 
     const result = await client.get<TestResponse>(testPath, new URLSearchParams({ test: 'testValue' }))
-    assert.deepEqual(result, response)
+    t.assert.deepEqual(result, response)
   })
 
-  test('fail request', async () => {
+  test('fail request', async (t) => {
     agent.get(mockedEndpoint).intercept({
       path: testPath,
       method: 'GET',
@@ -75,13 +74,13 @@ suite('http client test suite without authentication', () => {
       message: 'custom error message',
     })
 
-    await assert.rejects(
+    await t.assert.rejects(
       client.get(testPath, new URLSearchParams({ test: 'testValue' })),
       Error('custom error message'),
     )
   })
 
-  test('get list request', async () => {
+  test('get list request', async (t) => {
     agent.get(mockedEndpoint).intercept({
       path: testPath,
       method: 'GET',
@@ -120,7 +119,7 @@ suite('http client test suite without authentication', () => {
     })
 
     const result = await client.getPaginated<TestResponse>(testPath, new URLSearchParams({ test: 'testValue' }))
-    assert.deepEqual(result, [
+    t.assert.deepEqual(result, [
       { message: 'first' },
       { message: 'second' },
     ])
@@ -138,7 +137,7 @@ suite('http client test suite with authentication', () => {
     setGlobalDispatcher(agent)
   })
 
-  test('get request', async () => {
+  test('get request', async (t) => {
     const client = new APIClient(mockedEndpoint, clientID, clientSecret)
     const response: TestResponse = {
       message: 'success',
@@ -173,10 +172,10 @@ suite('http client test suite with authentication', () => {
     }).reply(200, response)
 
     const result = await client.get<TestResponse>(testPath, new URLSearchParams({ test: 'testValue' }))
-    assert.deepEqual(result, response)
+    t.assert.deepEqual(result, response)
   })
 
-  test('failed authentication', async () => {
+  test('failed authentication', async (t) => {
     const client = new APIClient(mockedEndpoint, clientID, clientSecret)
     agent.get(mockedEndpoint).intercept({
       path: '/api/m2m/oauth/token',
@@ -190,7 +189,7 @@ suite('http client test suite with authentication', () => {
       message: 'failed authentication',
     })
 
-    await assert.rejects(
+    await t.assert.rejects(
       client.get(testPath, new URLSearchParams({ test: 'testValue' })),
       Error('failed authentication'),
     )

@@ -13,11 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CatalogItem } from '@mia-platform/console-types'
-
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { CatalogItem } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
@@ -44,7 +42,7 @@ export function marketplaceTools (server: McpServer, client:APIClient) {
       tenantId: z.string().optional().describe('the id of the Mia-Platform Console company or tenant to filter'),
       type: z.enum(types).optional().describe('type of marketplace item to filter, empty string means no filter'),
     },
-    async ({ tenantId: tenantId, type }): Promise<CallToolResult> => {
+    async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
         const params = new URLSearchParams({})
         if (tenantId) {

@@ -16,7 +16,7 @@
 import { Command } from 'commander'
 
 import { description, name, version } from '../package.json'
-import { initializeMCPServer, localServer, remoteServer } from './mcp.js'
+import { initializeMCPServer, localServer, remoteServer } from './mcp'
 
 const program = new Command()
 
