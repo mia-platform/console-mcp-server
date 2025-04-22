@@ -146,11 +146,11 @@ suite('http client test suite without authentication', () => {
 })
 
 suite('http client test suite with authentication', () => {
-  const clientID = 'clientId'
-  const clientSecret = 'clientSecret'
-  const expiringSecret = 'expiringSecret'
-  const failAuthenticationSecret = 'wrongSecret'
-  const accessToken = 'mockedAccessToken'
+  const clientID = 'SampleClientId'
+  const clientSecret = 'SampleClientSecret'
+  const expiringSecret = 'SampleExpiringSecret'
+  const failAuthenticationSecret = 'SampleWrongSecret'
+  const accessToken = 'SampleAccessToken'
 
   let agent: MockAgent
   beforeEach(() => {
@@ -161,7 +161,7 @@ suite('http client test suite with authentication', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic Y2xpZW50SWQ6Y2xpZW50U2VjcmV0',
+        Authorization: `Basic ${Buffer.from(`${clientID}:${clientSecret}`).toString('base64')}`,
         'User-Agent': `${name}/${version}`,
       },
     }).reply(200, {
@@ -174,7 +174,7 @@ suite('http client test suite with authentication', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic Y2xpZW50SWQ6d3JvbmdTZWNyZXQ=',
+        Authorization: `Basic ${Buffer.from(`${clientID}:${failAuthenticationSecret}`).toString('base64')}`,
         'User-Agent': `${name}/${version}`,
       },
     }).reply(401, {
@@ -185,7 +185,7 @@ suite('http client test suite with authentication', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic Y2xpZW50SWQ6ZXhwaXJpbmdTZWNyZXQ=',
+        Authorization: `Basic ${Buffer.from(`${clientID}:${expiringSecret}`).toString('base64')}`,
         'User-Agent': `${name}/${version}`,
       },
     }).reply(200, {
