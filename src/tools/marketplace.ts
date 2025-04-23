@@ -34,7 +34,7 @@ const types = [
   '', // allow empty string to indicate no type to filter
 ] as const
 
-export function marketplaceTools (server: McpServer, client:APIClient) {
+export function addMarketplaceCapabilities (server: McpServer, client:APIClient) {
   server.tool(
     'list_marketplace',
     'List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified',

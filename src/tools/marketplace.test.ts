@@ -16,11 +16,11 @@
 import { beforeEach, suite, test } from 'node:test'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
-import { Client } from '@modelcontextprotocol/sdk/client/index'
-import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
+import { addMarketplaceCapabilities } from './marketplace'
 import { APIClient } from '../lib/client'
-import { marketplaceTools } from './marketplace'
 import { TestMCPServer } from './utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
@@ -37,7 +37,7 @@ suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      marketplaceTools(server, apiClient)
+      addMarketplaceCapabilities(server, apiClient)
     })
 
     const result = await client.request(
@@ -57,7 +57,7 @@ suite('marketplace list tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      marketplaceTools(server, apiClient)
+      addMarketplaceCapabilities(server, apiClient)
     })
 
     const agent = new MockAgent()

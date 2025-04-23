@@ -15,8 +15,10 @@
 
 import { Command } from 'commander'
 
+import Fastify from 'fastify'
+import { httpServer } from './server/httpserver'
+import { runStdioServer } from './server/stdio'
 import { description, name, version } from '../package.json'
-import { initializeMCPServer, localServer, remoteServer } from './mcp'
 
 const program = new Command()
 
@@ -34,18 +36,28 @@ program.
   action(({ host, stdio, port }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
-    initializeMCPServer(host, clientID, clientSecret)
 
     if (stdio) {
-      return localServer().catch((error) => {
+      return runStdioServer(host, clientID, clientSecret).catch((error) => {
         console.error('Fatal error:', error)
         process.exit(1)
       })
     }
 
-    return remoteServer(port).catch((error) => {
-      console.error('Fatal error:', error)
-      process.exit(1)
+    const fastify = Fastify({
+      logger: true,
+    })
+    fastify.register(httpServer, {
+      host,
+      clientID,
+      clientSecret,
+    })
+
+    return fastify.listen({ port: parseInt(port, 10) }, function (err) {
+      if (err) {
+        fastify.log.error(err)
+        process.exit(1)
+      }
     })
   })
 

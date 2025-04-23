@@ -1,0 +1,82 @@
+// Copyright Mia srl
+// SPDX-License-Identifier: Apache-2.0
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { FastifyInstance } from 'fastify'
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
+
+import { getMcpServer } from './server'
+
+export interface HTTPServerOptions {
+  host: string
+  clientID: string
+  clientSecret: string
+}
+
+export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
+  const { host, clientID, clientSecret } = opts
+
+  fastify.post('/mcp', async (request, reply) => {
+    try {
+      const server = getMcpServer(host, clientID, clientSecret)
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+      })
+
+      await server.connect(transport)
+      await transport.handleRequest(request.raw, reply.raw, request.body)
+
+      reply.raw.on('close', () => {
+        transport.close()
+        server.close()
+      })
+    } catch (error) {
+      console.error('Error handling MCP request:', error)
+      reply.code(500)
+      reply.send({
+        jsonrpc: JSONRPC_VERSION,
+        error: {
+          code: ErrorCode.InternalError,
+          message: 'Internal server error',
+        },
+        id: null,
+      })
+    }
+  })
+
+  fastify.get('/mcp', async (_, reply) => {
+    reply.code(405)
+    reply.send({
+      jsonrpc: JSONRPC_VERSION,
+      error: {
+        code: ErrorCode.ConnectionClosed,
+        message: 'Method not allowed.',
+      },
+      id: null,
+    })
+  })
+
+  fastify.delete('/mcp', async (_, reply) => {
+    reply.code(405)
+    reply.send({
+      jsonrpc: JSONRPC_VERSION,
+      error: {
+        code: ErrorCode.ConnectionClosed,
+        message: 'Method not allowed.',
+      },
+      id: null,
+    })
+  })
+}
