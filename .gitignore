@@ -1,6 +1,6 @@
 # Start Custom Gitignore
 
-build
+mcp-server
 
 # End Custom Gitignore
 

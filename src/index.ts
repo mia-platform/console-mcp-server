@@ -16,7 +16,7 @@
 import { Command } from 'commander'
 
 import { description, name, version } from '../package.json'
-import { initializeMCPServer, localServer } from './mcp'
+import { initializeMCPServer, localServer, remoteServer } from './mcp'
 
 const program = new Command()
 
@@ -28,25 +28,25 @@ program.
 program.
   command('start').
   description('start the Mia-Platform Console MCP Server').
-  // option('-p, --port <port>', 'port to run the server on', '3000').
-  // option('--stdio', 'run the server locally', false).
+  option('-p, --port <port>', 'port to run the server on', '3000').
+  option('--stdio', 'run the server locally', false).
   option('--host <host>', 'Mia-Platform Console host', 'https://console.cloud.mia-platform.eu').
-  action(({ host }) => {
+  action(({ host, stdio, port }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
     initializeMCPServer(host, clientID, clientSecret)
 
-    // if (stdio) {
-    return localServer().catch((error) => {
+    if (stdio) {
+      return localServer().catch((error) => {
+        console.error('Fatal error:', error)
+        process.exit(1)
+      })
+    }
+
+    return remoteServer(port).catch((error) => {
       console.error('Fatal error:', error)
       process.exit(1)
     })
-    // }
-
-    // return remoteServer(port).catch((error) => {
-    //   console.error('Fatal error:', error)
-    //   process.exit(1)
-    // })
   })
 
 program.parse(process.argv)

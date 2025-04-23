@@ -58,9 +58,9 @@ Once you have done it, toggle Agent mode (located by the Copilot Chat text input
           "-e",
           "MIA_PLATFORM_CLIENT_SECRET",
           "ghcr.io/mia-platform/console-mcp-server",
-          "node",
-          "build/index.js",
+          "mcp-server",
           "start",
+          "--stdio",
           "--host=https://console.cloud.mia-platform.eu"
         ],
         "env": {
@@ -91,9 +91,9 @@ More about using MCP server tools in [VS Code's agent mode documentation].
         "-e",
         "MIA_PLATFORM_CLIENT_SECRET",
         "ghcr.io/mia-platform/console-mcp-server",
-        "node",
-        "build/index.js",
+        "mcp-server",
         "start",
+        "--stdio",
         "--host=https://console.cloud.mia-platform.eu"
       ],
       "env": {
@@ -125,8 +125,9 @@ Once these steps are completed you can setup the MCP server using the `node` com
       "github": {
         "command": "node",
         "args": [
-          "/path/to/the/project/build/index.js",
+          "/path/to/the/project/mcp-server",
           "start",
+          "--stdio",
           "--host=https://console.cloud.mia-platform.eu"
         ],
         "env": {

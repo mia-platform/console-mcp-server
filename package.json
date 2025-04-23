@@ -2,16 +2,17 @@
   "name": "console-mcp-server",
   "version": "1.0.0",
   "description": "Mia-Platform Console MCP Server",
-  "main": "build/index.js",
+  "main": "mcp-server/index.js",
   "files": [
-    "build"
+    "mcp-server"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf mcp-server && tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
-    "server:test": "npm run build && node build/index.js start",
-    "local:test": "npm run build && npx @modelcontextprotocol/inspector -e MIA_PLATFORM_CLIENT_ID=${MIA_PLATFORM_CLIENT_ID} -e MIA_PLATFORM_CLIENT_SECRET=${MIA_PLATFORM_CLIENT_SECRET} -- node build/index.js start --stdio",
+    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.9.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLATFORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio",
+    "start": "npm run build && node mcp-server start",
+    "start:stdio": "npm run start -- --stdio",
     "test": "node --test --import tsx src/**/*.test.ts"
   },
   "repository": {
@@ -26,7 +27,7 @@
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
     "@mia-platform/console-types": "^0.37.0",
-    "@modelcontextprotocol/sdk": "^1.10.1",
+    "@modelcontextprotocol/sdk": "^1.10.2",
     "commander": "^13.1.0",
     "fastify": "^5.3.2",
     "undici": "^7.8.0",
@@ -38,6 +39,7 @@
     "@types/node": "^22.14.1",
     "c8": "^10.1.3",
     "eslint": "^9.25.1",
+    "rimraf": "^6.0.1",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.0"
