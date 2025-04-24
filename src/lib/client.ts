@@ -126,6 +126,7 @@ function headers (token: AccessToken | undefined, headers: Record<string, unknow
 
 async function doAuthentication (basePath: string, clientId: string, clientCredentials: string): Promise<AccessToken> {
   const url = new URL(m2mPath, basePath)
+
   const { statusCode, body } = await request(url, {
     method: 'POST',
     headers: {

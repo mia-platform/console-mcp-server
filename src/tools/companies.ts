@@ -15,10 +15,12 @@
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
 
 const listCompaniesPath = '/api/backend/tenants/'
+const listTenantIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
 
 export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -43,6 +45,43 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
             {
               type: 'text',
               text: `Error fetching companies: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'list_tenant_iam',
+    'List IAM user, groups and or service account for a company or tenant',
+    {
+      tenantId: z.string().describe('The company or tenant id'),
+      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe('Filter the IAM entities by type'),
+    },
+    async ({ tenantId, identityType }): Promise<CallToolResult> => {
+      const params = new URLSearchParams()
+      if (identityType) {
+        params.set('identityType', identityType)
+      }
+
+      try {
+        const data = await client.getPaginated(listTenantIAMPathTemplate(tenantId), {}, params, 0)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching IAM for company ${tenantId}: ${err.message}`,
             },
           ],
         }

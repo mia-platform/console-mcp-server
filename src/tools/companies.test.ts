@@ -30,6 +30,15 @@ const companies = [
   { id: 2, name: 'name2' },
 ]
 
+const groupIamList = [
+  { name: 'name', type: 'group' },
+]
+
+const iamList = [
+  { name: 'name', type: 'type' },
+  ...groupIamList,
+]
+
 suite('setup companies tools', () => {
   test('should setup companies tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
@@ -44,7 +53,7 @@ suite('setup companies tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 1)
+    t.assert.equal(result.tools.length, 2)
     t.assert.equal(result.tools[0].name, 'list_tenants')
   })
 })
@@ -117,6 +126,117 @@ suite('companies list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching companies: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('iam list tool', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addCompaniesCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/tenantID/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, iamList)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/tenantID/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+        identityType: 'group',
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, groupIamList)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/error/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return complete iam list', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'tenantID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(iamList),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return filtered iam list', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'tenantID',
+          identityType: 'group',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(groupIamList),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching IAM for company error: error message',
         type: 'text',
       },
     ])
