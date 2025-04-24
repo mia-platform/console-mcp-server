@@ -15,7 +15,9 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
+import { addCompaniesCapabilities } from '../tools/companies'
 import { addMarketplaceCapabilities } from '../tools/marketplace'
+import { addProjectsCapabilities } from '../tools/projects'
 import { APIClient } from '../lib/client'
 import { description, name, version } from '../../package.json'
 
@@ -34,6 +36,8 @@ export function getMcpServer (host: string, clientID: string, clientSecret: stri
   })
 
   addMarketplaceCapabilities(server, client)
+  addProjectsCapabilities(server, client)
+  addCompaniesCapabilities(server, client)
 
   return server
 }
