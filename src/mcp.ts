@@ -19,6 +19,11 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
 import { APIClient } from './lib/client'
 import { marketplaceTools } from './tools/marketplace'
+import { userTools } from './tools/user'
+import { projectsTools } from './tools/projects'
+import { consoleSystemTools } from './tools/console-system'
+import { environmentTools } from './tools/environment'
+import { auditLogTools } from './tools/audit-log'
 import { sseServer } from './lib/serversse'
 import { description, name, version } from '../package.json'
 
@@ -36,7 +41,14 @@ const server = new McpServer({
 
 export function initializeMCPServer (host: string, clientID: string, clientSecret: string) {
   const client = new APIClient(host, clientID, clientSecret)
+  
+  // Register all tools
   marketplaceTools(server, client)
+  userTools(server, client)
+  projectsTools(server, client)
+  consoleSystemTools(server, client)
+  environmentTools(server, client)
+  auditLogTools(server, client)
 }
 
 export async function localServer () {

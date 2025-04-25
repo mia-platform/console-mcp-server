@@ -39,14 +39,24 @@ export class APIClient {
     this.clientSecret = clientSecret || ''
   }
 
-  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams): Promise<T> {
+  async get<T> (
+    path: string, 
+    additionalHeaders: Record<string, unknown> = {}, 
+    params?: URLSearchParams, 
+    responseType: 'json' | 'text' = 'json'
+  ): Promise<T> {
     const url = new URL(path, this.baseURL)
     if (params) {
       url.search = params.toString()
     }
 
     const { body } = await this.doRequest(url, 'GET', additionalHeaders)
-    return await body.json() as T
+    
+    if (responseType === 'text') {
+      return await body.text() as unknown as T
+    } else {
+      return await body.json() as T
+    }
   }
 
   async getPaginated<T> (

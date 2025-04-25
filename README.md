@@ -8,6 +8,31 @@
 The Mia-Platform Console MCP Server is a [Model Context Protocol (MCP)] server that provides seamless integration
 with Mia-Platform Console APIs, enabling advanced automation and interaction capabilities for developers and tools.
 
+### Available MCP Tools
+
+The server provides the following tools to interact with Mia-Platform Console APIs:
+
+1. **User Tools**
+   - `get_user_info` - Get information about the currently authenticated user
+   - `get_user_companies` - Get the list of companies the user is associated with
+
+2. **Project Tools**
+   - `get-projects` - List all projects accessible to the authenticated user
+   - `project-status` - Get the aggregated status for each environment within a specified project
+   - `get-project-revisions` - Get list of available Git branches/revisions for a project
+   - `get-project-versions` - Get list of tagged versions from a project's repository
+   - `describe-environment-pods` - Get detailed pod descriptions for a project environment
+   - `get-container-logs` - Get logs for a specific container within a pod
+
+3. **Console System Tools**
+   - `get-extensions` - Get list of active UI extensions for the console
+   - `get-roles` - Get definitions of all available user roles
+   - `get-permissions` - Get definitions of all available permissions
+   - `get-assistant-chat-commands` - Get available chat commands for Mia-Assistant
+   - `environment-status` - Get status for a specific environment
+   - `get-audit-logs` - Get audit logs
+   - `get-marketplace` - Get marketplace items
+
 ## Prerequisites
 
 1. To run the server in a container, you will need to have [Docker] installed.

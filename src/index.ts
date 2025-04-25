@@ -28,8 +28,8 @@ program.
 program.
   command('start').
   description('start the Mia-Platform Console MCP Server').
-  // option('-p, --port <port>', 'port to run the server on', '3000').
-  // option('--stdio', 'run the server locally', false).
+  option('-p, --port <port>', 'port to run the server on', '3000').
+  option('--stdio', 'run the server locally', false).
   option('--host <host>', 'Mia-Platform Console host', 'https://console.cloud.mia-platform.eu').
   action(({ host }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
