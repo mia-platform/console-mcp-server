@@ -344,14 +344,25 @@ export function projectsTools(server: McpServer, client: APIClient) {
       try {
 
         const projectId = name.toLowerCase().replace(/\s+/g, '-')
+        const gitRepo = `${configurationGitPath}/${projectId}/configuration`
 
         // Define namespace for each environment and replace %projectId% placeholders
         // TODO use the template format from the project blueprint or create a better API
         // that creates the namespace passing the project blueprint id
         environments = environments.map(env => {
-          const namespace = env.cluster?.namespace?.replace(/%projectId%/g, projectId) || 
+          // Safely replace %projectId% placeholders in namespace
+          let namespace = `${projectId}-${env.envId.toLowerCase()}` // default
+          // If a namespace already exists, replace any %projectId% placeholders
+          // Otherwise, use the default namespace format
+          namespace = env.cluster?.namespace ? 
+            env.cluster.namespace.replace(/%projectId%/g, projectId) : 
             `${projectId}-${env.envId.toLowerCase()}`
-          const hostname = env.cluster?.hostname?.replace(/%projectId%/g, projectId) || undefined
+          
+            // Always replace %projectId% placeholders in hostname if it exists
+            let hostname = env.cluster?.hostname
+            if (typeof hostname === 'string') {
+              hostname = hostname.replace(/%projectId%/g, projectId)
+            }
           
           return {
             ...env,
@@ -362,6 +373,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
             }
           }
         })
+        
 
         // Construct the request payload
         const projectData: Record<string, unknown> = {
@@ -372,11 +384,13 @@ export function projectsTools(server: McpServer, client: APIClient) {
           tenantId: tenantId,
           environments: environments || [],
           enabledServices: enabledServices || {},
-          configurationGitPath: configurationGitPath + '/configuration',
+          configurationGitPath: gitRepo,
           templateId: templateId || '',
           visibility: 'internal',
           providerId: providerId || '',
         }
+
+        console.log('Project Data:', projectData)
         
         // Make the POST request
         const data = await client.post<Project>(projectsPath, projectData)
