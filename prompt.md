@@ -549,7 +549,7 @@ To implement a new API tool:
 
 # Example of prompts after the first set of tools
 
-implement a new tool called get-project-blueprint to retrive the project templates, the available environments, the configurationGitPah
+implement a new tool called <the tool name> to retrive the project templates, the available environments, the configurationGitPah
 
 use the same approach of get-projects
 
@@ -558,7 +558,7 @@ the api request and the response is the following, parse the response in formatt
 # Raw Curl
 -------------------------------------
 
-curl for creating a project
+## Create a Project
 
 Get Provider List
 curl 'https://demo.console.gcp.mia-platform.eu/api/backend/tenants/b933f1ef-5b8e-4adf-a346-24a3b03d13e8/providers/' \
@@ -1897,103 +1897,9 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/' \
 ```
 
 ----------------------------
-Create microservice
-curl 'https://demo.console.gcp.mia-platform.eu/api/backend/configuration-management/projects/680cacfc25e7a18172e9c11d/microservices/draft' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/design/environments/DEV/config/services/custom/create?resourceId=67a4ed58d38aa6c26d28026e&resourceItemId=node-js-helloworld-microservice-example&resourceTenantId=mia-platform' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
-  --data-raw '{"name":"nodejs-16-helloworld-microservice-example","type":"custom","annotations":[],"labels":[],"environmentVariables":[]}'
-
-  ```json
-  {
-  "annotations": [
-    {
-      "name": "mia-platform.eu/version",
-      "value": "This will contain the platform version",
-      "description": "Version of Mia-Platform used by the project",
-      "readOnly": true
-    },
-    {
-      "name": "fluentbit.io/parser",
-      "value": "This will depend on your log parser",
-      "description": "Pino parser annotation for Fluent Bit",
-      "readOnly": true
-    }
-  ],
-  "labels": [
-    {
-      "name": "app",
-      "value": "nodejs-16-helloworld-microservice-example",
-      "description": "Name of the microservice, in the service selector",
-      "readOnly": true
-    },
-    {
-      "name": "app.kubernetes.io/name",
-      "value": "nodejs-16-helloworld-microservice-example",
-      "description": "Name of the microservice",
-      "readOnly": true
-    },
-    {
-      "name": "app.kubernetes.io/version",
-      "value": "This will depend on your Docker Image tag",
-      "description": "Tag of the Docker image",
-      "readOnly": true
-    },
-    {
-      "name": "app.kubernetes.io/component",
-      "value": "custom",
-      "description": "Microservice kind, for the Console",
-      "readOnly": true
-    },
-    {
-      "name": "app.kubernetes.io/part-of",
-      "value": "test-project-giulio",
-      "description": "Project that own the microservice",
-      "readOnly": true
-    },
-    {
-      "name": "app.kubernetes.io/managed-by",
-      "value": "mia-platform",
-      "description": "Identify who manage the service",
-      "readOnly": true
-    },
-    {
-      "name": "mia-platform.eu/stage",
-      "value": "{{STAGE_TO_DEPLOY}}",
-      "description": "Environment used for the deploy",
-      "readOnly": true
-    },
-    {
-      "name": "mia-platform.eu/tenant",
-      "value": "b933f1ef-5b8e-4adf-a346-24a3b03d13e8",
-      "description": "Tenant owner of the project",
-      "readOnly": true
-    },
-    {
-      "name": "mia-platform.eu/log-type",
-      "value": "This will depend on your log parser",
-      "description": "Format of logs for the microservice",
-      "readOnly": true
-    }
-  ],
-  "environmentVariables": []
-}
-```
+## Create a Microservice
 
 curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7a18172e9c11d/service' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/design/environments/DEV/config/services/custom/create?resourceId=67a4ed58d38aa6c26d28026e&resourceItemId=node-js-helloworld-microservice-example&resourceTenantId=mia-platform' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
   --data-raw '{"serviceName":"nodejs-16-helloworld-microservice-example","serviceDescription":"Example of a simple Node.js 16 application. \nIt contains example of tests too.","imageName":"test-project-giulio/nodejs-16-helloworld-microservice-example","repoName":"nodejs-16-helloworld-microservice-example","groupName":"clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services","templateId":"67a4ed58d38aa6c26d28026e","pipeline":"gitlab-ci","defaultConfigMaps":[],"resourceName":"nodejs-16-helloworld-microservice-example","containerRegistryId":"cd6ae8c5-feb0-4e5c-beec-39cf8290d3d7"}'
 
   ```json
@@ -2018,14 +1924,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7
   ```
 
 
-  curl 'https://demo.console.gcp.mia-platform.eu/api/backend/marketplace/tenants/mia-platform/resources/node-js-helloworld-microservice-example/versions/1.0.0' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/design/environments/DEV/config/services/custom/nodejs-16-helloworld-microservice-example/' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0'
+  curl 'https://demo.console.gcp.mia-platform.eu/api/backend/marketplace/tenants/mia-platform/resources/node-js-helloworld-microservice-example/versions/1.0.0' 
 
   ```json
   {
@@ -2091,14 +1990,6 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7
 ```
 
 curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9c11d/environments/DEV/configuration' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/design/environments/DEV/config/services/custom/nodejs-16-helloworld-microservice-example/' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
   --data-raw $'{"title":"change: serviceAccounts: nodejs-16-helloworld-microservic...","deletedElements":{},"fastDataConfig":{"systems":{},"castFunctions":{"defaultIdentity":{"castFunctionId":"defaultIdentity","name":"defaultIdentity","dataType":"all","casting":"module.exports = function castIdentity (value, fieldName, logger) {\\n  return value\\n}","type":"default"},"defaultCastToString":{"castFunctionId":"defaultCastToString","name":"defaultCastToString","dataType":"string","casting":"module.exports = function castToString (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  if (typeof value === \'object\') {return JSON.stringify(value)}\\n  return String(value)\\n}\\n","type":"default"},"defaultCastToInteger":{"castFunctionId":"defaultCastToInteger","name":"defaultCastToInteger","dataType":"number","casting":"module.exports = function castToInt (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const number = Number(value)\\n  if (Number.isNaN(number)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return parseInt(number, 10)\\n}\\n","type":"default"},"defaultCastToFloat":{"castFunctionId":"defaultCastToFloat","name":"defaultCastToFloat","dataType":"number","casting":"module.exports = function castToFloat (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const number = Number(value)\\n  if (Number.isNaN(number)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return number\\n}\\n","type":"default"},"defaultCastUnitTimestampToISOString":{"castFunctionId":"defaultCastUnitTimestampToISOString","name":"defaultCastUnitTimestampToISOString","dataType":"string","casting":"module.exports = function castUnitTimestampToISOString (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const date = new Date(value)\\n  if (date.toString() \u0021== \'Invalid Date\') {return date.toISOString()}\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}\\n","type":"default"},"defaultCastStringToBoolean":{"castFunctionId":"defaultCastStringToBoolean","name":"defaultCastStringToBoolean","dataType":"boolean","casting":"module.exports = function castStringToBoolean (value, fieldName, logger) {\\n  if (value === \'false\') {return false}\\n  if (value === \'true\') {return true}\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}\\n","type":"default"},"defaultCastToDate":{"castFunctionId":"defaultCastToDate","name":"defaultCastToDate","dataType":"Date","casting":"module.exports = function castToDate (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  const date = new Date(value)\\n  if (date.toString() \u0021== \'Invalid Date\') {\\n    return date\\n  }\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}","type":"default"},"defaultCastToObject":{"castFunctionId":"defaultCastToObject","name":"defaultCastToObject","dataType":"RawObject","casting":"module.exports = function castToObject (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  let valueToCast = value\\n  try {\\n    if(typeof valueToCast === \'string\') {valueToCast = JSON.parse(valueToCast)}\\n  } catch(e) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  if (typeof valueToCast \u0021== \'object\' || valueToCast.constructor \u0021== Object) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return valueToCast\\n}","type":"default"},"defaultCastToArrayOfObject":{"castFunctionId":"defaultCastToArrayOfObject","name":"defaultCastToArrayOfObject","dataType":"Array_RawObject","casting":"module.exports = function castToArrayOfObject (value, fieldName, logger) {\\n  if (value === null) { return null }\\n  let valueToCast = value\\n  try {\\n    if(typeof valueToCast === \'string\') {valueToCast = JSON.parse(valueToCast)}\\n  } catch(e) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  if (typeof valueToCast \u0021== \'object\' || valueToCast.constructor \u0021== Array ||\\n  valueToCast.some(element => typeof element \u0021== \'object\' || element.constructor \u0021== Object)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return valueToCast\\n}","type":"default"}},"singleViews":{},"deletedElements":{},"version":"2.2.0","lastCommitId":"","updatedAt":"","erSchemas":{}},"microfrontendPluginsConfig":{},"extensionsConfig":{"files":{}},"config":{"applications":{},"collections":{},"endpoints":{},"groups":[],"secrets":[],"cmsCategories":{},"cmsSettings":{"accessGroupsExpression":"isBackoffice && groups.admin"},"cmsAnalytics":{},"cmsDashboard":[],"decorators":{},"serviceAccounts":{"nodejs-16-helloworld-microservice-example":{"name":"nodejs-16-helloworld-microservice-example"}},"services":{"nodejs-16-helloworld-microservice-example":{"name":"nodejs-16-helloworld-microservice-example","type":"custom","tags":["custom"],"advanced":false,"environment":[{"name":"LOG_LEVEL","value":"{{LOG_LEVEL}}","valueType":"plain"},{"name":"MICROSERVICE_GATEWAY_SERVICE_NAME","value":"microservice-gateway","valueType":"plain"},{"name":"TRUSTED_PROXIES","value":"10.0.0.0/8,172.16.0.0/12,192.168.0.0/16","valueType":"plain"},{"name":"HTTP_PORT","value":"3000","valueType":"plain"},{"name":"USERID_HEADER_KEY","value":"miauserid","valueType":"plain"},{"name":"GROUPS_HEADER_KEY","value":"miausergroups","valueType":"plain"},{"name":"CLIENTTYPE_HEADER_KEY","value":"client-type","valueType":"plain"},{"name":"BACKOFFICE_HEADER_KEY","value":"isbackoffice","valueType":"plain"},{"name":"USER_PROPERTIES_HEADER_KEY","value":"miauserproperties","valueType":"plain"}],"description":"Example of a simple Node.js 16 application. \\nIt contains example of tests too.","resources":{"memoryLimits":{"max":"150Mi","min":"150Mi"},"cpuLimits":{"max":"100m","min":"100m"}},"probes":{"liveness":{"port":"http","path":"/-/healthz","initialDelaySeconds":15,"periodSeconds":20,"timeoutSeconds":1,"failureThreshold":3},"readiness":{"port":"http","path":"/-/ready","initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":1,"successThreshold":1,"failureThreshold":3}},"terminationGracePeriodSeconds":30,"logParser":"mia-json","dockerImage":"nexus.mia-platform.eu/test-project-giulio/nodejs-16-helloworld-microservice-example","repoUrl":"https://git.tools.mia-platform.eu/clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example","sshUrl":"git@git.tools.mia-platform.eu:clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example.git","createdAt":"2025-04-26T09:54:59.480Z","generatedFrom":{"_id":"67a4ed58d38aa6c26d28026e"},"replicas":1,"annotations":[{"name":"mia-platform.eu/version","value":"This will contain the platform version","description":"Version of Mia-Platform used by the project","readOnly":true},{"name":"fluentbit.io/parser","value":"This will depend on your log parser","description":"Pino parser annotation for Fluent Bit","readOnly":true}],"labels":[{"name":"app","value":"nodejs-16-helloworld-microservice-example","description":"Name of the microservice, in the service selector","readOnly":true},{"name":"app.kubernetes.io/name","value":"nodejs-16-helloworld-microservice-example","description":"Name of the microservice","readOnly":true},{"name":"app.kubernetes.io/version","value":"This will depend on your Docker Image tag","description":"Tag of the Docker image","readOnly":true},{"name":"app.kubernetes.io/component","value":"custom","description":"Microservice kind, for the Console","readOnly":true},{"name":"app.kubernetes.io/part-of","value":"test-project-giulio","description":"Project that own the microservice","readOnly":true},{"name":"app.kubernetes.io/managed-by","value":"mia-platform","description":"Identify who manage the service","readOnly":true},{"name":"mia-platform.eu/stage","value":"{{STAGE_TO_DEPLOY}}","description":"Environment used for the deploy","readOnly":true},{"name":"mia-platform.eu/tenant","value":"b933f1ef-5b8e-4adf-a346-24a3b03d13e8","description":"Tenant owner of the project","readOnly":true},{"name":"mia-platform.eu/log-type","value":"This will depend on your log parser","description":"Format of logs for the microservice","readOnly":true}],"serviceAccountName":"nodejs-16-helloworld-microservice-example","swaggerPath":"/documentation/json","containerPorts":[{"from":80,"name":"http","protocol":"TCP","to":3000}],"sourceMarketplaceItem":{"itemId":"node-js-helloworld-microservice-example","version":"1.0.0","tenantId":"mia-platform"},"containerRegistryId":"cd6ae8c5-feb0-4e5c-beec-39cf8290d3d7"}},"configMaps":{},"serviceSecrets":{},"apiVersions":[],"unsecretedVariables":[],"listeners":{},"version":"0.61.0"}}'
 
 
@@ -2107,13 +1998,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
   ```
 
   curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9c11d/environments/DEV/configuration' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/design/environments/DEV/config/services/custom/nodejs-16-helloworld-microservice-example/' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0'
+
 
   ```json
   {
@@ -2504,7 +2389,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a
 ```
 
 --------------------
-Runtime
+## Runtime
 
 curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7a18172e9c11d/' \
   -H 'sec-ch-ua-platform: "macOS"' \
@@ -2774,5 +2659,357 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7
   },
   "repositoryUrl": "https://git.tools.mia-platform.eu/clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/configurations",
   "tenantId": "b933f1ef-5b8e-4adf-a346-24a3b03d13e8"
+}
+```
+
+------------------------
+## Software Catalog
+
+curl 'https://demo.console.gcp.mia-platform.eu/api/marketplace?includeTenantId=b933f1ef-5b8e-4adf-a346-24a3b03d13e8&name=node&page=1&perPage=25&sort=name&types=application%2Cexample%2Ccustom-resource%2Cplugin%2Cproxy%2Csidecar%2Ctemplate%2Cinfrastructure-component-runtime' 
+
+```json
+[
+  {
+    "_id": "66607338f33323bc3ac9841a",
+    "itemId": "google-hello-node-sample-function",
+    "lifecycleStatus": "published",
+    "name": "Google Hello Node Sample Function",
+    "releaseDate": "2024-06-05T14:16:24.208Z",
+    "tenantId": "b933f1ef-5b8e-4adf-a346-24a3b03d13e8",
+    "type": "custom-resource",
+    "category": {
+      "id": "serverless",
+      "label": "Core Plugins - Serverless"
+    },
+    "componentsIds": [],
+    "description": "Google Hello Node Sample Function",
+    "imageUrl": "/v2/files/download/1bf86f4f-5a00-49bb-8af3-887a73048f64.png",
+    "isLatest": true,
+    "supportedByImageUrl": "/v2/files/download/eb1bfe5c-0662-4260-b06b-9738796cdaa1.png"
+  },
+  {
+    "_id": "67a4ed58d38aa6c26d280214",
+    "itemId": "node-js-flow-manager-client",
+    "lifecycleStatus": "published",
+    "name": "Node.js 16 Flow Manager Client",
+    "releaseDate": "2025-02-20T16:47:48.009Z",
+    "tenantId": "mia-platform",
+    "type": "template",
+    "category": {
+      "id": "orchestrators",
+      "label": "Core Plugins - Orchestrators"
+    },
+    "componentsIds": [],
+    "description": "Flow Manager Client Node.js 16 Template",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Flow-Manager-Client-Template/refs/heads/16.x/README.md"
+    },
+    "imageUrl": "/v2/files/download/47f5095e-537e-4da8-8fe3-1edec94946e7.png",
+    "isLatest": true,
+    "repositoryUrl": "https://github.com/mia-platform-marketplace/Node.js-Flow-Manager-Client-Template/tree/16.x",
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "67a4ed58d38aa6c26d28026e",
+    "itemId": "node-js-helloworld-microservice-example",
+    "lifecycleStatus": "published",
+    "name": "Node.js 16 HelloWorld Microservice Example",
+    "releaseDate": "2025-02-20T16:47:48.039Z",
+    "tenantId": "mia-platform",
+    "type": "example",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Hello-World-Microservice-Example/refs/heads/16.x/README.md"
+    },
+    "imageUrl": "/v2/files/download/907b67c1-1ee2-418a-bc49-a3b5a2132546.png",
+    "isLatest": true,
+    "repositoryUrl": "https://github.com/mia-platform-marketplace/Node.js-Hello-World-Microservice-Example/tree/16.x",
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "67a4ed58d38aa6c26d280215",
+    "itemId": "node-js-template",
+    "lifecycleStatus": "published",
+    "name": "Node.js 16 Template",
+    "releaseDate": "2025-02-20T16:47:48.010Z",
+    "tenantId": "mia-platform",
+    "type": "template",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "This is the best template to start creating a service in Node.js 16 integrated inside the platform",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Custom-Plugin-Template/refs/heads/16.x/README.md"
+    },
+    "imageUrl": "/v2/files/download/81e7fd1d-90ab-46da-9f7d-29641133b460.png",
+    "isLatest": true,
+    "repositoryUrl": "https://github.com/mia-platform-marketplace/Node.js-Custom-Plugin-Template/tree/16.x",
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "67a4ed58d38aa6c26d280216",
+    "itemId": "typescript-template",
+    "lifecycleStatus": "published",
+    "name": "Node.js 16 TypeScript Template",
+    "releaseDate": "2025-02-20T16:47:48.009Z",
+    "tenantId": "mia-platform",
+    "type": "template",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "This is the best template to start creating a service in Node.js 16 with TypeScript integrated with Mia-Platform",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Typescript-LC39-Template/refs/heads/16.x/README.md"
+    },
+    "imageUrl": "/v2/files/download/3ee6cef4-7c22-4a90-867b-f045d811820b.png",
+    "isLatest": true,
+    "repositoryUrl": "https://github.com/mia-platform-marketplace/Typescript-LC39-Template/tree/16.x",
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "6808feabbf266a9fee1cb0f8",
+    "itemId": "node-js-call-crud-example",
+    "lifecycleStatus": "archived",
+    "name": "Node.js Call CRUD Example",
+    "releaseDate": "2025-04-03T13:02:52.082Z",
+    "tenantId": "mia-platform",
+    "type": "example",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "Example of using our Custom Plugin to access the CRUD. \nIt contains example of tests too.",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Call-CRUD-Example/master/README.md"
+    },
+    "imageUrl": "/v2/files/download/0f8b5ce7-5e8e-48bc-89d9-d3d853b455b8.png",
+    "isLatest": true,
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "6808feabbf266a9fee1cb0fa",
+    "itemId": "node-js-custom-plugin-with-mongo-example",
+    "lifecycleStatus": "archived",
+    "name": "Node.js Custom Plugin with Mongo Example",
+    "releaseDate": "2025-04-03T13:02:52.081Z",
+    "tenantId": "mia-platform",
+    "type": "example",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "Example of using our Custom Plugin to access Mongo. \nIt contains example of tests too.",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Custom-Plugin-Mongo-Example/master/README.md"
+    },
+    "imageUrl": "/v2/files/download/491a7460-37d3-484f-999a-8b7d6f7489d8.png",
+    "isLatest": true,
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "_id": "6808feaabf266a9fee1cb0c3",
+    "itemId": "node-js-daemon-template",
+    "lifecycleStatus": "archived",
+    "name": "Node.js Daemon Template",
+    "releaseDate": "2025-04-03T13:02:51.864Z",
+    "tenantId": "mia-platform",
+    "type": "template",
+    "category": {
+      "id": "nodejs",
+      "label": "Start From Code - Node.js"
+    },
+    "componentsIds": [],
+    "description": "A Node.js basic template to start developing a daemon service.",
+    "documentation": {
+      "type": "markdown",
+      "url": "https://raw.githubusercontent.com/mia-platform-marketplace/node.js-daemon-template/main/README.md"
+    },
+    "imageUrl": "/v2/files/download/fc95c993-c99a-4acc-8d07-8d45afce12a8.png",
+    "isLatest": true,
+    "repositoryUrl": "https://github.com/mia-platform-marketplace/node.js-daemon-template",
+    "supportedBy": "Mia-Platform",
+    "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+    "version": {
+      "name": "1.0.0",
+      "releaseNote": "-"
+    },
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  }
+]
+```
+
+List all versions of a microservice
+
+curl 'https://demo.console.gcp.mia-platform.eu/api/tenants/mia-platform/marketplace/items/node-js-helloworld-microservice-example/versions' 
+
+```json
+[
+  {
+    "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+    "lifecycleStatus": "published",
+    "name": "Node.js 16 HelloWorld Microservice Example",
+    "reference": "67a4ed58d38aa6c26d28026e",
+    "releaseDate": "2025-02-20T16:47:48.039Z",
+    "releaseNote": "-",
+    "version": "1.0.0",
+    "isLatest": true,
+    "security": false,
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  },
+  {
+    "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+    "lifecycleStatus": "archived",
+    "name": "Node.js 16 HelloWorld Microservice Example",
+    "reference": "67a9cd575697f282a30f45cd",
+    "releaseDate": "2020-02-12T10:44:46.459Z",
+    "releaseNote": "-",
+    "version": "NA",
+    "security": false,
+    "visibility": {
+      "allTenants": false,
+      "public": true
+    }
+  }
+]
+```
+
+Get the information of a version
+curl 'https://demo.console.gcp.mia-platform.eu/api/tenants/mia-platform/marketplace/items/node-js-helloworld-microservice-example/versions/1.0.0' 
+
+```json
+{
+  "_id": "67a4ed58d38aa6c26d28026e",
+  "category": {
+    "id": "nodejs",
+    "label": "Start From Code - Node.js"
+  },
+  "componentsIds": [],
+  "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+  "documentation": {
+    "type": "markdown",
+    "url": "https://raw.githubusercontent.com/mia-platform-marketplace/Node.js-Hello-World-Microservice-Example/refs/heads/16.x/README.md"
+  },
+  "imageUrl": "/v2/files/download/907b67c1-1ee2-418a-bc49-a3b5a2132546.png",
+  "isLatest": true,
+  "itemId": "node-js-helloworld-microservice-example",
+  "lifecycleStatus": "published",
+  "name": "Node.js 16 HelloWorld Microservice Example",
+  "releaseDate": "2025-02-20T16:47:48.039Z",
+  "repositoryUrl": "https://github.com/mia-platform-marketplace/Node.js-Hello-World-Microservice-Example/tree/16.x",
+  "resources": {
+    "services": {
+      "nodejs-16-helloworld-microservice-example": {
+        "type": "example",
+        "name": "nodejs-16-helloworld-microservice-example",
+        "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+        "archiveUrl": "https://github.com/mia-platform-marketplace/Node.js-Hello-World-Microservice-Example/archive/refs/heads/16.x.tar.gz",
+        "pipelines": {
+          "gitlab-ci": {
+            "path": "/projects/platform%2Fpipelines-templates/repository/files/console-pipeline%2Fnode-hello-world.gitlab-ci.yml/raw"
+          },
+          "webhook": {
+            "url": "https://example.com",
+            "token": "test-token"
+          }
+        },
+        "containerPorts": [
+          {
+            "name": "http",
+            "from": 80,
+            "to": 3000,
+            "protocol": "TCP"
+          }
+        ]
+      }
+    }
+  },
+  "supportedBy": "Mia-Platform",
+  "supportedByImageUrl": "/v2/files/download/ba717d35-36a7-4794-9405-8ff69adec98d.png",
+  "tenantId": "mia-platform",
+  "type": "example",
+  "version": {
+    "name": "1.0.0",
+    "releaseNote": "-"
+  },
+  "visibility": {
+    "public": true
+  }
 }
 ```

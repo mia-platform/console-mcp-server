@@ -24,6 +24,7 @@ import { projectsTools } from './tools/projects'
 import { consoleSystemTools } from './tools/console-system'
 import { environmentTools } from './tools/environment'
 import { auditLogTools } from './tools/audit-log'
+import { registerCatalogTools } from './tools/catalog'
 import { sseServer } from './lib/serversse'
 import { description, name, version } from '../package.json'
 
@@ -49,6 +50,7 @@ export function initializeMCPServer (host: string, clientID: string, clientSecre
   consoleSystemTools(server, client)
   environmentTools(server, client)
   auditLogTools(server, client)
+  registerCatalogTools(server, client)
 }
 
 export async function localServer () {

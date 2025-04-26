@@ -28,8 +28,9 @@ const projectPodsPath = '/api/projects/{projectId}/environments/{envId}/pods/des
 const projectContainerLogsPath = '/api/projects/{projectId}/environments/{envId}/pods/{podName}/containers/{containerName}/logs'
 const providersPath = '/api/backend/tenants/{tenantId}/providers/'
 const projectBlueprintPath = '/api/backend/tenants/{tenantId}/project-blueprint/'
+const createMicroservicePath = '/api/backend/projects/{projectId}/service'
 
- // Interface for project response
+// Interface for project response
 interface Project {
   _id: string
   projectId: string
@@ -251,6 +252,25 @@ interface ProjectBlueprint {
 }
 
 
+// Interface for create microservice response
+interface CreateMicroserviceResponse {
+  serviceName: string
+  dockerImage: string
+  containerRegistryId: string
+  repoId: number
+  webUrl: string
+  sshUrl: string
+  resourceName: string
+  containerPorts: Array<{
+    from: number
+    name: string
+    protocol: string
+    to: number
+  }>
+  defaultConfigMaps: any[]
+}
+
+
 /**
  * Register project-related tools with the MCP server
  * 
@@ -266,7 +286,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
     {},
     async (): Promise<CallToolResult> => {
       try {
-        
+
         const data = await client.get<ProjectSummary[]>(projectsPath)
         // Format each project to show only its properties
         const formattedProjects = data.map(project => {
@@ -278,8 +298,8 @@ export function projectsTools(server: McpServer, client: APIClient) {
             Team Contact: ${project.info?.teamContact || 'N/A'}
             Tenant ID: ${project.tenantId}
             Tenant Name: ${project.tenantName}`;
-            }).join('\n\n');
-        
+        }).join('\n\n');
+
         return {
           content: [
             {
@@ -301,7 +321,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
       }
     }
   )
-  
+
   // Tool: Create Project
   server.tool(
     // TODO: Qui devo verificare di popolare in modo corretto tuti i parametri.
@@ -326,20 +346,20 @@ export function projectsTools(server: McpServer, client: APIClient) {
         })
       })),
       enabledServices: z.record(z.boolean()).optional().describe('Services to enable for the project'),
-      configurationGitPath: z.string().optional().describe('Git path for configuration that is configured in the project blueprint repository.basepath'), 
+      configurationGitPath: z.string().optional().describe('Git path for configuration that is configured in the project blueprint repository.basepath'),
       templateId: z.string().optional().describe('The template ID to use for the project'),
       providerId: z.string().optional().describe('The provider ID for the repository'),
     },
-    async ({ 
-      name, 
-      description, 
-      flavor, 
-      tenantId, 
-      environments, 
+    async ({
+      name,
+      description,
+      flavor,
+      tenantId,
+      environments,
       enabledServices,
       configurationGitPath,
       templateId,
-      providerId 
+      providerId
     }): Promise<CallToolResult> => {
       try {
 
@@ -354,16 +374,16 @@ export function projectsTools(server: McpServer, client: APIClient) {
           let namespace = `${projectId}-${env.envId.toLowerCase()}` // default
           // If a namespace already exists, replace any %projectId% placeholders
           // Otherwise, use the default namespace format
-          namespace = env.cluster?.namespace ? 
-            env.cluster.namespace.replace(/%projectId%/g, projectId) : 
+          namespace = env.cluster?.namespace ?
+            env.cluster.namespace.replace(/%projectId%/g, projectId) :
             `${projectId}-${env.envId.toLowerCase()}`
-          
-            // Always replace %projectId% placeholders in hostname if it exists
-            let hostname = env.cluster?.hostname
-            if (typeof hostname === 'string') {
-              hostname = hostname.replace(/%projectId%/g, projectId)
-            }
-          
+
+          // Always replace %projectId% placeholders in hostname if it exists
+          let hostname = env.cluster?.hostname
+          if (typeof hostname === 'string') {
+            hostname = hostname.replace(/%projectId%/g, projectId)
+          }
+
           return {
             ...env,
             cluster: {
@@ -373,7 +393,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
             }
           }
         })
-        
+
 
         // Construct the request payload
         const projectData: Record<string, unknown> = {
@@ -391,10 +411,10 @@ export function projectsTools(server: McpServer, client: APIClient) {
         }
 
         console.log('Project Data:', projectData)
-        
+
         // Make the POST request
         const data = await client.post<Project>(projectsPath, projectData)
-        
+
         // Format the response
         const formattedProject = `Project successfully created:
           Project: ${data.name}
@@ -406,7 +426,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
           Default Branch: ${data.defaultBranch || 'N/A'}
           Configuration Git Path: ${data.configurationGitPath || 'N/A'}
           Environments: ${data.environments.map((env: any) => env.label).join(', ') || 'N/A'}`
-        
+
         return {
           content: [
             {
@@ -461,7 +481,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
           Repository Provider ID: ${data.repository?.providerId || 'N/A'}
           Project Namespace Variable: ${data.projectNamespaceVariable || 'N/A'}
           Enabled Services: ${Object.entries(data.enabledServices || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}
-          Enabled Security Features: ${Object.entries(data.enabledSecurityFeatures || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}`;      
+          Enabled Security Features: ${Object.entries(data.enabledSecurityFeatures || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}`;
         return {
           content: [
             {
@@ -576,7 +596,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
           Start Time: ${pod.startTime || 'N/A'}
           Components: ${pod.component?.map((c: any) => `${c.name}:${c.version}`).join(', ') || 'N/A'}
           Labels: ${Object.entries(pod.labels || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}
-          Containers: ${pod.containers?.map((container: any) => 
+          Containers: ${pod.containers?.map((container: any) =>
             `\n            - Name: ${container.name}
             - Image: ${container.image}
             - Status: ${container.status || 'N/A'}
@@ -586,7 +606,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
             - Resources: ${JSON.stringify(container.resources || {})}`
           ).join('\n          ') || 'N/A'}`;
         }).join('\n\n');
-        
+
         return {
           content: [
             {
@@ -629,16 +649,16 @@ export function projectsTools(server: McpServer, client: APIClient) {
           .replace('{envId}', envId)
           .replace('{podName}', podName)
           .replace('{containerName}', containerName)
-        
+
         const params = new URLSearchParams()
         if (follow !== undefined) params.set('follow', follow.toString())
         if (tailLines !== undefined) params.set('tailLines', tailLines.toString())
         if (previous !== undefined) params.set('previous', previous.toString())
-        
+
         // Add formatting options for better readability
         params.set('wrapHtml', 'true')
         params.set('pretty', 'true')
-        
+
         const data = await client.get(apiPath, {}, params, 'text')
         return {
           content: [
@@ -673,7 +693,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
       try {
         const apiPath = providersPath.replace('{tenantId}', tenantId)
         const data = await client.get<Provider[]>(apiPath)
-        
+
         // Format each provider to show its properties in a readable format
         const formattedProviders = data.map(provider => {
           return `Provider: ${provider.label}
@@ -684,14 +704,14 @@ export function projectsTools(server: McpServer, client: APIClient) {
             API Base: ${provider.urls.apiBase}
             Credentials Type: ${provider.credentials.type}
             Capabilities: ${provider.capabilities.map(cap => {
-              const functionalitiesStr = cap.functionalities ? 
-                ` (Functionalities: ${cap.functionalities.map(f => f.name).join(', ')})` : '';
-              return `${cap.name}${functionalitiesStr}`;
-            }).join(', ')}
-            ${provider.capabilities.some(cap => cap.repositoryPathTemplate) ? 
+            const functionalitiesStr = cap.functionalities ?
+              ` (Functionalities: ${cap.functionalities.map(f => f.name).join(', ')})` : '';
+            return `${cap.name}${functionalitiesStr}`;
+          }).join(', ')}
+            ${provider.capabilities.some(cap => cap.repositoryPathTemplate) ?
               `Repository Path Template: ${provider.capabilities.find(cap => cap.repositoryPathTemplate)?.repositoryPathTemplate}` : ''}`;
         }).join('\n\n');
-        
+
         return {
           content: [
             {
@@ -725,7 +745,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
       try {
         const apiPath = projectBlueprintPath.replace('{tenantId}', tenantId)
         const data = await client.get<ProjectBlueprint>(apiPath)
-        
+
         // Format the blueprint information in a readable way
         let formattedBlueprint = `Blueprint Name: ${data.name}
 Tenant ID: ${data.tenantId}
@@ -755,7 +775,7 @@ Environments:`;
     Namespace: ${env.cluster.namespace}
     Cluster ID: ${env.cluster.clusterId}
   Hosts:`;
-          
+
           env.hosts.forEach(host => {
             formattedBlueprint += `\n    - ${host.scheme}://${host.host}${host.isBackoffice ? ' (Backoffice)' : ''}`;
           });
@@ -784,7 +804,7 @@ Environments:`;
     Runner Tool: ${template.deploy.runnerTool}
     Strategy: ${template.deploy.strategy}${template.deploy.projectStructure ? '\n    Project Structure: ' + template.deploy.projectStructure : ''}`;
         });
-        
+
         return {
           content: [
             {
@@ -800,6 +820,98 @@ Environments:`;
             {
               type: 'text',
               text: `Error fetching project blueprint for tenant ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    }
+  )
+
+  // Tool: Create Microservice
+  server.tool(
+    'create-microservice',
+    'Create a new microservice in a Mia Platform project',
+    {
+      projectId: z.string().describe('The ID of the project where the microservice will be created'),
+      projectSlug: z.string().describe('The ProjectSlug of the project where the microservice will be created. Get this information from the get-project-info tool'),
+      serviceName: z.string().describe('The name of the microservice'),
+      serviceDescription: z.string().describe('A description of the microservice'),
+      imageName: z.string().describe('The Docker image name for the microservice. Use the information from list_catalog'),
+      repoName: z.string().describe('The name of the repository for the microservice. Use the information from list_catalog'),
+      groupName: z.string().describe('The group name where the microservice repository will be created'),
+      templateId: z.string().describe('The template ID to use for the microservice. Use the field TemplateId from list_catalog or list_item_versions or get_item_version_details'),
+      pipeline: z.string().describe('The type of pipeline to use (e.g., gitlab-ci). Use the information from list_catalog'),
+      resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
+      containerRegistryId: z.string().describe('The ID of the container registry to use. Use the information from get-project-blueprint')
+      //defaultConfigMaps: z.array(z.any()).optional().describe('Default config maps for the microservice. Use the information list_catalog and generate accordling with the documentation of the container that you can find at https://docs.mia-platform.eu/')
+    },
+    async ({
+      projectId,
+      projectSlug,
+      serviceName,
+      serviceDescription,
+      imageName,
+      repoName,
+      groupName,
+      templateId,
+      pipeline,
+      resourceName,
+      containerRegistryId,
+     // defaultConfigMaps
+    }): Promise<CallToolResult> => {
+      try {
+        const apiPath = createMicroservicePath.replace('{projectId}', projectId)
+        const repoGroup = groupName || 'default' + projectSlug + '/services'
+
+        // Construct the request payload
+        const microserviceData: Record<string, unknown> = {
+          serviceName,
+          serviceDescription,
+          imageName,
+          repoName,
+          repoGroup,
+          templateId,
+          pipeline,
+          resourceName,
+          containerRegistryId,
+         // defaultConfigMaps: defaultConfigMaps || []
+        }
+
+        // Make the POST request
+        const data = await client.post<CreateMicroserviceResponse>(apiPath, microserviceData)
+
+        // Format the response in a readable way
+        const formattedResponse = `Microservice successfully created:
+Service Name: ${data.serviceName}
+Docker Image: ${data.dockerImage}
+Container Registry ID: ${data.containerRegistryId}
+Repository ID: ${data.repoId}
+Web URL: ${data.webUrl}
+SSH URL: ${data.sshUrl}
+Resource Name: ${data.resourceName}
+
+Container Ports:
+${data.containerPorts.map(port => `  - ${port.name}: ${port.from} -> ${port.to} (${port.protocol})`).join('\n')}
+
+${data.defaultConfigMaps && data.defaultConfigMaps.length > 0 ?
+            `Default Config Maps:\n${JSON.stringify(data.defaultConfigMaps, null, 2)}` :
+            'No default config maps'}`
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: formattedResponse,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error creating microservice: ${err.message}`,
             },
           ],
         }

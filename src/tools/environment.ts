@@ -32,7 +32,7 @@ const environmentStatusPath = '/api/projects/{projectId}/environments/{envId}/st
 export function environmentTools(server: McpServer, client: APIClient) {
   // Tool: Get Environment Status
   server.tool(
-    'd94_environment-status',
+    'environment-status',
     'Get detailed status for a specific project environment',
     {
       projectId: z.string().describe('The ID of the project'),

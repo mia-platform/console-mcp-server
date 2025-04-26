@@ -35,7 +35,7 @@ const chatCommandsPath = '/api/assistant/chat/commands'
 export function consoleSystemTools(server: McpServer, client: APIClient) {
   // Tool 4: Get Console Extensions
   server.tool(
-    'd94_get-extensions',
+    'get-extensions',
     'Get list of active UI extensions for the console',
     {
       tenantId: z.string().uuid().optional().describe('Filters extensions for a specific tenant')
@@ -72,7 +72,7 @@ export function consoleSystemTools(server: McpServer, client: APIClient) {
 
   // Tool 5: List Roles
   server.tool(
-    'd94_get-roles',
+    'get-roles',
     'Get definitions of all available user roles',
     {},
     async (): Promise<CallToolResult> => {
@@ -102,7 +102,7 @@ export function consoleSystemTools(server: McpServer, client: APIClient) {
 
   // Tool 6: List Permissions
   server.tool(
-    'd94_get-permissions',
+    'get-permissions',
     'Get definitions of all available permissions',
     {
       limit: z.number().optional().describe('Limit for the number of results')
@@ -142,7 +142,7 @@ export function consoleSystemTools(server: McpServer, client: APIClient) {
 
   // Tool 7: Get Assistant Chat Commands
   server.tool(
-    'd94_get-assistant-chat-commands',
+    'get-assistant-chat-commands',
     'Get available chat commands for Mia-Assistant',
     {
       tenant_id: z.string().uuid().describe('The ID of the tenant for which to fetch commands')
