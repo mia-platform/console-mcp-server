@@ -18,20 +18,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 import { APIClient } from '../lib/client'
 
-// User Info endpoint path
-const userInfoPath = '/api/userinfo'
+
 
 // User Companies endpoint path
 const userCompaniesPath = '/api/user/companies'
 
-// Interface for user info response
-interface UserInfo {
-  email: string
-  groups: string[]
-  name: string
-  userId: string
-  userSettingsURL: string
-}
+
 
 // Interface for user companies response
 interface CompanyMembership {
@@ -53,35 +45,6 @@ interface CompanyMembership {
  * @returns void
  */
 export function userTools(server: McpServer, client: APIClient) {
-  // Tool 1: Get User Info
-  server.tool(
-    'get_user_info',
-    'Get information about the currently authenticated user',
-    {},
-    async (): Promise<CallToolResult> => {
-      try {
-        const data = await client.get<UserInfo>(userInfoPath)
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(data),
-            },
-          ],
-        }
-      } catch (error) {
-        const err = error as Error
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error fetching user info: ${err.message}`,
-            },
-          ],
-        }
-      }
-    }
-  )
   
   // Tool 3: Get User Companies
   server.tool(

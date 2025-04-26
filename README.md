@@ -182,6 +182,12 @@ Once has finished you will have all the dependencies installed on the project, t
 npm run local:test
 ```
 
+one line run
+
+```sh
+npm run build && set -a && source local.env && npm run local:test
+```
+
 This command will download and launch the MCP inspector on `http://localhost:6274` where you can test if the
 implementation will work correctly testing the tools discovery and calls without the needs of a working llm environmnet.
 
