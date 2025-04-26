@@ -830,15 +830,15 @@ Environments:`;
   // Tool: Create Microservice
   server.tool(
     'create-microservice',
-    'Create a new microservice in a Mia Platform project',
+    'Create a microservice in a Project starting from an item configuraration in the catalog',
     {
       projectId: z.string().describe('The ID of the project where the microservice will be created'),
-      projectSlug: z.string().describe('The ProjectSlug of the project where the microservice will be created. Get this information from the get-project-info tool'),
+     // projectSlug: z.string().describe('The ProjectSlug of the project where the microservice will be created. Get this information from the get-project-info tool'),
       serviceName: z.string().describe('The name of the microservice'),
       serviceDescription: z.string().describe('A description of the microservice'),
       imageName: z.string().describe('The Docker image name for the microservice. Use the information from list_catalog'),
       repoName: z.string().describe('The name of the repository for the microservice. Use the information from list_catalog'),
-      groupName: z.string().describe('The group name where the microservice repository will be created'),
+      groupName: z.string().describe('The group name where the microservice repository will be created. Use the information from Configuration Git Path and remove configurations path at the end.'),
       templateId: z.string().describe('The template ID to use for the microservice. Use the field TemplateId from list_catalog or list_item_versions or get_item_version_details'),
       pipeline: z.string().describe('The type of pipeline to use (e.g., gitlab-ci). Use the information from list_catalog'),
       resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
@@ -847,7 +847,7 @@ Environments:`;
     },
     async ({
       projectId,
-      projectSlug,
+    //  projectSlug,
       serviceName,
       serviceDescription,
       imageName,
@@ -860,8 +860,8 @@ Environments:`;
      // defaultConfigMaps
     }): Promise<CallToolResult> => {
       try {
-        const apiPath = createMicroservicePath.replace('{projectId}', projectId)
-        const repoGroup = groupName || 'default' + projectSlug + '/services'
+        
+        const repoGroup = groupName + '/services'
 
         // Construct the request payload
         const microserviceData: Record<string, unknown> = {
@@ -869,7 +869,7 @@ Environments:`;
           serviceDescription,
           imageName,
           repoName,
-          repoGroup,
+          groupName: repoGroup,
           templateId,
           pipeline,
           resourceName,
@@ -878,6 +878,7 @@ Environments:`;
         }
 
         // Make the POST request
+        const apiPath = createMicroservicePath.replace('{projectId}', projectId)
         const data = await client.post<CreateMicroserviceResponse>(apiPath, microserviceData)
 
         // Format the response in a readable way
