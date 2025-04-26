@@ -320,15 +320,15 @@ export function projectsTools(server: McpServer, client: APIClient) {
         label: z.string().describe('The label of the environment'),
         isProduction: z.boolean().describe('Whether this is a production environment'),
         cluster: z.object({
-          hostname: z.string().optional().describe('The hostname of the cluster'),
-          namespace: z.string().optional().describe('The namespace in the cluster'),
-          clusterId: z.string().optional().describe('The ID of the cluster')
+          hostname: z.string().describe('The hostname of the cluster. This information is available in the project blueprint environments array'),
+          namespace: z.string().describe('The namespace in the cluster. This information is available in the project blueprint environments array'),
+          clusterId: z.string().describe('The ID of the cluster. This information is available in the project blueprint environments array')
         })
       })),
       enabledServices: z.record(z.boolean()).optional().describe('Services to enable for the project'),
-      configurationGitPath: z.string().optional().describe('Git path for configuration'),
+      configurationGitPath: z.string().optional().describe('Git path for configuration that is configured in the project blueprint repository.basepath'), 
       templateId: z.string().optional().describe('The template ID to use for the project'),
-      providerId: z.string().optional().describe('The provider ID for the repository')
+      providerId: z.string().optional().describe('The provider ID for the repository'),
     },
     async ({ 
       name, 
@@ -345,6 +345,24 @@ export function projectsTools(server: McpServer, client: APIClient) {
 
         const projectId = name.toLowerCase().replace(/\s+/g, '-')
 
+        // Define namespace for each environment and replace %projectId% placeholders
+        // TODO use the template format from the project blueprint or create a better API
+        // that creates the namespace passing the project blueprint id
+        environments = environments.map(env => {
+          const namespace = env.cluster?.namespace?.replace(/%projectId%/g, projectId) || 
+            `${projectId}-${env.envId.toLowerCase()}`
+          const hostname = env.cluster?.hostname?.replace(/%projectId%/g, projectId) || undefined
+          
+          return {
+            ...env,
+            cluster: {
+              ...env.cluster,
+              namespace,
+              ...(hostname ? { hostname } : {})
+            }
+          }
+        })
+
         // Construct the request payload
         const projectData: Record<string, unknown> = {
           name: name,
@@ -354,7 +372,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
           tenantId: tenantId,
           environments: environments || [],
           enabledServices: enabledServices || {},
-          configurationGitPath: configurationGitPath || '',
+          configurationGitPath: configurationGitPath + '/configuration',
           templateId: templateId || '',
           visibility: 'internal',
           providerId: providerId || '',
