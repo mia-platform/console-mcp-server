@@ -304,6 +304,10 @@ export function projectsTools(server: McpServer, client: APIClient) {
   
   // Tool: Create Project
   server.tool(
+    // TODO: Qui devo verificare di popolare in modo corretto tuti i parametri.
+    // non serve che siano passati tutti da fuori, alcuni sono da calcolare da codcie come il projectId
+    // e il gitrepo url
+    // verificare che passi il base64 del cluster
     'create-project',
     'Create a new Mia project in Mia-Platform Console using the preffered project blueprint and envrionment. You need to provide the project name, description, flavor, tenant ID, and environments. That information are available in the project blueprint, in providers. Verify to that information before creating a project.',
     {
@@ -323,7 +327,6 @@ export function projectsTools(server: McpServer, client: APIClient) {
       })),
       enabledServices: z.record(z.boolean()).optional().describe('Services to enable for the project'),
       configurationGitPath: z.string().optional().describe('Git path for configuration'),
-      projectId: z.string().optional().describe('The project ID (slug)'),
       templateId: z.string().optional().describe('The template ID to use for the project'),
       providerId: z.string().optional().describe('The provider ID for the repository')
     },
@@ -339,18 +342,22 @@ export function projectsTools(server: McpServer, client: APIClient) {
       providerId 
     }): Promise<CallToolResult> => {
       try {
+
+        const projectId = name.toLowerCase().replace(/\s+/g, '-')
+
         // Construct the request payload
         const projectData: Record<string, unknown> = {
-          name,
+          name: name,
+          projectId: projectId,
           description: description || '',
           flavor: flavor || 'application',
-          tenantId,
+          tenantId: tenantId,
           environments: environments || [],
           enabledServices: enabledServices || {},
           configurationGitPath: configurationGitPath || '',
-          templateId,
+          templateId: templateId || '',
           visibility: 'internal',
-          providerId
+          providerId: providerId || '',
         }
         
         // Make the POST request
