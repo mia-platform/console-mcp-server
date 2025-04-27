@@ -34,7 +34,7 @@ export function registerDesignTools(server: McpServer, client: APIClient) {
     'Get project design configuration including endpoints, collections, services, and more',
     {
       projectId: z.string().describe('The ProjectId of the project'),
-      revision: z.string().describe('The revision to fetch (branch or tag name)').default('main').optional(),
+      revision: z.string().describe('The revision to fetch (branch or tag name)').default('DEV').optional(),
     },
     async ({ projectId, revision = 'main' }): Promise<CallToolResult> => {
       try {
@@ -129,7 +129,7 @@ ${endpointsSummary || 'No endpoints defined'}`
     'Save project design configuration including endpoints, collections, services, and more',
     {
       projectId: z.string().describe('The ID of the project'),
-      revision: z.string().describe('The revision to update (branch or tag name)').default('main').optional(),
+      revision: z.string().describe('The revision to update (branch or tag name)').default('DEV').optional(),
       design: z.record(z.any()).describe('The project design object to save'),
       title: z.string().describe('A title for this configuration save operation'),
       previousSave: z.string().describe('The commit ID of the previous save (usually lastConfigFileCommitId from the design)').optional(),
