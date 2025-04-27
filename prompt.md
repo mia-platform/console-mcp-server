@@ -1612,12 +1612,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/templates/?tenantId=b
 curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/' \
   -H 'sec-ch-ua-platform: "macOS"' \
   -H 'Referer: https://demo.console.gcp.mia-platform.eu/tenants/b933f1ef-5b8e-4adf-a346-24a3b03d13e8/projects/create' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
+
   --data-raw '{"name":"Test Project Giulio2222","description":"This is the project description","flavor":"application","tenantId":"b933f1ef-5b8e-4adf-a346-24a3b03d13e8","environments":[{"envId":"DEV","label":"Development","hosts":[{"host":"test-project-giulio-test.mia-demo-re5gu6.gcp.mia-platform.eu","isBackoffice":false,"scheme":"https"}],"isProduction":false,"cluster":{"hostname":"mia-demo-h3hrdo6i.hcp.northeurope.azmk8s.io","namespace":"test-project-giulio-dev","clusterId":"67111f327c27d260a21c1c52","_id":"67111f327c27d260a21c1c52","base64CA":"LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUU2RENDQXRDZ0F3SUJBZ0lRRDNjRnQzNUlIaCtDejl2UzFUcUoxVEFOQmdrcWhraUc5dzBCQVFzRkFEQU4KTVFzd0NRWURWUVFERXdKallUQWdGdzB5TkRBNU1EUXhNekV4TURGYUdBOHlNRFUwTURrd05ERXpNakV3TVZvdwpEVEVMTUFrR0ExVUVBeE1DWTJFd2dnSWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUURpCjJZVFBVODZLY0NWcUFOSEdsV3YwZ2VsVnF4RDJoMlVsaEgvQS9uWGVXd0VjL2cwbjhhaTRwK3dYOFI5UHhHOGIKMkpEVDJjME5EYVBsU2s0d3dQTWNUUS9rMWNNTDVHc3F3dW11UE5tYnJyZnhyYktHa21BRGFlS3lXaGR6Z0xxNQpjMTlzUzhyQ0xiSm0zT2ZWK2hUOURpR0NPSjUzbVRIb3NzVjRFb1hIS05NaFJzYW1BbEtuUGlEdE5XWmRBT3UrCnBhcnE4dUNJV05hOWR0ZTRRKzRFbzhycVBPUzZGQ2NSTEFwaUZjSlFTbVVhWFZxcW8zaXhscG0xUk8rMTVvdXUKRmxQemdNbk5kNVA2bjhFZ2NjdjBUbVdrZUszZzJMcldkN0M2cDBnSWluT0JTOG9RZXBBcFluWk5JVEJlRm1qeQpWMHVMb3pzRGh4M1AvdVhZNlp1MG80Rno3eVJ5bWtsT2QyaUU5c1FwWWoxSHducHhzbGtISUxhSjRzVm1PYXg0CkUycWJXTGxnVk1ZWHZJK2VOUGE2NStGVU9BTGgyR1JyKzBnNC8xTit3RW15d1AwS1p1bEFGM2lkTEhnbDhESGMKemVVMnh5NWpjelMvYlVrUVNETkZwSXJpY3B5d21DU0tpWTlPbmpuV0ZYZTFLd0xRRmRnT2QyYklZYVAxc2drRAp2blI5d3FPY0xMMTR5RDNnY1RteCtDS3lnRmFhQXpQdEV5S3dnK0ZFSFU5bG1NdHRac0ltbXVpek9hTWp2YUN5ClN2aGRScXhXY3ZCT1JRWGZhbjVvMWJvbkc3VGY3RnVtM0NBZFNHY3ZvVHVLeW9BaTdQZVcyMGl0M1ZNaUpOYWsKYlZCVVBxNElCYnVLRkZ6V1hiQU5JdXlGT0pWUTMxaHVSNFA5N1U1alZRSURBUUFCbzBJd1FEQU9CZ05WSFE4QgpBZjhFQkFNQ0FxUXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVVDR2txZU5uNkFBVDNBSE91CnFoMUxSa0ZnNnFrd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dJQkFCMzBWZnR5MXU0ajllRnVweUpxZzU4aHJETXEKaVdDS2R0UWFkM1NXTTRhR2s0L3hUajRxNlBSOWN1akUxUjRJZlFWMDBUNFVQcGNVa3MxeG9HeDQrUHBORFduLwpWWU9NblNzRXIzNjZOb283VzYxSm5NUThaak9kWVRTdFdVUFgrenBqYVZ6ZU9kYkl4Uk1GTzJORTVFNVJnR3hLCmdLNkMvMm53Zkt6bHh2TkRmNTREdENrOUZ6bldwcnkwQ2lvYnRlNktOKzFUZlZFdVBqTzltOE1wOVhqNXdEd3AKUURBWTVsbDc1MndoUVpLaitha0xhZE03a3JBMmR2ZzFBRVpHS1FPaG1zcUFTV2xZa0o3VHJzV2I1cGJpTU8zUgp5Nk1NZFdqMHFkUzBHQ1g3Z2kzZEk5RXVVWkl3NFhkWEJ6VTFodkN2ck80d2IxTnd2djRpRkFQSGlRSFJqQnBaCkxTWlFXbk9MYnA2OVlhYmV0b05rKzdDbWQ2T2pSSDdUNnY3UERWN0gwYjZTS2l2RW92N2dVdk01ZDhudlEvc1UKdW1IWUcvM3haUS85K2dQR3lBaURiUXZpRmNHUUlsanRNcjVGb3RMOTdKcEVPUXhIaXRlN2I4eUE2ZzBNNmtWMgpKaG42ZEpJVjJzbVFmSkxJNjM0a1hJRGFRaks2c1cvbVp2ejlvTWZZai9CQVE1MWk1WWk5a2kyWFdxemFNanlhCkJNRWMxUEp3RU9nKzRwUERoUG90N2lGdlE0YWU5bkRHaW9LU3BNYzJ4K1FkajZRMk9DOWQvSmU5RHZrWHIzeTQKazhWRXlHc05aQm5lQ2dLY2hoZkszZGpHRHhxK2c0T2xpN3dFVCs0aVFod3NhcXlCTjlUSFJYbzkycU4rSHNNSAorckxuVm9obkhHam1paHFDCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=","kubeContextVariables":{"KUBE_URL":"KUBE_AZURE_NOPROD_URL","KUBE_TOKEN":"KUBE_AZURE_NOPROD_TOKEN","KUBE_CA_PEM":"KUBE_AZURE_NOPROD_CA_PEM"}}},{"envId":"PROD","label":"Production","hosts":[{"host":"test-project-giulio.mia-demo-re5gu6.gcp.mia-platform.eu","isBackoffice":false,"scheme":"https"}],"isProduction":true,"cluster":{"hostname":"mia-demo-h3hrdo6i.hcp.northeurope.azmk8s.io","namespace":"test-project-giulio-prod","clusterId":"67111f327c27d260a21c1c52","_id":"67111f327c27d260a21c1c52","base64CA":"LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUU2RENDQXRDZ0F3SUJBZ0lRRDNjRnQzNUlIaCtDejl2UzFUcUoxVEFOQmdrcWhraUc5dzBCQVFzRkFEQU4KTVFzd0NRWURWUVFERXdKallUQWdGdzB5TkRBNU1EUXhNekV4TURGYUdBOHlNRFUwTURrd05ERXpNakV3TVZvdwpEVEVMTUFrR0ExVUVBeE1DWTJFd2dnSWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUNEd0F3Z2dJS0FvSUNBUURpCjJZVFBVODZLY0NWcUFOSEdsV3YwZ2VsVnF4RDJoMlVsaEgvQS9uWGVXd0VjL2cwbjhhaTRwK3dYOFI5UHhHOGIKMkpEVDJjME5EYVBsU2s0d3dQTWNUUS9rMWNNTDVHc3F3dW11UE5tYnJyZnhyYktHa21BRGFlS3lXaGR6Z0xxNQpjMTlzUzhyQ0xiSm0zT2ZWK2hUOURpR0NPSjUzbVRIb3NzVjRFb1hIS05NaFJzYW1BbEtuUGlEdE5XWmRBT3UrCnBhcnE4dUNJV05hOWR0ZTRRKzRFbzhycVBPUzZGQ2NSTEFwaUZjSlFTbVVhWFZxcW8zaXhscG0xUk8rMTVvdXUKRmxQemdNbk5kNVA2bjhFZ2NjdjBUbVdrZUszZzJMcldkN0M2cDBnSWluT0JTOG9RZXBBcFluWk5JVEJlRm1qeQpWMHVMb3pzRGh4M1AvdVhZNlp1MG80Rno3eVJ5bWtsT2QyaUU5c1FwWWoxSHducHhzbGtISUxhSjRzVm1PYXg0CkUycWJXTGxnVk1ZWHZJK2VOUGE2NStGVU9BTGgyR1JyKzBnNC8xTit3RW15d1AwS1p1bEFGM2lkTEhnbDhESGMKemVVMnh5NWpjelMvYlVrUVNETkZwSXJpY3B5d21DU0tpWTlPbmpuV0ZYZTFLd0xRRmRnT2QyYklZYVAxc2drRAp2blI5d3FPY0xMMTR5RDNnY1RteCtDS3lnRmFhQXpQdEV5S3dnK0ZFSFU5bG1NdHRac0ltbXVpek9hTWp2YUN5ClN2aGRScXhXY3ZCT1JRWGZhbjVvMWJvbkc3VGY3RnVtM0NBZFNHY3ZvVHVLeW9BaTdQZVcyMGl0M1ZNaUpOYWsKYlZCVVBxNElCYnVLRkZ6V1hiQU5JdXlGT0pWUTMxaHVSNFA5N1U1alZRSURBUUFCbzBJd1FEQU9CZ05WSFE4QgpBZjhFQkFNQ0FxUXdEd1lEVlIwVEFRSC9CQVV3QXdFQi96QWRCZ05WSFE0RUZnUVVDR2txZU5uNkFBVDNBSE91CnFoMUxSa0ZnNnFrd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dJQkFCMzBWZnR5MXU0ajllRnVweUpxZzU4aHJETXEKaVdDS2R0UWFkM1NXTTRhR2s0L3hUajRxNlBSOWN1akUxUjRJZlFWMDBUNFVQcGNVa3MxeG9HeDQrUHBORFduLwpWWU9NblNzRXIzNjZOb283VzYxSm5NUThaak9kWVRTdFdVUFgrenBqYVZ6ZU9kYkl4Uk1GTzJORTVFNVJnR3hLCmdLNkMvMm53Zkt6bHh2TkRmNTREdENrOUZ6bldwcnkwQ2lvYnRlNktOKzFUZlZFdVBqTzltOE1wOVhqNXdEd3AKUURBWTVsbDc1MndoUVpLaitha0xhZE03a3JBMmR2ZzFBRVpHS1FPaG1zcUFTV2xZa0o3VHJzV2I1cGJpTU8zUgp5Nk1NZFdqMHFkUzBHQ1g3Z2kzZEk5RXVVWkl3NFhkWEJ6VTFodkN2ck80d2IxTnd2djRpRkFQSGlRSFJqQnBaCkxTWlFXbk9MYnA2OVlhYmV0b05rKzdDbWQ2T2pSSDdUNnY3UERWN0gwYjZTS2l2RW92N2dVdk01ZDhudlEvc1UKdW1IWUcvM3haUS85K2dQR3lBaURiUXZpRmNHUUlsanRNcjVGb3RMOTdKcEVPUXhIaXRlN2I4eUE2ZzBNNmtWMgpKaG42ZEpJVjJzbVFmSkxJNjM0a1hJRGFRaks2c1cvbVp2ejlvTWZZai9CQVE1MWk1WWk5a2kyWFdxemFNanlhCkJNRWMxUEp3RU9nKzRwUERoUG90N2lGdlE0YWU5bkRHaW9LU3BNYzJ4K1FkajZRMk9DOWQvSmU5RHZrWHIzeTQKazhWRXlHc05aQm5lQ2dLY2hoZkszZGpHRHhxK2c0T2xpN3dFVCs0aVFod3NhcXlCTjlUSFJYbzkycU4rSHNNSAorckxuVm9obkhHam1paHFDCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=","kubeContextVariables":{"KUBE_URL":"KUBE_AZURE_NOPROD_URL","KUBE_TOKEN":"KUBE_AZURE_NOPROD_TOKEN","KUBE_CA_PEM":"KUBE_AZURE_NOPROD_CA_PEM"}}}],"enabledServices":{"cms-site":false,"cms-backend":false,"v1-adapter":false,"auth0-client":false,"oauth-login-site":false,"crud-service":false,"swagger-aggregator":false,"api-portal":false,"microservice-gateway":false,"authorization-service":false,"api-gateway":false},"configurationGitPath":"clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/configurations","projectId":"test-project-giulio","templateId":"b3f09625-9389-4c81-84ce-0159b24ee264","visibility":"internal","providerId":"digital-platform-c-gitlab","pipelines":{"type":"gitlab-ci","providerId":"digital-platform-c-gitlab"},"enableConfGenerationOnDeploy":true}'
 
   ```json
@@ -12056,14 +12051,6 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
 Deploy
 
 curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a18172e9c11d/environments/DEV/deployments/' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/deploy' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'Content-Type: application/json' \
   --data-raw '{"deployType":"smart_deploy","forceDeployWhenNoSemver":false}'
 
   ```json
@@ -12074,26 +12061,13 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a
   ```
 
   curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a18172e9c11d/pipelines/891494/status/?environment=DEV' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/deploy' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0'
 
   ```json
   {"id":891494,"status":"pending"}
   ```
 
   curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a18172e9c11d/deployment/?page=1&per_page=1&scope=success&environment=DEV' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/deploy' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0'
+
 
   ```json
   [
@@ -12136,13 +12110,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/deploy/projects/680cacfc25e7a
 ## Runtime
 
 curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7a18172e9c11d/' \
-  -H 'sec-ch-ua-platform: "macOS"' \
-  -H 'secret: Jh3cQ4bJYh^xyXSN@D94adEZ' \
-  -H 'Referer: https://demo.console.gcp.mia-platform.eu/projects/680cacfc25e7a18172e9c11d/monitoring/environments/DEV' \
-  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36' \
-  -H 'Accept: application/json' \
-  -H 'sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"' \
-  -H 'sec-ch-ua-mobile: ?0'
+
 
   ```json
   {
