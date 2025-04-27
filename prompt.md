@@ -1987,6 +1987,300 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7
 curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9c11d/environments/DEV/configuration' \
   --data-raw $'{"title":"change: serviceAccounts: nodejs-16-helloworld-microservic...","deletedElements":{},"fastDataConfig":{"systems":{},"castFunctions":{"defaultIdentity":{"castFunctionId":"defaultIdentity","name":"defaultIdentity","dataType":"all","casting":"module.exports = function castIdentity (value, fieldName, logger) {\\n  return value\\n}","type":"default"},"defaultCastToString":{"castFunctionId":"defaultCastToString","name":"defaultCastToString","dataType":"string","casting":"module.exports = function castToString (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  if (typeof value === \'object\') {return JSON.stringify(value)}\\n  return String(value)\\n}\\n","type":"default"},"defaultCastToInteger":{"castFunctionId":"defaultCastToInteger","name":"defaultCastToInteger","dataType":"number","casting":"module.exports = function castToInt (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const number = Number(value)\\n  if (Number.isNaN(number)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return parseInt(number, 10)\\n}\\n","type":"default"},"defaultCastToFloat":{"castFunctionId":"defaultCastToFloat","name":"defaultCastToFloat","dataType":"number","casting":"module.exports = function castToFloat (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const number = Number(value)\\n  if (Number.isNaN(number)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return number\\n}\\n","type":"default"},"defaultCastUnitTimestampToISOString":{"castFunctionId":"defaultCastUnitTimestampToISOString","name":"defaultCastUnitTimestampToISOString","dataType":"string","casting":"module.exports = function castUnitTimestampToISOString (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  const date = new Date(value)\\n  if (date.toString() \u0021== \'Invalid Date\') {return date.toISOString()}\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}\\n","type":"default"},"defaultCastStringToBoolean":{"castFunctionId":"defaultCastStringToBoolean","name":"defaultCastStringToBoolean","dataType":"boolean","casting":"module.exports = function castStringToBoolean (value, fieldName, logger) {\\n  if (value === \'false\') {return false}\\n  if (value === \'true\') {return true}\\n  if (value === null) {return null}\\n  if (value === undefined) {return undefined}\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}\\n","type":"default"},"defaultCastToDate":{"castFunctionId":"defaultCastToDate","name":"defaultCastToDate","dataType":"Date","casting":"module.exports = function castToDate (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  const date = new Date(value)\\n  if (date.toString() \u0021== \'Invalid Date\') {\\n    return date\\n  }\\n  logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n  return undefined\\n}","type":"default"},"defaultCastToObject":{"castFunctionId":"defaultCastToObject","name":"defaultCastToObject","dataType":"RawObject","casting":"module.exports = function castToObject (value, fieldName, logger) {\\n  if (value === null) {return null}\\n  let valueToCast = value\\n  try {\\n    if(typeof valueToCast === \'string\') {valueToCast = JSON.parse(valueToCast)}\\n  } catch(e) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  if (typeof valueToCast \u0021== \'object\' || valueToCast.constructor \u0021== Object) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return valueToCast\\n}","type":"default"},"defaultCastToArrayOfObject":{"castFunctionId":"defaultCastToArrayOfObject","name":"defaultCastToArrayOfObject","dataType":"Array_RawObject","casting":"module.exports = function castToArrayOfObject (value, fieldName, logger) {\\n  if (value === null) { return null }\\n  let valueToCast = value\\n  try {\\n    if(typeof valueToCast === \'string\') {valueToCast = JSON.parse(valueToCast)}\\n  } catch(e) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  if (typeof valueToCast \u0021== \'object\' || valueToCast.constructor \u0021== Array ||\\n  valueToCast.some(element => typeof element \u0021== \'object\' || element.constructor \u0021== Object)) {\\n    logger.debug({fieldName}, \'is invalid, will be casted to undefined\')\\n    return undefined\\n  }\\n  return valueToCast\\n}","type":"default"}},"singleViews":{},"deletedElements":{},"version":"2.2.0","lastCommitId":"","updatedAt":"","erSchemas":{}},"microfrontendPluginsConfig":{},"extensionsConfig":{"files":{}},"config":{"applications":{},"collections":{},"endpoints":{},"groups":[],"secrets":[],"cmsCategories":{},"cmsSettings":{"accessGroupsExpression":"isBackoffice && groups.admin"},"cmsAnalytics":{},"cmsDashboard":[],"decorators":{},"serviceAccounts":{"nodejs-16-helloworld-microservice-example":{"name":"nodejs-16-helloworld-microservice-example"}},"services":{"nodejs-16-helloworld-microservice-example":{"name":"nodejs-16-helloworld-microservice-example","type":"custom","tags":["custom"],"advanced":false,"environment":[{"name":"LOG_LEVEL","value":"{{LOG_LEVEL}}","valueType":"plain"},{"name":"MICROSERVICE_GATEWAY_SERVICE_NAME","value":"microservice-gateway","valueType":"plain"},{"name":"TRUSTED_PROXIES","value":"10.0.0.0/8,172.16.0.0/12,192.168.0.0/16","valueType":"plain"},{"name":"HTTP_PORT","value":"3000","valueType":"plain"},{"name":"USERID_HEADER_KEY","value":"miauserid","valueType":"plain"},{"name":"GROUPS_HEADER_KEY","value":"miausergroups","valueType":"plain"},{"name":"CLIENTTYPE_HEADER_KEY","value":"client-type","valueType":"plain"},{"name":"BACKOFFICE_HEADER_KEY","value":"isbackoffice","valueType":"plain"},{"name":"USER_PROPERTIES_HEADER_KEY","value":"miauserproperties","valueType":"plain"}],"description":"Example of a simple Node.js 16 application. \\nIt contains example of tests too.","resources":{"memoryLimits":{"max":"150Mi","min":"150Mi"},"cpuLimits":{"max":"100m","min":"100m"}},"probes":{"liveness":{"port":"http","path":"/-/healthz","initialDelaySeconds":15,"periodSeconds":20,"timeoutSeconds":1,"failureThreshold":3},"readiness":{"port":"http","path":"/-/ready","initialDelaySeconds":5,"periodSeconds":10,"timeoutSeconds":1,"successThreshold":1,"failureThreshold":3}},"terminationGracePeriodSeconds":30,"logParser":"mia-json","dockerImage":"nexus.mia-platform.eu/test-project-giulio/nodejs-16-helloworld-microservice-example","repoUrl":"https://git.tools.mia-platform.eu/clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example","sshUrl":"git@git.tools.mia-platform.eu:clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example.git","createdAt":"2025-04-26T09:54:59.480Z","generatedFrom":{"_id":"67a4ed58d38aa6c26d28026e"},"replicas":1,"annotations":[{"name":"mia-platform.eu/version","value":"This will contain the platform version","description":"Version of Mia-Platform used by the project","readOnly":true},{"name":"fluentbit.io/parser","value":"This will depend on your log parser","description":"Pino parser annotation for Fluent Bit","readOnly":true}],"labels":[{"name":"app","value":"nodejs-16-helloworld-microservice-example","description":"Name of the microservice, in the service selector","readOnly":true},{"name":"app.kubernetes.io/name","value":"nodejs-16-helloworld-microservice-example","description":"Name of the microservice","readOnly":true},{"name":"app.kubernetes.io/version","value":"This will depend on your Docker Image tag","description":"Tag of the Docker image","readOnly":true},{"name":"app.kubernetes.io/component","value":"custom","description":"Microservice kind, for the Console","readOnly":true},{"name":"app.kubernetes.io/part-of","value":"test-project-giulio","description":"Project that own the microservice","readOnly":true},{"name":"app.kubernetes.io/managed-by","value":"mia-platform","description":"Identify who manage the service","readOnly":true},{"name":"mia-platform.eu/stage","value":"{{STAGE_TO_DEPLOY}}","description":"Environment used for the deploy","readOnly":true},{"name":"mia-platform.eu/tenant","value":"b933f1ef-5b8e-4adf-a346-24a3b03d13e8","description":"Tenant owner of the project","readOnly":true},{"name":"mia-platform.eu/log-type","value":"This will depend on your log parser","description":"Format of logs for the microservice","readOnly":true}],"serviceAccountName":"nodejs-16-helloworld-microservice-example","swaggerPath":"/documentation/json","containerPorts":[{"from":80,"name":"http","protocol":"TCP","to":3000}],"sourceMarketplaceItem":{"itemId":"node-js-helloworld-microservice-example","version":"1.0.0","tenantId":"mia-platform"},"containerRegistryId":"cd6ae8c5-feb0-4e5c-beec-39cf8290d3d7"}},"configMaps":{},"serviceSecrets":{},"apiVersions":[],"unsecretedVariables":[],"listeners":{},"version":"0.61.0"}}'
 
+Formatted POST
+```json 
+{
+  "title": "change: serviceAccounts: nodejs-16-helloworld-microservic...",
+  "deletedElements": {},
+  "fastDataConfig": {
+    "systems": {},
+    "castFunctions": {
+      "defaultIdentity": {
+        "castFunctionId": "defaultIdentity",
+        "name": "defaultIdentity",
+        "dataType": "all",
+        "casting": "module.exports = function castIdentity (value, fieldName, logger) {\n  return value\n}",
+        "type": "default"
+      },
+      "defaultCastToString": {
+        "castFunctionId": "defaultCastToString",
+        "name": "defaultCastToString",
+        "dataType": "string",
+        "casting": "module.exports = function castToString (value, fieldName, logger) {\n  if (value === null) {return null}\n  if (value === undefined) {return undefined}\n  if (typeof value === 'object') {return JSON.stringify(value)}\n  return String(value)\n}\n",
+        "type": "default"
+      },
+      "defaultCastToInteger": {
+        "castFunctionId": "defaultCastToInteger",
+        "name": "defaultCastToInteger",
+        "dataType": "number",
+        "casting": "module.exports = function castToInt (value, fieldName, logger) {\n  if (value === null) {return null}\n  if (value === undefined) {return undefined}\n  const number = Number(value)\n  if (Number.isNaN(number)) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  return parseInt(number, 10)\n}\n",
+        "type": "default"
+      },
+      "defaultCastToFloat": {
+        "castFunctionId": "defaultCastToFloat",
+        "name": "defaultCastToFloat",
+        "dataType": "number",
+        "casting": "module.exports = function castToFloat (value, fieldName, logger) {\n  if (value === null) {return null}\n  if (value === undefined) {return undefined}\n  const number = Number(value)\n  if (Number.isNaN(number)) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  return number\n}\n",
+        "type": "default"
+      },
+      "defaultCastUnitTimestampToISOString": {
+        "castFunctionId": "defaultCastUnitTimestampToISOString",
+        "name": "defaultCastUnitTimestampToISOString",
+        "dataType": "string",
+        "casting": "module.exports = function castUnitTimestampToISOString (value, fieldName, logger) {\n  if (value === null) {return null}\n  if (value === undefined) {return undefined}\n  const date = new Date(value)\n  if (date.toString() != 'Invalid Date') {return date.toISOString()}\n  logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n  return undefined\n}\n",
+        "type": "default"
+      },
+      "defaultCastStringToBoolean": {
+        "castFunctionId": "defaultCastStringToBoolean",
+        "name": "defaultCastStringToBoolean",
+        "dataType": "boolean",
+        "casting": "module.exports = function castStringToBoolean (value, fieldName, logger) {\n  if (value === 'false') {return false}\n  if (value === 'true') {return true}\n  if (value === null) {return null}\n  if (value === undefined) {return undefined}\n  logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n  return undefined\n}\n",
+        "type": "default"
+      },
+      "defaultCastToDate": {
+        "castFunctionId": "defaultCastToDate",
+        "name": "defaultCastToDate",
+        "dataType": "Date",
+        "casting": "module.exports = function castToDate (value, fieldName, logger) {\n  if (value === null) {return null}\n  const date = new Date(value)\n  if (date.toString() != 'Invalid Date') {\n    return date\n  }\n  logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n  return undefined\n}",
+        "type": "default"
+      },
+      "defaultCastToObject": {
+        "castFunctionId": "defaultCastToObject",
+        "name": "defaultCastToObject",
+        "dataType": "RawObject",
+        "casting": "module.exports = function castToObject (value, fieldName, logger) {\n  if (value === null) {return null}\n  let valueToCast = value\n  try {\n    if(typeof valueToCast === 'string') {valueToCast = JSON.parse(valueToCast)}\n  } catch(e) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  if (typeof valueToCast != 'object' || valueToCast.constructor != Object) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  return valueToCast\n}",
+        "type": "default"
+      },
+      "defaultCastToArrayOfObject": {
+        "castFunctionId": "defaultCastToArrayOfObject",
+        "name": "defaultCastToArrayOfObject",
+        "dataType": "Array_RawObject",
+        "casting": "module.exports = function castToArrayOfObject (value, fieldName, logger) {\n  if (value === null) { return null }\n  let valueToCast = value\n  try {\n    if(typeof valueToCast === 'string') {valueToCast = JSON.parse(valueToCast)}\n  } catch(e) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  if (typeof valueToCast != 'object' || valueToCast.constructor != Array ||\n  valueToCast.some(element => typeof element != 'object' || element.constructor != Object)) {\n    logger.debug({fieldName}, 'is invalid, will be casted to undefined')\n    return undefined\n  }\n  return valueToCast\n}",
+        "type": "default"
+      }
+    },
+    "singleViews": {},
+    "deletedElements": {},
+    "version": "2.2.0",
+    "lastCommitId": "",
+    "updatedAt": "",
+    "erSchemas": {}
+  },
+  "microfrontendPluginsConfig": {},
+  "extensionsConfig": {
+    "files": {}
+  },
+  "config": {
+    "applications": {},
+    "collections": {},
+    "endpoints": {},
+    "groups": [],
+    "secrets": [],
+    "cmsCategories": {},
+    "cmsSettings": {
+      "accessGroupsExpression": "isBackoffice && groups.admin"
+    },
+    "cmsAnalytics": {},
+    "cmsDashboard": [],
+    "decorators": {},
+    "serviceAccounts": {
+      "nodejs-16-helloworld-microservice-example": {
+        "name": "nodejs-16-helloworld-microservice-example"
+      }
+    },
+    "services": {
+      "nodejs-16-helloworld-microservice-example": {
+        "name": "nodejs-16-helloworld-microservice-example",
+        "type": "custom",
+        "tags": [
+          "custom"
+        ],
+        "advanced": false,
+        "environment": [
+          {
+            "name": "LOG_LEVEL",
+            "value": "{{LOG_LEVEL}}",
+            "valueType": "plain"
+          },
+          {
+            "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+            "value": "microservice-gateway",
+            "valueType": "plain"
+          },
+          {
+            "name": "TRUSTED_PROXIES",
+            "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+            "valueType": "plain"
+          },
+          {
+            "name": "HTTP_PORT",
+            "value": "3000",
+            "valueType": "plain"
+          },
+          {
+            "name": "USERID_HEADER_KEY",
+            "value": "miauserid",
+            "valueType": "plain"
+          },
+          {
+            "name": "GROUPS_HEADER_KEY",
+            "value": "miausergroups",
+            "valueType": "plain"
+          },
+          {
+            "name": "CLIENTTYPE_HEADER_KEY",
+            "value": "client-type",
+            "valueType": "plain"
+          },
+          {
+            "name": "BACKOFFICE_HEADER_KEY",
+            "value": "isbackoffice",
+            "valueType": "plain"
+          },
+          {
+            "name": "USER_PROPERTIES_HEADER_KEY",
+            "value": "miauserproperties",
+            "valueType": "plain"
+          }
+        ],
+        "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
+        "resources": {
+          "memoryLimits": {
+            "max": "150Mi",
+            "min": "150Mi"
+          },
+          "cpuLimits": {
+            "max": "100m",
+            "min": "100m"
+          }
+        },
+        "probes": {
+          "liveness": {
+            "port": "http",
+            "path": "/-/healthz",
+            "initialDelaySeconds": 15,
+            "periodSeconds": 20,
+            "timeoutSeconds": 1,
+            "failureThreshold": 3
+          },
+          "readiness": {
+            "port": "http",
+            "path": "/-/ready",
+            "initialDelaySeconds": 5,
+            "periodSeconds": 10,
+            "timeoutSeconds": 1,
+            "successThreshold": 1,
+            "failureThreshold": 3
+          }
+        },
+        "terminationGracePeriodSeconds": 30,
+        "logParser": "mia-json",
+        "dockerImage": "nexus.mia-platform.eu/test-project-giulio/nodejs-16-helloworld-microservice-example",
+        "repoUrl": "https://git.tools.mia-platform.eu/clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example",
+        "sshUrl": "git@git.tools.mia-platform.eu:clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example.git",
+        "createdAt": "2025-04-26T09:54:59.480Z",
+        "generatedFrom": {
+          "_id": "67a4ed58d38aa6c26d28026e"
+        },
+        "replicas": 1,
+        "annotations": [
+          {
+            "name": "mia-platform.eu/version",
+            "value": "This will contain the platform version",
+            "description": "Version of Mia-Platform used by the project",
+            "readOnly": true
+          },
+          {
+            "name": "fluentbit.io/parser",
+            "value": "This will depend on your log parser",
+            "description": "Pino parser annotation for Fluent Bit",
+            "readOnly": true
+          }
+        ],
+        "labels": [
+          {
+            "name": "app",
+            "value": "nodejs-16-helloworld-microservice-example",
+            "description": "Name of the microservice, in the service selector",
+            "readOnly": true
+          },
+          {
+            "name": "app.kubernetes.io/name",
+            "value": "nodejs-16-helloworld-microservice-example",
+            "description": "Name of the microservice",
+            "readOnly": true
+          },
+          {
+            "name": "app.kubernetes.io/version",
+            "value": "This will depend on your Docker Image tag",
+            "description": "Tag of the Docker image",
+            "readOnly": true
+          },
+          {
+            "name": "app.kubernetes.io/component",
+            "value": "custom",
+            "description": "Microservice kind, for the Console",
+            "readOnly": true
+          },
+          {
+            "name": "app.kubernetes.io/part-of",
+            "value": "test-project-giulio",
+            "description": "Project that own the microservice",
+            "readOnly": true
+          },
+          {
+            "name": "app.kubernetes.io/managed-by",
+            "value": "mia-platform",
+            "description": "Identify who manage the service",
+            "readOnly": true
+          },
+          {
+            "name": "mia-platform.eu/stage",
+            "value": "{{STAGE_TO_DEPLOY}}",
+            "description": "Environment used for the deploy",
+            "readOnly": true
+          },
+          {
+            "name": "mia-platform.eu/tenant",
+            "value": "b933f1ef-5b8e-4adf-a346-24a3b03d13e8",
+            "description": "Tenant owner of the project",
+            "readOnly": true
+          },
+          {
+            "name": "mia-platform.eu/log-type",
+            "value": "This will depend on your log parser",
+            "description": "Format of logs for the microservice",
+            "readOnly": true
+          }
+        ],
+        "serviceAccountName": "nodejs-16-helloworld-microservice-example",
+        "swaggerPath": "/documentation/json",
+        "containerPorts": [
+          {
+            "from": 80,
+            "name": "http",
+            "protocol": "TCP",
+            "to": 3000
+          }
+        ],
+        "sourceMarketplaceItem": {
+          "itemId": "node-js-helloworld-microservice-example",
+          "version": "1.0.0",
+          "tenantId": "mia-platform"
+        },
+        "containerRegistryId": "cd6ae8c5-feb0-4e5c-beec-39cf8290d3d7"
+      }
+    },
+    "configMaps": {},
+    "serviceSecrets": {},
+    "apiVersions": [],
+    "unsecretedVariables": [],
+    "listeners": {},
+    "version": "0.61.0"
+  }
+}
+```
+
 
   ```json
   {"id":"3974b476-01b2-4f46-94c3-c392c0fe4ffe","upgraded":false}

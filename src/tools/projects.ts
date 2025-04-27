@@ -838,7 +838,7 @@ Environments:`;
       serviceDescription: z.string().describe('A description of the microservice'),
       imageName: z.string().describe('The Docker image name for the microservice. Use the information from list_catalog'),
       repoName: z.string().describe('The name of the repository for the microservice. Use the information from list_catalog'),
-      groupName: z.string().describe('The group name where the microservice repository will be created. Use the information from Configuration Git Path and remove configurations path at the end.'),
+      groupName: z.string().describe('The group name where the microservice repository will be created. Use the information from Configuration Git Path returned by get-project-info and remove /Configurations the end.'),
       templateId: z.string().describe('The template ID to use for the microservice. Use the field TemplateId from list_catalog or list_item_versions or get_item_version_details'),
       pipeline: z.string().describe('The type of pipeline to use (e.g., gitlab-ci). Use the information from list_catalog'),
       resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
@@ -862,7 +862,8 @@ Environments:`;
       try {
         
         const repoGroup = groupName + '/services'
-
+        
+        
         // Construct the request payload
         const microserviceData: Record<string, unknown> = {
           serviceName,
@@ -887,25 +888,195 @@ Environments:`;
 
         // Read the current project configuration
         const projectDesign = await readProjectConfigurations(client, projectId)
+        
+        // Check if service name already exists in the project design
+        if (projectDesign.services && projectDesign.services[data.serviceName]) {
+          throw new Error(`Service name '${data.serviceName}' already exists in the project configuration. Please choose a different service name.`);
+        }
 
         // Create a new service entry for the microservice
         const newService = {
-          type: 'microservice',
+          type: 'custom',
           advanced: false,
           name: data.serviceName,
           dockerImage: data.dockerImage,
           replicas: 1,
-          serviceAccountName: 'default',
+          serviceAccountName: data.serviceName, // Use the service name as the service account name
           logParser: 'json',
           description: serviceDescription,
           containerPorts: data.containerPorts,
-          // Set any additional properties needed
+          containerRegistryId: data.containerRegistryId,
+          // Add missing properties
+          tags: ['custom'],
+          environment: [
+            {
+              name: 'LOG_LEVEL',
+              value: '{{LOG_LEVEL}}',
+              valueType: 'plain'
+            },
+            {
+              name: 'MICROSERVICE_GATEWAY_SERVICE_NAME',
+              value: 'microservice-gateway',
+              valueType: 'plain'
+            },
+            {
+              name: 'TRUSTED_PROXIES',
+              value: '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16',
+              valueType: 'plain'
+            },
+            {
+              name: 'HTTP_PORT',
+              value: '3000',
+              valueType: 'plain'
+            },
+            {
+              name: 'USERID_HEADER_KEY',
+              value: 'miauserid',
+              valueType: 'plain'
+            },
+            {
+              name: 'GROUPS_HEADER_KEY',
+              value: 'miausergroups',
+              valueType: 'plain'
+            },
+            {
+              name: 'CLIENTTYPE_HEADER_KEY',
+              value: 'client-type',
+              valueType: 'plain'
+            },
+            {
+              name: 'BACKOFFICE_HEADER_KEY',
+              value: 'isbackoffice',
+              valueType: 'plain'
+            },
+            {
+              name: 'USER_PROPERTIES_HEADER_KEY',
+              value: 'miauserproperties',
+              valueType: 'plain'
+            }
+          ],
+          resources: {
+            memoryLimits: {
+              max: '150Mi',
+              min: '150Mi'
+            },
+            cpuLimits: {
+              max: '100m',
+              min: '100m'
+            }
+          },
+          probes: {
+            liveness: {
+              port: 'http',
+              path: '/-/healthz',
+              initialDelaySeconds: 15,
+              periodSeconds: 20,
+              timeoutSeconds: 1,
+              failureThreshold: 3
+            },
+            readiness: {
+              port: 'http',
+              path: '/-/ready',
+              initialDelaySeconds: 5,
+              periodSeconds: 10,
+              timeoutSeconds: 1,
+              successThreshold: 1,
+              failureThreshold: 3
+            }
+          },
+          terminationGracePeriodSeconds: 30,
+          repoUrl: data.webUrl, // Assuming data.webUrl contains the repo URL
+          sshUrl: data.sshUrl,
+          createdAt: new Date().toISOString(),
+          annotations: [
+            {
+              name: 'mia-platform.eu/version',
+              value: 'This will contain the platform version',
+              description: 'Version of Mia-Platform used by the project',
+              readOnly: true
+            },
+            {
+              name: 'fluentbit.io/parser',
+              value: 'This will depend on your log parser',
+              description: 'Pino parser annotation for Fluent Bit',
+              readOnly: true
+            }
+          ],
+          labels: [
+            {
+              name: 'app',
+              value: data.serviceName,
+              description: 'Name of the microservice, in the service selector',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/name',
+              value: data.serviceName,
+              description: 'Name of the microservice',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/version',
+              value: 'This will depend on your Docker Image tag',
+              description: 'Tag of the Docker image',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/component',
+              value: 'custom',
+              description: 'Microservice kind, for the Console',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/part-of',
+              value: data.resourceName || projectId, // Use resourceName or fall back to projectId
+              description: 'Project that own the microservice',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/managed-by',
+              value: 'mia-platform',
+              description: 'Identify who manage the service',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/stage',
+              value: '{{STAGE_TO_DEPLOY}}',
+              description: 'Environment used for the deploy',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/tenant',
+              value: '', // This should be filled with tenant ID from project info
+              description: 'Tenant owner of the project',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/log-type',
+              value: 'This will depend on your log parser',
+              description: 'Format of logs for the microservice',
+              readOnly: true
+            }
+          ],
+          swaggerPath: '/documentation/json',
+          // If data contains generatedFrom or sourceMarketplaceItem, add them
+        //  ...(data.generatedFrom && { generatedFrom: data.generatedFrom }),
+        //  ...(data.sourceMarketplaceItem && { sourceMarketplaceItem: data.sourceMarketplaceItem })
         }
 
         // Add the new microservice to the project design services
         projectDesign.services = {
           ...projectDesign.services,
           [data.serviceName]: newService
+        }
+        
+        // Also ensure service account is created
+        if (!projectDesign.serviceAccounts) {
+          projectDesign.serviceAccounts = {};
+        }
+        
+        projectDesign.serviceAccounts[data.serviceName] = {
+          name: data.serviceName
         }
 
         // Save the updated project configuration
@@ -946,6 +1117,28 @@ ${data.defaultConfigMaps && data.defaultConfigMaps.length > 0 ?
         }
       } catch (error) {
         const err = error as Error
+        
+        // Check for repository name collision errors
+        if (err.message.includes("name has already been taken") || 
+            err.message.includes("path has already been taken") ||
+            err.message.includes("project_namespace.name has already been taken")) {
+          
+          // Generate a unique name with timestamp to avoid collisions
+          const timestamp = new Date().getTime();
+          const uniqueServiceName = `${serviceName}-${timestamp}`;
+          const uniqueRepoName = `${repoName}-${timestamp}`;
+          
+          // Provide helpful error message with suggested solution
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error creating microservice: The repository name "${repoName}" is already in use.\n\nPlease try again with a different name. You can use these unique names to avoid collisions:\n- Service Name: ${uniqueServiceName}\n- Repository Name: ${uniqueRepoName}\n\nOr you can check the existing repositories in the group "${groupName}/services" and choose a name that's not already taken.`,
+              },
+            ],
+          }
+        }
+        
         return {
           content: [
             {
