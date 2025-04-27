@@ -26,6 +26,19 @@ const marketplacePath = '/api/marketplace'
 const itemVersionsPath = '/api/tenants/mia-platform/marketplace/items/{itemId}/versions'
 const itemVersionDetailsPath = '/api/tenants/mia-platform/marketplace/items/{itemId}/versions/{version}'
 
+export const CATALOG_TYPES = {
+  APPLICATION: 'application',
+  EXAMPLE: 'example',
+  EXTENSION: 'extension',
+  CUSTOM_RESOURCE: 'custom-resource',
+  PLUGIN: 'plugin',
+  PROXY: 'proxy',
+  SIDECAR: 'sidecar',
+  TEMPLATE: 'template'
+} as const;
+
+// Type for catalog values
+export type CatalogType = typeof CATALOG_TYPES[keyof typeof CATALOG_TYPES];
 
 // Interface for marketplace item response
 interface CategoryInfo {

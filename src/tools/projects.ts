@@ -408,6 +408,7 @@ export function projectsTools(server: McpServer, client: APIClient) {
           templateId: templateId || '',
           visibility: 'internal',
           providerId: providerId || '',
+          enableConfGenerationOnDeploy: true
         }
 
         console.log('Project Data:', projectData)
@@ -481,7 +482,16 @@ export function projectsTools(server: McpServer, client: APIClient) {
           Repository Provider ID: ${data.repository?.providerId || 'N/A'}
           Project Namespace Variable: ${data.projectNamespaceVariable || 'N/A'}
           Enabled Services: ${Object.entries(data.enabledServices || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}
-          Enabled Security Features: ${Object.entries(data.enabledSecurityFeatures || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}`;
+          Enabled Security Features: ${Object.entries(data.enabledSecurityFeatures || {}).map(([key, value]) => `${key}: ${value}`).join(', ') || 'N/A'}
+          Environments: ${data.environments.map(env => {
+            return `\n  Environment: ${env.label} (${env.envId})
+              Production: ${env.isProduction}
+              Cluster:
+                Namespace: ${env.cluster?.namespace || 'N/A'}
+                Cluster ID: ${env.cluster?.clusterId || 'N/A'}
+              Hosts: ${env.hosts?.map(host => `${host.scheme}://${host.host}${host.isBackoffice ? ' (Backoffice)' : ''}`).join(', ') || 'N/A'}`;
+          }).join('\n\n') || 'N/A'}`;
+
         return {
           content: [
             {
@@ -830,10 +840,9 @@ Environments:`;
   // Tool: Create Microservice
   server.tool(
     'create-microservice',
-    'Create a microservice in a Project starting from an item configuraration in the catalog',
+    'Create a microservice in a Project starting from an item configuraration in the catalog. Use this tool for items of type template or example',
     {
       projectId: z.string().describe('The ID of the project where the microservice will be created'),
-     // projectSlug: z.string().describe('The ProjectSlug of the project where the microservice will be created. Get this information from the get-project-info tool'),
       serviceName: z.string().describe('The name of the microservice'),
       serviceDescription: z.string().describe('A description of the microservice'),
       imageName: z.string().describe('The Docker image name for the microservice. Use the information from list_catalog'),
@@ -843,11 +852,11 @@ Environments:`;
       pipeline: z.string().describe('The type of pipeline to use (e.g., gitlab-ci). Use the information from list_catalog'),
       resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
       containerRegistryId: z.string().describe('The ID of the container registry to use. Use the value containerRegistryId from get-project-blueprint. Use the default one if you are not sure.'),
+      // projectMode: z.enum(['classical', 'regular']).describe('In can be classical or regular. Try with classical if you are not sure and if does not work try with regular.'),
       //defaultConfigMaps: z.array(z.any()).optional().describe('Default config maps for the microservice. Use the information list_catalog and generate accordling with the documentation of the container that you can find at https://docs.mia-platform.eu/')
     },
     async ({
       projectId,
-    //  projectSlug,
       serviceName,
       serviceDescription,
       imageName,
@@ -857,6 +866,7 @@ Environments:`;
       pipeline,
       resourceName,
       containerRegistryId,
+      //projectMode,
      // defaultConfigMaps
     }): Promise<CallToolResult> => {
       try {
@@ -1083,11 +1093,12 @@ Environments:`;
         await saveProjectConfigurations(
           client, 
           projectId, 
-          'DEV', 
+          'DEV', //TODO this should be configurable
           projectDesign, 
           { 
             title: `Added new microservice: ${data.serviceName}`,
-          }
+          },
+         // projectMode
         )
 
         // Format the response in a readable way
@@ -1144,6 +1155,256 @@ ${data.defaultConfigMaps && data.defaultConfigMaps.length > 0 ?
             {
               type: 'text',
               text: `Error creating microservice: ${err.message}`,
+            },
+          ],
+        }
+      }
+    }
+  )
+  // Tool: Create Container
+  server.tool(
+    'create-container',
+    'Create a container in a Project starting from an item configuraration in the catalog. Use this tool for other items: plugin, application, resource, etc.',
+    {
+      projectId: z.string().describe('The ID of the project where the microservice will be created'),
+      serviceName: z.string().describe('The name of the microservice'),
+      containerType: z.enum(['plugin', 'application', 'resource']).describe('The type of the container. Use the Type of item from list_catalog'),
+      serviceDescription: z.string().describe('A description of the microservice'),
+      imageName: z.string().describe('The Docker image name for the microservice. Use the information from list_catalog'),
+      //projectMode: z.enum(['classical', 'regular']).describe('In can be classical or regular. Try with classical if you are not sure and if does not work try with regular.'),
+     // templateId: z.string().describe('The template ID to use for the microservice. Use the field TemplateId from list_catalog or list_item_versions or get_item_version_details'),
+     // resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
+     // containerRegistryId: z.string().describe('The ID of the container registry to use. Use the value containerRegistryId from get-project-blueprint. Use the default one if you are not sure.'),
+      //defaultConfigMaps: z.array(z.any()).optional().describe('Default config maps for the microservice. Use the information list_catalog and generate accordling with the documentation of the container that you can find at https://docs.mia-platform.eu/')
+    },
+    async ({
+      projectId,
+      serviceName,
+      containerType,
+      serviceDescription,
+      imageName,
+      //projectMode
+     // templateId,
+     // resourceName,
+     // containerRegistryId,
+     // defaultConfigMaps
+    }): Promise<CallToolResult> => {
+      try {
+
+        // Update the project configuration with the new microservice
+        // First, import the design configuration functions
+        const { readProjectConfigurations, saveProjectConfigurations } = await import('../lib/designLib.js')
+
+        // Read the current project configuration
+        const projectDesign = await readProjectConfigurations(client, projectId)
+        
+        // Check if service name already exists in the project design
+        if (projectDesign.services && projectDesign.services[serviceName]) {
+          throw new Error(`Service name '${serviceName}' already exists in the project configuration. Please choose a different service name.`);
+        }
+
+        // Create a new service entry for the microservice
+        const newService = {
+          type: containerType,
+          advanced: false,
+          name: serviceName,
+          description: serviceDescription,
+          dockerImage: imageName,
+          replicas: 1,
+          serviceAccountName: serviceName, // Use the service name as the service account name
+          logParser: 'json',
+         // containerPorts: data.containerPorts,
+         // containerRegistryId: data.containerRegistryId,
+          // Add missing properties
+          tags: ['custom'],
+          environment: [
+            {
+              name: 'LOG_LEVEL',
+              value: '{{LOG_LEVEL}}',
+              valueType: 'plain'
+            },
+            {
+              name: 'MICROSERVICE_GATEWAY_SERVICE_NAME',
+              value: 'microservice-gateway',
+              valueType: 'plain'
+            },
+            {
+              name: 'TRUSTED_PROXIES',
+              value: '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16',
+              valueType: 'plain'
+            },
+            {
+              name: 'HTTP_PORT',
+              value: '3000',
+              valueType: 'plain'
+            },
+            {
+              name: 'USERID_HEADER_KEY',
+              value: 'miauserid',
+              valueType: 'plain'
+            },
+            {
+              name: 'GROUPS_HEADER_KEY',
+              value: 'miausergroups',
+              valueType: 'plain'
+            },
+            {
+              name: 'CLIENTTYPE_HEADER_KEY',
+              value: 'client-type',
+              valueType: 'plain'
+            },
+            {
+              name: 'BACKOFFICE_HEADER_KEY',
+              value: 'isbackoffice',
+              valueType: 'plain'
+            },
+            {
+              name: 'USER_PROPERTIES_HEADER_KEY',
+              value: 'miauserproperties',
+              valueType: 'plain'
+            }
+          ],
+          resources: {
+            memoryLimits: {
+              max: '150Mi',
+              min: '150Mi'
+            },
+            cpuLimits: {
+              max: '100m',
+              min: '100m'
+            }
+          },
+          probes: {
+            
+          },
+          terminationGracePeriodSeconds: 30,
+         
+          createdAt: new Date().toISOString(),
+          annotations: [
+            {
+              name: 'mia-platform.eu/version',
+              value: 'This will contain the platform version',
+              description: 'Version of Mia-Platform used by the project',
+              readOnly: true
+            },
+            {
+              name: 'fluentbit.io/parser',
+              value: 'This will depend on your log parser',
+              description: 'Pino parser annotation for Fluent Bit',
+              readOnly: true
+            }
+          ],
+          labels: [
+            {
+              name: 'app',
+              value: serviceName,
+              description: 'Name of the microservice, in the service selector',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/name',
+              value: serviceName,
+              description: 'Name of the microservice',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/version',
+              value: 'This will depend on your Docker Image tag',
+              description: 'Tag of the Docker image',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/component',
+              value: 'custom',
+              description: 'Microservice kind, for the Console',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/part-of',
+              value: projectId, // Use resourceName or fall back to projectId
+              description: 'Project that own the microservice',
+              readOnly: true
+            },
+            {
+              name: 'app.kubernetes.io/managed-by',
+              value: 'mia-platform',
+              description: 'Identify who manage the service',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/stage',
+              value: '{{STAGE_TO_DEPLOY}}',
+              description: 'Environment used for the deploy',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/tenant',
+              value: '', // This should be filled with tenant ID from project info
+              description: 'Tenant owner of the project',
+              readOnly: true
+            },
+            {
+              name: 'mia-platform.eu/log-type',
+              value: 'This will depend on your log parser',
+              description: 'Format of logs for the microservice',
+              readOnly: true
+            }
+          ],
+          swaggerPath: '/documentation/json',
+          // If data contains generatedFrom or sourceMarketplaceItem, add them
+        //  ...(data.generatedFrom && { generatedFrom: data.generatedFrom }),
+        //  ...(data.sourceMarketplaceItem && { sourceMarketplaceItem: data.sourceMarketplaceItem })
+        }
+
+        // Add the new microservice to the project design services
+        projectDesign.services = {
+          ...projectDesign.services,
+          [serviceName]: newService
+        }
+        
+        // Also ensure service account is created
+        if (!projectDesign.serviceAccounts) {
+          projectDesign.serviceAccounts = {};
+        }
+        
+        projectDesign.serviceAccounts[serviceName] = {
+          name: serviceName
+        }
+
+        // Save the updated project configuration
+        await saveProjectConfigurations(
+          client, 
+          projectId, 
+          'DEV', //TODO this should be configurable 
+          projectDesign, 
+          { 
+            title: `Added new container: ${serviceName}`,
+          }
+          //, projectMode
+        )
+
+        // Format the response in a readable way
+        const formattedResponse = `Microservice successfully created:
+Service Name: ${serviceName}
+Docker Image: ${imageName}`
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: formattedResponse,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+      
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error creating container: ${err.message}`,
             },
           ],
         }

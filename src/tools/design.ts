@@ -134,8 +134,9 @@ ${endpointsSummary || 'No endpoints defined'}`
       title: z.string().describe('A title for this configuration save operation'),
       previousSave: z.string().describe('The commit ID of the previous save (usually lastConfigFileCommitId from the design)').optional(),
       deletedElements: z.record(z.any()).describe('Map of deleted elements in the configuration').optional(),
+      //projectMode: z.enum(['classical', 'regular']).describe('In can be classical or regular. Try with classical if you are not sure and if does not work try with regular.'),
     },
-    async ({ projectId, revision = 'main', design, title, previousSave, deletedElements }): Promise<CallToolResult> => {
+    async ({ projectId, revision = 'main', design, title, previousSave, deletedElements}): Promise<CallToolResult> => {
       try {
         // Call saveProjectConfigurations from designLib
         const result = await saveProjectConfigurations(
@@ -147,7 +148,8 @@ ${endpointsSummary || 'No endpoints defined'}`
             title,
             previousSave,
             deletedElements,
-          }
+          },
+          // projectMode
         )
         
         return {
