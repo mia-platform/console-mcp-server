@@ -784,7 +784,7 @@ Environments:`;
         // Format container registries
         formattedBlueprint += `\n\nContainer Registries:`;
         data.containerRegistries.forEach(registry => {
-          formattedBlueprint += `\n  - ${registry.name} (${registry.hostname})${registry.isDefault ? ' (Default)' : ''}`;
+          formattedBlueprint += `\n  - containerRegistryId: ${registry.id}, name:${registry.name}, host:${registry.hostname} - ${registry.isDefault ? ' (Default)' : ''}`;
         });
 
         // Format security features
@@ -842,7 +842,7 @@ Environments:`;
       templateId: z.string().describe('The template ID to use for the microservice. Use the field TemplateId from list_catalog or list_item_versions or get_item_version_details'),
       pipeline: z.string().describe('The type of pipeline to use (e.g., gitlab-ci). Use the information from list_catalog'),
       resourceName: z.string().describe('The name of the Kubernetes resource. Use the field TemplateSlug from list_catalog or list_item_versions or get_item_version_details'),
-      containerRegistryId: z.string().describe('The ID of the container registry to use. Use the information from get-project-blueprint')
+      containerRegistryId: z.string().describe('The ID of the container registry to use. Use the value containerRegistryId from get-project-blueprint. Use the default one if you are not sure.'),
       //defaultConfigMaps: z.array(z.any()).optional().describe('Default config maps for the microservice. Use the information list_catalog and generate accordling with the documentation of the container that you can find at https://docs.mia-platform.eu/')
     },
     async ({
@@ -880,6 +880,21 @@ Environments:`;
         // Make the POST request
         const apiPath = createMicroservicePath.replace('{projectId}', projectId)
         const data = await client.post<CreateMicroserviceResponse>(apiPath, microserviceData)
+
+        if (data) {
+          const existingProjectConfiguration = await client.get<Project>(projectPath.replace('{projectId}', projectId))
+          if (existingProjectConfiguration) {
+            // Update the project configuration with the new microservice
+            const updatedProjectConfiguration = {
+              ...existingProjectConfiguration,
+              enabledServices: {
+                ...existingProjectConfiguration.enabledServices,
+                [data.serviceName]: true,
+              },
+            }
+            await client.post(projectPath.replace('{projectId}', projectId), updatedProjectConfiguration)
+          }
+        }
 
         // Format the response in a readable way
         const formattedResponse = `Microservice successfully created:

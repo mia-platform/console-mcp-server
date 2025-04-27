@@ -1997,18 +1997,2891 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
   {"id":"3974b476-01b2-4f46-94c3-c392c0fe4ffe","upgraded":false}
   ```
 
-  curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9c11d/environments/DEV/configuration' \
+### Get Configuration in Console Design Area
 
-
-  ```json
-  {
-  "endpoints": {},
-  "collections": {},
+#### Curl
+ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680de44e25e7a18172e9c192/revisions/main/configuration' \
+ 
+#### JSON Response example for Design configuration
+ ```json
+ {
+  "endpoints": {
+    "/analytics": {
+      "basePath": "/analytics",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "analytics-transactions",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /analytics",
+      "tags": [
+        "analytics"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/adaptive-checkout": {
+      "basePath": "/adaptive-checkout",
+      "routes": {
+        "GET/": {
+          "id": "GET/",
+          "path": "/",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "POST/": {
+          "id": "POST/",
+          "path": "/",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "POST",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/export": {
+          "id": "GET/export",
+          "path": "/export",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": false,
+            "value": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/:id": {
+          "id": "GET/:id",
+          "path": "/:id",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "DELETE/:id": {
+          "id": "DELETE/:id",
+          "path": "/:id",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "DELETE",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "DELETE/": {
+          "id": "DELETE/",
+          "path": "/",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "DELETE",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "PATCH/:id": {
+          "id": "PATCH/:id",
+          "path": "/:id",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "PATCH",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "PATCH/": {
+          "id": "PATCH/",
+          "path": "/",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "PATCH",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/count": {
+          "id": "GET/count",
+          "path": "/count",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "POST/bulk": {
+          "id": "POST/bulk",
+          "path": "/bulk",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "POST",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "POST/upsert-one": {
+          "id": "POST/upsert-one",
+          "path": "/upsert-one",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "POST",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "PATCH/bulk": {
+          "id": "PATCH/bulk",
+          "path": "/bulk",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "PATCH",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "POST/:id/state": {
+          "id": "POST/:id/state",
+          "path": "/:id/state",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "POST",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "POST/state": {
+          "id": "POST/state",
+          "path": "/state",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "POST",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        }
+      },
+      "type": "crud",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "pathName": "/",
+      "collectionId": "rules",
+      "pathRewrite": "/rules",
+      "description": "Endpoint /adaptive-checkout",
+      "tags": [
+        "crud"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      }
+    },
+    "/api/charts/dashboards": {
+      "basePath": "/api/charts/dashboards",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "data-visualization-backend",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /api/charts/dashboards",
+      "tags": [
+        "data-visualization-backend"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/data-visualization": {
+      "basePath": "/data-visualization",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "data-visualization-frontend",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /data-visualization",
+      "tags": [
+        "data-visualization-frontend"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/export": {
+      "basePath": "/export",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": true,
+      "acl": "true",
+      "service": "export-service",
+      "port": "80",
+      "pathRewrite": "/export",
+      "description": "Endpoint /export",
+      "tags": [
+        "export-service"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/fm": {
+      "basePath": "/fm",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": true,
+      "acl": "true",
+      "service": "flow-manager-service",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /fm",
+      "tags": [
+        "flow-manager-service"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/demo": {
+      "basePath": "/demo",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-front-end",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /demo",
+      "tags": [
+        "payment-front-end"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-adyen": {
+      "basePath": "/callback-adyen",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/adyen/callback",
+      "description": "Endpoint /callback-adyen",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-axerve": {
+      "basePath": "/callback-axerve",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/axerve/callback",
+      "description": "Endpoint /callback-axerve",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-braintree": {
+      "basePath": "/callback-braintree",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/braintree/callback",
+      "description": "Endpoint /callback-braintree",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-flowpay": {
+      "basePath": "/callback-flowpay",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/flowpay/callback",
+      "description": "Endpoint /callback-flowpay",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-nexi": {
+      "basePath": "/callback-nexi",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/nexi/callback",
+      "description": "Endpoint /callback-nexi",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-satispay": {
+      "basePath": "/callback-satispay",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/satispay/callback",
+      "description": "Endpoint /callback-satispay",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-scalapay": {
+      "basePath": "/callback-scalapay",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/scalapay/callback",
+      "description": "Endpoint /callback-scalapay",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-soisy": {
+      "basePath": "/callback-soisy",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/soisy/callback",
+      "description": "Endpoint /callback-soisy",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/callback-stripe": {
+      "basePath": "/callback-stripe",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "service": "payment-gateway-manager",
+      "port": "80",
+      "pathRewrite": "/v3/stripe/callback",
+      "description": "Endpoint /callback-stripe",
+      "tags": [
+        "payment-gateway-manager"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/": {
+      "basePath": "/",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": true,
+      "acl": "true",
+      "service": "pgm-bff",
+      "port": "80",
+      "pathRewrite": "/",
+      "description": "Endpoint /",
+      "tags": [
+        "pgm-bff"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/mfe-application": {
+      "basePath": "/mfe-application",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": false,
+      "secreted": false,
+      "acl": "true",
+      "service": "micro-lc",
+      "port": "80",
+      "pathRewrite": "/public",
+      "description": "Endpoint /mfe-application",
+      "tags": [
+        "microfrontend"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/micro-lc-configurations": {
+      "basePath": "/micro-lc-configurations",
+      "type": "custom",
+      "public": true,
+      "showInDocumentation": false,
+      "secreted": false,
+      "acl": "true",
+      "service": "micro-lc",
+      "port": "80",
+      "pathRewrite": "/configurations",
+      "description": "Endpoint /micro-lc-configurations",
+      "tags": [
+        "backoffice"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      },
+      "useDownstreamProtocol": true
+    },
+    "/libraries": {
+      "basePath": "/libraries",
+      "routes": {
+        "GET/": {
+          "id": "GET/",
+          "path": "/",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/export": {
+          "id": "GET/export",
+          "path": "/export",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": false,
+            "value": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/:id": {
+          "id": "GET/:id",
+          "path": "/:id",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        },
+        "GET/count": {
+          "id": "GET/count",
+          "path": "/count",
+          "public": {
+            "inherited": true
+          },
+          "showInDocumentation": {
+            "inherited": true
+          },
+          "secreted": {
+            "inherited": true
+          },
+          "acl": {
+            "inherited": true
+          },
+          "backofficeAcl": {
+            "inherited": true
+          },
+          "verb": "GET",
+          "allowUnknownRequestContentType": {
+            "inherited": true
+          },
+          "allowUnknownResponseContentType": {
+            "inherited": true
+          },
+          "preDecorators": [],
+          "postDecorators": [],
+          "rateLimit": {
+            "inherited": true
+          }
+        }
+      },
+      "type": "fast-data-single-view",
+      "public": true,
+      "showInDocumentation": true,
+      "secreted": false,
+      "acl": "true",
+      "pathName": "/",
+      "internalEndpoint": "/sv-libraries",
+      "description": "Endpoint /libraries",
+      "tags": [
+        "fast-data-single-view"
+      ],
+      "backofficeAcl": {
+        "inherited": true
+      },
+      "allowUnknownRequestContentType": false,
+      "allowUnknownResponseContentType": false,
+      "forceMicroserviceGatewayProxy": false,
+      "listeners": {
+        "frontend": true
+      }
+    }
+  },
+  "collections": {
+    "fm_subscriptions": {
+      "id": "fm_subscriptions",
+      "name": "fm_subscriptions",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "sagaId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "metadata",
+          "type": "RawObject",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false,
+          "schema": {
+            "properties": {
+              "additionalData": {
+                "type": "object"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "expirationDate": {
+                "type": "string"
+              },
+              "expireRequested": {
+                "type": "boolean"
+              },
+              "interval": {
+                "type": "string"
+              },
+              "intervalCount": {
+                "type": "number"
+              },
+              "nextPaymentDate": {
+                "nullable": true,
+                "type": "string"
+              },
+              "paymentMethod": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "providerData": {
+                "type": "object"
+              },
+              "shopSubscriptionId": {
+                "type": "string"
+              },
+              "transactions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            }
+          }
+        },
+        {
+          "name": "isFinal",
+          "type": "boolean",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "currentState",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "latestEvent",
+          "type": "RawObject",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "associatedEntityId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "events",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "history",
+          "type": "RawObject",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "businessStateId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "businessStateDescription",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/fm-subscriptions",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of fm_subscriptions",
+      "tags": [
+        "collection"
+      ]
+    },
+    "fm_transactions": {
+      "id": "fm_transactions",
+      "name": "fm_transactions",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "sagaId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "metadata",
+          "type": "RawObject",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false,
+          "schema": {
+            "properties": {
+              "additionalData": {
+                "properties": {
+                  "channel": {
+                    "type": "string"
+                  },
+                  "items": {
+                    "items": {
+                      "properties": {
+                        "amount": {
+                          "type": "number"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "itemId": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "number"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "buyer": {
+                "type": "object"
+              },
+              "currency": {
+                "type": "string"
+              },
+              "isRecurrent": {
+                "type": "boolean"
+              },
+              "paymentID": {
+                "type": "string"
+              },
+              "paymentMethod": {
+                "type": "string"
+              },
+              "paymentToken": {
+                "type": "string"
+              },
+              "payRequestData": {
+                "type": "object"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "providerData": {
+                "type": "object"
+              },
+              "recurrenceDetails": {
+                "type": "object"
+              },
+              "refundDetails": {
+                "type": "object"
+              },
+              "refundRequestData": {
+                "type": "object"
+              },
+              "sessionToken": {
+                "type": "string"
+              },
+              "shopTransactionID": {
+                "type": "string"
+              },
+              "subscriptionId": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "name": "isFinal",
+          "type": "boolean",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "currentState",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "latestEvent",
+          "type": "RawObject",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "associatedEntityId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "events",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "history",
+          "type": "RawObject",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "businessStateId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": ""
+        },
+        {
+          "name": "businessStateDescription",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "description": ""
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/fm-transactions",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of fm_transactions",
+      "tags": [
+        "collection"
+      ]
+    },
+    "invoices": {
+      "id": "invoices",
+      "name": "invoices",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "size",
+          "type": "number",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "sagaId",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/invoices",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of invoices",
+      "tags": [
+        "collection"
+      ]
+    },
+    "notification_templates": {
+      "id": "notification_templates",
+      "name": "notification_templates",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "emailTitle",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "emailMessage",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "emailHtmlMessage",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "smsMessage",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/notification-templates",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of notification_templates",
+      "tags": [
+        "collection"
+      ]
+    },
+    "rules": {
+      "id": "rules",
+      "name": "rules",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "priority",
+          "type": "number",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "ruleId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "rules",
+          "type": "Array_RawObject",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "response",
+          "type": "Array_RawObject",
+          "required": true,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/rules",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of rules",
+      "tags": [
+        "collection"
+      ]
+    },
+    "users": {
+      "id": "users",
+      "name": "users",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "emailAddress",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "phoneNumber",
+          "type": "string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        },
+        {
+          "name": "clusters",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "encryptionEnabled": false,
+          "encryptionSearchable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/users",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "stateIndex",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of users",
+      "tags": [
+        "collection"
+      ]
+    },
+    "mongodbviewtest": {
+      "id": "mongodbviewtest",
+      "name": "mongodbviewtest",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/mongodbviewtest",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "view",
+      "source": "invoices",
+      "pipeline": [
+        {
+          "$match": {
+            "__STATE__": "PUBLIC"
+          }
+        }
+      ],
+      "description": "View of invoices",
+      "tags": [
+        "mongo-view"
+      ]
+    },
+    "rbac-bindings": {
+      "id": "rbac-bindings",
+      "name": "rbac-bindings",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "bindingId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "binding unique identifier "
+        },
+        {
+          "name": "groups",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": "list of user groups subject to this binding"
+        },
+        {
+          "name": "subjects",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": "list of subjects of the binding"
+        },
+        {
+          "name": "roles",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": "list of roles identifiers that subjects will inherit from the binding"
+        },
+        {
+          "name": "permissions",
+          "type": "Array_string",
+          "required": false,
+          "nullable": false,
+          "description": "list of specific permissions that will be inherited by the subjects of the bindings"
+        },
+        {
+          "name": "resource",
+          "type": "RawObject",
+          "required": false,
+          "nullable": false,
+          "description": "resource on which the role permissions are evaluated from the binding"
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/rbac-bindings",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "uniqueBindingId",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "bindingId",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection rbac-bindings created by RBAC Manager plugin for bindings management",
+      "tags": [
+        "rbac-manager-plugin"
+      ],
+      "owners": [
+        {
+          "owner": "rbac-manager-plugin"
+        }
+      ]
+    },
+    "rbac-roles": {
+      "id": "rbac-roles",
+      "name": "rbac-roles",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "unique role identifier"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "human readable role name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "nullable": false
+        },
+        {
+          "name": "permissions",
+          "type": "Array_string",
+          "required": true,
+          "nullable": false,
+          "description": "list of permissions composing the role"
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/rbac-roles",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "createdAt",
+              "order": -1
+            }
+          ]
+        },
+        {
+          "name": "uniqueRoleId",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "roleId",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection rbac-roles created by RBAC Manager plugin for bindings management",
+      "tags": [
+        "rbac-manager-plugin"
+      ],
+      "owners": [
+        {
+          "owner": "rbac-manager-plugin"
+        }
+      ]
+    },
+    "projection-a": {
+      "id": "projection-a",
+      "name": "projection-a",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": false,
+          "nullable": false
+        },
+        {
+          "name": "bookid",
+          "type": "string",
+          "required": false,
+          "nullable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/projection-a",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_primary_key_index",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "bookid",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_internal_counter_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "bookid",
+              "order": 1
+            },
+            {
+              "name": "__internal__counter",
+              "order": 1
+            },
+            {
+              "name": "__internal__counterType",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_internal_counter_type_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "bookid",
+              "order": 1
+            },
+            {
+              "name": "__internal__counterType",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_state_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "bookid",
+              "order": 1
+            },
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of projection-a",
+      "hidden": true,
+      "owners": [
+        {
+          "owner": "fast-data"
+        }
+      ]
+    },
+    "prj-library": {
+      "id": "prj-library",
+      "name": "prj-library",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id"
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId"
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt"
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId"
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt"
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false,
+          "nullable": false
+        },
+        {
+          "name": "libraryid",
+          "type": "string",
+          "required": false,
+          "nullable": false
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/prj-library",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_primary_key_index",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "libraryid",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_internal_counter_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "libraryid",
+              "order": 1
+            },
+            {
+              "name": "__internal__counter",
+              "order": 1
+            },
+            {
+              "name": "__internal__counterType",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_internal_counter_type_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "libraryid",
+              "order": 1
+            },
+            {
+              "name": "__internal__counterType",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "name": "mia_state_index",
+          "type": "normal",
+          "unique": false,
+          "fields": [
+            {
+              "name": "libraryid",
+              "order": 1
+            },
+            {
+              "name": "__STATE__",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of prj-library",
+      "hidden": true,
+      "owners": [
+        {
+          "owner": "fast-data"
+        }
+      ]
+    },
+    "sv-libraries": {
+      "id": "sv-libraries",
+      "name": "sv-libraries",
+      "fields": [
+        {
+          "name": "_id",
+          "type": "ObjectId",
+          "required": true,
+          "nullable": false,
+          "description": "_id",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "creatorId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "creatorId",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "createdAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "createdAt",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "updaterId",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "updaterId",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "updatedAt",
+          "type": "Date",
+          "required": true,
+          "nullable": false,
+          "description": "updatedAt",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "__STATE__",
+          "type": "string",
+          "required": true,
+          "nullable": false,
+          "description": "__STATE__",
+          "sensitivityValue": 0
+        },
+        {
+          "name": "librarier",
+          "type": "RawObject",
+          "required": false,
+          "nullable": false,
+          "sensitivityValue": 0,
+          "schema": {
+            "properties": {
+              "libraryId": {
+                "type": "string",
+                "description": "Unique identifier for the library",
+                "pattern": "^[a-fA-F0-9]{24}$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the library"
+              },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "address": {
+                    "type": "string",
+                    "description": "Street address of the library"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "City where the library is located"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "State where the library is located"
+                  },
+                  "zipCode": {
+                    "type": "string",
+                    "description": "Postal code for the library location",
+                    "pattern": "^[0-9]{5}(?:-[0-9]{4})?$"
+                  }
+                },
+                "required": [
+                  "address",
+                  "city",
+                  "state",
+                  "zipCode"
+                ]
+              },
+              "books": {
+                "type": "array",
+                "description": "List of books available in the library",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "bookId": {
+                      "type": "string",
+                      "description": "Unique identifier for the book",
+                      "pattern": "^[a-fA-F0-9]{24}$"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "Title of the book"
+                    },
+                    "author": {
+                      "type": "string",
+                      "description": "Author of the book"
+                    },
+                    "publishedYear": {
+                      "type": "integer",
+                      "description": "Year the book was published",
+                      "minimum": 1450,
+                      "maximum": 2023
+                    }
+                  },
+                  "required": [
+                    "bookId",
+                    "title",
+                    "author"
+                  ]
+                }
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": true,
+                "nullable": true,
+                "description": "Additional metadata related to the library"
+              }
+            },
+            "required": [
+              "libraryId",
+              "name",
+              "location",
+              "books"
+            ],
+            "type": "object"
+          }
+        }
+      ],
+      "internalEndpoints": [
+        {
+          "basePath": "/sv-libraries",
+          "defaultState": "PUBLIC"
+        }
+      ],
+      "type": "collection",
+      "indexes": [
+        {
+          "name": "_id",
+          "type": "normal",
+          "unique": true,
+          "fields": [
+            {
+              "name": "_id",
+              "order": 1
+            }
+          ]
+        }
+      ],
+      "description": "Collection of sv-libraries",
+      "hidden": true,
+      "owners": [
+        {
+          "owner": "fast-data"
+        }
+      ]
+    }
+  },
   "groups": [],
-  "secrets": [],
+  "secrets": [
+    {
+      "secret": "BsdZzsS6flMtDcXJX6ywMnPzpRpHiDdL",
+      "active": true,
+      "clientType": "fe",
+      "description": "description of fe"
+    }
+  ],
   "cmsCategories": {},
   "cmsSettings": {
-    "accessGroupsExpression": "isBackoffice && groups.admin"
+    "accessGroupsExpression": ""
   },
   "cmsAnalytics": {},
   "cmsDashboard": [],
@@ -2017,16 +4890,15 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
     "postDecorators": {}
   },
   "services": {
-    "nodejs-16-helloworld-microservice-example": {
+    "api-gateway": {
       "type": "custom",
       "advanced": false,
-      "name": "nodejs-16-helloworld-microservice-example",
-      "dockerImage": "nexus.mia-platform.eu/test-project-giulio/nodejs-16-helloworld-microservice-example",
+      "name": "api-gateway",
+      "dockerImage": "envoyproxy/envoy:v1.32.1",
       "replicas": 1,
-      "serviceAccountName": "nodejs-16-helloworld-microservice-example",
+      "serviceAccountName": "api-gateway",
       "logParser": "mia-json",
-      "description": "Example of a simple Node.js 16 application. \nIt contains example of tests too.",
-      "repoUrl": "https://git.tools.mia-platform.eu/clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example",
+      "description": "Envoy API Gateway to route requests to the correct service and verify the need of authentication",
       "environment": [
         {
           "name": "LOG_LEVEL",
@@ -2091,21 +4963,21 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
       "labels": [
         {
           "name": "app",
-          "value": "nodejs-16-helloworld-microservice-example",
+          "value": "api-gateway",
           "description": "Name of the microservice, in the service selector",
           "readOnly": true,
           "isSelector": false
         },
         {
           "name": "app.kubernetes.io/name",
-          "value": "nodejs-16-helloworld-microservice-example",
+          "value": "api-gateway",
           "description": "Name of the microservice",
           "readOnly": true,
           "isSelector": false
         },
         {
           "name": "app.kubernetes.io/version",
-          "value": "latest",
+          "value": "v1.32.1",
           "description": "Tag of the Docker image",
           "readOnly": true,
           "isSelector": false
@@ -2119,7 +4991,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
         },
         {
           "name": "app.kubernetes.io/part-of",
-          "value": "test-project-giulio",
+          "value": "all-config",
           "description": "Project that own the microservice",
           "readOnly": true,
           "isSelector": false
@@ -2140,7 +5012,192 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
         },
         {
           "name": "mia-platform.eu/tenant",
-          "value": "b933f1ef-5b8e-4adf-a346-24a3b03d13e8",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "200m",
+          "min": "150m"
+        },
+        "memoryLimits": {
+          "max": "250Mi",
+          "min": "150Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/healthz",
+          "port": "frontend",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/healthz",
+          "port": "frontend",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "",
+      "configMaps": [
+        {
+          "name": "api-gateway-envoy-config",
+          "mountPath": "/etc/envoy",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "endpoints"
+          }
+        }
+      ],
+      "sourceComponentId": "api-gateway-envoy",
+      "createdAt": "2025-04-27T08:02:37.608Z",
+      "containerPorts": [
+        {
+          "name": "frontend",
+          "from": 8080,
+          "to": 8080
+        },
+        {
+          "name": "backoffice",
+          "from": 8081,
+          "to": 8081
+        },
+        {
+          "name": "admin",
+          "from": 9901,
+          "to": 9901
+        }
+      ],
+      "execPreStop": [
+        "bash",
+        "-c",
+        "echo -e 'POST /drain_listeners?graceful HTTP/1.1\r\nHost: localhost:9901\r\n\r' > /dev/tcp/localhost/9901 && sleep 55s"
+      ],
+      "args": [
+        "-c",
+        "/etc/envoy/envoy.json",
+        "-l",
+        "{{LOG_LEVEL}}",
+        "--log-format",
+        "{\"level\":\"%l\",\"time\":\"%Y-%m-%dT%T.%fZ\",\"scope\":\"%n\",\"message\":\"%j\"}",
+        "--drain-time-s",
+        "50"
+      ],
+      "terminationGracePeriodSeconds": 60
+    },
+    "adaptive-approval": {
+      "type": "custom",
+      "advanced": false,
+      "name": "adaptive-approval",
+      "dockerImage": "nexus.mia-platform.eu/fintech/adaptive-approval:0.0.2",
+      "replicas": 1,
+      "serviceAccountName": "adaptive-approval",
+      "logParser": "mia-json",
+      "description": "This service allow to define and verify rules",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/rules/"
+        },
+        {
+          "name": "FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://flow-manager-service"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "adaptive-approval",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "adaptive-approval",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "0.0.2",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
           "description": "Tenant owner of the project",
           "readOnly": true,
           "isSelector": false
@@ -2180,22 +5237,507 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
           "timeoutSeconds": 1,
           "successThreshold": 1,
           "failureThreshold": 3
-        }
+        },
+        "startup": {}
       },
       "tags": [
         "custom"
       ],
-      "generatedFrom": {
-        "_id": "67a4ed58d38aa6c26d28026e"
-      },
       "swaggerPath": "/documentation/json",
-      "sshUrl": "git@git.tools.mia-platform.eu:clients/mia-platform/demo/demo-companies/digital-platform-c/test-project-giulio/services/nodejs-16-helloworld-microservice-example.git",
-      "sourceMarketplaceItem": {
-        "itemId": "node-js-helloworld-microservice-example",
-        "version": "1.0.0",
-        "tenantId": "mia-platform"
+      "createdAt": "2025-04-27T08:02:37.878Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "analytics-transactions": {
+      "type": "custom",
+      "advanced": false,
+      "name": "analytics-transactions",
+      "dockerImage": "nexus.mia-platform.eu/core/mongodb-reader:{{ANALYTICS_TRANSACTIONS_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "analytics-transactions",
+      "logParser": "mia-json",
+      "description": "Provide MongoDB aggregation pipelines as REST API.",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "MONGODB_URL",
+          "valueType": "plain",
+          "value": "{{MONGODB_URL}}"
+        },
+        {
+          "name": "PROFILE_DIR",
+          "valueType": "plain",
+          "value": "/home/node/app/profiles"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "analytics-transactions",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "analytics-transactions",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{ANALYTICS_TRANSACTIONS_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
       },
-      "createdAt": "2025-04-26T09:54:59.480Z",
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "transactions-analytics",
+          "mountPath": "/home/node/app/profiles",
+          "viewAsReadOnly": false
+        }
+      ],
+      "createdAt": "2025-04-27T08:02:38.074Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "crud-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "crud-service",
+      "dockerImage": "miaplatform/crud-service:{{CRUD_SERVICE_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "crud-service",
+      "logParser": "mia-json",
+      "additionalContainers": [
+        {
+          "name": "rbac-service",
+          "dockerImage": "ghcr.io/rond-authz/rond:latest",
+          "environment": [
+            {
+              "name": "HTTP_PORT",
+              "valueType": "plain",
+              "value": "9876"
+            },
+            {
+              "name": "TARGET_SERVICE_HOST",
+              "valueType": "plain",
+              "value": "localhost:3000"
+            },
+            {
+              "name": "LOG_LEVEL",
+              "valueType": "plain",
+              "value": "{{LOG_LEVEL}}"
+            },
+            {
+              "name": "TARGET_SERVICE_OAS_PATH",
+              "valueType": "plain",
+              "value": "/documentation/json"
+            },
+            {
+              "name": "OPA_MODULES_DIRECTORY",
+              "valueType": "plain",
+              "value": "/configurations/opa"
+            },
+            {
+              "name": "API_PERMISSIONS_FILE_PATH",
+              "valueType": "plain",
+              "value": "/configurations/oas/crud-service-permissions.json"
+            },
+            {
+              "name": "MONGODB_URL",
+              "valueType": "plain",
+              "value": "{{MONGODB_URL}}"
+            },
+            {
+              "name": "ROLES_COLLECTION_NAME",
+              "valueType": "plain",
+              "value": "rbac-roles"
+            },
+            {
+              "name": "BINDINGS_COLLECTION_NAME",
+              "valueType": "plain",
+              "value": "rbac-bindings"
+            }
+          ],
+          "resources": {
+            "cpuLimits": {
+              "max": "100m",
+              "min": "100m"
+            },
+            "memoryLimits": {
+              "max": "300Mi",
+              "min": "50Mi"
+            }
+          },
+          "probes": {
+            "liveness": {
+              "path": "/-/rbac-healthz",
+              "port": "rbac-service"
+            },
+            "readiness": {
+              "path": "/-/rbac-ready",
+              "port": "rbac-service"
+            }
+          },
+          "configMaps": [
+            {
+              "name": "rbac-sidecar-svc-opa-policies-config",
+              "mountPath": "/configurations/opa",
+              "viewAsReadOnly": true
+            },
+            {
+              "name": "rbac-sidecar-svc-oas-permissions-config",
+              "mountPath": "/configurations/oas",
+              "subPaths": [
+                "crud-service-permissions.json"
+              ],
+              "viewAsReadOnly": true
+            }
+          ],
+          "owners": [
+            {
+              "owner": "rbac-manager-plugin"
+            }
+          ],
+          "containerPorts": [
+            {
+              "name": "rbac-service",
+              "from": 80,
+              "to": 9876
+            }
+          ],
+          "monitoring": {
+            "endpoints": [
+              {
+                "path": "/-/rond/metrics",
+                "port": "rbac-service",
+                "interval": "60s"
+              }
+            ]
+          },
+          "exclusiveServiceExposure": true
+        }
+      ],
+      "environment": [
+        {
+          "name": "MONGODB_URL",
+          "valueType": "plain",
+          "value": "{{MONGODB_URL}}"
+        },
+        {
+          "name": "COLLECTION_DEFINITION_FOLDER",
+          "valueType": "plain",
+          "value": "/home/node/app/collections"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "SERVICE_PREFIX",
+          "valueType": "plain",
+          "value": "/"
+        },
+        {
+          "name": "USER_ID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "TRUSTED_PROXIES",
+          "valueType": "plain",
+          "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+        },
+        {
+          "name": "CRUD_LIMIT_CONSTRAINT_ENABLED",
+          "valueType": "plain",
+          "value": "{{CRUD_LIMIT_CONSTRAINT_ENABLED}}"
+        },
+        {
+          "name": "EXPOSE_METRICS",
+          "valueType": "plain",
+          "value": "false"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "crud-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "crud-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{CRUD_SERVICE_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "50m"
+        },
+        "memoryLimits": {
+          "max": "250Mi",
+          "min": "70Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "crud-service-collections",
+          "mountPath": "/home/node/app/collections",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "collections"
+          }
+        }
+      ],
+      "sourceComponentId": "crud-service",
+      "mapEnvVarToMountPath": {
+        "collections": {
+          "type": "folder",
+          "envName": "COLLECTION_DEFINITION_FOLDER"
+        }
+      },
+      "createdAt": "2025-04-27T08:02:38.279Z",
       "containerPorts": [
         {
           "name": "http",
@@ -2204,32 +5746,4336 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
           "protocol": "TCP"
         }
       ],
-      "terminationGracePeriodSeconds": 30,
-      "containerRegistryId": "cd6ae8c5-feb0-4e5c-beec-39cf8290d3d7"
+      "terminationGracePeriodSeconds": 30
+    },
+    "data-visualization-backend": {
+      "type": "custom",
+      "advanced": false,
+      "name": "data-visualization-backend",
+      "dockerImage": "nexus.mia-platform.eu/core/charts-service:{{DATA_VIZ_BE_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "data-visualization-backend",
+      "logParser": "mia-json",
+      "description": "This is a backend for frontend to be used to configure Data Visualization dashboards.",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "DASHBOARD_AND_CHARTS_CONFIG_PATH",
+          "valueType": "plain",
+          "value": "/home/node/app/data-visualization/config.json"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "data-visualization-backend",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "data-visualization-backend",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{DATA_VIZ_BE_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "data-visualization-backend",
+          "mountPath": "/home/node/app/data-visualization",
+          "viewAsReadOnly": false
+        }
+      ],
+      "createdAt": "2025-04-27T08:02:38.715Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "data-visualization-frontend": {
+      "type": "custom",
+      "advanced": false,
+      "name": "data-visualization-frontend",
+      "dockerImage": "nexus.mia-platform.eu/backoffice/data-visualization:{{DATA_VIZ_FE_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "data-visualization-frontend",
+      "logParser": "mia-json",
+      "description": "A customizable frontend to display your data in beautiful dashboards. Use it with Data Visualization Backend.",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "data-visualization-frontend",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "data-visualization-frontend",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{DATA_VIZ_FE_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "",
+      "createdAt": "2025-04-27T08:02:38.942Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "export-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "export-service",
+      "dockerImage": "nexus.mia-platform.eu/core/export-service:2.0.2",
+      "replicas": 1,
+      "serviceAccountName": "export-service",
+      "logParser": "mia-json",
+      "description": "This service helps you manage Excel, CSV or JSON export from other services using jsonl.",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miaclienttype"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "export-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "export-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "2.0.2",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "300Mi",
+          "min": "150Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 40,
+          "periodSeconds": 15,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "createdAt": "2025-04-27T08:02:39.169Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "files-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "files-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/files-service:2.10.1",
+      "replicas": 1,
+      "serviceAccountName": "files-service",
+      "logParser": "mia-json",
+      "description": "Upload, download and handle your files using MongoDB, S3 or Google Storage.",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/invoices/"
+        },
+        {
+          "name": "CONFIG_FILE_PATH",
+          "valueType": "plain",
+          "value": "/file-service-config/db-config.json"
+        },
+        {
+          "name": "HEADERS_TO_PROXY",
+          "valueType": "plain",
+          "value": "miauserid,miausergroups"
+        },
+        {
+          "name": "PROJECT_HOSTNAME",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/"
+        },
+        {
+          "name": "ADDITIONAL_FUNCTION_CASTER_FILE_PATH",
+          "valueType": "plain",
+          "value": "/file-service-config/caster-file.js"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "files-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "files-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "2.10.1",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "100Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "",
+      "configMaps": [
+        {
+          "name": "file-sevice-config",
+          "mountPath": "/file-service-config",
+          "viewAsReadOnly": false
+        }
+      ],
+      "createdAt": "2025-04-27T08:02:39.385Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "flow-manager-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "flow-manager-service",
+      "dockerImage": "nexus.mia-platform.eu/core/flow-manager:2.6.5",
+      "replicas": 1,
+      "serviceAccountName": "flow-manager-service",
+      "logParser": "mia-json",
+      "description": "The Flow Manager is a saga orchestrator, capable to manage flows structured by using the Architectural pattern named Saga Pattern",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miaclienttype"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "CONFIGURATIONS_FILE_PATH",
+          "valueType": "plain",
+          "value": "/configuration/saga.json"
+        },
+        {
+          "name": "SAGA_ID_PREFIX",
+          "valueType": "plain",
+          "value": "payment"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "flow-manager-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "flow-manager-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "2.6.5",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "100Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "flow-configuration",
+          "mountPath": "/configuration",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "flow-manager"
+          }
+        }
+      ],
+      "sourceComponentId": "flow-manager",
+      "createdAt": "2025-04-27T08:02:39.574Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "frullino-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "frullino-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/frullino:{{FRULLINO_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "frullino-service",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "CRUD_SERVICE_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/payment-pending-view"
+        },
+        {
+          "name": "PGM_URL",
+          "valueType": "plain",
+          "value": "http://payment-gateway-manager"
+        },
+        {
+          "name": "FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://flow-manager-service"
+        },
+        {
+          "name": "REDIS_HOST",
+          "valueType": "plain",
+          "value": "redis://{{REDIS_HOSTS}}"
+        },
+        {
+          "name": "THREAD_NUMBER",
+          "valueType": "plain",
+          "value": "2"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOGS}}"
+        },
+        {
+          "name": "FRULLINO_RUNNING_INTERVAL_CRON",
+          "valueType": "plain",
+          "value": "30s"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "frullino-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "frullino-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{FRULLINO_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "30m"
+        },
+        "memoryLimits": {
+          "max": "400Mi",
+          "min": "200Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "createdAt": "2025-04-27T08:02:39.791Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "invoice-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "invoice-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/invoice-service:1.0.3",
+      "replicas": 1,
+      "serviceAccountName": "invoice-service",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client_type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isBackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "COMPANY_DATA_PATH",
+          "valueType": "plain",
+          "value": "/config/company-data.json"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "invoice-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "invoice-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "1.0.3",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "30m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "80Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 2,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 10,
+          "timeoutSeconds": 2,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "config",
+          "mountPath": "/config",
+          "viewAsReadOnly": false
+        }
+      ],
+      "sourceComponentId": "invoice-service",
+      "createdAt": "2025-04-27T08:02:39.990Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "messaging-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "messaging-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/messaging-service:{{MESSAGING_SERVICE_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "messaging-service",
+      "logParser": "mia-json",
+      "description": "Service used to send notification through various medium",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOGS}}"
+        },
+        {
+          "name": "TRUSTED_PROXIES",
+          "valueType": "plain",
+          "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "CRUD_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "crud-service"
+        },
+        {
+          "name": "USERS_CRUD_NAME",
+          "valueType": "plain",
+          "value": "users"
+        },
+        {
+          "name": "TEMPLATES_CRUD_NAME",
+          "valueType": "plain",
+          "value": "notification-templates"
+        },
+        {
+          "name": "CONFIGURATION_PATH",
+          "valueType": "plain",
+          "value": "/home/node/app/messaging-service/config.json"
+        },
+        {
+          "name": "MAIL_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "smtp-mail-notification-service"
+        },
+        {
+          "name": "SMS_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "sms-service"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "messaging-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "messaging-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{MESSAGING_SERVICE_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "messaging-configuration",
+          "mountPath": "/home/node/app/messaging-service",
+          "viewAsReadOnly": false
+        }
+      ],
+      "createdAt": "2025-04-27T08:02:40.176Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "payment-front-end": {
+      "type": "custom",
+      "advanced": false,
+      "name": "payment-front-end",
+      "dockerImage": "nexus.mia-platform.eu/plugins/payments-front-end:{{PAYMENT_FRONTEND_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "payment-front-end",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "BASE_PATH",
+          "valueType": "plain",
+          "value": "/demo/"
+        },
+        {
+          "name": "VITE_AXERVE_API_KEY",
+          "valueType": "plain",
+          "value": "{{AXERVE_API_KEY}}"
+        },
+        {
+          "name": "VITE_AXERVE_SHOPLOGIN",
+          "valueType": "plain",
+          "value": "{{AXERVE_SHOP_LOGIN}}"
+        },
+        {
+          "name": "VITE_ADYEN_KEY",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "VITE_BRAINTREE_KEY",
+          "valueType": "plain",
+          "value": "{{BRAINTREE_TOKENIZATION_KEY}}"
+        },
+        {
+          "name": "VITE_GOOGLE_MERCHANT_ID",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "VITE_GOOGLE_MERCHANT_NAME",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "VITE_POLLING_INTERVAL",
+          "valueType": "plain",
+          "value": "10000"
+        },
+        {
+          "name": "CSP_HEADER",
+          "valueType": "plain",
+          "value": "\"default-src 'self'; script-src 'self' *.adyen.com/checkoutshopper/v2/analytics/id pay.google.com js.braintreegateway.com assets.braintreegateway.com www.paypalobjects.com c.paypal.com applepay.cdn-apple.com; object-src 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' www.gstatic.com assets.braintreegateway.com checkout.paypal.com data: https://checkoutshopper-test.adyen.com; font-src 'self' applepay.cdn-apple.com; child-src 'self' assets.braintreegateway.com c.paypal.com; frame-src 'self' pay.google.com assets.braintreegateway.com c.paypal.com checkout.paypal.com *.cardinalcommerce.com https://checkoutshopper-test.adyen.com; connect-src 'self' https://sandbox.gestpay.net/api/v1/shop/token api.sandbox.braintreegateway.com client-analytics.sandbox.braintreegateway.com *.braintree-api.com *.adyen.com/checkoutshopper/v2/analytics/log *.adyen.com/checkoutshopper/v2/analytics/id *.adyen.com/checkoutshopper/v3/bin/binLookup\""
+        },
+        {
+          "name": "VITE_DEMO_API_KEY",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "payment-front-end",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "payment-front-end",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{PAYMENT_FRONTEND_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        }
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "payment-front-end",
+          "mountPath": "/usr/static/config",
+          "viewAsReadOnly": false
+        }
+      ],
+      "createdAt": "2025-04-27T08:02:40.395Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "payment-gateway-manager": {
+      "type": "custom",
+      "advanced": false,
+      "name": "payment-gateway-manager",
+      "dockerImage": "nexus.mia-platform.eu/plugins/payment-gateway-manager:{{PGM_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "payment-gateway-manager",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "LOG_CONFIG_FILE",
+          "valueType": "plain",
+          "value": "./prod-logback.xml"
+        },
+        {
+          "name": "ENABLED_PROVIDERS",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "PAYMENT_CALLBACK_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "STRIPE_BASE_URL",
+          "valueType": "plain",
+          "value": "https://api.stripe.com"
+        },
+        {
+          "name": "STRIPE_PRIVATE_KEY",
+          "valueType": "plain",
+          "value": "{{STRIPE_PRIVATE_KEY}}"
+        },
+        {
+          "name": "SATISPAY_IS_SANDBOX",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SATISPAY_KEY_ID",
+          "valueType": "plain",
+          "value": "{{SATISPAY_KEY_ID}}"
+        },
+        {
+          "name": "SATISPAY_PRIVATE_KEY",
+          "valueType": "plain",
+          "value": "{{SATISPAY_PRIVATE_KEY}}"
+        },
+        {
+          "name": "SATISPAY_AFTER_BUY_WEB_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SATISPAY_AFTER_BUY_MOBILE_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SATISPAY_WAITING_SECONDS",
+          "valueType": "plain",
+          "value": "0"
+        },
+        {
+          "name": "PGM_PUBLIC_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/payment-gateway-manager"
+        },
+        {
+          "name": "FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://flow-manager-service"
+        },
+        {
+          "name": "SAGA_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/fm-transactions/"
+        },
+        {
+          "name": "BRAINTREE_MERCHANT_ID",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "BRAINTREE_MERCHANT_ACCOUNT_ID",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "BRAINTREE_PUBLIC_KEY",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "BRAINTREE_PRIVATE_KEY",
+          "valueType": "plain",
+          "value": "{{BRAINTREE_PRIVATE_KEY}}"
+        },
+        {
+          "name": "BRAINTREE_IS_SANDBOX",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SCALAPAY_BASE_PATH",
+          "valueType": "plain",
+          "value": "https://integration.api.scalapay.com/"
+        },
+        {
+          "name": "SCALAPAY_API_KEY",
+          "valueType": "plain",
+          "value": "{{SCALAPAY_API_KEY}}"
+        },
+        {
+          "name": "SCALAPAY_SUCCESS_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SCALAPAY_FAILURE_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SOISY_SHOP_ID",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "SOISY_PARTNER_KEY",
+          "valueType": "plain",
+          "value": "{{SOISY_PARTNER_KEY}}"
+        },
+        {
+          "name": "SOISY_BASE_URL",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "HTTP_LOG_LEVEL",
+          "valueType": "plain",
+          "value": "BASIC"
+        },
+        {
+          "name": "ADAPTIVE_CHECKOUT_CACHE_EXPIRE_MIN",
+          "valueType": "plain",
+          "value": "1"
+        },
+        {
+          "name": "AXERVE_IS_SANDBOX",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "AXERVE_SHOP_LOGIN",
+          "valueType": "plain",
+          "value": "{{AXERVE_SHOP_LOGIN}}"
+        },
+        {
+          "name": "AXERVE_API_KEY",
+          "valueType": "plain",
+          "value": "{{AXERVE_API_KEY}}"
+        },
+        {
+          "name": "EXTERNAL_PROVIDERS_CONFIG",
+          "valueType": "plain",
+          "value": "/config/external-providers.json"
+        },
+        {
+          "name": "ADYEN_IS_TEST",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "ADYEN_MERCHANT_ACCOUNT",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "ADYEN_HMAC_KEY",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "ADYEN_PRIVATE_KEY",
+          "valueType": "plain",
+          "value": "{{ADYEN_PRIVATE_KEY}}"
+        },
+        {
+          "name": "SATISPAY_CALLBACK_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/callback-satispay"
+        },
+        {
+          "name": "SUBSCRIPTION_HANDLER_URL",
+          "valueType": "plain",
+          "value": "http://subscription-handler-service"
+        },
+        {
+          "name": "NEXI_BASE_URL",
+          "valueType": "plain",
+          "value": "https://stg-ta.nexigroup.com"
+        },
+        {
+          "name": "NEXI_API_KEY",
+          "valueType": "plain",
+          "value": "{{NEXI_API_KEY}}"
+        },
+        {
+          "name": "NEXI_CALLBACK_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/callback-nexi"
+        },
+        {
+          "name": "FLOWPAY_API_BASE_URL",
+          "valueType": "plain",
+          "value": "https://core.c2c-development.flowpay.it"
+        },
+        {
+          "name": "FLOWPAY_CORE_BASE_URL",
+          "valueType": "plain",
+          "value": "https://core.c2c-development.flowpay.it"
+        },
+        {
+          "name": "FLOWPAY_CLIENT_ID",
+          "valueType": "plain",
+          "value": "{{FLOWPAY_CLIENT_ID}}"
+        },
+        {
+          "name": "FLOWPAY_CLIENT_SECRET",
+          "valueType": "plain",
+          "value": "{{FLOWPAY_CLIENT_SECRET}}"
+        },
+        {
+          "name": "FLOWPAY_PUBLIC_KEY",
+          "valueType": "plain",
+          "value": "{{FLOWPAY_PUBLIC_KEY}}"
+        },
+        {
+          "name": "FLOWPAY_CHECKOUT_BASE_URL",
+          "valueType": "plain",
+          "value": "https://checkout.c2c-development.flowpay.it"
+        },
+        {
+          "name": "FLOWPAY_CALLBACK_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/callback-flowpay"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "payment-gateway-manager",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "payment-gateway-manager",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{PGM_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "50m"
+        },
+        "memoryLimits": {
+          "max": "300Mi",
+          "min": "150Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 5,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 5,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/openapi.json",
+      "configMaps": [
+        {
+          "name": "pgm-config",
+          "mountPath": "/config",
+          "viewAsReadOnly": false
+        }
+      ],
+      "sourceComponentId": "payment-gateway-manager",
+      "createdAt": "2025-04-27T08:02:40.610Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "pgm-bff": {
+      "type": "custom",
+      "advanced": false,
+      "name": "pgm-bff",
+      "dockerImage": "nexus.mia-platform.eu/fintech/pgm-bff:{{BFF_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "pgm-bff",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://flow-manager-service"
+        },
+        {
+          "name": "PAYMENT_OK_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/demo/result"
+        },
+        {
+          "name": "PAYMENT_KO_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/demo/result"
+        },
+        {
+          "name": "PGM_URL",
+          "valueType": "plain",
+          "value": "http://payment-gateway-manager"
+        },
+        {
+          "name": "INVOICE_SERVICE_URL",
+          "valueType": "plain",
+          "value": "http://invoice-service"
+        },
+        {
+          "name": "FILES_SERVICE_URL",
+          "valueType": "plain",
+          "value": "http://files-service"
+        },
+        {
+          "name": "SAGA_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/fm-transactions"
+        },
+        {
+          "name": "INVOICE_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/invoices"
+        },
+        {
+          "name": "PAYMENT_PENDING_REDIRECT_URL",
+          "valueType": "plain",
+          "value": "https://{{PROJECT_HOST}}/demo/pending"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "userid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "usergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "clienttype"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "userproperties"
+        },
+        {
+          "name": "SUBSCRIPTION_HANDLER_SERVICE",
+          "valueType": "plain",
+          "value": "http://subscription-handler-service"
+        },
+        {
+          "name": "PAY_BY_LINK_PROVIDER",
+          "valueType": "plain",
+          "value": "{{PROVIDER_PAY_BY_LINK}}"
+        },
+        {
+          "name": "USERS_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/users"
+        },
+        {
+          "name": "SAGA_SUBSCRIPTION_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/fm-subscriptions"
+        },
+        {
+          "name": "ADAPTIVE_CHECKOUT_URL",
+          "valueType": "plain",
+          "value": "http://adaptive-approval"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "pgm-bff",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "pgm-bff",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{BFF_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "100Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        }
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "createdAt": "2025-04-27T08:02:41.210Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "sms-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "sms-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/sms-service:1.2.1",
+      "replicas": 1,
+      "serviceAccountName": "sms-service",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOGS}}"
+        },
+        {
+          "name": "TRUSTED_PROXIES",
+          "valueType": "plain",
+          "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "SERVICE_PROVIDER",
+          "valueType": "plain",
+          "value": "twilio"
+        },
+        {
+          "name": "TWILIO_ACCOUNT_SID",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "TWILIO_AUTH_TOKEN",
+          "valueType": "plain",
+          "value": "{{SMS_AUTH_TOKEN}}"
+        },
+        {
+          "name": "TWILIO_EMPTY_BALANCE_CHECK",
+          "valueType": "plain",
+          "value": "true"
+        },
+        {
+          "name": "RATE_LIMIT_MAX_REQUESTS",
+          "valueType": "plain",
+          "value": "3"
+        },
+        {
+          "name": "RATE_LIMIT_TIME_WINDOW",
+          "valueType": "plain",
+          "value": "60000"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "sms-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "sms-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "1.2.1",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "createdAt": "2025-04-27T08:02:41.443Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "smtp-mail-notification-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "smtp-mail-notification-service",
+      "dockerImage": "nexus.mia-platform.eu/plugins/smtp-mail-notification-service:3.3.0",
+      "replicas": 1,
+      "serviceAccountName": "smtp-mail-notification-service",
+      "logParser": "mia-json",
+      "environment": [
+        {
+          "name": "HOST",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "PORT",
+          "valueType": "plain",
+          "value": "CHANGE ME"
+        },
+        {
+          "name": "AUTH_TYPE",
+          "valueType": "plain",
+          "value": "login"
+        },
+        {
+          "name": "AUTH_USER",
+          "valueType": "plain",
+          "value": "{{EMAIL_SENDER}}"
+        },
+        {
+          "name": "AUTH_PASS",
+          "valueType": "plain",
+          "value": "{{EMAIL_AUTH_PASSWORD}}"
+        },
+        {
+          "name": "TLS_SECURE",
+          "valueType": "plain",
+          "value": "true"
+        },
+        {
+          "name": "TLS_IGNORE",
+          "valueType": "plain",
+          "value": "true"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "smtp-mail-notification-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "smtp-mail-notification-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "3.3.0",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 5,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 5,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "sourceComponentId": "smtp-mail-notification-service",
+      "createdAt": "2025-04-27T08:02:41.633Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "subscription-handler-service": {
+      "type": "custom",
+      "advanced": false,
+      "name": "subscription-handler-service",
+      "dockerImage": "nexus.mia-platform.eu/fintech/subscription-handler:{{SUB_HANDLER_VERSION}}",
+      "replicas": 1,
+      "serviceAccountName": "subscription-handler-service",
+      "logParser": "mia-json",
+      "description": "Handles the entire subscriptions' lifecycle ",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "8080"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOGS}}"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "ADDITIONAL_HEADERS_TO_PROXY",
+          "valueType": "plain",
+          "value": ""
+        },
+        {
+          "name": "SUBSCRIPTIONS_FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://subscription-saga"
+        },
+        {
+          "name": "PAYMENTS_FLOW_MANAGER_URL",
+          "valueType": "plain",
+          "value": "http://flow-manager-service"
+        },
+        {
+          "name": "PAYMENTS_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/fm-transactions"
+        },
+        {
+          "name": "SUBSCRIPTIONS_CRUD_URL",
+          "valueType": "plain",
+          "value": "http://crud-service/fm-subscriptions"
+        },
+        {
+          "name": "RUNNING_INTERVAL_CRON",
+          "valueType": "plain",
+          "value": "120s"
+        },
+        {
+          "name": "ENABLED_STATES",
+          "valueType": "plain",
+          "value": "ACTIVE,PAYMENT_FAILED"
+        },
+        {
+          "name": "MANUAL_PROVIDERS",
+          "valueType": "plain",
+          "value": "satispay,axerve,adyen"
+        },
+        {
+          "name": "PGM_URL",
+          "valueType": "plain",
+          "value": "http://payment-gateway-manager"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "subscription-handler-service",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "subscription-handler-service",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "{{SUB_HANDLER_VERSION}}",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "100Mi",
+          "min": "50Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        }
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "createdAt": "2025-04-27T08:02:41.882Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 8080,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "subscription-saga": {
+      "type": "custom",
+      "advanced": false,
+      "name": "subscription-saga",
+      "dockerImage": "nexus.mia-platform.eu/core/flow-manager:2.6.5",
+      "replicas": 1,
+      "serviceAccountName": "subscription-saga",
+      "logParser": "mia-json",
+      "description": "The Flow Manager is a saga orchestrator, capable to manage flows structured by using the Architectural pattern named Saga Pattern",
+      "environment": [
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miaclienttype"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "CONFIGURATIONS_FILE_PATH",
+          "valueType": "plain",
+          "value": "/configuration/saga.json"
+        },
+        {
+          "name": "SAGA_ID_PREFIX",
+          "valueType": "plain",
+          "value": "sb"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "subscription-saga",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "subscription-saga",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "2.6.5",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "10m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "100Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 1,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 1,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "/documentation/json",
+      "configMaps": [
+        {
+          "name": "subscription-saga-configuration",
+          "mountPath": "/configuration",
+          "viewAsReadOnly": false
+        }
+      ],
+      "sourceComponentId": "flow-manager",
+      "createdAt": "2025-04-27T08:02:42.091Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
+    },
+    "my-lambda-function": {
+      "name": "my-lambda-function",
+      "type": "custom-resource",
+      "meta": {
+        "kind": "LambdaTemplateGenerator",
+        "apiVersion": "custom-generator.console.mia-platform.eu/v1"
+      },
+      "spec": {
+        "memorySize": 1024,
+        "role": "my-function-role",
+        "targetRuntime": "nodejs20.x",
+        "timeout": 60,
+        "zipCode": "'use strict';\nexports.handler = async (event) => {\n  console.log('Received event:', JSON.stringify(event, null, 2));\n  return { statusCode: 200, body: JSON.stringify('Hello from Lambda!') };\n};\n"
+      },
+      "generatedFrom": {
+        "_id": "663e28a2ffe0f520ec6d7047"
+      },
+      "sourceMarketplaceItem": {
+        "itemId": "lambda-function-template",
+        "version": "NA",
+        "tenantId": "6b38a8ec-816c-487c-986d-c59edb294ea6"
+      }
+    },
+    "testproxy": {
+      "name": "testproxy",
+      "url": "https://www.google.com",
+      "type": "external",
+      "headers": [
+        {
+          "name": "HEADER",
+          "value": "value",
+          "description": "Test Header"
+        }
+      ]
+    },
+    "micro-lc": {
+      "type": "custom",
+      "advanced": false,
+      "name": "micro-lc",
+      "dockerImage": "nexus.mia-platform.eu/microlc/middleware:3.4.0",
+      "replicas": 1,
+      "serviceAccountName": "micro-lc",
+      "logParser": "mia-json",
+      "description": "micro-lc config server.",
+      "environment": [
+        {
+          "name": "HTTP_PORT",
+          "valueType": "plain",
+          "value": "3000"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "valueType": "plain",
+          "value": "{{LOG_LEVEL}}"
+        },
+        {
+          "name": "MICROSERVICE_GATEWAY_SERVICE_NAME",
+          "valueType": "plain",
+          "value": "microservice-gateway"
+        },
+        {
+          "name": "TRUSTED_PROXIES",
+          "valueType": "plain",
+          "value": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+        },
+        {
+          "name": "USERID_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserid"
+        },
+        {
+          "name": "GROUPS_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miausergroups"
+        },
+        {
+          "name": "CLIENTTYPE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "client-type"
+        },
+        {
+          "name": "BACKOFFICE_HEADER_KEY",
+          "valueType": "plain",
+          "value": "isbackoffice"
+        },
+        {
+          "name": "USER_PROPERTIES_HEADER_KEY",
+          "valueType": "plain",
+          "value": "miauserproperties"
+        }
+      ],
+      "annotations": [
+        {
+          "name": "mia-platform.eu/version",
+          "value": "14.0.0",
+          "description": "Version of Mia-Platform used by the project",
+          "readOnly": true
+        },
+        {
+          "name": "fluentbit.io/parser",
+          "value": "pino",
+          "description": "Pino parser annotation for Fluent Bit",
+          "readOnly": true
+        }
+      ],
+      "labels": [
+        {
+          "name": "app",
+          "value": "micro-lc",
+          "description": "Name of the microservice, in the service selector",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/name",
+          "value": "micro-lc",
+          "description": "Name of the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/version",
+          "value": "3.4.0",
+          "description": "Tag of the Docker image",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/component",
+          "value": "custom",
+          "description": "Microservice kind, for the Console",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/part-of",
+          "value": "all-config",
+          "description": "Project that own the microservice",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "app.kubernetes.io/managed-by",
+          "value": "mia-platform",
+          "description": "Identify who manage the service",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/stage",
+          "value": "{{STAGE_TO_DEPLOY}}",
+          "description": "Environment used for the deploy",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/tenant",
+          "value": "6b38a8ec-816c-487c-986d-c59edb294ea6",
+          "description": "Tenant owner of the project",
+          "readOnly": true,
+          "isSelector": false
+        },
+        {
+          "name": "mia-platform.eu/log-type",
+          "value": "mia-json",
+          "description": "Format of logs for the microservice",
+          "readOnly": true,
+          "isSelector": false
+        }
+      ],
+      "resources": {
+        "cpuLimits": {
+          "max": "100m",
+          "min": "20m"
+        },
+        "memoryLimits": {
+          "max": "150Mi",
+          "min": "60Mi"
+        }
+      },
+      "probes": {
+        "liveness": {
+          "path": "/-/healthz",
+          "port": "http",
+          "initialDelaySeconds": 15,
+          "periodSeconds": 20,
+          "timeoutSeconds": 5,
+          "failureThreshold": 3
+        },
+        "readiness": {
+          "path": "/-/ready",
+          "port": "http",
+          "initialDelaySeconds": 5,
+          "periodSeconds": 10,
+          "timeoutSeconds": 5,
+          "successThreshold": 1,
+          "failureThreshold": 3
+        },
+        "startup": {}
+      },
+      "tags": [
+        "custom"
+      ],
+      "swaggerPath": "",
+      "configMaps": [
+        {
+          "name": "micro-lc-static-files",
+          "mountPath": "/usr/static/public",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "microfrontend-composer/micro-lc"
+          }
+        },
+        {
+          "name": "micro-lc-configurations",
+          "mountPath": "/usr/static/configurations",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "microfrontend-composer/micro-lc"
+          }
+        },
+        {
+          "name": "micro-lc-server-configuration",
+          "mountPath": "/usr/src/app/config",
+          "viewAsReadOnly": true,
+          "link": {
+            "targetSection": "microfrontend-composer/micro-lc"
+          }
+        },
+        {
+          "name": "micro-lc-assets",
+          "mountPath": "/usr/static/public/assets"
+        }
+      ],
+      "sourceComponentId": "backoffice-backend",
+      "links": [
+        {
+          "label": "Microfrontend Composer",
+          "enableIf": "ENABLE_BACKOFFICE_CONFIGURATOR",
+          "targetSection": "microfrontend-composer"
+        }
+      ],
+      "createdAt": "2025-04-27T08:10:25.363Z",
+      "containerPorts": [
+        {
+          "name": "http",
+          "from": 80,
+          "to": 3000,
+          "protocol": "TCP"
+        }
+      ],
+      "terminationGracePeriodSeconds": 30
     }
   },
-  "applications": {},
-  "listeners": {},
+  "applications": {
+    "payment-integration-hub": {
+      "name": "payment-integration-hub",
+      "description": "This application provides a backoffice instance with two pages already configured for manage and monitoring payments created with all micro services needed to start and managed payments, such as payment gateway manager, notification service and invoice download service.",
+      "generatedFrom": "63ee651d108aa129a0dd5266",
+      "resources": {
+        "services": {
+          "api-gateway": {
+            "name": "api-gateway"
+          },
+          "adaptive-approval": {
+            "name": "adaptive-approval"
+          },
+          "analytics-transactions": {
+            "name": "analytics-transactions"
+          },
+          "crud-service": {
+            "name": "crud-service"
+          },
+          "data-visualization-backend": {
+            "name": "data-visualization-backend"
+          },
+          "data-visualization-frontend": {
+            "name": "data-visualization-frontend"
+          },
+          "export-service": {
+            "name": "export-service"
+          },
+          "files-service": {
+            "name": "files-service"
+          },
+          "flow-manager-service": {
+            "name": "flow-manager-service"
+          },
+          "frullino-service": {
+            "name": "frullino-service"
+          },
+          "invoice-service": {
+            "name": "invoice-service"
+          },
+          "messaging-service": {
+            "name": "messaging-service"
+          },
+          "payment-front-end": {
+            "name": "payment-front-end"
+          },
+          "payment-gateway-manager": {
+            "name": "payment-gateway-manager"
+          },
+          "pgm-bff": {
+            "name": "pgm-bff"
+          },
+          "sms-service": {
+            "name": "sms-service"
+          },
+          "smtp-mail-notification-service": {
+            "name": "smtp-mail-notification-service"
+          },
+          "subscription-handler-service": {
+            "name": "subscription-handler-service"
+          },
+          "subscription-saga": {
+            "name": "subscription-saga"
+          }
+        },
+        "endpoints": {
+          "/analytics": {
+            "basePath": "/analytics",
+            "service": "analytics-transactions"
+          },
+          "/adaptive-checkout": {
+            "basePath": "/adaptive-checkout",
+            "service": "crud-service"
+          },
+          "/api/charts/dashboards": {
+            "basePath": "/api/charts/dashboards",
+            "service": "data-visualization-backend"
+          },
+          "/data-visualization": {
+            "basePath": "/data-visualization",
+            "service": "data-visualization-frontend"
+          },
+          "/export": {
+            "basePath": "/export",
+            "service": "export-service"
+          },
+          "/fm": {
+            "basePath": "/fm",
+            "service": "flow-manager-service"
+          },
+          "/demo": {
+            "basePath": "/demo",
+            "service": "payment-front-end"
+          },
+          "/callback-adyen": {
+            "basePath": "/callback-adyen",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-axerve": {
+            "basePath": "/callback-axerve",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-braintree": {
+            "basePath": "/callback-braintree",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-flowpay": {
+            "basePath": "/callback-flowpay",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-nexi": {
+            "basePath": "/callback-nexi",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-satispay": {
+            "basePath": "/callback-satispay",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-scalapay": {
+            "basePath": "/callback-scalapay",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-soisy": {
+            "basePath": "/callback-soisy",
+            "service": "payment-gateway-manager"
+          },
+          "/callback-stripe": {
+            "basePath": "/callback-stripe",
+            "service": "payment-gateway-manager"
+          },
+          "/": {
+            "basePath": "/",
+            "service": "pgm-bff"
+          }
+        },
+        "collections": {
+          "fm_subscriptions": {
+            "name": "fm_subscriptions"
+          },
+          "fm_transactions": {
+            "name": "fm_transactions"
+          },
+          "invoices": {
+            "name": "invoices"
+          },
+          "notification_templates": {
+            "name": "notification_templates"
+          },
+          "rules": {
+            "name": "rules"
+          },
+          "users": {
+            "name": "users"
+          }
+        },
+        "unsecretedVariables": {
+          "ANALYTICS_TRANSACTIONS_VERSION": {
+            "name": "ANALYTICS_TRANSACTIONS_VERSION"
+          },
+          "BFF_VERSION": {
+            "name": "BFF_VERSION"
+          },
+          "CRUD_SERVICE_VERSION": {
+            "name": "CRUD_SERVICE_VERSION"
+          },
+          "DATA_VIZ_BE_VERSION": {
+            "name": "DATA_VIZ_BE_VERSION"
+          },
+          "DATA_VIZ_FE_VERSION": {
+            "name": "DATA_VIZ_FE_VERSION"
+          },
+          "EMAIL_SENDER": {
+            "name": "EMAIL_SENDER"
+          },
+          "FRULLINO_VERSION": {
+            "name": "FRULLINO_VERSION"
+          },
+          "LOGS": {
+            "name": "LOGS"
+          },
+          "MESSAGING_SERVICE_VERSION": {
+            "name": "MESSAGING_SERVICE_VERSION"
+          },
+          "NOTIFICATION_TEMPLATE_IDS": {
+            "name": "NOTIFICATION_TEMPLATE_IDS"
+          },
+          "PAYMENT_FRONTEND_VERSION": {
+            "name": "PAYMENT_FRONTEND_VERSION"
+          },
+          "PGM_VERSION": {
+            "name": "PGM_VERSION"
+          },
+          "PROJECT_HOST": {
+            "name": "PROJECT_HOST"
+          },
+          "PROVIDER_PAY_BY_LINK": {
+            "name": "PROVIDER_PAY_BY_LINK"
+          },
+          "SUB_HANDLER_VERSION": {
+            "name": "SUB_HANDLER_VERSION"
+          }
+        }
+      }
+    },
+    "microfrontend-composer-toolkit": {
+      "name": "microfrontend-composer-toolkit",
+      "description": "Use this application to set up Microfrontend Composer to build your frontend in a few clicks",
+      "generatedFrom": "6569c63b8e27423597fce41f",
+      "resources": {
+        "services": {
+          "api-gateway": {
+            "name": "api-gateway"
+          },
+          "micro-lc": {
+            "name": "micro-lc"
+          }
+        },
+        "endpoints": {
+          "/mfe-application": {
+            "basePath": "/mfe-application",
+            "service": "micro-lc"
+          },
+          "/micro-lc-configurations": {
+            "basePath": "/micro-lc-configurations",
+            "service": "micro-lc"
+          }
+        },
+        "unsecretedVariables": {
+          "BACK_KIT_VERSION": {
+            "name": "BACK_KIT_VERSION"
+          }
+        }
+      }
+    }
+  },
+  "listeners": {
+    "frontend": {
+      "name": "frontend",
+      "port": 8080,
+      "description": "Default listener for frontend API",
+      "selectedByDefault": true
+    }
+  },
   "apiVersions": [],
   "version": "0.61.0",
   "platformVersion": "14.0.0",
-  "lastConfigFileCommitId": "3974b476-01b2-4f46-94c3-c392c0fe4ffe",
+  "lastConfigFileCommitId": "21f2c602-dace-42cf-93c6-bab28a99a046",
   "lastCommitAuthor": "Giulio Roggero",
-  "commitId": "3974b476-01b2-4f46-94c3-c392c0fe4ffe",
-  "committedDate": "2025-04-26T09:57:00.567Z",
-  "configMaps": {},
-  "serviceSecrets": {},
-  "serviceAccounts": {
-    "nodejs-16-helloworld-microservice-example": {
-      "name": "nodejs-16-helloworld-microservice-example"
+  "commitId": "21f2c602-dace-42cf-93c6-bab28a99a046",
+  "committedDate": "2025-04-27T08:12:00.393Z",
+  "configMaps": {
+    "api-gateway-envoy-config": {
+      "name": "api-gateway-envoy-config",
+      "files": []
+    },
+    "transactions-analytics": {
+      "name": "transactions-analytics",
+      "files": [
+        {
+          "name": "amount-transactions-by-day-last-year.js",
+          "content": "\"use strict\";  module.exports = {   tags: [\"Profiles\"],   name: \"amount-transactions-by-day-last-year\",   parameters: [],   inputFormatter: function t(query, params) {     return { ...query, ...params }       },   query: {     collectionName: \"fm_transactions\",     aggregationFunction: function t(params) {       return [         {           $match: {             __STATE__: \"PUBLIC\",              createdAt: {               $lt: new Date(new Date() - 1000*60*60*24*365),                $gt: new Date(new Date() - 1000*60*60*24*365*2)             },             businessStateDescription: \"PAYMENT_PAID\"           }         }, {           $project: {             dateToGroup: {               $dateToString: {                 format: \"%Y-%m-%d\",                  date: \"$createdAt\"               }             },              amount: \"$metadata.amount\"           }         }, {           $group: {             _id: \"$dateToGroup\",              total: {               $sum: \"$amount\"             }           }         }, {           $sort: {             _id: 1           }         }, {           $project: {             total: {               $divide: [                 \"$total\",                 100               ]             },              fakeTimestamp: {               $toLong: {                 $dateAdd: {                   startDate: {                     $toDate: \"$_id\"                   },                    unit: \"year\",                    amount: 1                 }               }             }           }         }       ]     }   },   castInterpolatedPipeline: function t(pipeline) {     return pipeline   },   outputFormatter: function t(doc, format, input) {     return [doc.fakeTimestamp, doc.total]   } };"
+        },
+        {
+          "name": "amount-transactions-by-day-this-year.js",
+          "content": "\"use strict\";  module.exports = {   tags: [\"Profiles\"],   name: \"amount-transactions-by-day-this-year\",   parameters: [],   inputFormatter: function t(query, params) {     return { ...query, ...params }       },   query: {     collectionName: \"fm_transactions\",     aggregationFunction: function t(params) {       return [         {           $match: {             __STATE__: \"PUBLIC\",              createdAt: {               $gt: new Date(new Date() - 1000*60*60*24*365)             },             businessStateDescription: \"PAYMENT_PAID\"           }         }, {           $project: {             dateToGroup: {               $dateToString: {                 format: \"%Y-%m-%d\",                  date: \"$createdAt\"               }             },              amount: \"$metadata.amount\"           }         }, {           $group: {             _id: \"$dateToGroup\",              total: {               $sum: \"$amount\"             }           }         }, {           $sort: {             _id: 1           }         }, {           $project: {             total: {               $divide: [                 \"$total\",                 100               ]             },              timestamp: {               $toLong: {                 $toDate: \"$_id\"               }             }           }         }       ]     }   },   castInterpolatedPipeline: function t(pipeline) {     return pipeline   },   outputFormatter: function t(doc, format, input) {     return [doc.timestamp, doc.total]   } };"
+        },
+        {
+          "name": "amount-by-method.js",
+          "content": "\"use strict\";  module.exports = {   tags: [\"Profiles\"],   name: \"amount-by-method\",   parameters: [{     type: \"string\",     name: \"transactionDateFrom\",     required: false   }, {     type: \"string\",     name: \"transactionDateTo\",     required: false   }],   inputFormatter: function t(query, params) {     return { ...query, ...params }   },   query: {     collectionName: \"fm_transactions\",     aggregationFunction: function t(params) {       return [{         $match: {           __STATE__: \"PUBLIC\",           businessStateDescription: \"PAYMENT_PAID\"         }       }, {         '#matchWithFilters#': [{           requiredParameters: [\"transactionDateFrom\", \"transactionDateTo\"],           query: {             createdAt: {               $gt: new Date(params.transactionDateFrom),               $lt: new Date(params.transactionDateTo)             }           }         }]       }, {         $group: {           _id: \"$metadata.paymentMethod\",           total: {             $sum: \"$metadata.amount\"           }         }       }, {         $set: {           total: {             $divide: [               \"$total\",               100             ]           },           method: {             $switch: {               branches: [                 {                   case: {                     $eq: [\"$_id\", \"applepay\"]                   },                   then: \"Apple Pay\"                 },                 {                   case: {                     $eq: [\"$_id\", \"credit-cards\"]                   },                   then: \"Credit Card\"                 },                 {                   case: {                     $eq: [\"$_id\", \"googlepay\"]                   },                   then: \"Google Pay\"                 },                 {                   case: {                     $eq: [\"$_id\", \"pay-pal\"]                   },                   then: \"PayPal\"                 },                 {                   case: {                     $eq: [\"$_id\", \"safecharge\"]                   },                   then: \"Safecharge\"                 },                 {                   case: {                     $eq: [\"$_id\", \"satispay\"]                   },                   then: \"Satispay\"                 },                 {                   case: {                     $eq: [\"$_id\", \"scalapay\"]                   },                   then: \"Scalapay\"                 },                 {                   case: {                     $eq: [\"$_id\", \"soisy\"]                   },                   then: \"Soisy\"                 },               ],               default: \"$_id\"             }           }         }       }, {         $sort: {           method: 1         }       }]     }   },   castInterpolatedPipeline: function t(pipeline) {     return pipeline   },   outputFormatter: function t(doc, format, input) {     return [doc.method, doc.total]   } };"
+        },
+        {
+          "name": "amount-by-channel.js",
+          "content": "\"use strict\";  module.exports = {   tags: [\"Profiles\"],   name: \"amount-by-channel\",   parameters: [{     type: \"string\",     name: \"transactionDateFrom\",     required: false   }, {     type: \"string\",     name: \"transactionDateTo\",     required: false   }],   inputFormatter: function t(query, params) {     return { ...query, ...params }   },   query: {     collectionName: \"fm_transactions\",     aggregationFunction: function t(params) {       return [{         $match: {           __STATE__: \"PUBLIC\",           businessStateDescription: \"PAYMENT_PAID\"         }       }, {         '#matchWithFilters#': [{           requiredParameters: [\"transactionDateFrom\", \"transactionDateTo\"],           query: {             createdAt: {               $gt: new Date(params.transactionDateFrom),               $lt: new Date(params.transactionDateTo)             }           }         }]       }, {         $group: {           _id: \"$metadata.additionalData.channel\",           total: {             $sum: \"$metadata.amount\"           }         }       }, {         $set: {           total: {             $divide: [               \"$total\",               100             ]           },           channel: {             $switch: {               branches: [                 {                   case: {                     $eq: [\"$_id\", null]                   },                   then: \"unknown\"                 }               ],               default: \"$_id\"             }           }         }       }, {         $sort: {           channel: 1         }       }]     }   },   castInterpolatedPipeline: function t(pipeline) {     return pipeline   },   outputFormatter: function t(doc, format, input) {     return [doc.channel, doc.total]   } };"
+        },
+        {
+          "name": "percentage-by-status.js",
+          "content": "\"use strict\";  module.exports = {   tags: [\"Profiles\"],   name: \"percentage-by-status\",   parameters: [{     type: \"string\",     name: \"transactionDateFrom\",     required: false   }, {     type: \"string\",     name: \"transactionDateTo\",     required: false   }],   inputFormatter: function t(query, params) {     return { ...query, ...params }       },   query: {     collectionName: \"fm_transactions\",     aggregationFunction: function t(params) {       return [{         $match: {           __STATE__: \"PUBLIC\"         }       }, {         '#matchWithFilters#': [{           requiredParameters: [\"transactionDateFrom\", \"transactionDateTo\"],           query: {             createdAt: {               $gt: new Date(params.transactionDateFrom),               $lt: new Date(params.transactionDateTo)             }           }         }]       }, {         $facet: {           nDocs: [             {               \"$count\": \"nDocs\"             }           ],           groupValues: [             {               \"$group\": {                 \"_id\": \"$businessStateDescription\",                 \"total\": {                   \"$sum\": 1                 }               }             },           ]         }       }, {         $unwind: {           path: '$groupValues',           includeArrayIndex: 'string',           preserveNullAndEmptyArrays: true         }       }, {         $project: {           status: '$groupValues._id',           percentage: {             $round: [               {                 $multiply: [                   {                     $divide: [ \"$groupValues.total\", {                       $getField: {                         field: 'nDocs',                         input: { $arrayElemAt: ['$nDocs', 0] }                       }                     } ]                   },                   100                 ]               },               2             ]           }         }       }, {         $set: {           state: {             $switch: {               branches: [                 {                   case: {                     $eq: [\"$status\", \"PAYMENT_PAID\"]                   },                   then: \"Payment Paid\"                 },                 {                   case: {                     $eq: [\"$status\", \"PAYMENT_CREATED\"]                   },                   then: \"Payment Created\"                 },                 {                   case: {                     $eq: [\"$status\", \"PAYMENT_PARTIALLY_REFUNDED\"]                   },                   then: \"Payment Partially Refunded\"                 },                 {                   case: {                     $eq: [\"$status\", \"PAYMENT_TOTALLY_REFUNDED\"]                   },                   then: \"Payment Totally Refunded\"                 },                 {                   case: {                     $eq: [\"$status\", \"PAYMENT_FAILED\"]                   },                   then: \"Payment Failed\"                 },               ],               default: \"$status\"             }           }         }       }]     }   },   castInterpolatedPipeline: function t(pipeline) {     return pipeline   },   outputFormatter: function t(doc, format, input) {     return [doc.state, doc.percentage]   } };"
+        }
+      ]
+    },
+    "crud-service-collections": {
+      "name": "crud-service-collections",
+      "files": []
+    },
+    "data-visualization-backend": {
+      "name": "data-visualization-backend",
+      "files": [
+        {
+          "name": "config.json",
+          "content": "{   \"charts\": {     \"percentageByStatus\": {       \"id\": \"percentageByStatus\",       \"constructorType\": \"chart\",       \"options\": {         \"chart\": {           \"plotBackgroundColor\": null,           \"plotBorderWidth\": null,           \"plotShadow\": false,           \"type\": \"pie\"         },         \"title\": {           \"text\": \"Percentage of transactions by state\"         },         \"tooltip\": {           \"pointFormat\": \"{series.name}: <b>{point.percentage:.1f}%</b>\"         },         \"accessibility\": {           \"point\": {             \"valueSuffix\": \"%\"           }         },         \"plotOptions\": {           \"pie\": {             \"allowPointSelect\": true,             \"cursor\": \"pointer\",             \"dataLabels\": {               \"enabled\": true,               \"format\": \"<b>{point.name}</b>: {point.percentage:.2f} %\"             },             \"colors\": [               \"#EA5159\",               \"#FAA0A0\",               \"#800020\",               \"#4A0404\"             ]           }         },         \"series\": [           {             \"id\": \"serie1\",             \"name\": \"Percentage of transactions: \",             \"colorByPoint\": true,             \"endpointData\": \"/analytics/percentage-by-status/json\"           }         ]       },       \"filters\": {         \"dateFilter\": {           \"type\": \"DATERANGE\",           \"placeholder\": \"Date\",           \"fieldName\": \"transactionDate\",           \"title\": \"Date\",           \"description\": \"Creation Date\"         }       }     },     \"transactionsbyChannel\": {       \"id\": \"transactionsbyChannel\",       \"constructorType\": \"chart\",       \"filters\": {         \"dateFilter\": {           \"type\": \"DATERANGE\",           \"placeholder\": \"Date\",           \"fieldName\": \"transactionDate\",           \"title\": \"Date\",           \"description\": \"Creation Date\"         }       },       \"options\": {         \"title\": {           \"text\": \"Transactions by Channel\"         },         \"subtitle\": {           \"text\": \"Number of transactions\"         },         \"chart\": {           \"alignTicks\": false,           \"type\": \"bar\"         },         \"legend\": {           \"enabled\": true         },         \"xAxis\": {           \"type\": \"category\",           \"labels\": {             \"style\": {               \"fontSize\": \"12px\",               \"fontFamily\": \"Verdana, sans-serif\"             }           }         },         \"yAxis\": [           {             \"title\": {               \"text\": \"Revenues\"             }           },           {             \"title\": {               \"text\": \"Transactions\"             }           }         ],         \"tooltip\": {           \"shared\": true         },         \"series\": [           {             \"id\": \"serie2\",             \"name\": \"Number\",             \"endpointData\": \"/analytics/number-transactions-by-channel/json\",             \"type\": \"column\",             \"color\": \"#EA5159\",             \"yAxis\": 0           }         ]       }     },     \"transactionComparisonLastYear\": {       \"id\": \"transactionComparisonLastYear\",       \"constructorType\": \"stockChart\",       \"options\": {         \"title\": {           \"text\": \"Transactions trend\"         },         \"subtitle\": {           \"text\": \"Amount by day\"         },         \"chart\": {           \"alignTicks\": false         },         \"legend\": {           \"enabled\": true         },         \"xAxis\": {           \"type\": \"datetime\"         },         \"yAxis\": [           {             \"title\": {               \"text\": \"Amount\"             }           }         ],         \"series\": [           {             \"id\": \"amount-transactions-by-day-last-year\",             \"name\": \"Last year\",             \"endpointData\": \"/analytics/amount-transactions-by-day-last-year/json\",             \"color\": \"#C0C0C0\",             \"tooltip\": {               \"valuePrefix\": \"€ \"             },             \"fill\": {               \"granularity\": \"days\",               \"untilNow\": true,               \"value\": 0             },             \"yAxis\": 0,             \"xAxis\": 0,             \"dashStyle\": \"ShortDot\"           },           {             \"id\": \"amount-transactions-by-day-this-year\",             \"name\": \"This year\",             \"endpointData\": \"/analytics/amount-transactions-by-day-this-year/json\",             \"color\": \"#EA5159\",             \"tooltip\": {               \"valuePrefix\": \"€ \"             },             \"fill\": {               \"granularity\": \"days\",               \"untilNow\": true,               \"value\": 0             },             \"yAxis\": 0,             \"xAxis\": 0           }         ]       }     },     \"amountByMethod\": {       \"id\": \"amountByMethod\",       \"constructorType\": \"chart\",       \"filters\": {         \"dateFilter\": {           \"type\": \"DATERANGE\",           \"placeholder\": \"Date\",           \"fieldName\": \"transactionDate\",           \"title\": \"Date\",           \"description\": \"Creation Date\"         }       },       \"options\": {         \"title\": {           \"text\": \"Amount by payment method\"         },         \"chart\": {           \"alignTicks\": false,           \"type\": \"bar\"         },         \"legend\": {           \"enabled\": true         },         \"xAxis\": {           \"type\": \"category\"         },         \"yAxis\": [           {             \"title\": {               \"text\": \"Revenues\"             }           }         ],         \"tooltip\": {           \"shared\": true         },         \"series\": [           {             \"id\": \"amount-by-method\",             \"name\": \"Amount\",             \"endpointData\": \"/analytics/amount-by-method/json\",             \"type\": \"column\",             \"tooltip\": {               \"valuePrefix\": \"€ \"             },             \"color\": \"#EA5159\",             \"yAxis\": 0           }         ]       }     },     \"amountByChannel\": {       \"id\": \"amountByChannel\",       \"constructorType\": \"chart\",       \"filters\": {         \"dateFilter\": {           \"type\": \"DATERANGE\",           \"placeholder\": \"Date\",           \"fieldName\": \"transactionDate\",           \"title\": \"Date\",           \"description\": \"Creation Date\"         }       },       \"options\": {         \"title\": {           \"text\": \"Amount by payment channel\"         },         \"chart\": {           \"alignTicks\": false,           \"type\": \"bar\"         },         \"legend\": {           \"enabled\": true         },         \"xAxis\": {           \"type\": \"category\"         },         \"yAxis\": [           {             \"title\": {               \"text\": \"Revenues\"             }           }         ],         \"tooltip\": {           \"shared\": true         },         \"series\": [           {             \"id\": \"amount-by-channel\",             \"name\": \"Amount\",             \"endpointData\": \"/analytics/amount-by-channel/json\",             \"type\": \"column\",             \"tooltip\": {               \"valuePrefix\": \"€ \"             },             \"color\": \"#EA5159\",             \"yAxis\": 0           }         ]       }     }   },   \"dashboard\": {     \"dashboard-1\": {       \"rows\": [         {           \"charts\": [             {               \"id\": \"transactionComparisonLastYear\"             }           ]         },         {           \"charts\": [             {               \"id\": \"amountByMethod\"             },             {               \"id\": \"amountByChannel\"             }           ]         },         {           \"charts\": [             {               \"id\": \"percentageByStatus\"             }           ]         }       ]     }   } }"
+        }
+      ]
+    },
+    "file-sevice-config": {
+      "name": "file-sevice-config",
+      "files": [
+        {
+          "name": "db-config.json",
+          "content": "CHANGE ME"
+        },
+        {
+          "name": "caster-file.js",
+          "content": "'use strict'\nmodule.exports = function caster(doc) {   return {     sagaId: doc.sagaId || undefined,   } }\nmodule.exports.additionalPropertiesValidator = {   sagaId: { type: 'string' }, }"
+        }
+      ]
+    },
+    "flow-configuration": {
+      "name": "flow-configuration",
+      "files": [
+        {
+          "name": "saga.json",
+          "content": "{\"communicationProtocols\":[{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/pay\",\"port\":80,\"protocol\":\"http\"},\"id\":\"pay\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/pay-by-link\",\"port\":80,\"protocol\":\"http\"},\"id\":\"createLink\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/subscription/schedule\",\"port\":80,\"protocol\":\"http\"},\"id\":\"subscriptionScheduledRequested\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/subscription/start\",\"port\":80,\"protocol\":\"http\"},\"id\":\"subscriptionStart\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/subscription/pay\",\"port\":80,\"protocol\":\"http\"},\"id\":\"subscriptionPaymentRequested\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/subscription/authorization\",\"port\":80,\"protocol\":\"http\"},\"id\":\"getAuthorization\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"payment-gateway-manager\",\"method\":\"POST\",\"path\":\"/saga/refund\",\"port\":80,\"protocol\":\"http\"},\"id\":\"refund\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"subscription-handler-service\",\"method\":\"POST\",\"path\":\"/notify\",\"port\":80,\"protocol\":\"http\"},\"id\":\"subscription-notify\",\"type\":\"rest\"},{\"configurations\":{\"endpoint\":\"messaging-service\",\"method\":\"POST\",\"path\":\"/saga/send\",\"port\":80,\"protocol\":\"http\"},\"id\":\"notify\",\"type\":\"rest\"}],\"machineDefinition\":{\"businessEvents\":[{\"description\":\"paymentCreated\",\"id\":0},{\"description\":\"paymentPaid\",\"id\":1},{\"description\":\"paymentPartiallyRefunded\",\"id\":2},{\"description\":\"paymentTotallyRefunded\",\"id\":3},{\"description\":\"paymentFailed\",\"id\":1000}],\"businessStates\":[{\"description\":\"PAYMENT_CREATED\",\"id\":0},{\"description\":\"PAYMENT_PAID\",\"id\":1},{\"description\":\"PAYMENT_PARTIALLY_REFUNDED\",\"id\":2},{\"description\":\"PAYMENT_TOTALLY_REFUNDED\",\"id\":3},{\"description\":\"PAYMENT_FAILED\",\"id\":1000}],\"creationEvent\":\"paymentCreated\",\"initialState\":\"PAYMENT_CREATED\",\"states\":[{\"businessStateId\":0,\"description\":\"payment created on CRUD\",\"id\":\"PAYMENT_CREATED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"scheduleRequested\",\"targetState\":\"PAYMENT_SCHEDULE_REQUESTED\"},{\"businessEventId\":0,\"inputEvent\":\"subscriptionScheduledRequested\",\"targetState\":\"SUBSCRIPTION_SCHEDULED_REQUESTED\"},{\"businessEventId\":0,\"inputEvent\":\"subscriptionStart\",\"targetState\":\"SUBSCRIPTION_STARTED\"},{\"businessEventId\":0,\"inputEvent\":\"subscriptionPaymentRequested\",\"targetState\":\"SUBSCRIPTION_PAYMENT_REQUESTED\"},{\"businessEventId\":0,\"inputEvent\":\"authorizationRequested\",\"targetState\":\"AUTHORIZATION_REQUESTED\"},{\"businessEventId\":0,\"inputEvent\":\"linkRequested\",\"targetState\":\"LINK_REQUESTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"}]},{\"businessStateId\":0,\"description\":\"Link has been requested\",\"id\":\"LINK_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"linkCreated\",\"targetState\":\"LINK_CREATED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"}],\"outputCommand\":{\"channel\":\"createLink\",\"label\":\"createLink\"}},{\"businessStateId\":0,\"description\":\"Link has been created\",\"id\":\"LINK_CREATED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"notificationSent\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"}]},{\"businessStateId\":0,\"description\":\"authorization has been requested\",\"id\":\"AUTHORIZATION_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"authorizationScheduled\",\"targetState\":\"AUTHORIZATION_PENDING\"}],\"outputCommand\":{\"channel\":\"getAuthorization\",\"label\":\"getAuthorization\"}},{\"businessStateId\":0,\"description\":\"waiting for authorization\",\"id\":\"AUTHORIZATION_PENDING\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"subscriptionStart\",\"targetState\":\"SUBSCRIPTION_STARTED\"},{\"businessEventId\":0,\"inputEvent\":\"subscriptionPaymentRequested\",\"targetState\":\"SUBSCRIPTION_PAYMENT_REQUESTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"}]},{\"businessStateId\":0,\"description\":\"payment schedule has been requested\",\"id\":\"PAYMENT_SCHEDULE_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"paymentScheduled\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecutedBySystem\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailedBySystem\",\"targetState\":\"PAYMENT_FAILED\"}],\"outputCommand\":{\"channel\":\"pay\",\"label\":\"paymentScheduled\"}},{\"businessStateId\":0,\"description\":\"subscription schedule has been requested\",\"id\":\"SUBSCRIPTION_SCHEDULED_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"paymentScheduled\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecutedBySystem\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailedBySystem\",\"targetState\":\"PAYMENT_FAILED\"}],\"outputCommand\":{\"channel\":\"subscriptionScheduledRequested\",\"label\":\"subscriptionScheduledRequested\"}},{\"businessStateId\":0,\"description\":\"subscription's first payment has been requested\",\"id\":\"SUBSCRIPTION_STARTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"paymentScheduled\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecutedBySystem\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailedBySystem\",\"targetState\":\"PAYMENT_FAILED\"}],\"outputCommand\":{\"channel\":\"subscriptionStart\",\"label\":\"subscriptionStart\"}},{\"businessStateId\":0,\"description\":\"subscription's payment has been requested\",\"id\":\"SUBSCRIPTION_PAYMENT_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"paymentScheduled\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecutedBySystem\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailedBySystem\",\"targetState\":\"PAYMENT_FAILED\"}],\"outputCommand\":{\"channel\":\"subscriptionPaymentRequested\",\"label\":\"subscriptionPaymentRequested\"}},{\"businessStateId\":0,\"description\":\"payment created on provider's system\",\"id\":\"PAYMENT_PENDING\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":0,\"inputEvent\":\"update\",\"targetState\":\"PAYMENT_PENDING\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecuted\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1,\"inputEvent\":\"paymentExecutedBySystem\",\"targetState\":\"PAYMENT_EXECUTED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailed\",\"targetState\":\"PAYMENT_FAILED\"},{\"businessEventId\":1000,\"inputEvent\":\"paymentFailedBySystem\",\"targetState\":\"PAYMENT_FAILED\"}]},{\"businessStateId\":1,\"description\":\"payment has been paid\",\"id\":\"PAYMENT_EXECUTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":1,\"inputEvent\":\"refundRequested\",\"targetState\":\"REFUND_REQUESTED\"},{\"businessEventId\":1,\"inputEvent\":\"sendNotification\",\"targetState\":\"PAYMENT_EXECUTED\"}]},{\"businessStateId\":1,\"description\":\"payment refund has been requested\",\"id\":\"REFUND_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":1,\"inputEvent\":\"refundFailed\",\"targetState\":\"REFUND_FAILED\"},{\"businessEventId\":2,\"inputEvent\":\"partialRefundExecuted\",\"targetState\":\"PARTIALLY_REFUNDED\"},{\"businessEventId\":3,\"inputEvent\":\"totalRefundExecuted\",\"targetState\":\"TOTALLY_REFUNDED\"}],\"outputCommand\":{\"channel\":\"refund\",\"label\":\"refundRequested\"}},{\"businessStateId\":1,\"description\":\"payment refund failed\",\"id\":\"REFUND_FAILED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":1,\"inputEvent\":\"refundRequested\",\"targetState\":\"REFUND_REQUESTED\"}]},{\"businessStateId\":2,\"description\":\"payment has been partially refunded\",\"id\":\"PARTIALLY_REFUNDED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":2,\"inputEvent\":\"refundRequested\",\"targetState\":\"SUBSEQUENT_REFUND_REQUESTED\"},{\"businessEventId\":1,\"inputEvent\":\"sendNotification\",\"targetState\":\"PARTIALLY_REFUNDED\"}]},{\"businessStateId\":2,\"description\":\"payment refund has been requested again\",\"id\":\"SUBSEQUENT_REFUND_REQUESTED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":2,\"inputEvent\":\"partialRefundExecuted\",\"targetState\":\"PARTIALLY_REFUNDED\"},{\"businessEventId\":2,\"inputEvent\":\"refundFailed\",\"targetState\":\"SUBSEQUENT_REFUND_FAILED\"},{\"businessEventId\":3,\"inputEvent\":\"totalRefundExecuted\",\"targetState\":\"TOTALLY_REFUNDED\"}],\"outputCommand\":{\"channel\":\"refund\",\"label\":\"refundRequested\"}},{\"businessStateId\":2,\"description\":\"subsequent payment refund failed\",\"id\":\"SUBSEQUENT_REFUND_FAILED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":2,\"inputEvent\":\"refundRequested\",\"targetState\":\"SUBSEQUENT_REFUND_REQUESTED\"}]},{\"businessStateId\":3,\"description\":\"payment has been totally refunded\",\"id\":\"TOTALLY_REFUNDED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":1,\"inputEvent\":\"sendNotification\",\"targetState\":\"TOTALLY_REFUNDED\"}]},{\"businessStateId\":1000,\"description\":\"payment could not be performed\",\"id\":\"PAYMENT_FAILED\",\"isFinal\":false,\"outgoingTransitions\":[{\"businessEventId\":1,\"inputEvent\":\"sendNotification\",\"targetState\":\"PAYMENT_FAILED\"}]}]},\"persistencyManagement\":{\"configurations\":{\"collectionName\":\"fm-transactions\",\"host\":\"crud-service\",\"port\":80,\"protocol\":\"http\"},\"type\":\"crud\"},\"settings\":{\"deepMergeMetadata\":{\"enabled\":true,\"hook\":{\"content\":\"\",\"encoding\":\"base64\",\"type\":\"file\"}}}}"
+        }
+      ]
+    },
+    "config": {
+      "name": "config",
+      "files": [
+        {
+          "name": "company-data.json",
+          "content": "{   \"companyName\": \"CHANGE ME\",   \"address\": \"CHANGE ME\",   \"telephoneNumber\": \"Tel. CHANGE ME\",   \"logo\": \"CHANGE ME\" }"
+        }
+      ]
+    },
+    "messaging-configuration": {
+      "name": "messaging-configuration",
+      "files": [
+        {
+          "name": "config.json",
+          "content": "{   \"activeChannels\": [     \"email\",     \"sms\"   ],   \"sender\": {     \"email\": \"{{EMAIL_SENDER}}\",     \"sms\": \"CHANGE ME\"   },   \"flowManagerConfiguration\": {     \"serviceUrl\": \"http://flow-manager-service\",     \"successEventLabel\": \"notificationSent\",     \"failEventLabel\": \"paymentFailed\",     \"getTemplateIdFilePath\": \"/home/node/app/messaging-service/getTemplateId.js\",     \"getDataFilePath\": \"/home/node/app/messaging-service/getData.js\",     \"metadataSchema\": {       \"channels\": \"additionalData.notificationChannels\",       \"recipients\": \"additionalData.buyer.id\"     }   } }"
+        },
+        {
+          "name": "getData.js",
+          "content": "function amountToDecimal(amount, currency) {   if (isNaN(amount)) return undefined   \nswitch (currency.toLocaleLowerCase()) {     case 'eur':       return (amount / 100).toFixed(2)\ndefault:       return amount   } }  function currencyToSymbol(currency) {   switch (currency.toLocaleLowerCase()) {     case 'eur':       return '€'     \ndefault:       return currency   } }  function mapStatus(status) {     switch (status) {         case 'PAYMENT_EXECUTED':             return 'Payment Paid'         \ncase 'PAYMENT_FAILED':             return 'Payment Failed'         \ncase 'PARTIAL_REFUND_EXECUTED':             return 'Payment Partially Refunded'         \ncase 'TOTAL_REFUND_EXECUTED':             return 'Payment Totally Refunded'         \ndefault:             return status     } }  \nmodule.exports = function getData(event) {   return {     ...event,     value: {       messageLabel: mapStatus(event.value.messageLabel),       messagePayload: {         ...event.value.messagePayload,         amount: amountToDecimal(event.value.messagePayload.amount, event.value.messagePayload.currency),         currency: currencyToSymbol(event.value.messagePayload.currency),         refundRequestData: {           ...event.value.messagePayload.refundRequestData,           amount: amountToDecimal(event.value.messagePayload.refundRequestData?.amount, event.value.messagePayload.currency),         },         refundDetails: {           ...event.value.messagePayload.refundDetails,           totalRefundedAmount: amountToDecimal(event.value.messagePayload.refundDetails?.totalRefundedAmount, event.value.messagePayload.currency),           refundedAmounts: event.value.messagePayload.refundDetails?.refundedAmounts?.map(a => amountToDecimal(a, event.value.messagePayload.currency)),         },       },     },   } } "
+        },
+        {
+          "name": "getTemplateId.js",
+          "content": "module.exports = function getTemplateId(event) {   const mapIds = new Map(JSON.parse('{{NOTIFICATION_TEMPLATE_IDS}}'))   \nreturn mapIds.get(event.value.messageLabel) ?? event.value.messageLabel } "
+        }
+      ]
+    },
+    "payment-front-end": {
+      "name": "payment-front-end",
+      "files": [
+        {
+          "name": "env.json",
+          "content": "{   \"primaryColor\": \"#EA5159\",   \"backgroundColor\": \"#ffffff\",   \"bodyColor\": \"#F4F4F4\",   \"fontColor\": \"#555555\",   \"logo\": \"./logo.webp\",   \"favicon\": \"./favicon.webp\",   \"title\": \"Payment\",   \"pages\": {     \"home\": \"/demo/checkout\",     \"checkout\": \"/demo/checkout\",     \"subscription\": \"/demo/subscription\",     \"buyer\": \"/demo/buyer\",     \"pay\": \"/demo/pay\",     \"result\": \"/demo/result\",     \"error\": \"/demo/error\",     \"pending\": \"/demo/pending\"   },   \"endpoint\": {     \"pay\": \"/pay\",     \"paySubscription\": \"/pay-recurrent\",     \"payPolling\": \"/pay-polling\",     \"payByLink\": \"/pay-by-link\",     \"downloadInvoice\": \"/invoice-download\",     \"checkout\": \"/fm/saga\",     \"checkoutSubscription\": \"/create\",     \"paymentDetail\": \"/payment-info\",     \"paymentMethods\": \"/payment/{id}/methods\",     \"axerveCreditToken\": \"https://sandbox.gestpay.net/api/v1/shop/token\",     \"applePaySession\": \"/apple-pay-session\",     \"paymentTokenization\": \"/tokenization\"   },   \"googlepay\": {     \"environment\": \"TEST\",     \"countryCode\": \"IT\"   },   \"applePay\": {     \"merchantIdentifier\": \"CHANGE ME\",     \"domain\": \"{{PROJECT_HOST}}\",     \"displayName\": \"CHANGE ME\"   },   \"pollingInterval\": 2000 }"
+        }
+      ]
+    },
+    "pgm-config": {
+      "name": "pgm-config",
+      "files": [
+        {
+          "name": "external-providers.json",
+          "content": "{   \"externalServices\": [     {       \"externalService\": \"CHANGE ME\",       \"baseUrl\": \"CHANGE ME\"     }     ] }"
+        }
+      ]
+    },
+    "subscription-saga-configuration": {
+      "name": "subscription-saga-configuration",
+      "files": [
+        {
+          "name": "saga.json",
+          "content": "{   \"machineDefinition\": {     \"initialState\": \"CREATED\",     \"creationEvent\": \"create\",     \"states\": [       {         \"id\": \"CREATED\",         \"description\": \"Subscription created on CRUD\",         \"isFinal\": false,         \"businessStateId\": 0,         \"outgoingTransitions\": [           {             \"inputEvent\": \"update\",             \"targetState\": \"CREATED\",             \"businessEventId\": 0           },           {             \"inputEvent\": \"start\",             \"targetState\": \"PAYMENT_PENDING\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"expire\",             \"targetState\": \"EXPIRED\",             \"businessEventId\": 1000           },           {             \"inputEvent\": \"abort\",             \"targetState\": \"ABORTED\",             \"businessEventId\": 1001           }         ]       },       {         \"id\": \"PAYMENT_PENDING\",         \"description\": \"A payment is processing\",         \"isFinal\": false,         \"businessStateId\": 1,         \"outgoingTransitions\": [           {             \"inputEvent\": \"update\",             \"targetState\": \"PAYMENT_PENDING\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"paymentExecuted\",             \"targetState\": \"ACTIVE\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"paymentFailed\",             \"targetState\": \"PAYMENT_FAILED\",             \"businessEventId\": 10           },           {             \"inputEvent\": \"expire\",             \"targetState\": \"EXPIRED\",             \"businessEventId\": 1000           },           {             \"inputEvent\": \"abort\",             \"targetState\": \"ABORTED\",             \"businessEventId\": 1001           }         ]       },       {         \"id\": \"ACTIVE\",         \"description\": \"Subscription is active\",         \"isFinal\": false,         \"businessStateId\": 1,         \"outgoingTransitions\": [           {             \"inputEvent\": \"update\",             \"targetState\": \"ACTIVE\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"scheduleNextPayment\",             \"targetState\": \"PAYMENT_PENDING\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"expire\",             \"targetState\": \"EXPIRED\",             \"businessEventId\": 1000           },           {             \"inputEvent\": \"abort\",             \"targetState\": \"ABORTED\",             \"businessEventId\": 1001           }         ]       },       {         \"id\": \"PAYMENT_FAILED\",         \"description\": \"A payment has failed\",         \"isFinal\": false,         \"businessStateId\": 10,         \"outgoingTransitions\": [           {             \"inputEvent\": \"update\",             \"targetState\": \"PAYMENT_FAILED\",             \"businessEventId\": 10           },           {             \"inputEvent\": \"scheduleNextPayment\",             \"targetState\": \"PAYMENT_PENDING\",             \"businessEventId\": 1           },           {             \"inputEvent\": \"expire\",             \"targetState\": \"EXPIRED\",             \"businessEventId\": 1000           },           {             \"inputEvent\": \"abort\",             \"targetState\": \"ABORTED\",             \"businessEventId\": 1001           }         ]       },       {         \"id\": \"EXPIRED\",         \"description\": \"Subscription expired\",         \"isFinal\": true,         \"businessStateId\": 1000       },       {         \"id\": \"ABORTED\",         \"description\": \"Subscription aborted after several failure\",         \"isFinal\": true,         \"businessStateId\": 1001       }     ],     \"businessStates\": [       {         \"id\": 0,         \"description\": \"CREATED\"       },       {         \"id\": 1,         \"description\": \"ACTIVE\"       },       {         \"id\": 10,         \"description\": \"ON_HOLD\"       },       {         \"id\": 1000,         \"description\": \"EXPIRED\"       },       {         \"id\": 1001,         \"description\": \"ABORTED\"       }     ],     \"businessEvents\": [       {         \"id\": 0,         \"description\": \"created\"       },       {         \"id\": 1,         \"description\": \"activated\"       },       {         \"id\": 10,         \"description\": \"on_hold\"       },       {         \"id\": 1000,         \"description\": \"expired\"       },       {         \"id\": 1001,         \"description\": \"abort\"       }     ]   },   \"communicationProtocols\": [],   \"persistencyManagement\": {     \"type\": \"crud\",     \"configurations\": {       \"collectionName\": \"fm-subscriptions\"     }   },   \"settings\": {     \"deepMergeMetadata\": {       \"enabled\": true     }   } }"
+        }
+      ]
+    },
+    "micro-lc-static-files": {
+      "name": "micro-lc-static-files",
+      "files": [
+        {
+          "name": "index.html",
+          "content": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <base href=\"/mfe-application/\" target=\"_blank\" />\n\n  <title>Microfrontend composer</title>\n\n  <link rel=\"icon\" type=\"image/png\" href=\"https://www.mia-platform.eu/static/img/favicon/apple-icon-60x60.png\" />\n  <link rel=\"stylesheet\" nonce=\"**CSP_NONCE**\" href=\"./assets/style.css\" />\n\n  <script\n    type=\"module\"\n    nonce=\"**CSP_NONCE**\"\n    src=\"https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-loading-animation.esm.js\"\n  ></script>\n\n  <script\n    type=\"module\"\n    nonce=\"**CSP_NONCE**\"\n    src=\"https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/micro-lc.production.js\"\n  ></script>\n</head>\n\n<body>\n  <bk-loading-animation primary-color=\"#1890ff\">\n    <micro-lc config-src=\"/micro-lc-configurations/config.json\" fallback-language=\"en\"></micro-lc>\n  </bk-loading-animation>\n</body>\n\n</html>\n"
+        }
+      ]
+    },
+    "micro-lc-configurations": {
+      "name": "micro-lc-configurations",
+      "files": [
+        {
+          "name": "config.json",
+          "content": "{\"applications\":{\"home\":{\"config\":{\"content\":{\"attributes\":{\"style\":\"width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 24px\"},\"content\":[{\"content\":\"Welcome to your new frontend! 👋\",\"tag\":\"span\"},{\"attributes\":{\"href\":\"https://docs.mia-platform.eu/docs/microfrontend-composer/overview\",\"target\":\"_blank\"},\"content\":\"Get started with the official documentation!\",\"tag\":\"a\"}],\"tag\":\"div\"}},\"integrationMode\":\"compose\",\"route\":\"./home\"},\"libraries\":{\"integrationMode\":\"compose\",\"route\":\"./pages/library\",\"config\":\"/micro-lc-configurations/libraries.config.json\"}},\"layout\":{\"content\":[{\"properties\":{\"logo\":{\"altText\":\"Change me\",\"url\":\"https://www.mia-platform.eu/static/img/logo.svg\"},\"menuItems\":[{\"icon\":{\"library\":\"@ant-design/icons-svg\",\"selector\":\"HomeOutlined\"},\"id\":\"home\",\"label\":\"Home\",\"type\":\"application\"}],\"mode\":\"fixedSideBar\"},\"tag\":\"bk-layout\"},{\"properties\":{\"primaryColor\":\"#1890ff\",\"varsPrefix\":[\"micro-lc\",\"microlc\",\"back-kit\",\"ant\"]},\"tag\":\"bk-antd-theme-manager\"}],\"sources\":[\"https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js\"]},\"settings\":{\"defaultUrl\":\"./home\"},\"version\":2}"
+        },
+        {
+          "name": "libraries.config.json",
+          "content": "{\"definitions\":{\"dataSchema\":{\"type\":\"object\",\"required\":[\"priority\",\"ruleId\",\"type\",\"rules\",\"response\"],\"properties\":{\"_id\":{\"formOptions\":{\"hiddenOnInsert\":true,\"readOnlyOnUpdate\":true},\"type\":\"string\"},\"creatorId\":{\"formOptions\":{\"hiddenOnInsert\":true,\"readOnlyOnUpdate\":true},\"type\":\"string\"},\"createdAt\":{\"formOptions\":{\"hiddenOnInsert\":true,\"readOnlyOnUpdate\":true},\"dateOptions\":{\"displayFormat\":\"YYYY-MM-DD hh:mm\"},\"format\":\"date-time\",\"type\":\"string\"},\"updaterId\":{\"formOptions\":{\"hiddenOnInsert\":true,\"readOnlyOnUpdate\":true},\"type\":\"string\"},\"updatedAt\":{\"formOptions\":{\"hiddenOnInsert\":true,\"readOnlyOnUpdate\":true},\"dateOptions\":{\"displayFormat\":\"YYYY-MM-DD hh:mm\"},\"format\":\"date-time\",\"type\":\"string\"},\"__STATE__\":{\"enum\":[\"PUBLIC\",\"DRAFT\",\"TRASH\",\"DELETED\"],\"formOptions\":{\"readOnlyOnUpdate\":true},\"type\":\"string\"},\"priority\":{\"type\":\"number\"},\"ruleId\":{\"type\":\"string\"},\"type\":{\"type\":\"string\"},\"rules\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[],\"additionalProperties\":true}},\"response\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[],\"additionalProperties\":true}}}}},\"content\":{\"content\":[{\"content\":[{\"tag\":\"div\",\"content\":[{\"properties\":{\"content\":\"Page title\"},\"tag\":\"bk-title\"},{\"tag\":\"bk-refresh-button\",\"attributes\":{\"style\":\"margin-left: 14px; align-self: end;\"}},{\"tag\":\"div\",\"attributes\":{\"style\":\"flex-grow: 1;\"}},{\"properties\":{\"placeholder\":\"Search...\"},\"tag\":\"bk-search-bar\"},{\"properties\":{\"iconId\":\"DownloadOutlined\",\"content\":\"Export\",\"clickConfig\":{\"type\":\"event\",\"actionConfig\":{\"label\":\"export-data\",\"payload\":{}}}},\"tag\":\"bk-button\"},{\"tag\":\"bk-add-new-button\"},{\"properties\":{\"content\":\"\",\"clickConfig\":{\"type\":\"event\",\"actionConfig\":{\"label\":\"filter\",\"payload\":{}}},\"type\":\"outlined\",\"iconId\":\"FunnelPlotOutlined\"},\"tag\":\"bk-button\"}],\"attributes\":{\"style\":\"display: flex; flex-direction: row; gap: 10px; padding: 0 20px;\"}},{\"tag\":\"div\",\"attributes\":{\"style\":\"width: 100%; display: flex; justify-content: space-between;\"},\"content\":[{\"attributes\":{\"style\":\"flex-grow: 1;\"},\"properties\":{\"tabs\":[{\"key\":\"tab-1\",\"title\":\"Tab 1\"}]},\"tag\":\"bk-tabs\"},{\"attributes\":{\"style\":\"margin-right: 4px\"},\"properties\":{\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"},\"filters\":[]},\"tag\":\"bk-filters-manager\"}]}],\"tag\":\"header\",\"attributes\":{\"style\":\"display: flex; flex-direction: column; padding-top: 10px; background-color: white;\"}},{\"content\":[{\"properties\":{\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"},\"maxLines\":10,\"customActions\":[{\"tag\":\"bk-button\",\"properties\":{\"iconId\":\"DeleteOutlined\",\"content\":\"\",\"type\":\"ghost\",\"action\":{\"type\":\"event\",\"config\":{\"events\":{\"label\":\"require-confirm\",\"payload\":{\"content\":{\"en\":\"Do you want to confirm this action?\",\"it\":\"Vuoi confermare questa azione?\"},\"configOk\":{\"properties\":{\"action\":{\"type\":\"event\",\"config\":{\"events\":{\"label\":\"delete-data\",\"payload\":\"{{rawObject args.[1]}}\"}}}}}}}}}}},{\"tag\":\"bk-button\",\"properties\":{\"content\":{\"en\":\"Details\",\"it\":\"Dettaglio\"},\"iconId\":\"fas fa-arrow-right\",\"iconPlacement\":\"right\",\"clickConfig\":{\"type\":\"push\",\"actionConfig\":{\"url\":\"./details-page-route/{{args.[1]._id}}\"}}}}]},\"tag\":\"bk-table\"},{\"properties\":{\"requireConfirm\":{\"onClose\":true,\"onSave\":true},\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"},\"width\":\"70vw\"},\"tag\":\"bk-form-modal\"},{\"tag\":\"bk-confirmation-modal\"},{\"properties\":{\"rootElementSelectors\":\"main.micro-lc-layout-content\",\"successEventMap\":{\"create-data\":{\"title\":\"Success\",\"content\":\"Data successfully created\",\"type\":\"success\"},\"update-data\":{\"title\":\"Success\",\"content\":\"Data successfully updated\",\"type\":\"success\"},\"delete-data\":{\"title\":\"Success\",\"content\":\"Data successfully deleted\",\"type\":\"success\"}},\"errorEventMap\":{\"create-data\":{\"title\":\"Error\",\"content\":\"An error occurred during order creation\",\"type\":\"error\"},\"update-data\":{\"title\":\"Error\",\"content\":\"An error occurred during order updated\",\"type\":\"error\"},\"delete-data\":{\"title\":\"Error\",\"content\":\"An error occurred during order deletion\",\"type\":\"error\"}}},\"tag\":\"bk-notifications\",\"attributes\":{}}],\"tag\":\"main\",\"attributes\":{\"style\":\"flex-grow: 1; background-color: #f0f2f5; padding: 20px; overflow-y: auto;\"}},{\"content\":[{\"properties\":{\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"},\"width\":\"40vw\"},\"tag\":\"bk-filter-drawer\"}],\"tag\":\"aside\"},{\"content\":[{\"tag\":\"bk-bulk-delete\"},{\"tag\":\"bk-bulk-actions\",\"properties\":{\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"}}},{\"tag\":\"div\",\"attributes\":{\"style\":\"flex-grow: 1;\"}},{\"tag\":\"bk-footer\",\"attributes\":{\"style\":\"display: flex; justify-content: end; align-items: center;\"}},{\"tag\":\"bk-pagination\",\"properties\":{\"pageSize\":10}}],\"tag\":\"footer\",\"attributes\":{\"style\":\"display: flex; flex-direction: row; flex-wrap: wrap; padding: 10px 20px; background-color: white; gap: 10px; position: sticky; bottom: 0; z-index: 10\"}},{\"properties\":{\"basePath\":\"/v2/adaptive-checkout\",\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"}},\"tag\":\"bk-crud-client\"},{\"properties\":{\"basePath\":\"/data-source-endpoint/export\",\"streamSaverIFrameSrc\":\"https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/export-service-worker.html\",\"dataSchema\":{\"$ref\":\"#/definitions/dataSchema\"}},\"tag\":\"bk-export\"}],\"tag\":\"div\",\"attributes\":{\"style\":\"width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;\"}},\"sources\":[\"https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js\"]}"
+        }
+      ]
+    },
+    "micro-lc-server-configuration": {
+      "name": "micro-lc-server-configuration",
+      "files": [
+        {
+          "name": "config.json",
+          "content": "{\"publicHeadersMap\":{\"/public/index.html\":{\"content-security-policy\":[[\"script-src 'nonce-**CSP_NONCE**' 'strict-dynamic' 'unsafe-eval'\",\"style-src 'self' 'unsafe-inline'\",\"img-src 'self' https:\",\"object-src 'none'\",\"font-src 'self'\",\"worker-src 'self' blob:\",\"base-uri 'self'\"]],\"link\":[\"</mfe-application/assets/style.css>; rel=preload; as=style; nonce=**CSP_NONCE**\",\"<https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/micro-lc.production.js>; rel=modulepreload; as=script; nonce=**CSP_NONCE**\",\"<https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/assets/composer.js>; rel=preload; as=fetch; crossorigin\",\"<https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js>; rel=preload; as=fetch; crossorigin\",\"<https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-loading-animation.esm.js; rel=preload; as=fetch; crossorigin\"]}}}"
+        }
+      ]
+    },
+    "micro-lc-assets": {
+      "name": "micro-lc-assets",
+      "files": [
+        {
+          "name": "style.css",
+          "content": "html,\nbody {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  overflow: hidden;\n}\n"
+        }
+      ]
+    },
+    "rbac-sidecar-svc-opa-policies-config": {
+      "name": "rbac-sidecar-svc-opa-policies-config",
+      "files": [
+        {
+          "name": "policies.rego",
+          "content": "package policies\n\nallow_all {\n  true\n}"
+        }
+      ]
+    },
+    "rbac-sidecar-svc-oas-permissions-config": {
+      "name": "rbac-sidecar-svc-oas-permissions-config",
+      "files": [
+        {
+          "name": "crud-service-permissions.json",
+          "content": "{\"paths\":{\"/fm-subscriptions/\":{\"get\":{\"x-permission\":{\"allow\":\"allow_all\"}}}}}"
+        }
+      ],
+      "gitFilesFolder": "rbac-sidecar-svc-configurations"
     }
   },
-  "unsecretedVariables": [],
+  "serviceSecrets": {},
+  "serviceAccounts": {
+    "api-gateway": {
+      "name": "api-gateway"
+    },
+    "adaptive-approval": {
+      "name": "adaptive-approval"
+    },
+    "analytics-transactions": {
+      "name": "analytics-transactions"
+    },
+    "crud-service": {
+      "name": "crud-service"
+    },
+    "data-visualization-backend": {
+      "name": "data-visualization-backend"
+    },
+    "data-visualization-frontend": {
+      "name": "data-visualization-frontend"
+    },
+    "export-service": {
+      "name": "export-service"
+    },
+    "files-service": {
+      "name": "files-service"
+    },
+    "flow-manager-service": {
+      "name": "flow-manager-service"
+    },
+    "frullino-service": {
+      "name": "frullino-service"
+    },
+    "invoice-service": {
+      "name": "invoice-service"
+    },
+    "messaging-service": {
+      "name": "messaging-service"
+    },
+    "payment-front-end": {
+      "name": "payment-front-end"
+    },
+    "payment-gateway-manager": {
+      "name": "payment-gateway-manager"
+    },
+    "pgm-bff": {
+      "name": "pgm-bff"
+    },
+    "sms-service": {
+      "name": "sms-service"
+    },
+    "smtp-mail-notification-service": {
+      "name": "smtp-mail-notification-service"
+    },
+    "subscription-handler-service": {
+      "name": "subscription-handler-service"
+    },
+    "subscription-saga": {
+      "name": "subscription-saga"
+    },
+    "testproxy": {
+      "name": "testproxy"
+    },
+    "micro-lc": {
+      "name": "micro-lc"
+    }
+  },
+  "unsecretedVariables": [
+    {
+      "name": "ANALYTICS_TRANSACTIONS_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "2.1.0"
+        },
+        "DEV": {
+          "value": "2.1.0"
+        }
+      }
+    },
+    {
+      "name": "BFF_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "2.3.0"
+        },
+        "DEV": {
+          "value": "2.3.0"
+        }
+      }
+    },
+    {
+      "name": "CRUD_SERVICE_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "7.2.0"
+        },
+        "DEV": {
+          "value": "7.2.0"
+        }
+      }
+    },
+    {
+      "name": "DATA_VIZ_BE_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "2.0.1"
+        },
+        "DEV": {
+          "value": "2.0.1"
+        }
+      }
+    },
+    {
+      "name": "DATA_VIZ_FE_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "1.8.2"
+        },
+        "DEV": {
+          "value": "1.8.2"
+        }
+      }
+    },
+    {
+      "name": "EMAIL_SENDER",
+      "environments": {
+        "PROD": {
+          "value": "CHANGE ME"
+        },
+        "DEV": {
+          "value": "CHANGE ME"
+        }
+      }
+    },
+    {
+      "name": "FRULLINO_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "2.1.0"
+        },
+        "DEV": {
+          "value": "2.1.0"
+        }
+      }
+    },
+    {
+      "name": "LOGS",
+      "environments": {
+        "PROD": {
+          "value": "info"
+        },
+        "DEV": {
+          "value": "debug"
+        }
+      }
+    },
+    {
+      "name": "MESSAGING_SERVICE_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "1.5.0"
+        },
+        "DEV": {
+          "value": "1.5.0"
+        }
+      }
+    },
+    {
+      "name": "NOTIFICATION_TEMPLATE_IDS",
+      "environments": {
+        "PROD": {
+          "value": "[ [\"PAY_BY_LINK\", \"CHANGE ME\"], [\"PAYMENT_EXECUTED\", \"CHANGE ME\"], [\"PAYMENT_FAILED\", \"CHANGE ME\"], [\"PARTIAL_REFUND_EXECUTED\", \"CHANGE ME\"], [\"TOTAL_REFUND_EXECUTED\", \"CHANGE ME\"] ]"
+        },
+        "DEV": {
+          "value": "[ [\"PAY_BY_LINK\", \"CHANGE ME\"], [\"PAYMENT_EXECUTED\", \"CHANGE ME\"], [\"PAYMENT_FAILED\", \"CHANGE ME\"], [\"PARTIAL_REFUND_EXECUTED\", \"CHANGE ME\"], [\"TOTAL_REFUND_EXECUTED\", \"CHANGE ME\"] ]"
+        }
+      }
+    },
+    {
+      "name": "PAYMENT_FRONTEND_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "1.4.0"
+        },
+        "DEV": {
+          "value": "1.4.0"
+        }
+      }
+    },
+    {
+      "name": "PGM_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "3.5.0"
+        },
+        "DEV": {
+          "value": "3.5.0"
+        }
+      }
+    },
+    {
+      "name": "PROJECT_HOST",
+      "environments": {
+        "PROD": {
+          "value": "CHANGE ME"
+        },
+        "DEV": {
+          "value": "CHANGE ME"
+        }
+      }
+    },
+    {
+      "name": "PROVIDER_PAY_BY_LINK",
+      "environments": {
+        "PROD": {
+          "value": "CHANGE ME"
+        },
+        "DEV": {
+          "value": "CHANGE ME"
+        }
+      }
+    },
+    {
+      "name": "SUB_HANDLER_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "1.1.1"
+        },
+        "DEV": {
+          "value": "1.1.1"
+        }
+      }
+    },
+    {
+      "name": "BACK_KIT_VERSION",
+      "environments": {
+        "PROD": {
+          "value": "1.5.16"
+        },
+        "DEV": {
+          "value": "1.5.16"
+        }
+      }
+    }
+  ],
   "fastDataConfig": {
     "version": "2.2.0",
-    "lastCommitId": "3974b476-01b2-4f46-94c3-c392c0fe4ffe",
-    "updatedAt": "2025-04-26T09:57:00.567Z",
-    "systems": {},
+    "lastCommitId": "21f2c602-dace-42cf-93c6-bab28a99a046",
+    "updatedAt": "2025-04-27T08:12:00.393Z",
+    "systems": {
+      "system-of-record-a": {
+        "systemId": "system-of-record-a",
+        "dataSourceType": "kafka",
+        "kafka": {
+          "messageAdapter": "debezium"
+        },
+        "projections": {
+          "projection-a": {
+            "projectionId": "projection-a",
+            "topics": {
+              "type": "advanced",
+              "ingestionTopicName": "6b38a8ec-816c-487c-986d-c59edb294ea6.all-config.system-of-record-a.projection-a.ingestion",
+              "prUpdateTopicName": "6b38a8ec-816c-487c-986d-c59edb294ea6.all-config.system-of-record-a.projection-a.pr-update"
+            },
+            "fields": [
+              {
+                "name": "_id",
+                "type": "ObjectId",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "_id",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "creatorId",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "creatorId",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "createdAt",
+                "type": "Date",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "createdAt",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "updaterId",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "updaterId",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "updatedAt",
+                "type": "Date",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "updatedAt",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "__STATE__",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "__STATE__",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "castFunction": "defaultIdentity",
+                "nullable": false,
+                "required": false,
+                "primaryKey": false,
+                "custom": true,
+                "sensitivityValue": 0
+              },
+              {
+                "name": "bookid",
+                "type": "string",
+                "castFunction": "defaultIdentity",
+                "nullable": false,
+                "required": false,
+                "primaryKey": true,
+                "custom": true,
+                "sensitivityValue": 0
+              }
+            ],
+            "indexes": [
+              {
+                "name": "_id",
+                "type": "normal",
+                "unique": true,
+                "fields": [
+                  {
+                    "name": "_id",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_primary_key_index",
+                "type": "normal",
+                "unique": true,
+                "fields": [
+                  {
+                    "name": "bookid",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_internal_counter_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "bookid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counter",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counterType",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_internal_counter_type_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "bookid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counterType",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_state_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "bookid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__STATE__",
+                    "order": 1
+                  }
+                ]
+              }
+            ],
+            "primaryKeyIndex": {
+              "automatic": true
+            }
+          }
+        },
+        "isLowCode": true
+      },
+      "system-of-record-b": {
+        "systemId": "system-of-record-b",
+        "dataSourceType": "kafka",
+        "kafka": {
+          "messageAdapter": "basic"
+        },
+        "projections": {
+          "prj-library": {
+            "projectionId": "prj-library",
+            "topics": {
+              "type": "advanced",
+              "ingestionTopicName": "6b38a8ec-816c-487c-986d-c59edb294ea6.all-config.system-of-record-b.prj-library.ingestion",
+              "prUpdateTopicName": "6b38a8ec-816c-487c-986d-c59edb294ea6.all-config.system-of-record-b.prj-library.pr-update"
+            },
+            "fields": [
+              {
+                "name": "_id",
+                "type": "ObjectId",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "_id",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "creatorId",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "creatorId",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "createdAt",
+                "type": "Date",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "createdAt",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "updaterId",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "updaterId",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "updatedAt",
+                "type": "Date",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "updatedAt",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "__STATE__",
+                "type": "string",
+                "nullable": false,
+                "required": true,
+                "custom": false,
+                "description": "__STATE__",
+                "sensitivityValue": 0
+              },
+              {
+                "name": "name",
+                "type": "string",
+                "castFunction": "defaultIdentity",
+                "nullable": false,
+                "required": false,
+                "primaryKey": false,
+                "custom": true,
+                "sensitivityValue": 0
+              },
+              {
+                "name": "libraryid",
+                "type": "string",
+                "castFunction": "defaultIdentity",
+                "nullable": false,
+                "required": false,
+                "primaryKey": true,
+                "custom": true,
+                "sensitivityValue": 0
+              }
+            ],
+            "indexes": [
+              {
+                "name": "_id",
+                "type": "normal",
+                "unique": true,
+                "fields": [
+                  {
+                    "name": "_id",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_primary_key_index",
+                "type": "normal",
+                "unique": true,
+                "fields": [
+                  {
+                    "name": "libraryid",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_internal_counter_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "libraryid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counter",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counterType",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_internal_counter_type_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "libraryid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__internal__counterType",
+                    "order": 1
+                  }
+                ]
+              },
+              {
+                "name": "mia_state_index",
+                "type": "normal",
+                "unique": false,
+                "fields": [
+                  {
+                    "name": "libraryid",
+                    "order": 1
+                  },
+                  {
+                    "name": "__STATE__",
+                    "order": 1
+                  }
+                ]
+              }
+            ],
+            "primaryKeyIndex": {
+              "automatic": true
+            }
+          }
+        },
+        "isLowCode": true
+      }
+    },
     "castFunctions": {
       "defaultIdentity": {
         "castFunctionId": "defaultIdentity",
@@ -2295,15 +10141,1913 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/projects/680cacfc25e7a18172e9
         "type": "default"
       }
     },
-    "singleViews": {},
-    "erSchemas": {}
+    "singleViews": {
+      "sv-libraries": {
+        "singleViewId": "sv-libraries",
+        "indexes": [
+          {
+            "name": "_id",
+            "type": "normal",
+            "unique": true,
+            "fields": [
+              {
+                "name": "_id",
+                "order": 1
+              }
+            ]
+          }
+        ],
+        "internalEndpoints": [
+          {
+            "basePath": "/sv-libraries",
+            "defaultState": "PUBLIC"
+          }
+        ],
+        "fields": [
+          {
+            "name": "_id",
+            "type": "ObjectId",
+            "required": true,
+            "nullable": false,
+            "description": "_id",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "creatorId",
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "description": "creatorId",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "createdAt",
+            "type": "Date",
+            "required": true,
+            "nullable": false,
+            "description": "createdAt",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "updaterId",
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "description": "updaterId",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "updatedAt",
+            "type": "Date",
+            "required": true,
+            "nullable": false,
+            "description": "updatedAt",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "__STATE__",
+            "type": "string",
+            "required": true,
+            "nullable": false,
+            "description": "__STATE__",
+            "sensitivityValue": 0
+          },
+          {
+            "name": "librarier",
+            "type": "RawObject",
+            "required": false,
+            "nullable": false,
+            "sensitivityValue": 0,
+            "schema": {
+              "properties": {
+                "libraryId": {
+                  "type": "string",
+                  "description": "Unique identifier for the library",
+                  "pattern": "^[a-fA-F0-9]{24}$"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Name of the library"
+                },
+                "location": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string",
+                      "description": "Street address of the library"
+                    },
+                    "city": {
+                      "type": "string",
+                      "description": "City where the library is located"
+                    },
+                    "state": {
+                      "type": "string",
+                      "description": "State where the library is located"
+                    },
+                    "zipCode": {
+                      "type": "string",
+                      "description": "Postal code for the library location",
+                      "pattern": "^[0-9]{5}(?:-[0-9]{4})?$"
+                    }
+                  },
+                  "required": [
+                    "address",
+                    "city",
+                    "state",
+                    "zipCode"
+                  ]
+                },
+                "books": {
+                  "type": "array",
+                  "description": "List of books available in the library",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "bookId": {
+                        "type": "string",
+                        "description": "Unique identifier for the book",
+                        "pattern": "^[a-fA-F0-9]{24}$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Title of the book"
+                      },
+                      "author": {
+                        "type": "string",
+                        "description": "Author of the book"
+                      },
+                      "publishedYear": {
+                        "type": "integer",
+                        "description": "Year the book was published",
+                        "minimum": 1450,
+                        "maximum": 2023
+                      }
+                    },
+                    "required": [
+                      "bookId",
+                      "title",
+                      "author"
+                    ]
+                  }
+                },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "nullable": true,
+                  "description": "Additional metadata related to the library"
+                }
+              },
+              "required": [
+                "libraryId",
+                "name",
+                "location",
+                "books"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "services": []
+      }
+    },
+    "erSchemas": {
+      "book-libraries": {
+        "name": "book-libraries",
+        "content": "{\n  \"config\": {\n    \"projection-a\": {\n      \"outgoing\": {\n        \"prj-library\": {\n          \"conditions\": {\n            \"projection-a__to__prj-library_0\": {\n              \"condition\": {\n                \"libraryid\": \"bookid\"\n              },\n              \"oneToMany\": false\n            }\n          }\n        }\n      }\n    },\n    \"prj-library\": {\n      \"outgoing\": {\n        \"projection-a\": {\n          \"conditions\": {\n            \"prj-library__to__projection-a_0\": {\n              \"condition\": {\n                \"bookid\": \"libraryid\"\n              },\n              \"oneToMany\": false\n            }\n          }\n        }\n      }\n    }\n  },\n  \"version\": \"1.0.0\"\n}"
+      }
+    }
+  },
+  "microfrontendPluginsConfig": {
+    "flowManagerConfigurations": {
+      "flows": {
+        "flow-manager-service": {
+          "commands": {
+            "d52fbaeb-b6db-44ce-b9ad-063e0f45cdeb": {
+              "label": "createLink",
+              "protocol": "createLink"
+            },
+            "7e7e3ffe-7f61-49f7-a6ee-5c61c5a7695e": {
+              "label": "getAuthorization",
+              "protocol": "getAuthorization"
+            },
+            "ac06bcbe-db36-4ade-b363-185b78783553": {
+              "label": "paymentScheduled",
+              "protocol": "pay"
+            },
+            "fbb3be8d-b54f-4abf-81e2-7af96c573637": {
+              "label": "subscriptionScheduledRequested",
+              "protocol": "subscriptionScheduledRequested"
+            },
+            "37d5adda-092a-4af8-8248-a7955c939258": {
+              "label": "subscriptionStart",
+              "protocol": "subscriptionStart"
+            },
+            "aac2a672-9046-4fb5-b1ed-71f56acbe2c4": {
+              "label": "subscriptionPaymentRequested",
+              "protocol": "subscriptionPaymentRequested"
+            },
+            "35e03f54-91e0-4c5b-a2eb-f626350efb25": {
+              "label": "refundRequested",
+              "protocol": "refund"
+            }
+          },
+          "configuratorSettings": {},
+          "creationNode": {
+            "canvasPosition": {
+              "x": 125,
+              "y": 795
+            },
+            "initialEvent": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "name": "paymentCreated",
+              "targetState": "7663ecb7-ed8d-4852-af1c-81eae039ada8"
+            }
+          },
+          "eventGroups": {
+            "0": {
+              "color": "#EE308D",
+              "description": "paymentCreated",
+              "name": "paymentCreated"
+            },
+            "1": {
+              "color": "#EB4F25",
+              "description": "paymentPaid",
+              "name": "paymentPaid"
+            },
+            "2": {
+              "color": "#CF6D1C",
+              "description": "paymentPartiallyRefunded",
+              "name": "paymentPartiallyRefunded"
+            },
+            "3": {
+              "color": "#85910D",
+              "description": "paymentTotallyRefunded",
+              "name": "paymentTotallyRefunded"
+            },
+            "1000": {
+              "color": "#3FA11F",
+              "description": "paymentFailed",
+              "name": "paymentFailed"
+            }
+          },
+          "events": {
+            "888badc1-5c4a-4f86-8132-12f80ab90f70": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "scheduleRequested",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "174bd984-aadc-4905-9ec4-70ef67339e0a"
+            },
+            "88df48ae-108b-47a5-acc9-8aa0cb8ed998": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "subscriptionScheduledRequested",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "15a8d019-c7ce-43d7-abf1-f128fef4318d"
+            },
+            "f5888953-838c-4ba8-85aa-48bccab45555": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "subscriptionStart",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "b46ea930-8f28-4c08-992b-e87041d0e98d"
+            },
+            "3e229223-3787-401a-a1fc-0d3ea9598227": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "subscriptionPaymentRequested",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7"
+            },
+            "9e96561a-c9a6-498c-803d-8241a18d2589": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "authorizationRequested",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "5c2aaae3-2c69-47e0-86ec-0bfc2b12e345"
+            },
+            "00b9f0f6-919b-4674-aa60-24c9216f1d44": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "linkRequested",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "50ace07b-dc25-4418-a2e7-10784b3effe8"
+            },
+            "b16dde13-c709-4d08-8711-a991b577ec83": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "4f10e77c-ee78-45fd-9ce0-f5aa0b472ecf": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "7663ecb7-ed8d-4852-af1c-81eae039ada8",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "0145bc0b-28d3-48f1-ab93-c2f84247465f": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "linkCreated",
+              "sourceState": "50ace07b-dc25-4418-a2e7-10784b3effe8",
+              "targetState": "1161d643-6236-48d0-9406-0116b1bc77fe"
+            },
+            "930f86a3-ee92-4410-8a12-df6af0f7b521": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "50ace07b-dc25-4418-a2e7-10784b3effe8",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "1a355d96-e85d-42a1-aec2-b4024bf9fef0": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "notificationSent",
+              "sourceState": "1161d643-6236-48d0-9406-0116b1bc77fe",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "1b364d05-9ef2-4bf4-bed6-b53a95ea3cd7": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "1161d643-6236-48d0-9406-0116b1bc77fe",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "b0b62c45-2797-4b16-84de-83f3641f06cb": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "authorizationScheduled",
+              "sourceState": "5c2aaae3-2c69-47e0-86ec-0bfc2b12e345",
+              "targetState": "5c60c09a-084f-495f-885f-415a1ede85ee"
+            },
+            "5f6a497a-ad8e-4736-a92f-803d3db614de": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "subscriptionStart",
+              "sourceState": "5c60c09a-084f-495f-885f-415a1ede85ee",
+              "targetState": "b46ea930-8f28-4c08-992b-e87041d0e98d"
+            },
+            "81047f24-5aec-4df3-9eeb-f2e3d35a61ba": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "subscriptionPaymentRequested",
+              "sourceState": "5c60c09a-084f-495f-885f-415a1ede85ee",
+              "targetState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7"
+            },
+            "896c07b3-0bd6-4e8c-8cc6-0af0aeca4183": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "5c60c09a-084f-495f-885f-415a1ede85ee",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "25284c86-08e2-445c-bea3-cbcbd02ca935": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "paymentScheduled",
+              "sourceState": "174bd984-aadc-4905-9ec4-70ef67339e0a",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "a6a8657d-0063-40ea-b244-4c454fc5d035": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "174bd984-aadc-4905-9ec4-70ef67339e0a",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "7ba6a5e4-8085-416c-a7ed-dfe4d127691f": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecutedBySystem",
+              "sourceState": "174bd984-aadc-4905-9ec4-70ef67339e0a",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "080b2d8c-4754-48a7-83c8-944f89655c86": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "174bd984-aadc-4905-9ec4-70ef67339e0a",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "dbb2d6e7-ad9f-4ae2-8e3e-1a811800e1fe": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailedBySystem",
+              "sourceState": "174bd984-aadc-4905-9ec4-70ef67339e0a",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "6bae9ca6-d8ce-44d5-a1a0-dc41685a5cc2": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "paymentScheduled",
+              "sourceState": "15a8d019-c7ce-43d7-abf1-f128fef4318d",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "06964321-46f7-4b43-9ad2-272de66de608": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "15a8d019-c7ce-43d7-abf1-f128fef4318d",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "71e599da-34dc-4778-b965-3c815834e606": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecutedBySystem",
+              "sourceState": "15a8d019-c7ce-43d7-abf1-f128fef4318d",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "f95c83a0-7db7-4f42-96ae-b7dc6b8f907b": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "15a8d019-c7ce-43d7-abf1-f128fef4318d",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "43ab7ce1-3f7b-4416-933f-e50affb56ef3": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailedBySystem",
+              "sourceState": "15a8d019-c7ce-43d7-abf1-f128fef4318d",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "3837831b-a9b8-467d-a931-e90fd7b77f65": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "paymentScheduled",
+              "sourceState": "b46ea930-8f28-4c08-992b-e87041d0e98d",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "93b2655d-faa5-4fb8-99b0-235c86387d05": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "b46ea930-8f28-4c08-992b-e87041d0e98d",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "ff5f47f4-106d-4962-9789-1c1b50e95a85": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecutedBySystem",
+              "sourceState": "b46ea930-8f28-4c08-992b-e87041d0e98d",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "d231a0b4-5c94-4360-8ee2-4d90add488fb": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "b46ea930-8f28-4c08-992b-e87041d0e98d",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "787e5f89-3f9a-485f-b3cf-cb6dbbf40964": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailedBySystem",
+              "sourceState": "b46ea930-8f28-4c08-992b-e87041d0e98d",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "0a29ef44-ef9f-4257-84c8-bcc836e82a6b": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "paymentScheduled",
+              "sourceState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "58c0d6fe-ea81-4ca4-880b-1580990d5b15": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "cb5902cb-4239-4f3e-b287-be771b6df8e8": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecutedBySystem",
+              "sourceState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "cd582863-a321-4776-ada7-5ad7a54f2dac": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "8a965dba-13b8-42e3-bf45-ba6b42d06aac": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailedBySystem",
+              "sourceState": "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "ba5f9817-5e49-47fd-87b0-6df761936c41": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 0,
+              "name": "update",
+              "sourceState": "329758a6-8386-4a6a-8ee6-362a96bb7190",
+              "targetState": "329758a6-8386-4a6a-8ee6-362a96bb7190"
+            },
+            "8afc3df7-c41b-4318-a855-14446cc84c2e": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecuted",
+              "sourceState": "329758a6-8386-4a6a-8ee6-362a96bb7190",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "7735e6d9-eee3-494f-a910-c6492a5fa158": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "paymentExecutedBySystem",
+              "sourceState": "329758a6-8386-4a6a-8ee6-362a96bb7190",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "4a8bae50-3696-4037-9e60-18f0b21ef3bd": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailed",
+              "sourceState": "329758a6-8386-4a6a-8ee6-362a96bb7190",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "b406ce29-5b2b-489f-bb9d-d2ac52bb98d8": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1000,
+              "name": "paymentFailedBySystem",
+              "sourceState": "329758a6-8386-4a6a-8ee6-362a96bb7190",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            },
+            "11ef5856-82c5-4999-9131-8a473320044a": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "refundRequested",
+              "sourceState": "9f9a743c-5798-4074-94ed-f18f60b501f4",
+              "targetState": "628b22cc-3f43-4a30-be62-d52543850c52"
+            },
+            "6414f8c2-056a-4cad-9ee4-625626c18d7f": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "sendNotification",
+              "sourceState": "9f9a743c-5798-4074-94ed-f18f60b501f4",
+              "targetState": "9f9a743c-5798-4074-94ed-f18f60b501f4"
+            },
+            "a933d4b4-49bd-4d03-adc9-e65979e94df0": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "refundFailed",
+              "sourceState": "628b22cc-3f43-4a30-be62-d52543850c52",
+              "targetState": "fd304f62-def6-4c8e-a6af-e221cda2b25e"
+            },
+            "68c148d5-43ad-492e-b0f2-2cdd9a75df10": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 2,
+              "name": "partialRefundExecuted",
+              "sourceState": "628b22cc-3f43-4a30-be62-d52543850c52",
+              "targetState": "b21283b7-0b20-43c4-87e3-b0720815f3d7"
+            },
+            "b6febd66-3eda-4042-8b0d-8db76616c59d": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 3,
+              "name": "totalRefundExecuted",
+              "sourceState": "628b22cc-3f43-4a30-be62-d52543850c52",
+              "targetState": "eaf40fce-0592-4b7e-a5ee-abec2e554da3"
+            },
+            "30677de8-7579-43bf-b8e2-e0fc952ea33e": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "refundRequested",
+              "sourceState": "fd304f62-def6-4c8e-a6af-e221cda2b25e",
+              "targetState": "628b22cc-3f43-4a30-be62-d52543850c52"
+            },
+            "9f5edbef-4237-4e0c-a406-e82065863769": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 2,
+              "name": "refundRequested",
+              "sourceState": "b21283b7-0b20-43c4-87e3-b0720815f3d7",
+              "targetState": "d251c865-e2e3-4cdb-acf2-7be80c58fa77"
+            },
+            "63c93dca-8697-472e-b0df-59ba79ad2a19": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "sendNotification",
+              "sourceState": "b21283b7-0b20-43c4-87e3-b0720815f3d7",
+              "targetState": "b21283b7-0b20-43c4-87e3-b0720815f3d7"
+            },
+            "852fd760-64c6-49aa-b0f2-53968cd40246": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 2,
+              "name": "partialRefundExecuted",
+              "sourceState": "d251c865-e2e3-4cdb-acf2-7be80c58fa77",
+              "targetState": "b21283b7-0b20-43c4-87e3-b0720815f3d7"
+            },
+            "36e69d55-de40-4d31-8c3f-cd9b275e7059": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 2,
+              "name": "refundFailed",
+              "sourceState": "d251c865-e2e3-4cdb-acf2-7be80c58fa77",
+              "targetState": "4e23e1e4-68ee-47b9-8e48-fe9ae3d7c6dd"
+            },
+            "b0661c35-b184-4396-b145-3364d126d9bb": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 3,
+              "name": "totalRefundExecuted",
+              "sourceState": "d251c865-e2e3-4cdb-acf2-7be80c58fa77",
+              "targetState": "eaf40fce-0592-4b7e-a5ee-abec2e554da3"
+            },
+            "365b28db-686d-4d8b-bdb3-c9c5637a395a": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 2,
+              "name": "refundRequested",
+              "sourceState": "4e23e1e4-68ee-47b9-8e48-fe9ae3d7c6dd",
+              "targetState": "d251c865-e2e3-4cdb-acf2-7be80c58fa77"
+            },
+            "a12e7146-c1b1-4bea-8130-acbc12fd0705": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "sendNotification",
+              "sourceState": "eaf40fce-0592-4b7e-a5ee-abec2e554da3",
+              "targetState": "eaf40fce-0592-4b7e-a5ee-abec2e554da3"
+            },
+            "a46a6ceb-6ebc-4c3c-a5d7-aef8490dc665": {
+              "canvasPosition": {
+                "x": 0,
+                "y": 0
+              },
+              "group": 1,
+              "name": "sendNotification",
+              "sourceState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b",
+              "targetState": "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b"
+            }
+          },
+          "hooks": {},
+          "persistencyManagement": {
+            "collectionName": "fm-transactions",
+            "host": "crud-service",
+            "port": 80,
+            "protocol": "http",
+            "type": "crud"
+          },
+          "protocols": {
+            "pay": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "pay",
+              "path": "/saga/pay",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "createLink": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "createLink",
+              "path": "/saga/pay-by-link",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "subscriptionScheduledRequested": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "subscriptionScheduledRequested",
+              "path": "/saga/subscription/schedule",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "subscriptionStart": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "subscriptionStart",
+              "path": "/saga/subscription/start",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "subscriptionPaymentRequested": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "subscriptionPaymentRequested",
+              "path": "/saga/subscription/pay",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "getAuthorization": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "getAuthorization",
+              "path": "/saga/subscription/authorization",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "refund": {
+              "endpoint": "payment-gateway-manager",
+              "method": "POST",
+              "name": "refund",
+              "path": "/saga/refund",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "subscription-notify": {
+              "endpoint": "subscription-handler-service",
+              "method": "POST",
+              "name": "subscription-notify",
+              "path": "/notify",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            },
+            "notify": {
+              "endpoint": "messaging-service",
+              "method": "POST",
+              "name": "notify",
+              "path": "/saga/send",
+              "port": 80,
+              "protocol": "http",
+              "type": "rest"
+            }
+          },
+          "settings": {
+            "deepMergeMetadata": {
+              "enabled": true
+            }
+          },
+          "sideEffects": {},
+          "stateGroups": {
+            "0": {
+              "color": "#EE308D",
+              "description": "PAYMENT_CREATED",
+              "name": "PAYMENT_CREATED"
+            },
+            "1": {
+              "color": "#EB4F25",
+              "description": "PAYMENT_PAID",
+              "name": "PAYMENT_PAID"
+            },
+            "2": {
+              "color": "#CF6D1C",
+              "description": "PAYMENT_PARTIALLY_REFUNDED",
+              "name": "PAYMENT_PARTIALLY_REFUNDED"
+            },
+            "3": {
+              "color": "#85910D",
+              "description": "PAYMENT_TOTALLY_REFUNDED",
+              "name": "PAYMENT_TOTALLY_REFUNDED"
+            },
+            "1000": {
+              "color": "#3FA11F",
+              "description": "PAYMENT_FAILED",
+              "name": "PAYMENT_FAILED"
+            }
+          },
+          "states": {
+            "7663ecb7-ed8d-4852-af1c-81eae039ada8": {
+              "canvasPosition": {
+                "x": 450,
+                "y": 795
+              },
+              "description": "payment created on CRUD",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 850,
+                  "y": 795
+                },
+                "type": "wait-for"
+              },
+              "name": "PAYMENT_CREATED"
+            },
+            "50ace07b-dc25-4418-a2e7-10784b3effe8": {
+              "canvasPosition": {
+                "x": 2050,
+                "y": 1335
+              },
+              "description": "Link has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 2450,
+                  "y": 1335
+                },
+                "command": "d52fbaeb-b6db-44ce-b9ad-063e0f45cdeb",
+                "type": "command"
+              },
+              "name": "LINK_REQUESTED"
+            },
+            "1161d643-6236-48d0-9406-0116b1bc77fe": {
+              "canvasPosition": {
+                "x": 2850,
+                "y": 1237.5
+              },
+              "description": "Link has been created",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 3250,
+                  "y": 1237.5
+                },
+                "type": "wait-for"
+              },
+              "name": "LINK_CREATED"
+            },
+            "5c2aaae3-2c69-47e0-86ec-0bfc2b12e345": {
+              "canvasPosition": {
+                "x": 1250,
+                "y": 495
+              },
+              "description": "authorization has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 1650,
+                  "y": 495
+                },
+                "command": "7e7e3ffe-7f61-49f7-a6ee-5c61c5a7695e",
+                "type": "command"
+              },
+              "name": "AUTHORIZATION_REQUESTED"
+            },
+            "5c60c09a-084f-495f-885f-415a1ede85ee": {
+              "canvasPosition": {
+                "x": 2050,
+                "y": 495
+              },
+              "description": "waiting for authorization",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 2450,
+                  "y": 495
+                },
+                "type": "wait-for"
+              },
+              "name": "AUTHORIZATION_PENDING"
+            },
+            "174bd984-aadc-4905-9ec4-70ef67339e0a": {
+              "canvasPosition": {
+                "x": 2850,
+                "y": 987.5
+              },
+              "description": "payment schedule has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 3250,
+                  "y": 987.5
+                },
+                "command": "ac06bcbe-db36-4ade-b363-185b78783553",
+                "type": "command"
+              },
+              "name": "PAYMENT_SCHEDULE_REQUESTED"
+            },
+            "15a8d019-c7ce-43d7-abf1-f128fef4318d": {
+              "canvasPosition": {
+                "x": 2850,
+                "y": 630
+              },
+              "description": "subscription schedule has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 3250,
+                  "y": 630
+                },
+                "command": "fbb3be8d-b54f-4abf-81e2-7af96c573637",
+                "type": "command"
+              },
+              "name": "SUBSCRIPTION_SCHEDULED_REQUESTED"
+            },
+            "b46ea930-8f28-4c08-992b-e87041d0e98d": {
+              "canvasPosition": {
+                "x": 2850,
+                "y": 350
+              },
+              "description": "subscription's first payment has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 3250,
+                  "y": 350
+                },
+                "command": "37d5adda-092a-4af8-8248-a7955c939258",
+                "type": "command"
+              },
+              "name": "SUBSCRIPTION_STARTED"
+            },
+            "e7ac0bbc-a64a-4b74-88d4-2c8c83c741c7": {
+              "canvasPosition": {
+                "x": 2850,
+                "y": 100
+              },
+              "description": "subscription's payment has been requested",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 3250,
+                  "y": 100
+                },
+                "command": "aac2a672-9046-4fb5-b1ed-71f56acbe2c4",
+                "type": "command"
+              },
+              "name": "SUBSCRIPTION_PAYMENT_REQUESTED"
+            },
+            "329758a6-8386-4a6a-8ee6-362a96bb7190": {
+              "canvasPosition": {
+                "x": 3650,
+                "y": 640
+              },
+              "description": "payment created on provider's system",
+              "group": 0,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 4050,
+                  "y": 640
+                },
+                "type": "wait-for"
+              },
+              "name": "PAYMENT_PENDING"
+            },
+            "9f9a743c-5798-4074-94ed-f18f60b501f4": {
+              "canvasPosition": {
+                "x": 4450,
+                "y": 215
+              },
+              "description": "payment has been paid",
+              "group": 1,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 4850,
+                  "y": 215
+                },
+                "type": "wait-for"
+              },
+              "name": "PAYMENT_EXECUTED"
+            },
+            "628b22cc-3f43-4a30-be62-d52543850c52": {
+              "canvasPosition": {
+                "x": 5250,
+                "y": 215
+              },
+              "description": "payment refund has been requested",
+              "group": 1,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 5650,
+                  "y": 455
+                },
+                "command": "35e03f54-91e0-4c5b-a2eb-f626350efb25",
+                "type": "command"
+              },
+              "name": "REFUND_REQUESTED"
+            },
+            "fd304f62-def6-4c8e-a6af-e221cda2b25e": {
+              "canvasPosition": {
+                "x": 6050,
+                "y": 330
+              },
+              "description": "payment refund failed",
+              "group": 1,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 6450,
+                  "y": 195
+                },
+                "type": "wait-for"
+              },
+              "name": "REFUND_FAILED"
+            },
+            "b21283b7-0b20-43c4-87e3-b0720815f3d7": {
+              "canvasPosition": {
+                "x": 6050,
+                "y": 580
+              },
+              "description": "payment has been partially refunded",
+              "group": 2,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 6450,
+                  "y": 647.5
+                },
+                "type": "wait-for"
+              },
+              "name": "PARTIALLY_REFUNDED"
+            },
+            "d251c865-e2e3-4cdb-acf2-7be80c58fa77": {
+              "canvasPosition": {
+                "x": 6850,
+                "y": 647.5
+              },
+              "description": "payment refund has been requested again",
+              "group": 2,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 7250,
+                  "y": 465
+                },
+                "command": "35e03f54-91e0-4c5b-a2eb-f626350efb25",
+                "type": "command"
+              },
+              "name": "SUBSEQUENT_REFUND_REQUESTED"
+            },
+            "4e23e1e4-68ee-47b9-8e48-fe9ae3d7c6dd": {
+              "canvasPosition": {
+                "x": 7650,
+                "y": 465
+              },
+              "description": "subsequent payment refund failed",
+              "group": 2,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 8050,
+                  "y": 330
+                },
+                "type": "wait-for"
+              },
+              "name": "SUBSEQUENT_REFUND_FAILED"
+            },
+            "eaf40fce-0592-4b7e-a5ee-abec2e554da3": {
+              "canvasPosition": {
+                "x": 7650,
+                "y": 715
+              },
+              "description": "payment has been totally refunded",
+              "group": 3,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 8050,
+                  "y": 715
+                },
+                "type": "wait-for"
+              },
+              "name": "TOTALLY_REFUNDED"
+            },
+            "0201cdd1-9b4f-420c-8ac6-3c04c9eab09b": {
+              "canvasPosition": {
+                "x": 4450,
+                "y": 997.5
+              },
+              "description": "payment could not be performed",
+              "group": 1000,
+              "isFinal": false,
+              "logicBlock": {
+                "commandCanvasPosition": {
+                  "x": 0,
+                  "y": 0
+                },
+                "executorCanvasPosition": {
+                  "x": 4850,
+                  "y": 997.5
+                },
+                "type": "wait-for"
+              },
+              "name": "PAYMENT_FAILED"
+            }
+          }
+        }
+      },
+      "version": "2.3.1",
+      "unlinkedFlows": {}
+    },
+    "rbacManagerConfig": {
+      "enabledServices": {
+        "crud-service": {
+          "enableRBAC": true,
+          "resources": {
+            "cpuLimits": {
+              "min": "100m",
+              "max": "100m"
+            },
+            "memoryLimits": {
+              "min": "50Mi",
+              "max": "300Mi"
+            }
+          },
+          "monitoringEnabled": true,
+          "routes": {
+            "/fm-subscriptions/": {
+              "get": {
+                "x-permission": {
+                  "allow": "allow_all"
+                }
+              }
+            }
+          }
+        }
+      },
+      "imageName": "ghcr.io/rond-authz/rond:latest",
+      "permissions": {
+        "policyFileConfigName": "rbac-sidecar-svc-opa-policies-config",
+        "policyFileContent": "package policies\n\nallow_all {\n  true\n}",
+        "testFileContent": "package policies\n\ntest_allow_all {\n  allow_all == true\n}"
+      },
+      "rbacStorage": {
+        "mongoDBURL": "{{MONGODB_URL}}",
+        "bindingsCollection": "rbac-bindings",
+        "rolesCollection": "rbac-roles"
+      },
+      "version": "0.1.0"
+    },
+    "backofficeConfigurations": {
+      "services": {
+        "micro-lc": {
+          "microLcConfig": {
+            "applications": {
+              "home": {
+                "config": {
+                  "content": {
+                    "attributes": {
+                      "style": "width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; row-gap: 24px"
+                    },
+                    "content": [
+                      {
+                        "content": "Welcome to your new frontend! 👋",
+                        "tag": "span"
+                      },
+                      {
+                        "attributes": {
+                          "href": "https://docs.mia-platform.eu/docs/microfrontend-composer/overview",
+                          "target": "_blank"
+                        },
+                        "content": "Get started with the official documentation!",
+                        "tag": "a"
+                      }
+                    ],
+                    "tag": "div"
+                  }
+                },
+                "integrationMode": "compose",
+                "route": "./home"
+              },
+              "libraries": {
+                "integrationMode": "compose",
+                "route": "./pages/library",
+                "config": "/micro-lc-configurations/libraries.config.json"
+              }
+            },
+            "layout": {
+              "content": [
+                {
+                  "properties": {
+                    "logo": {
+                      "altText": "Change me",
+                      "url": "https://www.mia-platform.eu/static/img/logo.svg"
+                    },
+                    "menuItems": [
+                      {
+                        "icon": {
+                          "library": "@ant-design/icons-svg",
+                          "selector": "HomeOutlined"
+                        },
+                        "id": "home",
+                        "label": "Home",
+                        "type": "application"
+                      }
+                    ],
+                    "mode": "fixedSideBar"
+                  },
+                  "tag": "bk-layout"
+                },
+                {
+                  "properties": {
+                    "primaryColor": "#1890ff",
+                    "varsPrefix": [
+                      "micro-lc",
+                      "microlc",
+                      "back-kit",
+                      "ant"
+                    ]
+                  },
+                  "tag": "bk-antd-theme-manager"
+                }
+              ],
+              "sources": [
+                "https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js"
+              ]
+            },
+            "settings": {
+              "defaultUrl": "./home"
+            },
+            "version": 2
+          },
+          "pagesConfigs": {
+            "libraries.config.json": {
+              "definitions": {
+                "dataSchema": {
+                  "type": "object",
+                  "required": [
+                    "priority",
+                    "ruleId",
+                    "type",
+                    "rules",
+                    "response"
+                  ],
+                  "properties": {
+                    "_id": {
+                      "formOptions": {
+                        "hiddenOnInsert": true,
+                        "readOnlyOnUpdate": true
+                      },
+                      "type": "string"
+                    },
+                    "creatorId": {
+                      "formOptions": {
+                        "hiddenOnInsert": true,
+                        "readOnlyOnUpdate": true
+                      },
+                      "type": "string"
+                    },
+                    "createdAt": {
+                      "formOptions": {
+                        "hiddenOnInsert": true,
+                        "readOnlyOnUpdate": true
+                      },
+                      "dateOptions": {
+                        "displayFormat": "YYYY-MM-DD hh:mm"
+                      },
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "updaterId": {
+                      "formOptions": {
+                        "hiddenOnInsert": true,
+                        "readOnlyOnUpdate": true
+                      },
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "formOptions": {
+                        "hiddenOnInsert": true,
+                        "readOnlyOnUpdate": true
+                      },
+                      "dateOptions": {
+                        "displayFormat": "YYYY-MM-DD hh:mm"
+                      },
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "__STATE__": {
+                      "enum": [
+                        "PUBLIC",
+                        "DRAFT",
+                        "TRASH",
+                        "DELETED"
+                      ],
+                      "formOptions": {
+                        "readOnlyOnUpdate": true
+                      },
+                      "type": "string"
+                    },
+                    "priority": {
+                      "type": "number"
+                    },
+                    "ruleId": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "rules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [],
+                        "additionalProperties": true
+                      }
+                    },
+                    "response": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [],
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              },
+              "content": {
+                "content": [
+                  {
+                    "content": [
+                      {
+                        "tag": "div",
+                        "content": [
+                          {
+                            "properties": {
+                              "content": "Page title"
+                            },
+                            "tag": "bk-title"
+                          },
+                          {
+                            "tag": "bk-refresh-button",
+                            "attributes": {
+                              "style": "margin-left: 14px; align-self: end;"
+                            }
+                          },
+                          {
+                            "tag": "div",
+                            "attributes": {
+                              "style": "flex-grow: 1;"
+                            }
+                          },
+                          {
+                            "properties": {
+                              "placeholder": "Search..."
+                            },
+                            "tag": "bk-search-bar"
+                          },
+                          {
+                            "properties": {
+                              "iconId": "DownloadOutlined",
+                              "content": "Export",
+                              "clickConfig": {
+                                "type": "event",
+                                "actionConfig": {
+                                  "label": "export-data",
+                                  "payload": {}
+                                }
+                              }
+                            },
+                            "tag": "bk-button"
+                          },
+                          {
+                            "tag": "bk-add-new-button"
+                          },
+                          {
+                            "properties": {
+                              "content": "",
+                              "clickConfig": {
+                                "type": "event",
+                                "actionConfig": {
+                                  "label": "filter",
+                                  "payload": {}
+                                }
+                              },
+                              "type": "outlined",
+                              "iconId": "FunnelPlotOutlined"
+                            },
+                            "tag": "bk-button"
+                          }
+                        ],
+                        "attributes": {
+                          "style": "display: flex; flex-direction: row; gap: 10px; padding: 0 20px;"
+                        }
+                      },
+                      {
+                        "tag": "div",
+                        "attributes": {
+                          "style": "width: 100%; display: flex; justify-content: space-between;"
+                        },
+                        "content": [
+                          {
+                            "attributes": {
+                              "style": "flex-grow: 1;"
+                            },
+                            "properties": {
+                              "tabs": [
+                                {
+                                  "key": "tab-1",
+                                  "title": "Tab 1"
+                                }
+                              ]
+                            },
+                            "tag": "bk-tabs"
+                          },
+                          {
+                            "attributes": {
+                              "style": "margin-right: 4px"
+                            },
+                            "properties": {
+                              "dataSchema": {
+                                "$ref": "#/definitions/dataSchema"
+                              },
+                              "filters": []
+                            },
+                            "tag": "bk-filters-manager"
+                          }
+                        ]
+                      }
+                    ],
+                    "tag": "header",
+                    "attributes": {
+                      "style": "display: flex; flex-direction: column; padding-top: 10px; background-color: white;"
+                    }
+                  },
+                  {
+                    "content": [
+                      {
+                        "properties": {
+                          "dataSchema": {
+                            "$ref": "#/definitions/dataSchema"
+                          },
+                          "maxLines": 10,
+                          "customActions": [
+                            {
+                              "tag": "bk-button",
+                              "properties": {
+                                "iconId": "DeleteOutlined",
+                                "content": "",
+                                "type": "ghost",
+                                "action": {
+                                  "type": "event",
+                                  "config": {
+                                    "events": {
+                                      "label": "require-confirm",
+                                      "payload": {
+                                        "content": {
+                                          "en": "Do you want to confirm this action?",
+                                          "it": "Vuoi confermare questa azione?"
+                                        },
+                                        "configOk": {
+                                          "properties": {
+                                            "action": {
+                                              "type": "event",
+                                              "config": {
+                                                "events": {
+                                                  "label": "delete-data",
+                                                  "payload": "{{rawObject args.[1]}}"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "tag": "bk-button",
+                              "properties": {
+                                "content": {
+                                  "en": "Details",
+                                  "it": "Dettaglio"
+                                },
+                                "iconId": "fas fa-arrow-right",
+                                "iconPlacement": "right",
+                                "clickConfig": {
+                                  "type": "push",
+                                  "actionConfig": {
+                                    "url": "./details-page-route/{{args.[1]._id}}"
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "tag": "bk-table"
+                      },
+                      {
+                        "properties": {
+                          "requireConfirm": {
+                            "onClose": true,
+                            "onSave": true
+                          },
+                          "dataSchema": {
+                            "$ref": "#/definitions/dataSchema"
+                          },
+                          "width": "70vw"
+                        },
+                        "tag": "bk-form-modal"
+                      },
+                      {
+                        "tag": "bk-confirmation-modal"
+                      },
+                      {
+                        "properties": {
+                          "rootElementSelectors": "main.micro-lc-layout-content",
+                          "successEventMap": {
+                            "create-data": {
+                              "title": "Success",
+                              "content": "Data successfully created",
+                              "type": "success"
+                            },
+                            "update-data": {
+                              "title": "Success",
+                              "content": "Data successfully updated",
+                              "type": "success"
+                            },
+                            "delete-data": {
+                              "title": "Success",
+                              "content": "Data successfully deleted",
+                              "type": "success"
+                            }
+                          },
+                          "errorEventMap": {
+                            "create-data": {
+                              "title": "Error",
+                              "content": "An error occurred during order creation",
+                              "type": "error"
+                            },
+                            "update-data": {
+                              "title": "Error",
+                              "content": "An error occurred during order updated",
+                              "type": "error"
+                            },
+                            "delete-data": {
+                              "title": "Error",
+                              "content": "An error occurred during order deletion",
+                              "type": "error"
+                            }
+                          }
+                        },
+                        "tag": "bk-notifications",
+                        "attributes": {}
+                      }
+                    ],
+                    "tag": "main",
+                    "attributes": {
+                      "style": "flex-grow: 1; background-color: #f0f2f5; padding: 20px; overflow-y: auto;"
+                    }
+                  },
+                  {
+                    "content": [
+                      {
+                        "properties": {
+                          "dataSchema": {
+                            "$ref": "#/definitions/dataSchema"
+                          },
+                          "width": "40vw"
+                        },
+                        "tag": "bk-filter-drawer"
+                      }
+                    ],
+                    "tag": "aside"
+                  },
+                  {
+                    "content": [
+                      {
+                        "tag": "bk-bulk-delete"
+                      },
+                      {
+                        "tag": "bk-bulk-actions",
+                        "properties": {
+                          "dataSchema": {
+                            "$ref": "#/definitions/dataSchema"
+                          }
+                        }
+                      },
+                      {
+                        "tag": "div",
+                        "attributes": {
+                          "style": "flex-grow: 1;"
+                        }
+                      },
+                      {
+                        "tag": "bk-footer",
+                        "attributes": {
+                          "style": "display: flex; justify-content: end; align-items: center;"
+                        }
+                      },
+                      {
+                        "tag": "bk-pagination",
+                        "properties": {
+                          "pageSize": 10
+                        }
+                      }
+                    ],
+                    "tag": "footer",
+                    "attributes": {
+                      "style": "display: flex; flex-direction: row; flex-wrap: wrap; padding: 10px 20px; background-color: white; gap: 10px; position: sticky; bottom: 0; z-index: 10"
+                    }
+                  },
+                  {
+                    "properties": {
+                      "basePath": "/v2/adaptive-checkout",
+                      "dataSchema": {
+                        "$ref": "#/definitions/dataSchema"
+                      }
+                    },
+                    "tag": "bk-crud-client"
+                  },
+                  {
+                    "properties": {
+                      "basePath": "/data-source-endpoint/export",
+                      "streamSaverIFrameSrc": "https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/export-service-worker.html",
+                      "dataSchema": {
+                        "$ref": "#/definitions/dataSchema"
+                      }
+                    },
+                    "tag": "bk-export"
+                  }
+                ],
+                "tag": "div",
+                "attributes": {
+                  "style": "width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;"
+                }
+              },
+              "sources": [
+                "https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js"
+              ]
+            }
+          },
+          "webserver": {
+            "microLcIndex": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <base href=\"/mfe-application/\" target=\"_blank\" />\n\n  <title>Microfrontend composer</title>\n\n  <link rel=\"icon\" type=\"image/png\" href=\"https://www.mia-platform.eu/static/img/favicon/apple-icon-60x60.png\" />\n  <link rel=\"stylesheet\" nonce=\"**CSP_NONCE**\" href=\"./assets/style.css\" />\n\n  <script\n    type=\"module\"\n    nonce=\"**CSP_NONCE**\"\n    src=\"https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-loading-animation.esm.js\"\n  ></script>\n\n  <script\n    type=\"module\"\n    nonce=\"**CSP_NONCE**\"\n    src=\"https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/micro-lc.production.js\"\n  ></script>\n</head>\n\n<body>\n  <bk-loading-animation primary-color=\"#1890ff\">\n    <micro-lc config-src=\"/micro-lc-configurations/config.json\" fallback-language=\"en\"></micro-lc>\n  </bk-loading-animation>\n</body>\n\n</html>\n",
+            "publicHeadersMap": {
+              "/public/index.html": {
+                "content-security-policy": [
+                  [
+                    "script-src 'nonce-**CSP_NONCE**' 'strict-dynamic' 'unsafe-eval'",
+                    "style-src 'self' 'unsafe-inline'",
+                    "img-src 'self' https:",
+                    "object-src 'none'",
+                    "font-src 'self'",
+                    "worker-src 'self' blob:",
+                    "base-uri 'self'"
+                  ]
+                ],
+                "link": [
+                  "</mfe-application/assets/style.css>; rel=preload; as=style; nonce=**CSP_NONCE**",
+                  "<https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/micro-lc.production.js>; rel=modulepreload; as=script; nonce=**CSP_NONCE**",
+                  "<https://cdn.mia-platform.eu/micro-lc/orchestrator/2.4.3/dist/assets/composer.js>; rel=preload; as=fetch; crossorigin",
+                  "<https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-web-components.esm.js>; rel=preload; as=fetch; crossorigin",
+                  "<https://cdn.mia-platform.eu/backoffice/bk-web-components/{{BACK_KIT_VERSION}}/dist/bk-loading-animation.esm.js; rel=preload; as=fetch; crossorigin"
+                ]
+              }
+            }
+          },
+          "meta": {
+            "pages": {
+              "libraries": {
+                "sharedPropertiesTypeMap": {
+                  "dataSchema": "back-kit/data-schema"
+                }
+              }
+            }
+          }
+        }
+      },
+      "version": "1.8.0"
+    }
   },
   "extensionsConfig": {
     "files": {}
   },
   "enabledFeatures": {
     "visualize": true,
-    "replicas": true
+    "replicas": true,
+    "api-gateway": true,
+    "api-gateway-envoy": true,
+    "crud-service": true,
+    "flow-manager": true,
+    "rbac-manager": true,
+    "fast-data": true,
+    "backoffice": true
   }
 }
 ```
@@ -2665,6 +12409,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/backend/projects/680cacfc25e7
 ------------------------
 ## Software Catalog
 
+
 curl 'https://demo.console.gcp.mia-platform.eu/api/marketplace?includeTenantId=b933f1ef-5b8e-4adf-a346-24a3b03d13e8&name=node&page=1&perPage=25&sort=name&types=application%2Cexample%2Ccustom-resource%2Cplugin%2Cproxy%2Csidecar%2Ctemplate%2Cinfrastructure-component-runtime' 
 
 ```json
@@ -2950,7 +12695,7 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/tenants/mia-platform/marketpl
 ]
 ```
 
-Get the information of a version
+Get the information of a version of a catalog item
 curl 'https://demo.console.gcp.mia-platform.eu/api/tenants/mia-platform/marketplace/items/node-js-helloworld-microservice-example/versions/1.0.0' 
 
 ```json
@@ -3013,3 +12758,6 @@ curl 'https://demo.console.gcp.mia-platform.eu/api/tenants/mia-platform/marketpl
   }
 }
 ```
+
+
+

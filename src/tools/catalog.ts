@@ -323,7 +323,7 @@ export function registerCatalogTools(server: McpServer, client: APIClient) {
         const formattedResponse = `Item Details for '${data.name}' (Version ${data.version.name}):
 
 TemplateId: ${data._id}
-TemplateSlug: ${data.itemId}
+TemplateSlug: ${data.name}
 Type: ${data.type}
 Category: ${data.category.label}
 Lifecycle Status: ${data.lifecycleStatus}

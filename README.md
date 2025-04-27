@@ -203,6 +203,26 @@ Or running a test for a single file run:
 node --test --import tsx <FILE_PATH>
 ```
 
+## Conversation Examples
+
+You can try with VSCode Agent mode the following prompts
+
+```txt
+- create a mia project named <your name>
+```
+
+```txt
+- get project design of the project <your name>
+- do you have any suggestion to improve that project?
+- describe the project design configuration to implement the above suggestions
+- create the configurations and save in the project design
+```
+
+```txt
+- create a microservice named helloworld starting from a node.js example and add it in the project <your name>
+```
+
+
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
