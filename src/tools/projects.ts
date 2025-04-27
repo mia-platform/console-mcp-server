@@ -881,20 +881,43 @@ Environments:`;
         const apiPath = createMicroservicePath.replace('{projectId}', projectId)
         const data = await client.post<CreateMicroserviceResponse>(apiPath, microserviceData)
 
-        if (data) {
-          const existingProjectConfiguration = await client.get<Project>(projectPath.replace('{projectId}', projectId))
-          if (existingProjectConfiguration) {
-            // Update the project configuration with the new microservice
-            const updatedProjectConfiguration = {
-              ...existingProjectConfiguration,
-              enabledServices: {
-                ...existingProjectConfiguration.enabledServices,
-                [data.serviceName]: true,
-              },
-            }
-            await client.post(projectPath.replace('{projectId}', projectId), updatedProjectConfiguration)
-          }
+        // Update the project configuration with the new microservice
+        // First, import the design configuration functions
+        const { readProjectConfigurations, saveProjectConfigurations } = await import('../lib/designLib.js')
+
+        // Read the current project configuration
+        const projectDesign = await readProjectConfigurations(client, projectId)
+
+        // Create a new service entry for the microservice
+        const newService = {
+          type: 'microservice',
+          advanced: false,
+          name: data.serviceName,
+          dockerImage: data.dockerImage,
+          replicas: 1,
+          serviceAccountName: 'default',
+          logParser: 'json',
+          description: serviceDescription,
+          containerPorts: data.containerPorts,
+          // Set any additional properties needed
         }
+
+        // Add the new microservice to the project design services
+        projectDesign.services = {
+          ...projectDesign.services,
+          [data.serviceName]: newService
+        }
+
+        // Save the updated project configuration
+        await saveProjectConfigurations(
+          client, 
+          projectId, 
+          'main', 
+          projectDesign, 
+          { 
+            title: `Added new microservice: ${data.serviceName}`,
+          }
+        )
 
         // Format the response in a readable way
         const formattedResponse = `Microservice successfully created:
