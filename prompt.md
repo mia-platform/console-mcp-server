@@ -2281,6 +2281,35 @@ Formatted POST
 }
 ```
 
+reqId: "135f39e7-fdb8-4b01-ba82-58a8584e994a"
+    http: {
+      "request": {
+        "method": "POST",
+        "userAgent": {
+          "original": "console-mcp-server/1.0.0"
+        }
+      },
+      "response": {
+        "statusCode": 200,
+        "body": {
+          "bytes": 62
+        }
+      }
+    }
+    url: {
+      "path": "/api/backend/projects/680e108e25e7a18172e9c1c6/revisions/main/configuration",
+      "params": {
+        "projectId": "680e108e25e7a18172e9c1c6",
+        "revisionName": "main"
+      }
+    }
+    host: {
+      "hostname": "localhost",
+      "forwardedHost": "demo.console.gcp.mia-platform.eu",
+      "ip": "10.4.2.141"
+    }
+    responseTime: 247.32114905118942
+
 
   ```json
   {"id":"3974b476-01b2-4f46-94c3-c392c0fe4ffe","upgraded":false}

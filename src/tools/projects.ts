@@ -1083,7 +1083,7 @@ Environments:`;
         await saveProjectConfigurations(
           client, 
           projectId, 
-          'main', 
+          'DEV', 
           projectDesign, 
           { 
             title: `Added new microservice: ${data.serviceName}`,

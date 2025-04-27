@@ -36,7 +36,7 @@ export async function readProjectConfigurations(
 export async function saveProjectConfigurations(
   client: APIClient,
   projectId: string,
-  revision: string = 'main',
+  revision: string = 'DEV',
   design: ProjectDesign,
   options: {
     title: string;
@@ -45,7 +45,10 @@ export async function saveProjectConfigurations(
   }
 ): Promise<any> {
   try {
-    const apiPath = `/api/backend/projects/${projectId}/revisions/${revision}/configuration`
+    // TODO which is the correct API path?
+    //const apiPath = `/api/backend/projects/${projectId}/revisions/${revision}/configuration`
+    const apiPath = `/api/projects/${projectId}/environments/${revision}/configuration`
+    
     const payload = {
       title: options.title,
       previousSave: options.previousSave || design.lastConfigFileCommitId,
