@@ -1164,7 +1164,7 @@ ${data.defaultConfigMaps && data.defaultConfigMaps.length > 0 ?
   // Tool: Create Container
   server.tool(
     'create-container',
-    'Create a container in a Project starting from an item configuraration in the catalog. Use this tool for other items: plugin, application, resource, etc.',
+    'Create a container in a Project starting from an item configuraration in the catalog. Never never use this tool for examples and template item types. Use this tool for items: plugin',
     {
       projectId: z.string().describe('The ID of the project where the microservice will be created'),
       serviceName: z.string().describe('The name of the microservice'),
