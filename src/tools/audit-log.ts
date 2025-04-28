@@ -22,7 +22,6 @@ import { APIClient } from '../lib/client'
 // API Paths
 const auditLogsPath = '/api/tenants/${tenantId}/audit-logs'
 
-
 // Format audit logs data
 function formatAuditLogs(feature: AuditLogsFeature): string {
   return [
