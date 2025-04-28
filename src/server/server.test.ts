@@ -43,7 +43,7 @@ suite('initialize server', () => {
       },
       ListToolsResultSchema,
     )
-    t.assert.equal(toolsResult.tools.length, 4, 'should return all the registred tools')
+    t.assert.equal(toolsResult.tools.length, 5, 'should return all the registred tools')
 
     await clientTransport.close()
     await serverTransport.close()

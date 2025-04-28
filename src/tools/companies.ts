@@ -21,6 +21,7 @@ import { APIClient } from '../lib/client'
 
 const listCompaniesPath = '/api/backend/tenants/'
 const listTenantIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
+const auditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/audit-logs`
 
 export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -82,6 +83,47 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
             {
               type: 'text',
               text: `Error fetching IAM for company ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'view_audit_logs',
+    'view audit logs for a company or tenant to see who did what and when',
+    {
+      tenantId: z.string().describe('The company or tenant id'),
+      from: z.string().optional().describe('The start date of the audit logs to fetch, in unix timestamp format'),
+      to: z.string().optional().describe('The end date of the audit logs to fetch, in unix timestamp format'),
+    },
+    async ({ tenantId, from, to }): Promise<CallToolResult> => {
+      const params = new URLSearchParams()
+      if (from) {
+        params.set('from', from)
+      }
+      if (to) {
+        params.set('to', to)
+      }
+
+      try {
+        const data = await client.getPaginated(auditLogsPathTemplate(tenantId), {}, params, 0)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching audit logs for company ${tenantId}: ${err.message}`,
             },
           ],
         }

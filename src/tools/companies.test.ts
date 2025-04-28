@@ -39,6 +39,11 @@ const iamList = [
   ...groupIamList,
 ]
 
+const auditLogs = [
+  { id: 1, log: 'log' },
+  { id: 2, log: 'log2' },
+]
+
 suite('setup companies tools', () => {
   test('should setup companies tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
@@ -53,7 +58,7 @@ suite('setup companies tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 2)
+    t.assert.equal(result.tools.length, 3)
     t.assert.equal(result.tools[0].name, 'list_tenants')
   })
 })
@@ -237,6 +242,87 @@ suite('iam list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching IAM for company error: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('audit log', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addCompaniesCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/tenantID/audit-logs',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+        from: '1234567890',
+        to: '1234567890',
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, auditLogs)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/error/audit-logs',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return audit logs', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'view_audit_logs',
+        arguments: {
+          tenantId: 'tenantID',
+          to: '1234567890',
+          from: '1234567890',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(auditLogs),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'view_audit_logs',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching audit logs for company error: error message',
         type: 'text',
       },
     ])

@@ -52,14 +52,11 @@ export class APIClient {
   async getPaginated<T> (
     path: string,
     additionalHeaders: Record<string, unknown> = {},
-    params?: URLSearchParams,
+    params = new URLSearchParams(),
     startingPage = 1,
     maxPage = 10,
   ): Promise<T[]> {
     const url = new URL(path, this.baseURL)
-    if (!params) {
-      params = new URLSearchParams()
-    }
     params.set('per_page', '200')
 
     const results:T[] = []
