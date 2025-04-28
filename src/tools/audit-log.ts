@@ -20,7 +20,59 @@ import { z } from 'zod'
 import { APIClient } from '../lib/client'
 
 // API Paths
-const auditLogsPath = '/api/audit-logs'
+const auditLogsPath = '/api/tenants/${tenantId}/audit-logs'
+
+
+// Format audit logs data
+function formatAuditLogs(feature: AuditLogsFeature): string {
+  return [
+    `Aggregation ID: ${feature.aggregationId}`,
+    `Timestamp: ${feature.timestamp}`,
+    `Tenant ID: ${feature.tenantId}`,
+    `Request Path: ${feature.request.path}`,
+    `Request Verb: ${feature.request.verb}`,
+    `Request User-Agent: ${feature.request.userAgent}`,
+    `Subject ID: ${feature.subject.id}`,
+    `Subject Name: ${feature.subject.name}`,
+    `Subject Email: ${feature.subject.email}`,
+    `Subject Type: ${feature.subject.type}`,
+    `Action ID: ${feature.actionId}`,
+    `Action Type: ${feature.actionType}`,
+    `Resource Name: ${feature.resource.name}`,
+    `Resource Type: ${feature.resource.type}`,
+    `Scope Tenant ID: ${feature.scope.tenantId}`,
+    `Scope Tenant Name: ${feature.scope.tenantName}`,
+    "---",
+  ].join("\n");
+}
+
+interface AuditLogsFeature {
+  aggregationId: string;
+  timestamp: number;
+  tenantId: string;
+  request: {
+    path: string;
+    verb: string;
+    userAgent: string;
+  };
+  subject: {
+    id: string;
+    name: string;
+    email: string;
+    type: string;
+  };
+  actionId: string;
+  actionType: string;
+  resource: {
+    name: string;
+    type: string;
+  };
+  scope: {
+    tenantId: string;
+    tenantName: string;
+  };
+}
+
 
 /**
  * Register audit log tools with the MCP server
@@ -32,36 +84,53 @@ const auditLogsPath = '/api/audit-logs'
 export function auditLogTools(server: McpServer, client: APIClient) {
   // Tool: Get Audit Logs
   server.tool(
-    'd94_get-audit-logs',
+    'get-audit-logs',
     'Get audit logs for various actions in the console',
     {
-      tenantId: z.string().optional().describe('Filter logs for a specific tenant'),
-      projectId: z.string().optional().describe('Filter logs for a specific project'),
-      limit: z.number().optional().describe('Limit the number of logs returned'),
-      skip: z.number().optional().describe('Skip a number of logs (for pagination)'),
-      fromDate: z.string().optional().describe('Start date (ISO format)'),
-      toDate: z.string().optional().describe('End date (ISO format)')
+      tenantId: z.string().describe('Filter logs for a specific tenant'),
     },
-    async ({ tenantId, projectId, limit, skip, fromDate, toDate }): Promise<CallToolResult> => {
+    async ({ tenantId }): Promise<CallToolResult> => {
       try {
-        const params = new URLSearchParams()
-        
-        if (tenantId) params.set('tenantId', tenantId)
-        if (projectId) params.set('projectId', projectId)
-        if (limit !== undefined) params.set('_l', limit.toString())
-        if (skip !== undefined) params.set('_sk', skip.toString())
-        if (fromDate) params.set('fromDate', fromDate)
-        if (toDate) params.set('toDate', toDate)
-        
-        const data = await client.get(auditLogsPath, {}, params)
+
+      const endpoint = auditLogsPath.replace('{tenantId}', tenantId || 'all')
+      
+      const audit = await client.get(endpoint)
+
+      if (!audit) {
         return {
           content: [
             {
-              type: 'text',
-              text: JSON.stringify(data),
+              type: "text",
+              text: "Failed to retrieve Audit Logs",
             },
           ],
-        }
+        };
+      }
+
+      if (!Array.isArray(audit) || audit.length === 0) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `No Audit Logs found.`,
+            },
+          ],
+        };
+      }
+
+      const formattedAuditLogs = audit.map(formatAuditLogs);
+      const auditLogsText = `Audit Logs:\n\n${formattedAuditLogs.join("\n")}`;
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: auditLogsText,
+          },
+        ],
+      };
+
+
       } catch (error) {
         const err = error as Error
         return {
