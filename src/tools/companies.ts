@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
+import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const listCompaniesPath = '/api/backend/tenants/'
 const listTenantIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
@@ -26,7 +27,7 @@ const auditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/au
 export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   server.tool(
     'list_tenants',
-    'List Mia-Platform Console companies or tenants that the user can access',
+    toolsDescriptions.LIST_TENANTS,
     {},
     async (): Promise<CallToolResult> => {
       try {
@@ -55,10 +56,10 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
 
   server.tool(
     'list_tenant_iam',
-    'List IAM user, groups and or service account for a company or tenant',
+    toolsDescriptions.LIST_TENANTS_IAM,
     {
-      tenantId: z.string().describe('The company or tenant id'),
-      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe('Filter the IAM entities by type'),
+      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
+      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramDescriptions.IAM_IDENTITY_TYPE),
     },
     async ({ tenantId, identityType }): Promise<CallToolResult> => {
       const params = new URLSearchParams()
@@ -92,11 +93,11 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
 
   server.tool(
     'view_audit_logs',
-    'view audit logs for a company or tenant to see who did what and when',
+    toolsDescriptions.VIEW_TENANTS_AUDIT_LOGS,
     {
-      tenantId: z.string().describe('The company or tenant id'),
-      from: z.string().optional().describe('The start date of the audit logs to fetch, in unix timestamp format'),
-      to: z.string().optional().describe('The end date of the audit logs to fetch, in unix timestamp format'),
+      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
+      from: z.string().optional().describe(paramDescriptions.AUDIT_LOG_FROM),
+      to: z.string().optional().describe(paramDescriptions.AUDIT_LOG_TO),
     },
     async ({ tenantId, from, to }): Promise<CallToolResult> => {
       const params = new URLSearchParams()

@@ -19,6 +19,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
+import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const listMarketplacePath = '/api/marketplace/'
 
@@ -37,10 +38,10 @@ const types = [
 export function addMarketplaceCapabilities (server: McpServer, client:APIClient) {
   server.tool(
     'list_marketplace',
-    'List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified',
+    toolsDescriptions.LIST_MARKETPLACE,
     {
-      tenantId: z.string().optional().describe('the id of the Mia-Platform Console company or tenant to filter'),
-      type: z.enum(types).optional().describe('type of marketplace item to filter, empty string means no filter'),
+      tenantId: z.string().optional().describe(paramDescriptions.TENANT_ID),
+      type: z.enum(types).optional().describe(paramDescriptions.MARKETPLACE_ITEM_TYPE),
     },
     async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
