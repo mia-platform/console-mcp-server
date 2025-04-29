@@ -122,10 +122,10 @@ Once these steps are completed you can setup the MCP server using the `node` com
 {
   "mcp": {
     "servers": {
-      "github": {
+      "mia-platform-console": {
         "command": "node",
         "args": [
-          "/path/to/the/project/mcp-server",
+          "${workspaceFolder}/mcp-server",
           "start",
           "--stdio",
           "--host=https://console.cloud.mia-platform.eu"
