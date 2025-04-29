@@ -20,13 +20,14 @@ import { z } from 'zod'
 import { APIClient } from '../lib/client'
 
 const listProjectsPath = '/api/backend/projects/'
+const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
 
 export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   server.tool(
     'list_projects',
     'List Mia-Platform Console projects that the user can access in the given companies or tenants',
     {
-      tenantIds: z.string().array().nonempty().describe('one or more id of Mia-Platform Console companies or tenants to filter'),
+      tenantIds: z.string().array().nonempty().describe('one or more id of Mia-Platform Console companies or tenants to filter. Can be found in the tenantId field of the list_tenants tool'),
     },
     async ({ tenantIds }): Promise<CallToolResult> => {
       const companiesIds = tenantIds.join(',')
@@ -51,6 +52,37 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
             {
               type: 'text',
               text: `Error fetching projects for ${companiesIds}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'get_project_info',
+    'Get information about a Mia-Platform Console project',
+    {
+      projectId: z.string().describe('id of the project to fetch. can be found as the field _id in the list of projects'),
+    },
+    async ({ projectId }): Promise<CallToolResult> => {
+      try {
+        const data = await client.get(getProjectPath(projectId))
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching project ${projectId}: ${err.message}`,
             },
           ],
         }

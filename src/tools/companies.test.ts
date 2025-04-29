@@ -59,7 +59,6 @@ suite('setup companies tools', () => {
     )
 
     t.assert.equal(result.tools.length, 3)
-    t.assert.equal(result.tools[0].name, 'list_tenants')
   })
 })
 

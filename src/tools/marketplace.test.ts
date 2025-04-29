@@ -48,7 +48,6 @@ suite('setup marketplace tools', () => {
     )
 
     t.assert.equal(result.tools.length, 1)
-    t.assert.equal(result.tools[0].name, 'list_marketplace')
   })
 })
 

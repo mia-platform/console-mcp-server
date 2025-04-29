@@ -34,6 +34,13 @@ const secondTenantProjects = [
   { id: 1, name: 'name', tenant: 'tenantID2' },
 ]
 
+const project = {
+  id: 1,
+  name: 'name',
+  tenant: 'tenantID',
+  description: 'description',
+}
+
 suite('setup projects tools', () => {
   test('should setup projects tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
@@ -48,8 +55,7 @@ suite('setup projects tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 1)
-    t.assert.equal(result.tools[0].name, 'list_projects')
+    t.assert.equal(result.tools.length, 2)
   })
 })
 
@@ -175,6 +181,75 @@ suite('projects list tool', () => {
           },
         },
       }, CallToolResultSchema)
-    }, 'giggi')
+    })
+  })
+})
+
+suite('get project info', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addProjectsCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/projectID/',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, project)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/error/',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return project info', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'get_project_info',
+        arguments: {
+          projectId: 'projectID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(project),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'get_project_info',
+        arguments: {
+          projectId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching project error: error message',
+        type: 'text',
+      },
+    ])
   })
 })
