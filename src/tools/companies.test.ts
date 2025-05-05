@@ -30,6 +30,19 @@ const companies = [
   { id: 2, name: 'name2' },
 ]
 
+const blueprint = {
+  id: 1,
+  name: 'name',
+  templates: [
+    {
+      id: 1, name: 'template1',
+    },
+    {
+      id: 2, name: 'template2',
+    },
+  ],
+}
+
 const groupIamList = [
   { name: 'name', type: 'group' },
 ]
@@ -58,7 +71,7 @@ suite('setup companies tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 3)
+    t.assert.equal(result.tools.length, 4)
   })
 })
 
@@ -130,6 +143,106 @@ suite('companies list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching companies: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('company list template', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addCompaniesCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/tenantID/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, blueprint)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/empty/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, {})
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/error/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return company templates', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'tenantID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(blueprint.templates),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return empty array without templates object', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'empty',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify([]),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching templates for company error: error message',
         type: 'text',
       },
     ])

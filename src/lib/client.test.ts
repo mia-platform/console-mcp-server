@@ -122,6 +122,33 @@ suite('http client test suite without authentication', () => {
     ])
   })
 
+  test('post request', async (t) => {
+    const body = {
+      key: 'value',
+      array: [
+        'element',
+      ],
+      number: 1,
+      object: {
+        key: 'value',
+      },
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+      body: JSON.stringify(body),
+    }).reply(200, { message: 'test' })
+
+    const result = await client.post<TestResponse>(testPath, body)
+    t.assert.deepEqual(result, { message: 'test' })
+  })
+
   test('set custom headers, don\'t override fixed ones', async (t) => {
     agent.get(mockedEndpoint).intercept({
       path: testPath,

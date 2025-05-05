@@ -21,6 +21,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 
 import { addProjectsCapabilities } from './projects'
 import { APIClient } from '../lib/client'
+import { ProjectDraft } from '../types/project_draft'
 import { TestMCPServer } from './utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
@@ -34,10 +35,34 @@ const secondTenantProjects = [
   { id: 1, name: 'name', tenant: 'tenantID2' },
 ]
 
+const draft: ProjectDraft = {
+  templateId: 'templateID',
+  repository: {
+    providerId: 'providerId',
+    gitPath: 'repository/path.git',
+    visibility: 'visibility',
+  },
+}
+
+const postProject = {
+  name: 'Name',
+  description: 'description',
+  tenantId: 'tenantID',
+  environments: [],
+  configurationGitPath: 'repository/path.git',
+  projectId: 'name',
+  templateId: 'templateID',
+  visibility: 'visibility',
+  providerId: 'providerId',
+  enableConfGenerationOnDeploy: true,
+}
+
 const project = {
   id: 1,
-  name: 'name',
-  tenant: 'tenantID',
+  name: 'Name',
+  projectId: 'name',
+  tenantId: 'tenantID',
+  templateId: 'templateID',
   description: 'description',
 }
 
@@ -55,7 +80,7 @@ suite('setup projects tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 2)
+    t.assert.equal(result.tools.length, 3)
   })
 })
 
@@ -248,6 +273,103 @@ suite('get project info', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching project error: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('create project from template', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addProjectsCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/draft',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      query: {
+        tenantId: 'tenantID',
+        projectId: 'name',
+        templateId: 'templateID',
+        projectName: 'Name',
+      },
+    }).reply(200, draft)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/',
+      method: 'POST',
+      body: JSON.stringify(postProject),
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, project)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/draft',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      query: {
+        tenantId: 'error',
+        projectId: 'name',
+        templateId: 'templateID',
+        projectName: 'Name',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should create a new project', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_project_from_template',
+        arguments: {
+          tenantId: 'tenantID',
+          templateId: 'templateID',
+          projectName: 'Name',
+          projectDescription: 'description',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(project),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_project_from_template',
+        arguments: {
+          tenantId: 'error',
+          projectId: 'name',
+          templateId: 'templateID',
+          projectName: 'Name',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error creating project from template templateID: error message',
         type: 'text',
       },
     ])

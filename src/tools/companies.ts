@@ -20,9 +20,10 @@ import { z } from 'zod'
 import { APIClient } from '../lib/client'
 import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
 
-const listCompaniesPath = '/api/backend/tenants/'
-const listTenantIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
-const auditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/audit-logs`
+const companiesPath = '/api/backend/tenants/'
+const companyBlueprint = (tenantId: string) => `/api/backend/tenants/${tenantId}/project-blueprint/`
+const listCompanyIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
+const companyAuditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/audit-logs`
 
 export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -31,7 +32,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
     {},
     async (): Promise<CallToolResult> => {
       try {
-        const data = await client.getPaginated(listCompaniesPath)
+        const data = await client.getPaginated(companiesPath)
         return {
           content: [
             {
@@ -55,6 +56,37 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
+    'list_tenant_templates',
+    toolsDescriptions.LIST_TENANTS_TEMPLATES,
+    {
+      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
+    },
+    async ({ tenantId }): Promise<CallToolResult> => {
+      try {
+        const blueprint = await client.get<Record<string, unknown>>(companyBlueprint(tenantId))
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(blueprint['templates'] || []),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching templates for company ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
     'list_tenant_iam',
     toolsDescriptions.LIST_TENANTS_IAM,
     {
@@ -68,7 +100,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
       }
 
       try {
-        const data = await client.getPaginated(listTenantIAMPathTemplate(tenantId), {}, params, 0)
+        const data = await client.getPaginated(listCompanyIAMPathTemplate(tenantId), {}, params, 0)
         return {
           content: [
             {
@@ -109,7 +141,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
       }
 
       try {
-        const data = await client.getPaginated(auditLogsPathTemplate(tenantId), {}, params, 0)
+        const data = await client.getPaginated(companyAuditLogsPathTemplate(tenantId), {}, params, 0)
         return {
           content: [
             {

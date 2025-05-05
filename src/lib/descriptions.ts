@@ -16,6 +16,7 @@
 export const toolsDescriptions: Record<string, string> = {
   // tenants tools
   LIST_TENANTS: 'List Mia-Platform Console companies or tenants that the user can access',
+  LIST_TENANTS_TEMPLATES: 'List Mia-Platform project templates for a given company or tenant',
   LIST_TENANTS_IAM: 'List IAM user, groups and or service account for a company or tenant',
   VIEW_TENANTS_AUDIT_LOGS: 'View audit logs for a company or tenant to see who did what and when',
 
@@ -25,6 +26,7 @@ export const toolsDescriptions: Record<string, string> = {
   // project tools
   LIST_PROJECTS: 'List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool list_tenants',
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
+  CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant',
 }
 
 export const paramDescriptions: Record<string, string> = {
@@ -44,4 +46,7 @@ export const paramDescriptions: Record<string, string> = {
 
   // Project
   PROJECT_ID: 'The Id of the project. You can find the projectId in the list_projects tool, usign the _id field',
+  PROJECT_NAME: 'The name of the project. It must be unique in the company or tenant',
+  PROJECT_DESCRIPTION: 'The description of the project',
+  TEMPLATE_ID: 'The id of the template to use to create the project. You can find the templateId in the list_templates tool, using the _id field',
 }

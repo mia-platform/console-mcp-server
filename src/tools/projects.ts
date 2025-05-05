@@ -18,10 +18,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
+import { PostProject } from '../types/post_project'
+import { ProjectDraft } from '../types/project_draft'
 import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
 
-const listProjectsPath = '/api/backend/projects/'
+const projectsPath = '/api/backend/projects/'
 const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
+const getProjectDraft = '/api/backend/projects/draft'
 
 export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -37,7 +40,7 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
           tenantIds: companiesIds,
         })
 
-        const data = await client.getPaginated(listProjectsPath, {}, params)
+        const data = await client.getPaginated(projectsPath, {}, params)
         return {
           content: [
             {
@@ -84,6 +87,64 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
             {
               type: 'text',
               text: `Error fetching project ${projectId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'create_project_from_template',
+    toolsDescriptions.CREATE_PROJECT_FROM_TEMPLATE,
+    {
+      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
+      projectName: z.string().describe(paramDescriptions.PROJECT_NAME),
+      projectDescription: z.string().optional().describe(paramDescriptions.PROJECT_DESCRIPTION),
+      templateId: z.string().describe(paramDescriptions.TEMPLATE_ID),
+    },
+    async ({ tenantId, projectName, projectDescription, templateId }): Promise<CallToolResult> => {
+      const projectId = projectName.replace(/\s+/g, '-').toLowerCase()
+      const params = new URLSearchParams({
+        tenantId,
+        projectId,
+        templateId,
+        projectName,
+      })
+      try {
+        const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
+
+        const projectBody: PostProject = {
+          name: projectName,
+          description: projectDescription,
+          tenantId,
+          environments: draftResponse.environments || [],
+          configurationGitPath: draftResponse.repository?.gitPath || '',
+          projectId,
+          templateId,
+          visibility: draftResponse.repository?.visibility || '',
+          providerId: draftResponse.repository?.providerId || '',
+          pipelines: draftResponse.pipelines,
+          ...draftResponse.staticSecret && { secrets: [ draftResponse.staticSecret ] },
+          enableConfGenerationOnDeploy: true,
+        }
+
+        const project = await client.post(projectsPath, projectBody)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(project),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error creating project from template ${templateId}: ${err.message}`,
             },
           ],
         }

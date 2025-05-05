@@ -49,6 +49,21 @@ export class APIClient {
     return await body.json() as T
   }
 
+  async post<T> (
+    path: string,
+    body = {},
+    additionalHeaders: Record<string, unknown> = {},
+    params?: URLSearchParams,
+  ): Promise<T> {
+    const url = new URL(path, this.baseURL)
+    if (params) {
+      url.search = params.toString()
+    }
+
+    const { body: returnBody } = await this.doRequest(url, 'POST', additionalHeaders, body)
+    return await returnBody.json() as T
+  }
+
   async getPaginated<T> (
     path: string,
     additionalHeaders: Record<string, unknown> = {},
@@ -81,12 +96,14 @@ export class APIClient {
     url: URL,
     method: string,
     additionalHeaders: Record<string, unknown> = {},
+    body?: Record<string, unknown>,
   ): Promise<Dispatcher.ResponseData> {
     await this.validateToken()
 
     const response = await request(url, {
       method: method,
       headers: headers(this.token, additionalHeaders),
+      ...body && { body: JSON.stringify(body) },
     })
 
     if (response.statusCode != 200) {
