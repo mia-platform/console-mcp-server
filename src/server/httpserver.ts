@@ -35,13 +35,13 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
         sessionIdGenerator: undefined,
       })
 
-      await server.connect(transport)
-      await transport.handleRequest(request.raw, reply.raw, request.body)
-
       reply.raw.on('close', () => {
         transport.close()
         server.close()
       })
+
+      await server.connect(transport)
+      await transport.handleRequest(request.raw, reply.raw, request.body)
     } catch (error) {
       console.error('Error handling MCP request:', error)
       reply.code(500)
