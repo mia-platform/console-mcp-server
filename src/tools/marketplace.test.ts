@@ -31,6 +31,11 @@ const publicElements = [
   { id: 3, name: 'item', tenant: 'public' },
 ]
 
+const itemVersions = [
+  { id: 1, name: 'item', tenant: 'public', version: '1.0.0' },
+  { id: 1, name: 'item', tenant: 'public', version: '1.1.0' },
+]
+
 const tenantElement = { id: 4, name: 'item', tenant: 'tenantID' }
 
 suite('setup marketplace tools', () => {
@@ -47,7 +52,7 @@ suite('setup marketplace tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 1)
+    t.assert.equal(result.tools.length, 2)
   })
 })
 
@@ -156,6 +161,85 @@ suite('marketplace list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace items for company error: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('marketplace item versions tool', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addMarketplaceCapabilities(server, apiClient)
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/tenantID/marketplace/items/item-id/versions',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, itemVersions)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/error/marketplace/items/item-id/versions',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return item versions', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_versions',
+        arguments: {
+          marketplaceItemId: 'item-id',
+          marketplaceItemTenantId: 'tenantID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(itemVersions),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_versions',
+        arguments: {
+          marketplaceItemId: 'item-id',
+          marketplaceItemTenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching marketplace item versions for item-id: error message',
         type: 'text',
       },
     ])

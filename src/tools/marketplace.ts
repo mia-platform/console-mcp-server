@@ -14,14 +14,17 @@
 // limitations under the License.
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
-import { CatalogItem } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
+import { CatalogItem, CatalogItemRelease } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
-import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const listMarketplacePath = '/api/marketplace/'
+const listMarketplaceItemVersions = (tenantId: string, marketplaceId: string) => {
+  return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions`
+}
 
 const types = [
   'application',
@@ -40,20 +43,12 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
     'list_marketplace',
     toolsDescriptions.LIST_MARKETPLACE,
     {
-      tenantId: z.string().optional().describe(paramDescriptions.TENANT_ID),
-      type: z.enum(types).optional().describe(paramDescriptions.MARKETPLACE_ITEM_TYPE),
+      tenantId: z.string().optional().describe(paramsDescriptions.TENANT_ID),
+      type: z.enum(types).optional().describe(paramsDescriptions.MARKETPLACE_ITEM_TYPE),
     },
     async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
-        const params = new URLSearchParams({})
-        if (tenantId) {
-          params.set('includeTenantId', tenantId)
-        }
-        if (type) {
-          params.set('types', type)
-        }
-
-        const data = await client.getPaginated<CatalogItem>(listMarketplacePath, {}, params)
+        const data = await listMarketplaceItems(client, tenantId, type)
         return {
           content: [
             {
@@ -75,4 +70,52 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
       }
     },
   )
+
+  server.tool(
+    'list_marketplace_item_versions',
+    toolsDescriptions.LIST_MARKETPLACE_ITEMS_VERSIONS,
+    {
+      marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
+      marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_TENANT_ID),
+    },
+    async ({ marketplaceItemId, marketplaceItemTenantId }): Promise<CallToolResult> => {
+      try {
+        const data = await listMarketPlaceItemVersions(client, marketplaceItemId, marketplaceItemTenantId)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace item versions for ${marketplaceItemId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+}
+
+export async function listMarketplaceItems (client: APIClient, tenantId?: string, type?: string) {
+  const params = new URLSearchParams()
+  if (tenantId) {
+    params.set('includeTenantId', tenantId)
+  }
+  if (type) {
+    params.set('types', type)
+  }
+
+  return await client.getPaginated<CatalogItem>(listMarketplacePath, {}, params)
+}
+
+export async function listMarketPlaceItemVersions (client: APIClient, itemId: string, tenantId: string) {
+  return await client.getPaginated<CatalogItemRelease>(listMarketplaceItemVersions(tenantId, itemId))
 }

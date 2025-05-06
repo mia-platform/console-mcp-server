@@ -18,7 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
-import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const companiesPath = '/api/backend/tenants/'
 const companyBlueprint = (tenantId: string) => `/api/backend/tenants/${tenantId}/project-blueprint/`
@@ -32,7 +32,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
     {},
     async (): Promise<CallToolResult> => {
       try {
-        const data = await client.getPaginated(companiesPath)
+        const data = await listCompanies(client)
         return {
           content: [
             {
@@ -59,11 +59,11 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
     'list_tenant_templates',
     toolsDescriptions.LIST_TENANTS_TEMPLATES,
     {
-      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
     },
     async ({ tenantId }): Promise<CallToolResult> => {
       try {
-        const blueprint = await client.get<Record<string, unknown>>(companyBlueprint(tenantId))
+        const blueprint = await listCompanyTemplates(client, tenantId)
         return {
           content: [
             {
@@ -90,17 +90,12 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
     'list_tenant_iam',
     toolsDescriptions.LIST_TENANTS_IAM,
     {
-      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
-      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramDescriptions.IAM_IDENTITY_TYPE),
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramsDescriptions.IAM_IDENTITY_TYPE),
     },
     async ({ tenantId, identityType }): Promise<CallToolResult> => {
-      const params = new URLSearchParams()
-      if (identityType) {
-        params.set('identityType', identityType)
-      }
-
       try {
-        const data = await client.getPaginated(listCompanyIAMPathTemplate(tenantId), {}, params, 0)
+        const data = await listCompanyIAMIdentities(client, tenantId, identityType)
         return {
           content: [
             {
@@ -127,21 +122,13 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
     'view_audit_logs',
     toolsDescriptions.VIEW_TENANTS_AUDIT_LOGS,
     {
-      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
-      from: z.string().optional().describe(paramDescriptions.AUDIT_LOG_FROM),
-      to: z.string().optional().describe(paramDescriptions.AUDIT_LOG_TO),
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      from: z.string().optional().describe(paramsDescriptions.AUDIT_LOG_FROM),
+      to: z.string().optional().describe(paramsDescriptions.AUDIT_LOG_TO),
     },
     async ({ tenantId, from, to }): Promise<CallToolResult> => {
-      const params = new URLSearchParams()
-      if (from) {
-        params.set('from', from)
-      }
-      if (to) {
-        params.set('to', to)
-      }
-
       try {
-        const data = await client.getPaginated(companyAuditLogsPathTemplate(tenantId), {}, params, 0)
+        const data = await getCompanyAuditLogs(client, tenantId, from, to)
         return {
           content: [
             {
@@ -163,4 +150,33 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
       }
     },
   )
+}
+
+export async function listCompanies (client: APIClient) {
+  return await client.getPaginated<Record<string, unknown>>(companiesPath)
+}
+
+export async function listCompanyTemplates (client: APIClient, tenantId: string) {
+  return await client.get<Record<string, unknown>>(companyBlueprint(tenantId))
+}
+
+export async function listCompanyIAMIdentities (client: APIClient, tenantId: string, type?: string) {
+  const params = new URLSearchParams()
+  if (type) {
+    params.set('identityType', type)
+  }
+
+  return await client.getPaginated<Record<string, unknown>>(listCompanyIAMPathTemplate(tenantId), {}, params, 0)
+}
+
+export async function getCompanyAuditLogs (client: APIClient, tenantId: string, from?: string, to?: string) {
+  const params = new URLSearchParams()
+  if (from) {
+    params.set('from', from)
+  }
+  if (to) {
+    params.set('to', to)
+  }
+
+  return await client.getPaginated<Record<string, unknown>>(companyAuditLogsPathTemplate(tenantId), {}, params, 0)
 }

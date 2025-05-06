@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { APIClient } from '../lib/client'
 import { PostProject } from '../types/post_project'
 import { ProjectDraft } from '../types/project_draft'
-import { paramDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const projectsPath = '/api/backend/projects/'
 const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
@@ -31,16 +31,11 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
     'list_projects',
     toolsDescriptions.LIST_PROJECTS,
     {
-      tenantIds: z.string().array().nonempty().describe(paramDescriptions.MULTIPLE_TENANT_IDS),
+      tenantIds: z.string().array().nonempty().describe(paramsDescriptions.MULTIPLE_TENANT_IDS),
     },
     async ({ tenantIds }): Promise<CallToolResult> => {
-      const companiesIds = tenantIds.join(',')
       try {
-        const params = new URLSearchParams({
-          tenantIds: companiesIds,
-        })
-
-        const data = await client.getPaginated(projectsPath, {}, params)
+        const data = await listProjects(client, tenantIds)
         return {
           content: [
             {
@@ -55,7 +50,7 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
           content: [
             {
               type: 'text',
-              text: `Error fetching projects for ${companiesIds}: ${err.message}`,
+              text: `Error fetching projects for ${tenantIds.join(', ')}: ${err.message}`,
             },
           ],
         }
@@ -67,11 +62,11 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
     'get_project_info',
     toolsDescriptions.GET_PROJECT_INFO,
     {
-      projectId: z.string().describe(paramDescriptions.PROJECT_ID),
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
-        const data = await client.get(getProjectPath(projectId))
+        const data = await getProjectInfo(client, projectId)
         return {
           content: [
             {
@@ -98,38 +93,14 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
     'create_project_from_template',
     toolsDescriptions.CREATE_PROJECT_FROM_TEMPLATE,
     {
-      tenantId: z.string().describe(paramDescriptions.TENANT_ID),
-      projectName: z.string().describe(paramDescriptions.PROJECT_NAME),
-      projectDescription: z.string().optional().describe(paramDescriptions.PROJECT_DESCRIPTION),
-      templateId: z.string().describe(paramDescriptions.TEMPLATE_ID),
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      projectName: z.string().describe(paramsDescriptions.PROJECT_NAME),
+      projectDescription: z.string().optional().describe(paramsDescriptions.PROJECT_DESCRIPTION),
+      templateId: z.string().describe(paramsDescriptions.TEMPLATE_ID),
     },
     async ({ tenantId, projectName, projectDescription, templateId }): Promise<CallToolResult> => {
-      const projectId = projectName.replace(/\s+/g, '-').toLowerCase()
-      const params = new URLSearchParams({
-        tenantId,
-        projectId,
-        templateId,
-        projectName,
-      })
       try {
-        const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
-
-        const projectBody: PostProject = {
-          name: projectName,
-          description: projectDescription,
-          tenantId,
-          environments: draftResponse.environments || [],
-          configurationGitPath: draftResponse.repository?.gitPath || '',
-          projectId,
-          templateId,
-          visibility: draftResponse.repository?.visibility || '',
-          providerId: draftResponse.repository?.providerId || '',
-          pipelines: draftResponse.pipelines,
-          ...draftResponse.staticSecret && { secrets: [ draftResponse.staticSecret ] },
-          enableConfGenerationOnDeploy: true,
-        }
-
-        const project = await client.post(projectsPath, projectBody)
+        const project = await createProjectFromTemplate(client, tenantId, projectName, templateId, projectDescription)
         return {
           content: [
             {
@@ -151,4 +122,52 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
       }
     },
   )
+}
+
+export async function listProjects (client: APIClient, tenantIds: string[]) {
+  const params = new URLSearchParams()
+  if (tenantIds.length > 0) {
+    params.set('tenantIds', tenantIds.join(','))
+  }
+
+  return await client.getPaginated<Record<string, unknown>>(projectsPath, {}, params)
+}
+
+export async function getProjectInfo (client: APIClient, projectId: string) {
+  return await client.get<Record<string, unknown>>(getProjectPath(projectId))
+}
+
+export async function createProjectFromTemplate (
+  client: APIClient,
+  tenantId: string,
+  projectName: string,
+  templateId: string,
+  description?: string,
+) {
+  const projectId = projectName.replace(/\s+/g, '-').toLowerCase()
+  const params = new URLSearchParams({
+    tenantId,
+    projectId,
+    templateId,
+    projectName,
+  })
+
+  const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
+
+  const projectBody: PostProject = {
+    name: projectName,
+    description,
+    tenantId,
+    environments: draftResponse.environments || [],
+    configurationGitPath: draftResponse.repository?.gitPath || '',
+    projectId,
+    templateId,
+    visibility: draftResponse.repository?.visibility || '',
+    providerId: draftResponse.repository?.providerId || '',
+    pipelines: draftResponse.pipelines,
+    ...draftResponse.staticSecret && { secrets: [ draftResponse.staticSecret ] },
+    enableConfGenerationOnDeploy: true,
+  }
+
+  return await client.post(projectsPath, projectBody)
 }
