@@ -23,6 +23,7 @@ export const toolsDescriptions: Record<string, string> = {
   // marketplace tools
   LIST_MARKETPLACE: 'List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified',
   LIST_MARKETPLACE_ITEMS_VERSIONS: 'List all the available versions of a marketplace item',
+  MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
 
   // project tools
   LIST_PROJECTS: 'List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool list_tenants',
@@ -46,6 +47,7 @@ export const paramsDescriptions: Record<string, string> = {
   MARKETPLACE_ITEM_ID: 'The marketplace item to use to create the service. Can be found in the itemId field of the list_marketplace tool',
   MARKETPLACE_ITEM_TYPE: 'Type of marketplace item to filter, empty string means no filter',
   MARKETPLACE_ITEM_TENANT_ID: 'The tenant or project of the marketplace item. Can be found in the tenantId field of the list_marketplace tool',
+  MARKETPLACE_ITEM_VERSION: '',
 
   // Project
   PROJECT_ID: 'The project to use. Can be found in the _id field of the list_projects tool',

@@ -25,6 +25,9 @@ const listMarketplacePath = '/api/marketplace/'
 const listMarketplaceItemVersions = (tenantId: string, marketplaceId: string) => {
   return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions`
 }
+const marketplaceItemVersionInfo = (tenantId: string, marketplaceId: string, version: string) => {
+  return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions/${version}`
+}
 
 const types = [
   'application',
@@ -102,6 +105,44 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
       }
     },
   )
+
+  server.tool(
+    'marketplace_item_version_info',
+    toolsDescriptions.MARKETPLACE_ITEM_VERSION_INFO,
+    {
+      marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
+      marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_TENANT_ID),
+      marketplaceItemVersion: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_VERSION),
+    },
+    async ({ marketplaceItemId, marketplaceItemTenantId, marketplaceItemVersion }): Promise<CallToolResult> => {
+      try {
+        const data = await getMarketplaceItemVersionInfo(
+          client,
+          marketplaceItemId,
+          marketplaceItemTenantId,
+          marketplaceItemVersion,
+        )
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace item info for version ${marketplaceItemVersion}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
 }
 
 export async function listMarketplaceItems (client: APIClient, tenantId?: string, type?: string) {
@@ -118,4 +159,8 @@ export async function listMarketplaceItems (client: APIClient, tenantId?: string
 
 export async function listMarketPlaceItemVersions (client: APIClient, itemId: string, tenantId: string) {
   return await client.getPaginated<CatalogItemRelease>(listMarketplaceItemVersions(tenantId, itemId))
+}
+
+export async function getMarketplaceItemVersionInfo (client: APIClient, itemId: string, tenantId: string, version: string) {
+  return await client.get<Record<string, unknown>>(marketplaceItemVersionInfo(tenantId, itemId, version))
 }
