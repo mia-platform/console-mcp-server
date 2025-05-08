@@ -152,7 +152,14 @@ following command:
 npm ci
 ```
 
-Once has finished you will have all the dependencies installed on the project, then you can run:
+Once has finished you will have all the dependencies installed on the project, then you have to prepare an environent
+file by copying the default.env file and edit it accordingly.
+
+```sh
+cp default.env .env
+```
+
+Finally to verify everything works, run:
 
 ```sh
 npm run local:test
