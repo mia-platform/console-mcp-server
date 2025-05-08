@@ -30,6 +30,15 @@ const triggerDeployResponse = {
   url: 'https://console.mia-platform.eu/pipelines/123',
 }
 
+const compareUpdateResponse = {
+  lastDeployedManifests: [
+    { content: 'content1', name: 'manifest1', resourceName: 'resource1', type: 'type1' },
+  ],
+  revisionManifests: [
+    { content: 'content2', name: 'manifest2', resourceName: 'resource2', type: 'type2' },
+  ],
+}
+
 suite('setup deploy tools', () => {
   test('should setup deploy tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
@@ -44,7 +53,7 @@ suite('setup deploy tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 1)
+    t.assert.equal(result.tools.length, 2)
   })
 })
 
@@ -139,6 +148,91 @@ suite('deploy project tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('compare_update_for_deploy tool', () => {
+  let client: Client
+  let agent: MockAgent
+
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addDeployCapabilities(server, apiClient)
+    })
+
+    agent = new MockAgent()
+    setGlobalDispatcher(agent)
+  })
+
+  test('should retrieve configuration updates for deploy', async (t) => {
+    const projectId = 'project123'
+    const revision = 'main'
+    const environment = 'development'
+    const refType = 'revision'
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/compare/raw?fromEnvironment=${environment}&toRef=${revision}&refType=${refType}`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, compareUpdateResponse)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'compare_update_for_deploy',
+        arguments: {
+          projectId,
+          revision,
+          refType: 'revision',
+          environment,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(compareUpdateResponse),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if compare update request returns error', async (t) => {
+    const projectId = 'error-project'
+    const revision = 'main'
+    const environment = 'development'
+    const refType = 'revision'
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/compare/raw?fromEnvironment=${environment}&toRef=${revision}&refType=${refType}`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'compare_update_for_deploy',
+        arguments: {
+          projectId,
+          revision,
+          refType: 'revision',
+          environment,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error retrieving configuration updates: error message',
         type: 'text',
       },
     ])

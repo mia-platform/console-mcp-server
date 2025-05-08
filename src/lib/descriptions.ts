@@ -34,7 +34,8 @@ export const toolsDescriptions = {
   CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
 
   // deploy tools
-  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant',
+  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool compare_update_for_deploy',
+  COMPARE_UPDATE_FOR_DEPLOY: 'Compare the current deployed configuration with the new configuration to be deployed. This is useful to see what will change in the project after the deployment',
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',

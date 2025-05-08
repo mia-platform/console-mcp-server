@@ -20,10 +20,23 @@ import { z } from 'zod'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const deployPath = (projectId: string) => `/api/deploy/projects/${projectId}/trigger/pipeline/`
+const compareUpdatePath = (projectId: string) => `/api/deploy/projects/${projectId}/compare/raw`
 
 interface TriggerDeployResponse {
   id: number
   url: string
+}
+
+interface Manifest {
+  content: string
+  name: string
+  resourceName: string
+  type: string
+}
+
+interface CompareForDeployResponse {
+  lastDeployedManifests: Manifest[]
+  revisionManifests: Manifest[]
 }
 
 export function addDeployCapabilities (server: McpServer, client:APIClient) {
@@ -58,6 +71,44 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
             {
               type: 'text',
               text: `Error deploying project: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'compare_update_for_deploy',
+    toolsDescriptions.COMPARE_UPDATE_FOR_DEPLOY,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      environment: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
+      refType: z.enum([ 'revision', 'version' ]).describe(paramsDescriptions.REF_TYPE),
+      revision: z.string().describe(paramsDescriptions.REVISION),
+    },
+    async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
+      try {
+        const data = await client.get<CompareForDeployResponse>(compareUpdatePath(projectId), {}, new URLSearchParams({
+          fromEnvironment: environment,
+          toRef: revision,
+          refType,
+        }))
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error retrieving configuration updates: ${err.message}`,
             },
           ],
         }
