@@ -57,7 +57,7 @@ export const paramsDescriptions = {
   MARKETPLACE_ITEM_ID: 'The marketplace item to use to create the service. Can be found in the itemId field of the list_marketplace tool',
   MARKETPLACE_ITEM_TYPE: 'Type of marketplace item to filter, empty string means no filter',
   MARKETPLACE_ITEM_TENANT_ID: 'The tenant or project of the marketplace item. Can be found in the tenantId field of the list_marketplace tool',
-  MARKETPLACE_ITEM_VERSION: '',
+  MARKETPLACE_ITEM_VERSION: 'The version of the marketplace item to use. Can be found in the version field of the list_marketplace tool. This is optional, if not specified the latest version will be used',
 
   // Project
   PROJECT_ID: 'The project to use. Can be found in the _id field of the list_projects tool',
@@ -73,4 +73,5 @@ export const paramsDescriptions = {
   // Configuration
   REVISION: 'The revision of the project configuration to use. Can be found the list of the available revisions and tags using the list_configuration_revisions tool',
   REF_TYPE: 'The type of the reference to use, can be revision or version. Can be found in the list_configuration_revisions tool',
+  REF_ID: 'The id of the reference to use, can be the revision or version. Can be found in the list_configuration_revisions tool',
 }

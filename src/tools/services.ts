@@ -15,9 +15,8 @@
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { pick } from 'ramda'
 import { z } from 'zod'
-import { CatalogVersionedItem, ConfigMap, ConfigMaps, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
+import { CatalogVersionedItem, ConfigMaps, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
@@ -36,10 +35,11 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       name: z.string().describe(paramsDescriptions.SERVICE_NAME).regex(/^[a-z]([-a-z0-9]*[a-z0-9])?$/),
       description: z.string().optional().describe(paramsDescriptions.SERVICE_DESCRIPTION),
-      environmentId: z.string().optional().describe(paramsDescriptions.ENVIRONMENT_ID),
-      marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ID),
-      marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_TENANT_ID),
-      marketplaceItemVersion: z.string().optional().describe(paramsDescriptions.MARKETPLACE_VERSION),
+      // environmentId: z.string().optional().describe(paramsDescriptions.ENVIRONMENT_ID),
+      refId: z.string().optional().describe(paramsDescriptions.REF_ID),
+      marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
+      marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_TENANT_ID),
+      marketplaceItemVersion: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITEM_VERSION),
     },
     async (args): Promise<CallToolResult> => {
       try {
@@ -51,7 +51,7 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
           project,
           marketplaceItem,
           args.name,
-          args.environmentId,
+          args.refId,
           args.description,
         )
 
@@ -114,18 +114,18 @@ async function getMarketplaceItem (
 }
 
 async function createServiceFromMarkeplaceItem (
-  client: APIClient,
+  _client: APIClient,
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
   name: string,
-  environmentId?: string,
+  refId?: string,
   description?: string,
 ) {
-  let consolidatedEnvironmentId: string
-  if (environmentId) {
-    consolidatedEnvironmentId = environmentId
+  let consolidatedRefId: string
+  if (refId) {
+    consolidatedRefId = refId
   } else if (project.defaultBranch) {
-    consolidatedEnvironmentId = project.defaultBranch
+    consolidatedRefId = project.defaultBranch
   } else {
     throw new Error('No environmentId provided and no default branch found in the project')
   }
@@ -133,17 +133,19 @@ async function createServiceFromMarkeplaceItem (
   let newServicePayload: NewServicePayload
   switch (marketplaceItem.type) {
   case 'plugin':
-    newServicePayload = servicePayloadFromMarketplaceItem(marketplaceItem, project, name, description)
+    newServicePayload = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, project, name, description)
     break
   default:
     throw new Error('TODO')
   }
+
+  console.log('newServicePayload', consolidatedRefId, newServicePayload)
 }
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 
 
-export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, project: IProject, name: string, description?: string): NewServicePayload {
+export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _project: IProject, name: string, description?: string): NewServicePayload {
   const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
   if (!serviceToCreateItemKey) {
     throw new Error('No service found in the marketplace item')
@@ -182,6 +184,7 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, pr
     name,
     type: ServiceTypes.CUSTOM,
     tags: tags || [ ServiceTypes.CUSTOM ],
+    description,
     advanced: false,
     sourceComponentId: componentId,
     dockerImage,
@@ -228,20 +231,17 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, pr
       : '',
     ...defaultConfigMaps.length > 0
       ? { configMaps: defaultConfigMaps.map((configMap) => {
-        const configMapFields = [ 'name', 'mountPath', 'viewAsReadOnly', 'link' ]
-
-        const { usePreserve } = configMap
+        const { name, usePreserve, mountPath, viewAsReadOnly, link, files } = configMap
         if (!usePreserve) {
-          return pick(configMapFields, configMap as Record<string, unknown>) as unknown as ConfigMap
+          return { name, mountPath, viewAsReadOnly, link }
         }
 
-        const subPaths = configMap.files.
+
+        const subPaths = files.
           filter((file) => !file.deleted).
           map((file) => file.name)
-        return {
-          ...pick(configMapFields, configMap as Record<string, unknown>),
-          subPaths,
-        } as unknown as ConfigMap
+
+        return { name, mountPath, viewAsReadOnly, link, subPaths }
       }) }
       : {},
     // ...defaultSecretsFromTemplate.length > 0

@@ -21,7 +21,6 @@ import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, IProj
 import { APIClient } from '../lib/client'
 import { TestMCPServer } from './utils.test'
 import { addServicesCapabilities, servicePayloadFromMarketplaceItem } from './services'
-import { mapEnvVarToMountPathSchema } from '@mia-platform/console-types/build/types/catalog/well-known-items/commons'
 
 const { ServiceTypes } = constants
 
@@ -90,6 +89,7 @@ suite('create service from marketplace adapter', () => {
     const expected = {
       name: 'simple-service',
       type: ServiceTypes.CUSTOM,
+      description: 'some-description',
       advanced: false,
       containerPorts: [],
       sourceMarketplaceItem: { itemId: 'simple-service', tenantId: 'public', version: 'v1.0.0' },
@@ -151,6 +151,7 @@ suite('create service from marketplace adapter', () => {
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
 
     t.assert.deepStrictEqual(output.services['simple-service'], expected)
+    t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
 
   test('service with configmap', async (t: TestContext) => {
@@ -186,7 +187,6 @@ suite('create service from marketplace adapter', () => {
           targetSection: 'collections',
         },
       } ],
-      // defaultSecrets: [ { name: 'secret1', mountPath: '/path1' } ],
       componentId: 'some-plugin',
       links: [
         { targetSection: 'some-section', enableIf: 'SOME_FT', label: 'Resource' },
@@ -195,6 +195,7 @@ suite('create service from marketplace adapter', () => {
 
     const expectedService = {
       name: 'simple-service',
+      description: 'some-description',
       type: ServiceTypes.CUSTOM,
       advanced: false,
       containerPorts: [],
@@ -209,7 +210,6 @@ suite('create service from marketplace adapter', () => {
         link: { targetSection: 'collections' },
         viewAsReadOnly: true,
       } ],
-      // secrets: [ { name: 'secret1', mountPath: '/path1' } ],
       dockerImage: 'my-docker-image',
       tags: [ ServiceTypes.CUSTOM ],
       environment: [
@@ -227,10 +227,6 @@ suite('create service from marketplace adapter', () => {
         startup: { cmd: [ 'command' ] },
       },
       serviceAccountName: 'simple-service',
-      // args: [ '--kafka.server={{KAFKA_BROKERS}}', '--sasl.username={{KAFKA_SASL_USERNAME}}' ],
-      // monitoring: {
-      //   endpoints: [ { path: '/-/metrics', port: '3000', interval: '30s' } ],
-      // },
       terminationGracePeriodSeconds: 100,
       logParser: constants.MIA_LOG_PARSER_JSON,
       swaggerPath: '/documentation/custom',
@@ -274,6 +270,7 @@ suite('create service from marketplace adapter', () => {
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
 
     t.assert.deepStrictEqual(output.services['simple-service'], expectedService)
+    t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
   })
 })
