@@ -13,12 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Config, ConfigMaps, ServiceAccounts, Services } from '@mia-platform/console-types'
+import { Config, ConfigMaps, Listeners, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 export interface ResourcesToCreate {
   services: Services
   configMaps?: ConfigMaps
   serviceAccounts: ServiceAccounts
+  listeners: Listeners
 }
 
 export type RetrievedConfiguration = Config & {

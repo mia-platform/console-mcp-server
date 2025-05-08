@@ -133,18 +133,16 @@ async function createServiceFromMarkeplaceItem (
   name: string,
   description?: string,
 ): Promise<ResourcesToCreate> {
-  let newServicePayload: ResourcesToCreate
+  let resourcesToCreate: ResourcesToCreate
   switch (marketplaceItem.type) {
   case 'plugin':
-    newServicePayload = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, project, name, description)
+    resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, project, name, description)
     break
   default:
     throw new Error('TODO')
   }
 
-  console.error('newServicePayload', JSON.stringify(newServicePayload))
-
-  return newServicePayload
+  return resourcesToCreate
 }
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
@@ -159,8 +157,6 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
   if (!serviceToCreate) {
     throw new Error('No service found in the marketplace item')
   }
-
-  const serviceAccountName = name
 
   const {
     links,
@@ -181,8 +177,9 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     execPreStop,
     args,
     defaultLogParser = constants.MIA_LOG_PARSER_JSON,
-    // listeners: newListeners,
   } = serviceToCreate
+  const serviceAccountName = name
+  const listenersToCreate = item.resources?.listeners
 
   const service: CustomService = {
     name,
@@ -317,5 +314,6 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
       [serviceAccountName]: { name: serviceAccountName },
     },
     configMaps: createdConfigMaps,
+    listeners: listenersToCreate,
   }
 }

@@ -62,7 +62,6 @@ export function addConfigurationCapabilities (server: McpServer, client:APIClien
 
 export async function saveConfiguration (client: APIClient, project: IProject, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
   const previousCommit = await client.get<RetrievedConfiguration>(configurationPath(project._id, refId))
-  console.error('previousCommit', previousCommit)
 
   const mergedConfigWithResourceToCreate: Config = mergeConfigWithResources(previousCommit, resourcesToCreate)
 
@@ -103,6 +102,10 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
     serviceAccounts: {
       ...previousServiceAccounts,
       ...serviceAccounts,
+    },
+    listeners: {
+      ...previousConfig.listeners,
+      ...resourcesToCreate.listeners,
     },
   }
 }
