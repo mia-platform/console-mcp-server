@@ -36,11 +36,12 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
       refType: z.enum([ 'revision', 'version' ]).describe(paramsDescriptions.REF_TYPE),
       environment: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
     },
-    async ({ projectId, environment, revision }): Promise<CallToolResult> => {
+    async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
         const data = await client.post<TriggerDeployResponse>(deployPath(projectId), {
           environment,
           revision,
+          refType,
         })
         return {
           content: [
@@ -56,7 +57,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
           content: [
             {
               type: 'text',
-              text: `Error fetching companies: ${err.message}`,
+              text: `Error deploying project: ${err.message}`,
             },
           ],
         }

@@ -100,7 +100,7 @@ suite('list configuration revisions tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: `Revisions: ${JSON.stringify(revisions)}\nTags: ${JSON.stringify(tags)}`,
+        text: `Revisions: ${JSON.stringify(revisions)}\nVersion: ${JSON.stringify(tags)}`,
         type: 'text',
       },
     ])
@@ -130,7 +130,7 @@ suite('list configuration revisions tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: 'Error fetching revisions or tags: error message',
+        text: 'Error fetching revisions or versions: error message',
         type: 'text',
       },
     ])

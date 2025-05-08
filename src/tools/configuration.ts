@@ -37,7 +37,7 @@ export function addConfigurationCapabilities (server: McpServer, client:APIClien
           content: [
             {
               type: 'text',
-              text: `Revisions: ${JSON.stringify(revisions)}\nTags: ${JSON.stringify(tags)}`,
+              text: `Revisions: ${JSON.stringify(revisions)}\nVersion: ${JSON.stringify(tags)}`,
             },
           ],
         }
@@ -47,7 +47,7 @@ export function addConfigurationCapabilities (server: McpServer, client:APIClien
           content: [
             {
               type: 'text',
-              text: `Error fetching revisions or tags: ${err.message}`,
+              text: `Error fetching revisions or versions: ${err.message}`,
             },
           ],
         }

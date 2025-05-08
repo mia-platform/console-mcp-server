@@ -66,6 +66,7 @@ suite('deploy project tool', () => {
     const projectId = 'project123'
     const revision = 'main'
     const environment = 'development'
+    const refType = 'revision'
 
     agent.get(mockedEndpoint).intercept({
       path: `/api/deploy/projects/${projectId}/trigger/pipeline/`,
@@ -73,6 +74,7 @@ suite('deploy project tool', () => {
       body: JSON.stringify({
         environment,
         revision,
+        refType,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -105,6 +107,7 @@ suite('deploy project tool', () => {
     const projectId = 'error-project'
     const revision = 'main'
     const environment = 'development'
+    const refType = 'revision'
 
     agent.get(mockedEndpoint).intercept({
       path: `/api/deploy/projects/${projectId}/trigger/pipeline/`,
@@ -112,6 +115,7 @@ suite('deploy project tool', () => {
       body: JSON.stringify({
         environment,
         revision,
+        refType,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -134,7 +138,7 @@ suite('deploy project tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: 'Error fetching companies: error message',
+        text: 'Error deploying project: error message',
         type: 'text',
       },
     ])
