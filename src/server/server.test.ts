@@ -20,6 +20,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { getMcpServer } from './server'
+import { toolsDescriptions } from '../lib/descriptions'
 
 suite('initialize server', () => {
   test('get mcp server', async (t) => {
@@ -43,7 +44,7 @@ suite('initialize server', () => {
       },
       ListToolsResultSchema,
     )
-    t.assert.equal(toolsResult.tools.length, 10, 'should return all the registred tools')
+    t.assert.equal(toolsResult.tools.length, Object.keys(toolsDescriptions).length, 'should return all the registred tools')
 
     await clientTransport.close()
     await serverTransport.close()
