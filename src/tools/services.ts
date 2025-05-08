@@ -21,6 +21,7 @@ import { CatalogVersionedItem, ConfigMaps, constants, CustomService, Environment
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
 import { NewServicePayload } from '../types/new_service_payload'
+import { saveConfiguration } from './configuration'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
@@ -46,20 +47,22 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
         const project = await getProjectInfo(client, args.projectId)
 
         const marketplaceItem = await getMarketplaceItem(client, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
-        const service = await createServiceFromMarkeplaceItem(
+        const resourceToCreate = await createServiceFromMarkeplaceItem(
           client,
           project,
           marketplaceItem,
           args.name,
-          args.refId,
           args.description,
         )
+
+        const refId = consolidateRefId(args.refId, project)
+        const response = await saveConfiguration(client, project, resourceToCreate, refId)
 
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(service),
+              text: JSON.stringify({ response }),
             },
           ],
         }
@@ -76,6 +79,16 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
       }
     },
   )
+}
+
+function consolidateRefId (refId: string | undefined, project: IProject): string {
+  if (refId) {
+    return refId
+  }
+  if (project.defaultBranch) {
+    return project.defaultBranch
+  }
+  throw new Error('No environmentId provided and no default branch found in the project')
 }
 
 async function getMarketplaceItem (
@@ -118,18 +131,8 @@ async function createServiceFromMarkeplaceItem (
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
   name: string,
-  refId?: string,
   description?: string,
-) {
-  let consolidatedRefId: string
-  if (refId) {
-    consolidatedRefId = refId
-  } else if (project.defaultBranch) {
-    consolidatedRefId = project.defaultBranch
-  } else {
-    throw new Error('No environmentId provided and no default branch found in the project')
-  }
-
+): Promise<NewServicePayload> {
   let newServicePayload: NewServicePayload
   switch (marketplaceItem.type) {
   case 'plugin':
@@ -139,7 +142,9 @@ async function createServiceFromMarkeplaceItem (
     throw new Error('TODO')
   }
 
-  console.log('newServicePayload', consolidatedRefId, newServicePayload)
+  console.error('newServicePayload', JSON.stringify(newServicePayload))
+
+  return newServicePayload
 }
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
