@@ -34,8 +34,9 @@ export const toolsDescriptions = {
   CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
 
   // deploy tools
-  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool compare_update_for_deploy',
+  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool compare_update_for_deploy.',
   COMPARE_UPDATE_FOR_DEPLOY: 'Compare the current deployed configuration with the new configuration to be deployed. This is useful to see what will change in the project after the deployment',
+  PIPELINE_STATUS: 'Get the status of a pipeline given a pipeline id. This is useful to check if the deployment is finished or if it failed. After running deploy, check the status of the pipeline using the tool pipeline_status',
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
@@ -74,4 +75,7 @@ export const paramsDescriptions = {
   REVISION: 'The revision of the project configuration to use. Can be found the list of the available revisions and tags using the list_configuration_revisions tool',
   REF_TYPE: 'The type of the reference to use, can be revision or version. Can be found in the list_configuration_revisions tool',
   REF_ID: 'The id of the reference to use, can be the revision or version. Can be found in the list_configuration_revisions tool',
+
+  // Deploy
+  PIPELINE_ID: 'The id of the pipeline to check the status of. Can be found in the response of the deploy tool',
 }

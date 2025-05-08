@@ -53,7 +53,7 @@ suite('setup deploy tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 2)
+    t.assert.equal(result.tools.length, 3)
   })
 })
 
@@ -233,6 +233,157 @@ suite('compare_update_for_deploy tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error retrieving configuration updates: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('deploy_pipeline_status tool', () => {
+  let client: Client
+  let agent: MockAgent
+
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addDeployCapabilities(server, apiClient)
+    })
+
+    agent = new MockAgent()
+    setGlobalDispatcher(agent)
+  })
+
+  test('should get pipeline status successfully', async (t) => {
+    const projectId = 'project123'
+    const pipelineId = '456'
+    const successStatus = { status: 'success' }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, successStatus)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Pipeline status: ${successStatus.status}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should handle numeric pipelineId', async (t) => {
+    const projectId = 'project123'
+    const pipelineId = 456
+    const successStatus = { status: 'success' }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, successStatus)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Pipeline status: ${successStatus.status}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if pipeline status request returns error', async (t) => {
+    const projectId = 'error-project'
+    const pipelineId = '456'
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error deploying project: error message',
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should wait until pipeline completion', async (t) => {
+    const projectId = 'timeout-project'
+    const pipelineId = '456'
+    const runningStatus = { status: 'running' }
+    const successStatus = { status: 'success' }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, runningStatus)
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, successStatus)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Pipeline status: success',
         type: 'text',
       },
     ])
