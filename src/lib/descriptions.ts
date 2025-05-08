@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const toolsDescriptions: Record<string, string> = {
+export const toolsDescriptions = {
   // tenants tools
   LIST_TENANTS: 'List Mia-Platform Console companies or tenants that the user can access',
   LIST_TENANTS_TEMPLATES: 'List Mia-Platform project templates for a given company or tenant',
@@ -32,9 +32,15 @@ export const toolsDescriptions: Record<string, string> = {
 
   // services tools
   CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
+
+  // deploy tools
+  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant',
+
+  // configuration management tools
+  LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
 }
 
-export const paramsDescriptions: Record<string, string> = {
+export const paramsDescriptions = {
   // Tenant
   TENANT_ID: 'The Mia-Platform Console company or tenant to use. Can be found in the tenantId field of the list_tenants tool',
   MULTIPLE_TENANT_IDS: 'One or more Mia-Platform Console companies or tenants to filter. Can be found in the tenantId field of the list_tenants tool',
@@ -62,4 +68,8 @@ export const paramsDescriptions: Record<string, string> = {
   // Service
   SERVICE_NAME: 'The name of the service. It must be unique in the project',
   SERVICE_DESCRIPTION: 'The description of the service',
+
+  // Configuration
+  REVISION: 'The revision of the project configuration to use. Can be found the list of the available revisions and tags using the list_configuration_revisions tool',
+  REF_TYPE: 'The type of the reference to use, can be revision or version. Can be found in the list_configuration_revisions tool',
 }
