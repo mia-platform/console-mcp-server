@@ -16,7 +16,7 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { CatalogItem, CatalogItemRelease } from '@mia-platform/console-types'
+import { CatalogItem, CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
@@ -162,5 +162,5 @@ export async function listMarketPlaceItemVersions (client: APIClient, itemId: st
 }
 
 export async function getMarketplaceItemVersionInfo (client: APIClient, itemId: string, tenantId: string, version: string) {
-  return await client.get<Record<string, unknown>>(marketplaceItemVersionInfo(tenantId, itemId, version))
+  return await client.get<CatalogVersionedItem>(marketplaceItemVersionInfo(tenantId, itemId, version))
 }

@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { IProject } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
@@ -25,6 +26,9 @@ import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 const projectsPath = '/api/backend/projects/'
 const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
 const getProjectDraft = '/api/backend/projects/draft'
+const getProjectGitProviderSubgroups = (projectId: string, group: string) => {
+  return `/api/backend/projects/${projectId}/groups/${group}/subgroups`
+}
 
 export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -134,7 +138,7 @@ export async function listProjects (client: APIClient, tenantIds: string[]) {
 }
 
 export async function getProjectInfo (client: APIClient, projectId: string) {
-  return await client.get<Record<string, unknown>>(getProjectPath(projectId))
+  return await client.get<IProject>(getProjectPath(projectId))
 }
 
 export async function createProjectFromTemplate (
@@ -170,4 +174,13 @@ export async function createProjectFromTemplate (
   }
 
   return await client.post(projectsPath, projectBody)
+}
+
+export async function getGitProviderProjectGroups (client: APIClient, projectId: string, gitConfigPath: string) {
+  const params = new URLSearchParams({
+    includeSelf: 'true',
+  })
+
+  const escapedPath = encodeURIComponent(gitConfigPath)
+  return await client.getPaginated<Record<string, unknown>>(getProjectGitProviderSubgroups(projectId, escapedPath), {}, params, 0)
 }

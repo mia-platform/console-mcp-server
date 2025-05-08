@@ -29,6 +29,9 @@ export const toolsDescriptions: Record<string, string> = {
   LIST_PROJECTS: 'List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool list_tenants',
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
   CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant',
+
+  // services tools
+  CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
 }
 
 export const paramsDescriptions: Record<string, string> = {
@@ -54,4 +57,9 @@ export const paramsDescriptions: Record<string, string> = {
   PROJECT_NAME: 'The name of the project. It must be unique in the company or tenant',
   PROJECT_DESCRIPTION: 'The description of the project',
   TEMPLATE_ID: 'The template to use to create the project. Can be found in the _id field of the list_templates tool',
+  PROJECT_ENVIRONMENT_ID: 'The environment or revision of the project to use. Can be found in the environments filed of the get_project_info or list_projects tools',
+
+  // Service
+  SERVICE_NAME: 'The name of the service. It must be unique in the project',
+  SERVICE_DESCRIPTION: 'The description of the service',
 }
