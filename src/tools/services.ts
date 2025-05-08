@@ -20,7 +20,7 @@ import { CatalogVersionedItem, ConfigMaps, constants, CustomService, Environment
 
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
-import { NewServicePayload } from '../types/new_service_payload'
+import { ResourcesToCreate } from '../types/save_configuration'
 import { saveConfiguration } from './configuration'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
@@ -132,8 +132,8 @@ async function createServiceFromMarkeplaceItem (
   marketplaceItem: CatalogVersionedItem,
   name: string,
   description?: string,
-): Promise<NewServicePayload> {
-  let newServicePayload: NewServicePayload
+): Promise<ResourcesToCreate> {
+  let newServicePayload: ResourcesToCreate
   switch (marketplaceItem.type) {
   case 'plugin':
     newServicePayload = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, project, name, description)
@@ -149,8 +149,7 @@ async function createServiceFromMarkeplaceItem (
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 
-
-export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _project: IProject, name: string, description?: string): NewServicePayload {
+export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _project: IProject, name: string, description?: string): ResourcesToCreate {
   const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
   if (!serviceToCreateItemKey) {
     throw new Error('No service found in the marketplace item')

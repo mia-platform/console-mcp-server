@@ -19,8 +19,7 @@ import { z } from 'zod'
 import { Config, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
-import { NewServicePayload } from '../types/new_service_payload'
-import { ConfigToSave, RetrievedConfiguration, SaveResponse } from '../types/save_configuration'
+import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from '../types/save_configuration'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
 const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
@@ -61,7 +60,7 @@ export function addConfigurationCapabilities (server: McpServer, client:APIClien
   )
 }
 
-export async function saveConfiguration (client: APIClient, project: IProject, resourcesToCreate: NewServicePayload, refId: string): Promise<SaveResponse> {
+export async function saveConfiguration (client: APIClient, project: IProject, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
   const previousCommit = await client.get<RetrievedConfiguration>(configurationPath(project._id, refId))
   console.error('previousCommit', previousCommit)
 
@@ -80,7 +79,7 @@ export async function saveConfiguration (client: APIClient, project: IProject, r
   return await client.post<SaveResponse>(configurationPath(project._id, refId), newConfig)
 }
 
-function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: NewServicePayload): Config {
+function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate): Config {
   const { services, serviceAccounts, configMaps } = resourcesToCreate
   const { services: previousServices, configMaps: previousConfigMaps, serviceAccounts: previousServiceAccounts } = previousConfig
 
