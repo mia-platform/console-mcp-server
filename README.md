@@ -162,7 +162,14 @@ cp default.env .env
 Finally to verify everything works, run:
 
 ```sh
+set -a && source .env
 npm run local:test
+```
+
+If you are not targeting the Console Cloud installation you can use the `--host` flag and specify your own host
+
+```sh
+npm run local:test  -- --host https://CONSOLE_HOST
 ```
 
 This command will download and launch the MCP inspector on `http://localhost:6274` where you can test if the
