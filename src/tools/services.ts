@@ -23,13 +23,13 @@ import { getProjectInfo } from './projects'
 import { ResourcesToCreate } from '../types/save_configuration'
 import { saveConfiguration } from './configuration'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const { ServiceTypes } = constants
 
 export function addServicesCapabilities (server: McpServer, client: APIClient) {
   server.tool(
-    'create_service_from_marketplace',
+    toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
     toolsDescriptions.CREATE_SERVICE_FROM_MARKETPLACE,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),

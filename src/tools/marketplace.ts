@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { CatalogItem, CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const listMarketplacePath = '/api/marketplace/'
 const listMarketplaceItemVersions = (tenantId: string, marketplaceId: string) => {
@@ -43,7 +43,7 @@ const types = [
 
 export function addMarketplaceCapabilities (server: McpServer, client:APIClient) {
   server.tool(
-    'list_marketplace',
+    toolNames.LIST_MARKETPLACE,
     toolsDescriptions.LIST_MARKETPLACE,
     {
       tenantId: z.string().optional().describe(paramsDescriptions.TENANT_ID),
@@ -75,7 +75,7 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
   )
 
   server.tool(
-    'list_marketplace_item_versions',
+    toolNames.LIST_MARKETPLACE_ITEM_VERSIONS,
     toolsDescriptions.LIST_MARKETPLACE_ITEMS_VERSIONS,
     {
       marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
@@ -107,7 +107,7 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
   )
 
   server.tool(
-    'marketplace_item_version_info',
+    toolNames.MARKETPLACE_ITEM_VERSION_INFO,
     toolsDescriptions.MARKETPLACE_ITEM_VERSION_INFO,
     {
       marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),

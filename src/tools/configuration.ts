@@ -20,7 +20,7 @@ import { Config, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from '../types/save_configuration'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
 const revisionsPath = (projectId: string) => `/api/backend/projects/${projectId}/revisions`
@@ -28,7 +28,7 @@ const tagsPath = (projectId: string) => `/api/backend/projects/${projectId}/vers
 
 export function addConfigurationCapabilities (server: McpServer, client:APIClient) {
   server.tool(
-    'list_configuration_revisions',
+    toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),

@@ -18,7 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const companiesPath = '/api/backend/tenants/'
 const companyBlueprint = (tenantId: string) => `/api/backend/tenants/${tenantId}/project-blueprint/`
@@ -27,7 +27,7 @@ const companyAuditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenan
 
 export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   server.tool(
-    'list_tenants',
+    toolNames.LIST_TENANTS,
     toolsDescriptions.LIST_TENANTS,
     {},
     async (): Promise<CallToolResult> => {
@@ -56,7 +56,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'list_tenant_templates',
+    toolNames.LIST_TENANT_TEMPLATES,
     toolsDescriptions.LIST_TENANTS_TEMPLATES,
     {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
@@ -87,7 +87,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'list_tenant_iam',
+    toolNames.LIST_TENANT_IAM,
     toolsDescriptions.LIST_TENANTS_IAM,
     {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
@@ -119,7 +119,7 @@ export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'view_audit_logs',
+    toolNames.VIEW_TENANT_AUDIT_LOGS,
     toolsDescriptions.VIEW_TENANTS_AUDIT_LOGS,
     {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),

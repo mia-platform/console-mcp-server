@@ -21,7 +21,7 @@ import { z } from 'zod'
 import { APIClient } from '../lib/client'
 import { PostProject } from '../types/post_project'
 import { ProjectDraft } from '../types/project_draft'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const projectsPath = '/api/backend/projects/'
 const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
@@ -32,7 +32,7 @@ const getProjectGitProviderSubgroups = (projectId: string, group: string) => {
 
 export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   server.tool(
-    'list_projects',
+    toolNames.LIST_PROJECTS,
     toolsDescriptions.LIST_PROJECTS,
     {
       tenantIds: z.string().array().nonempty().describe(paramsDescriptions.MULTIPLE_TENANT_IDS),
@@ -63,7 +63,7 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'get_project_info',
+    toolNames.GET_PROJECT_INFO,
     toolsDescriptions.GET_PROJECT_INFO,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
@@ -94,7 +94,7 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'create_project_from_template',
+    toolNames.CREATE_PROJECT_FROM_TEMPLATE,
     toolsDescriptions.CREATE_PROJECT_FROM_TEMPLATE,
     {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),

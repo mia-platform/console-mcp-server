@@ -94,7 +94,7 @@ suite('deploy project tool', () => {
     const result = await client.request({
       method: 'tools/call',
       params: {
-        name: 'deploy',
+        name: 'deploy_project',
         arguments: {
           projectId,
           revision,
@@ -135,7 +135,7 @@ suite('deploy project tool', () => {
     const result = await client.request({
       method: 'tools/call',
       params: {
-        name: 'deploy',
+        name: 'deploy_project',
         arguments: {
           projectId,
           revision,

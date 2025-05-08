@@ -17,7 +17,7 @@ import { APIClient } from '../lib/client'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const deployPath = (projectId: string) => `/api/deploy/projects/${projectId}/trigger/pipeline/`
 const compareUpdatePath = (projectId: string) => `/api/deploy/projects/${projectId}/compare/raw`
@@ -75,7 +75,7 @@ async function waitForPipelineCompletion (
 
 export function addDeployCapabilities (server: McpServer, client:APIClient) {
   server.tool(
-    'deploy',
+    toolNames.DEPLOY_PROJECT,
     toolsDescriptions.DEPLOY_PROJECT,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
@@ -114,7 +114,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'compare_update_for_deploy',
+    toolNames.COMPARE_UPDATE_FOR_DEPLOY,
     toolsDescriptions.COMPARE_UPDATE_FOR_DEPLOY,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
@@ -152,7 +152,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
   )
 
   server.tool(
-    'deploy_pipeline_status',
+    toolNames.PIPELINE_STATUS,
     toolsDescriptions.PIPELINE_STATUS,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
