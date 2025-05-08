@@ -20,6 +20,7 @@ import { CatalogVersionedItem, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
+import { NewServicePayload } from '../types/new_service_payload'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
 import { paramsDescriptions, toolsDescriptions } from '../lib/descriptions'
 
@@ -42,7 +43,7 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
         const project = await getProjectInfo(client, args.projectId)
 
         const marketplaceItem = await getMarketplaceItem(client, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
-        const service = await createServiceFromTemplate(
+        const service = await createServiceFromMarkeplaceItem(
           client,
           project,
           marketplaceItem,
@@ -109,7 +110,7 @@ async function getMarketplaceItem (
   }
 }
 
-async function createServiceFromTemplate (
+async function createServiceFromMarkeplaceItem (
   client: APIClient,
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
@@ -117,30 +118,27 @@ async function createServiceFromTemplate (
   environmentId?: string,
   description?: string,
 ) {
-  let newConfiguration = {
-    services: {},
-    configMaps: {},
-    serviceSecrets: {},
-    serviceAccounts: {},
+  let consolidatedEnvironmentId: string
+  if (environmentId) {
+    consolidatedEnvironmentId = environmentId
+  } else if (project.defaultBranch) {
+    consolidatedEnvironmentId = project.defaultBranch
+  } else {
+    throw new Error('No environmentId provided and no default branch found in the project')
   }
 
+  let newServicePayload: NewServicePayload
   switch (marketplaceItem.type) {
   case 'plugin':
+    newServicePayload = servicePayloadFromMarketplaceItem(marketplaceItem, project, name, description)
     break
   default:
-    serviceBody = {
-      ...serviceBody,
-    }
+    throw new Error('TODO')
   }
-
-  return saveServiceInConfiguration(client, newConfiguration, project._id, environmentId)
 }
 
-async function saveServiceInConfiguration (
-  client: APIClient,
-  serviceBody: Record<string, unknown>,
-  projectId: string,
-  environmentId?: string,
-) {
+function servicePayloadFromMarketplaceItem (item: CatalogVersionedItem, project: IProject, name: string, description?: string) {
+  return {
 
+  }
 }
