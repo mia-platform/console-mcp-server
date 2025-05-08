@@ -34,7 +34,7 @@ export const toolsDescriptions = {
   CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
 
   // deploy tools
-  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool compare_update_for_deploy.',
+  DEPLOY_PROJECT: 'Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool compare_update_for_deploy. After running deploy, check the status of the pipeline using the tool deploy_pipeline_status',
   COMPARE_UPDATE_FOR_DEPLOY: 'Compare the current deployed configuration with the new configuration to be deployed. This is useful to see what will change in the project after the deployment',
   PIPELINE_STATUS: 'Get the status of a pipeline given a pipeline id. This is useful to check if the deployment is finished or if it failed. After running deploy, check the status of the pipeline using the tool pipeline_status',
 
