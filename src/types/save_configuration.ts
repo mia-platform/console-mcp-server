@@ -17,9 +17,9 @@ import { Config, ConfigMaps, Listeners, ServiceAccounts, Services } from '@mia-p
 
 export interface ResourcesToCreate {
   services: Services
-  configMaps?: ConfigMaps
   serviceAccounts: ServiceAccounts
-  listeners: Listeners
+  configMaps?: ConfigMaps
+  listeners?: Listeners
 }
 
 export type RetrievedConfiguration = Config & {
