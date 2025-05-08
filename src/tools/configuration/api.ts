@@ -13,52 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CallToolResult } from '@modelcontextprotocol/sdk/types'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
-import { z } from 'zod'
 import { Config, IProject } from '@mia-platform/console-types'
 
-import { APIClient } from '../lib/client'
-import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from '../types/save_configuration'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
+import { APIClient } from '../../lib/client'
+import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from './types'
 
 const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
-const revisionsPath = (projectId: string) => `/api/backend/projects/${projectId}/revisions`
-const tagsPath = (projectId: string) => `/api/backend/projects/${projectId}/versions`
-
-export function addConfigurationCapabilities (server: McpServer, client:APIClient) {
-  server.tool(
-    toolNames.LIST_CONFIGURATION_REVISIONS,
-    toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
-    {
-      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
-    },
-    async ({ projectId }): Promise<CallToolResult> => {
-      try {
-        const revisions = await client.get(revisionsPath(projectId))
-        const tags = await client.get(tagsPath(projectId))
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Revisions: ${JSON.stringify(revisions)}\nVersion: ${JSON.stringify(tags)}`,
-            },
-          ],
-        }
-      } catch (error) {
-        const err = error as Error
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error fetching revisions or versions: ${err.message}`,
-            },
-          ],
-        }
-      }
-    },
-  )
-}
 
 export async function saveConfiguration (client: APIClient, project: IProject, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
   const previousCommit = await client.get<RetrievedConfiguration>(configurationPath(project._id, refId))
