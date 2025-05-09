@@ -74,7 +74,7 @@ export const toolsDescriptions = {
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
 
   // runtime tools
-  LIST_PODS: 'List all the pods in a project environment',
+  LIST_PODS: 'List all the pods in a project environment to know the information about the running services and their status',
 }
 
 export const paramsDescriptions = {
@@ -100,7 +100,7 @@ export const paramsDescriptions = {
   PROJECT_NAME: 'The name of the project. It must be unique in the company or tenant',
   PROJECT_DESCRIPTION: 'The description of the project',
   TEMPLATE_ID: 'The template to use to create the project. Can be found in the _id field of the list_templates tool',
-  PROJECT_ENVIRONMENT_ID: `The environment or revision of the project to use. Can be found in the environments filed of the ${toolNames.GET_PROJECT_INFO} or ${toolNames.LIST_PROJECTS} tools`,
+  PROJECT_ENVIRONMENT_ID: `The environment of the project to use. Can be found in the environments filed of the ${toolNames.GET_PROJECT_INFO} or ${toolNames.LIST_PROJECTS} tools`,
 
   // Service
   SERVICE_NAME: 'The name of the service. It must be unique in the project',
