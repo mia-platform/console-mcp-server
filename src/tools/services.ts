@@ -172,7 +172,7 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     mapEnvVarToMountPath,
     componentId,
     containerPorts = [],
-    // additionalContainers,
+    additionalContainers,
     execPreStop,
     args,
     defaultLogParser = constants.MIA_LOG_PARSER_JSON,
@@ -236,7 +236,6 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
           return { name, mountPath, viewAsReadOnly, link }
         }
 
-
         const subPaths = files.
           filter((file) => !file.deleted).
           map((file) => file.name)
@@ -256,6 +255,36 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
       : {},
     ...args
       ? { args }
+      : {},
+    ...additionalContainers
+      ? { additionalContainers: additionalContainers.map((container) => {
+        const {
+          args,
+          containerPorts,
+          defaultArgs,
+          defaultEnvironmentVariables,
+          defaultProbes,
+          defaultResources,
+          description,
+          dockerImage,
+          name,
+        } = container
+        return {
+          name,
+          dockerImage,
+          ...description && { description },
+          ...args && { args },
+          ...defaultArgs && { args: defaultArgs },
+          ...containerPorts && { containerPorts },
+          ...defaultResources && { resources: defaultResources },
+          ...defaultProbes && { probes: defaultProbes },
+          environment: defaultEnvironmentVariables?.map((env) => ({
+            ...env,
+            value: env.value || '',
+            valueType: EnvironmentVariablesTypes.PLAIN_TEXT,
+          })),
+        }
+      }) }
       : {},
     // ...additionalContainers
     //   ? { additionalContainers: additionalContainers.map((container) => ({

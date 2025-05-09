@@ -282,4 +282,142 @@ suite('create service from marketplace adapter', () => {
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
     t.assert.deepStrictEqual(output.serviceSecrets, { 'my-secret': { name: 'my-secret' } })
   })
+
+  test('service with additional containers', async (t: TestContext) => {
+    const inputResources: ICatalogPlugin.Service = {
+      name: 'simple-service',
+      type: 'plugin',
+      dockerImage: 'my-docker-image',
+      defaultEnvironmentVariables: [
+        { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'env2', value: 'val2', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'CONFIG_PATH', value: '/foo/bar', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+      ],
+      defaultResources: {
+        memoryLimits: { min: '85Mi', max: '136Mi' },
+        cpuLimits: { min: '23m', max: '77m' },
+      },
+      defaultProbes: {
+        liveness: { path: '/-/custom/', port: 'http' },
+        readiness: { path: '/-/custom/', port: 'http' },
+        startup: { cmd: [ 'command' ] },
+      },
+      defaultTerminationGracePeriodSeconds: 100,
+      defaultDocumentationPath: '/documentation/custom',
+      defaultConfigMaps: [ {
+        name: 'my-config',
+        mountPath: '/',
+        files: [ {
+          name: 'my-file',
+          content: 'my-content',
+        } ],
+        viewAsReadOnly: true,
+        link: {
+          targetSection: 'collections',
+        },
+      } ],
+      defaultSecrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
+      } ],
+      componentId: 'some-plugin',
+      links: [
+        { targetSection: 'some-section', enableIf: 'SOME_FT', label: 'Resource' },
+      ],
+      additionalContainers: [
+        {
+          name: 'additional-container',
+          dockerImage: 'my-docker-image',
+          args: [ '--kafka.server={{KAFKA_BROKERS}}', '--sasl.username={{KAFKA_SASL_USERNAME}}' ],
+          defaultEnvironmentVariables: [
+            { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+          ],
+        },
+      ],
+    }
+
+    const expectedService = {
+      name: 'simple-service',
+      description: 'some-description',
+      type: ServiceTypes.CUSTOM,
+      advanced: false,
+      containerPorts: [],
+      sourceMarketplaceItem: {
+        itemId: 'simple-service',
+        tenantId: 'public',
+        version: 'v1.0.0',
+      },
+      configMaps: [ {
+        name: 'my-config',
+        mountPath: '/',
+        link: { targetSection: 'collections' },
+        viewAsReadOnly: true,
+      } ],
+      secrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
+      } ],
+      dockerImage: 'my-docker-image',
+      tags: [ ServiceTypes.CUSTOM ],
+      environment: [
+        { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'env2', value: 'val2', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'CONFIG_PATH', value: '/foo/bar', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+      ],
+      resources: {
+        memoryLimits: { min: '85Mi', max: '136Mi' },
+        cpuLimits: { min: '23m', max: '77m' },
+      },
+      probes: {
+        liveness: { path: '/-/custom/', port: 'http' },
+        readiness: { path: '/-/custom/', port: 'http' },
+        startup: { cmd: [ 'command' ] },
+      },
+      serviceAccountName: 'simple-service',
+      terminationGracePeriodSeconds: 100,
+      logParser: constants.MIA_LOG_PARSER_JSON,
+      swaggerPath: '/documentation/custom',
+      sourceComponentId: 'some-plugin',
+      links: [
+        { targetSection: 'some-section', enableIf: 'SOME_FT', label: 'Resource' },
+      ],
+      replicas: 1,
+      additionalContainers: [
+        {
+          name: 'additional-container',
+          dockerImage: 'my-docker-image',
+          args: [ '--kafka.server={{KAFKA_BROKERS}}', '--sasl.username={{KAFKA_SASL_USERNAME}}' ],
+          environment: [
+            { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+          ],
+        },
+      ],
+    }
+
+    const marketplaceItem: ICatalogPlugin.Item = {
+      _id: 'simple-service-id',
+      itemId: 'simple-service',
+      name: 'simple-service',
+      releaseDate: '2023-10-01T00:00:00.000Z',
+      lifecycleStatus: 'published',
+      type: 'plugin',
+      tenantId: 'public',
+      version: {
+        name: 'v1.0.0',
+        releaseDate: '2023-10-01T00:00:00.000Z',
+        lifecycleStatus: 'published',
+        releaseNote: 'some release notes',
+      },
+      resources: {
+        services: {
+          'simple-service': inputResources,
+        },
+      },
+    }
+
+    const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
+
+    t.assert.deepStrictEqual(output.services['simple-service'], expectedService)
+    t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
+  })
 })
