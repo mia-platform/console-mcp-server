@@ -55,7 +55,9 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
         )
 
         const refId = consolidateRefId(args.refId, project)
-        const response = await saveConfiguration(client, project._id, resourceToCreate, refId)
+        const response = await saveConfiguration(client, project._id, resourceToCreate, refId, {
+          throwIfServiceAlreadyExists: true,
+        })
 
         return {
           content: [

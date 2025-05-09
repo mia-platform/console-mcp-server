@@ -318,3 +318,76 @@ exports[`configuration API > mergeConfigWithResources > should handle missing op
   "deletedElements": {}
 }
 `;
+
+exports[`configuration API > mergeConfigWithResources > should update service when service already exists 1`] = `
+{
+  "title": "[mcp] created resources",
+  "fastDataConfig": {
+    "collections": []
+  },
+  "microfrontendPluginsConfig": {
+    "plugins": []
+  },
+  "extensionsConfig": {
+    "files": {}
+  },
+  "config": {
+    "groups": [],
+    "secrets": [],
+    "cmsCategories": {},
+    "cmsSettings": {
+      "accessGroupsExpression": ""
+    },
+    "cmsDashboard": [],
+    "decorators": {},
+    "endpoints": {},
+    "collections": {},
+    "cmsAnalytics": {},
+    "services": {
+      "existing-service": {
+        "name": "existing-service",
+        "type": "custom",
+        "dockerImage": "conflicting-image",
+        "replicas": 2,
+        "advanced": false
+      }
+    },
+    "configMaps": {
+      "existing-config-map": {
+        "name": "existing-config-map",
+        "files": [
+          {
+            "name": "key1",
+            "content": "value1"
+          }
+        ]
+      }
+    },
+    "serviceAccounts": {
+      "existing-service-account": {
+        "name": "existing-service-account"
+      }
+    },
+    "listeners": {
+      "existing-listener": {
+        "name": "existing-listener",
+        "port": 8080
+      }
+    },
+    "fastDataConfig": {
+      "collections": []
+    },
+    "microfrontendPluginsConfig": {
+      "plugins": []
+    },
+    "extensionsConfig": {
+      "files": {}
+    },
+    "enabledFeatures": [],
+    "commitId": "commit123",
+    "serviceSecrets": {}
+  },
+  "previousSave": "commit123",
+  "deletedElements": {}
+}
+`;

@@ -17,7 +17,7 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { EndpointTypes } from '@mia-platform/console-types/build/constants'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { Collections, constants, Endpoints } from '@mia-platform/console-types'
+import { Collections, ConfigMaps, constants, Endpoints, Services } from '@mia-platform/console-types'
 
 import { APIClient } from '../../lib/client'
 import { ObjectValues } from '../../lib/types'
@@ -160,44 +160,6 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
   )
 
   server.tool(
-    toolNames.CONFIGURATION_TO_SAVE,
-    toolsDescriptions.CONFIGURATION_TO_SAVE,
-    {
-      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
-      refId: z.string().describe(paramsDescriptions.REF_ID),
-      endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
-      collections: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.COLLECTIONS),
-    },
-    async ({ projectId, endpoints, collections, refId }): Promise<CallToolResult> => {
-      try {
-        const resourcesToCreate: ResourcesToCreate = {
-          endpoints: endpoints as Endpoints,
-          collections: collections as Collections,
-        }
-        await saveConfiguration(client, projectId, resourcesToCreate, refId)
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Configuration saved successfully.`,
-            },
-          ],
-        }
-      } catch (error) {
-        const err = error as Error
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error saving configuration: ${err.message}`,
-            },
-          ],
-        }
-      }
-    },
-  )
-
-  server.tool(
     toolNames.GET_CONFIGURATION,
     toolsDescriptions.GET_CONFIGURATION,
     {
@@ -222,6 +184,48 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
             {
               type: 'text',
               text: `Error fetching configuration: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.CONFIGURATION_TO_SAVE,
+    toolsDescriptions.CONFIGURATION_TO_SAVE,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      refId: z.string().describe(paramsDescriptions.REF_ID),
+      endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
+      collections: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.COLLECTIONS),
+      services: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICES),
+      configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
+    },
+    async ({ projectId, endpoints, collections, refId, services, configMaps }): Promise<CallToolResult> => {
+      try {
+        const resourcesToCreate: ResourcesToCreate = {
+          endpoints: endpoints as Endpoints,
+          collections: collections as Collections,
+          services: services as Services,
+          configMaps: configMaps as ConfigMaps,
+        }
+        await saveConfiguration(client, projectId, resourcesToCreate, refId)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Configuration saved successfully.`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error saving configuration: ${err.message}`,
             },
           ],
         }

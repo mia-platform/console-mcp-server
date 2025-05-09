@@ -46,3 +46,7 @@ export interface SaveResponse {
   id: string,
   upgraded?: boolean,
 }
+
+export interface SaveConfigurationOptions {
+  throwIfServiceAlreadyExists?: boolean
+}

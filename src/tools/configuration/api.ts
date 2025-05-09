@@ -16,7 +16,7 @@
 import { Config } from '@mia-platform/console-types'
 
 import { APIClient } from '../../lib/client'
-import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from './types'
+import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveConfigurationOptions, SaveResponse } from './types'
 
 const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
 
@@ -25,10 +25,10 @@ export async function getConfiguration (client: APIClient, projectUId: string, r
   return response
 }
 
-export async function saveConfiguration (client: APIClient, projectUId: string, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
+export async function saveConfiguration (client: APIClient, projectUId: string, resourcesToCreate: ResourcesToCreate, refId: string, options?: SaveConfigurationOptions): Promise<SaveResponse> {
   const previousCommit = await getConfiguration(client, projectUId, refId)
 
-  const mergedConfigWithResourceToCreate: Config = mergeConfigWithResources(previousCommit, resourcesToCreate)
+  const mergedConfigWithResourceToCreate: Config = mergeConfigWithResources(previousCommit, resourcesToCreate, options)
 
   const newConfig: ConfigToSave = {
     title: '[mcp] created resources',
@@ -43,7 +43,7 @@ export async function saveConfiguration (client: APIClient, projectUId: string, 
   return await client.post<SaveResponse>(configurationPath(projectUId, refId), newConfig)
 }
 
-function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate): Config {
+function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate, options?: SaveConfigurationOptions): Config {
   const { services, serviceAccounts, configMaps, serviceSecrets } = resourcesToCreate
   const {
     services: previousServices,
@@ -52,12 +52,14 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
     serviceSecrets: previousServiceSecrets,
   } = previousConfig
 
-  // throw an error if a service already exists with the same name
-  Object.keys(services || {}).forEach((serviceName) => {
-    if (previousServices[serviceName]) {
-      throw new Error(`Service ${serviceName} already exists`)
-    }
-  })
+  if (options?.throwIfServiceAlreadyExists) {
+    // throw an error if a service already exists with the same name
+    Object.keys(services || {}).forEach((serviceName) => {
+      if (previousServices[serviceName]) {
+        throw new Error(`Service ${serviceName} already exists`)
+      }
+    })
+  }
 
   return {
     ...previousConfig,

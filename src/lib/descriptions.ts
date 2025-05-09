@@ -718,6 +718,139 @@ export const paramsDescriptions = {
     ]
   }
 `,
+  SERVICES: `The services to create or update. The key is the name of the service, the value is the service object. If the service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
+  An example of a service is:
+  {
+    "type": "custom",
+    "advanced": false,
+    "name": "echo-service",
+    "dockerImage": "davidebianchi/echo-service",
+    "replicas": 1,
+    "serviceAccountName": "echo-service",
+    "logParser": "mia-json",
+    "environment": [
+      {
+        "name": "HTTP_PORT",
+        "valueType": "plain",
+        "value": "3000"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "fluentbit.io/parser",
+        "value": "pino",
+        "description": "Pino parser annotation for Fluent Bit",
+        "readOnly": true
+      }
+    ],
+    "labels": [
+      {
+        "name": "app",
+        "value": "echo-service",
+        "description": "Name of the microservice, in the service selector",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "app.kubernetes.io/name",
+        "value": "echo-service",
+        "description": "Name of the microservice",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "app.kubernetes.io/version",
+        "value": "latest",
+        "description": "Tag of the Docker image",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "app.kubernetes.io/component",
+        "value": "custom",
+        "description": "Microservice kind, for the Console",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "app.kubernetes.io/part-of",
+        "value": "test-mcp-creation",
+        "description": "Project that own the microservice",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "app.kubernetes.io/managed-by",
+        "value": "mia-platform",
+        "description": "Identify who manage the service",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "mia-platform.eu/stage",
+        "value": "{{STAGE_TO_DEPLOY}}",
+        "description": "Environment used for the deploy",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "mia-platform.eu/tenant",
+        "value": "390f60bf-7d4f-45f3-86eb-9d8a20957819",
+        "description": "Tenant owner of the project",
+        "readOnly": true,
+        "isSelector": false
+      },
+      {
+        "name": "mia-platform.eu/log-type",
+        "value": "mia-json",
+        "description": "Format of logs for the microservice",
+        "readOnly": true,
+        "isSelector": false
+      }
+    ],
+    "resources": {
+      "cpuLimits": {
+        "max": "100m",
+        "min": "100m"
+      },
+      "memoryLimits": {
+        "max": "150Mi",
+        "min": "150Mi"
+      }
+    },
+    "tags": [
+      "custom"
+    ],
+    "createdAt": "2025-05-08T17:26:48.798Z",
+    "containerPorts": [
+      {
+        "name": "http",
+        "from": 80,
+        "to": 3000
+      }
+    ],
+    "terminationGracePeriodSeconds": 30,
+    "configMaps": [
+      {
+        "name": "config",
+        "mountPath": "/foo"
+      }
+    ]
+  }
+`,
+  CONFIG_MAPS: `The config maps to create or update. The key is the name of the config map, the value is the config map object.
+  An example of a config map is:
+  {
+    name: 'config',
+    files: [
+      {
+        name: 'config.json',
+        content: '{}'
+      }
+    ]
+  }
+`,
+
   // Endpoints
   ENDPOINT_PATH: 'The path of the endpoint to create or update',
   ENDPOINT_TYPE: 'The type of the endpoint to create or update. Use "custom" as default, if not specified.',

@@ -383,9 +383,59 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, projectUId, conflictingResources, refId),
+        saveConfiguration(client, projectUId, conflictingResources, refId, {
+          throwIfServiceAlreadyExists: true,
+        }),
         Error('Service existing-service already exists'),
       )
+    })
+
+    test('should update service when service already exists', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
+
+      // Create resources with a service that already exists in the config
+      const resourceToUpdate: ResourcesToCreate = {
+        services: {
+          'existing-service': {
+            name: 'existing-service',
+            type: ServiceTypes.CUSTOM,
+            dockerImage: 'conflicting-image',
+            replicas: 2,
+            advanced: false,
+          },
+        },
+        serviceAccounts: {},
+      }
+
+      // Mock the GET request to retrieve previous configuration
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, mockRetrievedConfiguration)
+
+      // Mock the POST request and capture the request body to verify merge logic
+      let capturedRequestBody: unknown = null
+
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, (opts) => {
+        capturedRequestBody = JSON.parse(opts.body as string)
+        return mockSaveResponse
+      })
+
+      await saveConfiguration(client, projectUId, resourceToUpdate, refId)
+
+      t.assert.snapshot(capturedRequestBody, {
+        serializers: [ (value) => JSON.stringify(value, null, 2) ],
+      })
     })
 
     test('should correctly merge resources when no conflicts exist', async (t) => {

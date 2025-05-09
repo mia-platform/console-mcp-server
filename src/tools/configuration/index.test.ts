@@ -345,7 +345,7 @@ suite('configuration save tool', () => {
     setGlobalDispatcher(agent)
   })
 
-  test('should save configuration successfully', async (t) => {
+  test('should save configuration successfully with multiple resource types', async (t) => {
     const projectId = 'project123'
     const refId = 'main'
     const configPath = `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
@@ -362,6 +362,41 @@ suite('configuration save tool', () => {
         listeners: { web: true },
         secreted: false,
         showInDocumentation: true,
+      },
+    }
+
+    const servicesToSave = {
+      'new-service': {
+        name: 'new-service',
+        type: 'custom',
+        advanced: false,
+        dockerImage: 'nexus.mia-platform.eu/core/new-service:1.0.0',
+        replicas: 2,
+      },
+    }
+
+    const configMapsToSave = {
+      'app-config': {
+        name: 'app-config',
+        description: 'Application configuration',
+        variables: {
+          ENV: 'production',
+          LOG_LEVEL: 'info',
+        },
+      },
+    }
+
+    const collectionsToSave = {
+      users: {
+        name: 'users',
+        fields: [
+          { name: 'firstName', type: 'string', required: true },
+          { name: 'lastName', type: 'string', required: true },
+          { name: 'email', type: 'string', required: true, unique: true },
+        ],
+        indexes: [
+          { name: 'email_idx', unique: true, fields: [ { name: 'email' } ] },
+        ],
       },
     }
 
@@ -391,6 +426,9 @@ suite('configuration save tool', () => {
           projectId,
           refId,
           endpoints: endpointsToSave,
+          services: servicesToSave,
+          configMaps: configMapsToSave,
+          collections: collectionsToSave,
         },
       },
     }, CallToolResultSchema)
