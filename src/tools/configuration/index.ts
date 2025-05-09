@@ -23,7 +23,7 @@ import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/desc
 const revisionsPath = (projectId: string) => `/api/backend/projects/${projectId}/revisions`
 const tagsPath = (projectId: string) => `/api/backend/projects/${projectId}/versions`
 
-export function addConfigurationCapabilities (server: McpServer, client:APIClient) {
+export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
