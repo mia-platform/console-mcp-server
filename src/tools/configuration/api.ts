@@ -13,15 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Config, IProject } from '@mia-platform/console-types'
+import { Config } from '@mia-platform/console-types'
 
 import { APIClient } from '../../lib/client'
 import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveResponse } from './types'
 
 const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
 
-export async function saveConfiguration (client: APIClient, project: IProject, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
-  const previousCommit = await client.get<RetrievedConfiguration>(configurationPath(project._id, refId))
+export async function getConfiguration (client: APIClient, projectUId: string, refId: string): Promise<RetrievedConfiguration> {
+  const response = await client.get<RetrievedConfiguration>(configurationPath(projectUId, refId))
+  return response
+}
+
+export async function saveConfiguration (client: APIClient, projectUId: string, resourcesToCreate: ResourcesToCreate, refId: string): Promise<SaveResponse> {
+  const previousCommit = await getConfiguration(client, projectUId, refId)
 
   const mergedConfigWithResourceToCreate: Config = mergeConfigWithResources(previousCommit, resourcesToCreate)
 
@@ -35,7 +40,7 @@ export async function saveConfiguration (client: APIClient, project: IProject, r
     deletedElements: {},
   }
 
-  return await client.post<SaveResponse>(configurationPath(project._id, refId), newConfig)
+  return await client.post<SaveResponse>(configurationPath(projectUId, refId), newConfig)
 }
 
 function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate): Config {
@@ -48,7 +53,7 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
   } = previousConfig
 
   // throw an error if a service already exists with the same name
-  Object.keys(services).forEach((serviceName) => {
+  Object.keys(services || {}).forEach((serviceName) => {
     if (previousServices[serviceName]) {
       throw new Error(`Service ${serviceName} already exists`)
     }
@@ -76,5 +81,10 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
       ...previousConfig.listeners,
       ...resourcesToCreate.listeners,
     },
+    endpoints: {
+      ...previousConfig.endpoints,
+      ...resourcesToCreate.endpoints,
+    },
   }
 }
+

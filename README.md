@@ -187,6 +187,14 @@ Or running a test for a single file run:
 node --test --import tsx <FILE_PATH>
 ```
 
+### Example prompts
+
+Configuration changes:
+
+```txt
+- In {projectName} project, create an endpoint /foo which exposes the service with name echo and docker image davidebianchi/echo-service. If the service not exists, create it
+```
+
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server

@@ -40,6 +40,9 @@ export const toolNames = {
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'list_configuration_revisions',
+  CREATE_OR_UPDATE_ENDPOINT: 'create_or_update_endpoint',
+  CONFIGURATION_TO_SAVE: 'configuration_save',
+  GET_CONFIGURATION: 'configuration_get',
 
   // runtime tools
   LIST_PODS: 'list_pods',
@@ -71,15 +74,18 @@ export const toolsDescriptions = {
   COMPARE_UPDATE_FOR_DEPLOY: 'Compare the current deployed configuration with the new configuration to be deployed. This is useful to see what will change in the project after the deployment',
   PIPELINE_STATUS: `Get the status of a pipeline given a pipeline id. This is useful to check if the deployment is finished or if it failed. After running ${toolNames.DEPLOY_PROJECT} tool, check the status of the pipeline using the tool ${toolNames.PIPELINE_STATUS}`,
 
-  // configuration management tools
-  LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
-
   // runtime tools
   LIST_PODS: `List all the pods in a project environment to know the information about the running services and their status.`,
   GET_POD_LOGS: `
     Get the logs of a specific pod in a project environment.
     It can be useful to debug issues with the running services.
   `,
+
+  // configuration management tools
+  LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
+  CREATE_OR_UPDATE_ENDPOINT: `Create or update an endpoint for the project configuration. After running this tool, save the configuration using the tool ${toolNames.CONFIGURATION_TO_SAVE}`,
+  CONFIGURATION_TO_SAVE: 'Save the configuration for a project',
+  GET_CONFIGURATION: 'Get the actual configuration for a project for a specific revision or tag',
 }
 
 export const paramsDescriptions = {
@@ -112,9 +118,9 @@ export const paramsDescriptions = {
   SERVICE_DESCRIPTION: 'The description of the service',
 
   // Configuration
-  REVISION: `The revision of the project configuration to use. Can be found in the list of the available revisions and tags using the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   REF_TYPE: `The type of the reference to use, can be revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   REF_ID: `The id of the reference to use, can be the revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
+  ENDPOINTS: `The endpoints to create or update. The key is the path of the endpoint, the value is the endpoint object`,
 
   // Deploy
   PIPELINE_ID: `The id of the pipeline to check the status of. Can be found in the response of the ${toolNames.DEPLOY_PROJECT} tool`,
@@ -122,4 +128,20 @@ export const paramsDescriptions = {
   // Runtime
   POD_NAME: `The name of the pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
   CONTAINER_NAME: `The name of the container pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
+
+  // Endpoints
+  ENDPOINT_PATH: 'The path of the endpoint to create or update',
+  ENDPOINT_TYPE: 'The type of the endpoint to create or update. Use "custom" as default, if not specified.',
+  ENDPOINT_IS_PUBLIC: 'If true, the endpoint is public and can be accessed from outside the project without authentication',
+  ENDPOINT_ACL: `The ACL to use for the endpoint. This is a CEL expression that will be evaluated to check if the user can access the endpoint.
+  Some examples:
+  - 'true': the endpoint is externally accessible
+  - 'false': the endpoint is not externally accessible
+  - 'groups.admin': the endpoint is accessible only to users with the "admin" group`,
+  ENDPOINT_SERVICE: 'The target service to use for the endpoint. This is the name of the service in the project',
+  ENDPOINT_PORT: 'Exposed port of the service. This is optional, if not specified the default port will be used',
+  ENDPOINT_PATH_REWRITE: 'The path rewrite to use for the endpoint. This is optional, if not specified it will be set to "/", so the base path will be trimmed when invoking the target service',
+  ENDPOINT_DESCRIPTION: 'Description of the endpoint. If not specified, it should be created based on the context',
+  ENDPOINT_LISTENERS: 'The listeners to use for the endpoint. This is a list of strings that represent the listeners to use. If not specified, it will be used the default listeners for the project',
+  ENDPOINT_SHOW_IN_DOCUMENTATION: 'If true, the endpoint will be shown in the documentation. If false, it will not be shown in the documentation',
 }

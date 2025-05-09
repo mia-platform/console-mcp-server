@@ -79,7 +79,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
     toolsDescriptions.DEPLOY_PROJECT,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
-      revision: z.string().describe(paramsDescriptions.REVISION),
+      revision: z.string().describe(paramsDescriptions.REF_ID),
       refType: z.enum([ 'revision', 'version' ]).describe(paramsDescriptions.REF_TYPE),
       environment: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
     },
@@ -120,7 +120,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       environment: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
       refType: z.enum([ 'revision', 'version' ]).describe(paramsDescriptions.REF_TYPE),
-      revision: z.string().describe(paramsDescriptions.REVISION),
+      revision: z.string().describe(paramsDescriptions.REF_ID),
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {

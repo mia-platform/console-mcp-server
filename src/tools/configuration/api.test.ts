@@ -15,11 +15,11 @@
 
 import { basename, dirname, join } from 'path'
 import { beforeEach, snapshot, suite, test } from 'node:test'
-import { Config, constants, IProject } from '@mia-platform/console-types'
+import { Config, constants } from '@mia-platform/console-types'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { APIClient } from '../../lib/client'
-import { saveConfiguration } from './api'
+import { getConfiguration, saveConfiguration } from './api'
 import { ResourcesToCreate, SaveResponse } from './types'
 
 const { ServiceTypes } = constants
@@ -38,15 +38,7 @@ function generateSnapshotPath (testFilePath: string | undefined) {
 
 const mockedEndpoint = 'http://localhost:3000'
 
-const mockProject: IProject = {
-  _id: '_project123',
-  name: 'Test Project',
-  environments: [],
-  configurationGitPath: 'repo/path.git',
-  tenantId: 'tenant1',
-  projectId: 'projectId123',
-  repository: {},
-}
+const projectUId = '_projectId123'
 
 const emptyConfig: Config = {
   groups: [],
@@ -160,10 +152,69 @@ suite('configuration API', () => {
     setGlobalDispatcher(agent)
   })
 
+  suite('getConfiguration', () => {
+    test('should retrieve configuration correctly', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
+
+      // Mock the GET request
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, mockRetrievedConfiguration)
+
+      // Call the function and verify the result
+      const result = await getConfiguration(client, projectUId, refId)
+      t.assert.deepEqual(result, mockRetrievedConfiguration)
+    })
+
+    test('should handle URL encoding of refId', async (t) => {
+      const refId = 'feature/branch-with/special-chars'
+      const encodedRefId = encodeURIComponent(refId)
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodedRefId}/configuration`
+
+      // Mock the GET request with encoded path
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, mockRetrievedConfiguration)
+
+      // Call the function and verify the result
+      const result = await getConfiguration(client, projectUId, refId)
+      t.assert.deepEqual(result, mockRetrievedConfiguration)
+    })
+
+    test('should propagate error when API request fails', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
+
+      // Mock the GET request to fail
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(500, { message: 'Failed to retrieve configuration' })
+
+      // Call the function and check it rejects with the error
+      await t.assert.rejects(
+        getConfiguration(client, projectUId, refId),
+        Error('Failed to retrieve configuration'),
+      )
+    })
+  })
+
   suite('saveConfiguration', () => {
     test('should save configuration correctly', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Mock the GET request to retrieve previous configuration
       agent.get(mockedEndpoint).intercept({
@@ -179,7 +230,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         body: JSON.stringify({
@@ -216,13 +266,13 @@ suite('configuration API', () => {
       }).reply(200, mockSaveResponse)
 
       // Call the function and check the result
-      const result = await saveConfiguration(client, mockProject, mockResourcesToCreate, refId)
+      const result = await saveConfiguration(client, projectUId, mockResourcesToCreate, refId)
       t.assert.deepEqual(result, mockSaveResponse)
     })
 
     test('should propagate errors from GET request', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Mock the GET request to fail
       agent.get(mockedEndpoint).intercept({
@@ -235,14 +285,14 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, mockProject, mockResourcesToCreate, refId),
+        saveConfiguration(client, projectUId, mockResourcesToCreate, refId),
         Error('Internal server error'),
       )
     })
 
     test('should propagate errors from POST request', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Mock the GET request to retrieve previous configuration
       agent.get(mockedEndpoint).intercept({
@@ -258,14 +308,13 @@ suite('configuration API', () => {
         path: configPath,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(500, { message: 'Failed to save configuration' })
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, mockProject, mockResourcesToCreate, refId),
+        saveConfiguration(client, projectUId, mockResourcesToCreate, refId),
         Error('Failed to save configuration'),
       )
     })
@@ -274,7 +323,7 @@ suite('configuration API', () => {
   suite('mergeConfigWithResources', () => {
     test('should throw error when service already exists', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Create resources with a service that already exists in the config
       const conflictingResources: ResourcesToCreate = {
@@ -301,14 +350,14 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, mockProject, conflictingResources, refId),
+        saveConfiguration(client, projectUId, conflictingResources, refId),
         Error('Service existing-service already exists'),
       )
     })
 
     test('should correctly merge resources when no conflicts exist', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Mock the GET request to retrieve previous configuration
       agent.get(mockedEndpoint).intercept({
@@ -326,7 +375,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, (opts) => {
@@ -335,7 +383,7 @@ suite('configuration API', () => {
       })
 
       // Call the function
-      await saveConfiguration(client, mockProject, mockResourcesToCreate, refId)
+      await saveConfiguration(client, projectUId, mockResourcesToCreate, refId)
 
       t.assert.snapshot(capturedRequestBody, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
@@ -344,7 +392,7 @@ suite('configuration API', () => {
 
     test('should handle missing optional properties gracefully', async (t) => {
       const refId = 'main'
-      const configPath = `/api/backend/projects/${mockProject._id}/revisions/${encodeURIComponent(refId)}/configuration`
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
 
       // Create a previous config with missing properties
       const minimalPreviousConfig: Config = {
@@ -382,7 +430,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, (opts) => {
@@ -391,7 +438,7 @@ suite('configuration API', () => {
       })
 
       // Call the function
-      await saveConfiguration(client, mockProject, minimalResources, refId)
+      await saveConfiguration(client, projectUId, minimalResources, refId)
 
       t.assert.snapshot(capturedRequestBody, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
