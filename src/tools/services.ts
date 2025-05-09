@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
-import { getProjectInfo } from './projects'
+import { getProjectInfo } from './governance/apis/projects'
 import { ResourcesToCreate } from './configuration/types'
 import { saveConfiguration } from './configuration/api'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'

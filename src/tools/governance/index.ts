@@ -14,21 +14,13 @@
 // limitations under the License.
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
-import { IProject } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../lib/client'
-import { PostProject } from '../types/post_project'
-import { ProjectDraft } from '../types/project_draft'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
+import { APIClient } from '../../lib/client'
+import { createProjectFromTemplate, getProjectInfo, listProjects } from './apis/projects'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
-const projectsPath = '/api/backend/projects/'
-const getProjectPath = (projectId: string) => `/api/backend/projects/${projectId}/`
-const getProjectDraft = '/api/backend/projects/draft'
-const getProjectGitProviderSubgroups = (projectId: string, group: string) => {
-  return `/api/backend/projects/${projectId}/groups/${group}/subgroups`
-}
 
 export function addProjectsCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -126,61 +118,4 @@ export function addProjectsCapabilities (server: McpServer, client:APIClient) {
       }
     },
   )
-}
-
-export async function listProjects (client: APIClient, tenantIds: string[]) {
-  const params = new URLSearchParams()
-  if (tenantIds.length > 0) {
-    params.set('tenantIds', tenantIds.join(','))
-  }
-
-  return await client.getPaginated<Record<string, unknown>>(projectsPath, {}, params)
-}
-
-export async function getProjectInfo (client: APIClient, projectId: string) {
-  return await client.get<IProject>(getProjectPath(projectId))
-}
-
-export async function createProjectFromTemplate (
-  client: APIClient,
-  tenantId: string,
-  projectName: string,
-  templateId: string,
-  description?: string,
-) {
-  const projectId = projectName.replace(/\s+/g, '-').toLowerCase()
-  const params = new URLSearchParams({
-    tenantId,
-    projectId,
-    templateId,
-    projectName,
-  })
-
-  const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
-
-  const projectBody: PostProject = {
-    name: projectName,
-    description,
-    tenantId,
-    environments: draftResponse.environments || [],
-    configurationGitPath: draftResponse.repository?.gitPath || '',
-    projectId,
-    templateId,
-    visibility: draftResponse.repository?.visibility || '',
-    providerId: draftResponse.repository?.providerId || '',
-    pipelines: draftResponse.pipelines,
-    ...draftResponse.staticSecret && { secrets: [ draftResponse.staticSecret ] },
-    enableConfGenerationOnDeploy: true,
-  }
-
-  return await client.post(projectsPath, projectBody)
-}
-
-export async function getGitProviderProjectGroups (client: APIClient, projectId: string, gitConfigPath: string) {
-  const params = new URLSearchParams({
-    includeSelf: 'true',
-  })
-
-  const escapedPath = encodeURIComponent(gitConfigPath)
-  return await client.getPaginated<Record<string, unknown>>(getProjectGitProviderSubgroups(projectId, escapedPath), {}, params, 0)
 }

@@ -13,7 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IProject } from '@mia-platform/console-types'
+import { IEnvironment, IProject, ITemplate } from '@mia-platform/console-types'
+
+export interface ProjectDraft {
+  environments?: IEnvironment[]
+  environmentsVariables?: IProject['environmentsVariables']
+  enabledServices?: Record<string, unknown>
+  staticSecret?: ITemplate['staticSecret']
+  templateId?: string
+  repository?: {
+    providerId?: string
+    provider?: {
+      label?: string
+      type?: string
+    },
+    gitPath?: string
+    visibility?: string
+  },
+  pipelines?: Pick<IProject, 'pipelines'>
+}
 
 export interface PostProject extends Omit<IProject, '_id' | 'repository'> {
   enableConfGenerationOnDeploy: boolean

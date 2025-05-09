@@ -13,16 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { beforeEach, suite, test } from 'node:test'
+import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-
-import { addProjectsCapabilities } from './projects'
-import { APIClient } from '../lib/client'
-import { ProjectDraft } from '../types/project_draft'
-import { TestMCPServer } from './utils.test'
+import { addProjectsCapabilities } from '.'
+import { APIClient } from '../../lib/client'
+import { ProjectDraft } from './types'
+import { TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
