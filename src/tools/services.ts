@@ -20,8 +20,8 @@ import { CatalogVersionedItem, ConfigMaps, constants, CustomService, Environment
 
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
-import { ResourcesToCreate } from '../types/save_configuration'
-import { saveConfiguration } from './configuration'
+import { ResourcesToCreate } from './configuration/types'
+import { saveConfiguration } from './configuration/api'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
