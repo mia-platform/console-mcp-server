@@ -20,9 +20,9 @@ import test, { beforeEach, suite } from 'node:test'
 
 import { addRuntimeCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { podsPath } from './api'
 import { TestMCPServer } from '../utils.test'
 import { toolNames } from '../../lib/descriptions'
+import { logsPath, podsPath } from './api'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -45,7 +45,7 @@ suite('setup runtime tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 1)
+    t.assert.equal(result.tools.length, 2)
   })
 })
 
@@ -65,12 +65,8 @@ suite('list pods tool', () => {
 
   test('should return error when pods are not found', async (t) => {
     agent.get(mockedEndpoint).intercept({
-      path: podsPath('test-project', 'test-environment'),
+      path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
       method: 'GET',
-      // query: {
-      //   per_page: 200,
-      //   page: 1,
-      // },
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -98,12 +94,8 @@ suite('list pods tool', () => {
 
   test('should list pods', async (t) => {
     agent.get(mockedEndpoint).intercept({
-      path: podsPath('test-project', 'test-environment'),
+      path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
       method: 'GET',
-      // query: {
-      //   per_page: 200,
-      //   page: 1,
-      // },
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
@@ -127,5 +119,93 @@ suite('list pods tool', () => {
         type: 'text',
       },
     ])
+  })
+})
+
+suite('get pod logs tool', () => {
+  let client: Client
+  let agent: MockAgent
+
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addRuntimeCapabilities(server, apiClient)
+    })
+
+    agent = new MockAgent()
+    setGlobalDispatcher(agent)
+  })
+
+  test('should return error when logs are not found', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: logsPath({
+        projectId: 'test-project',
+        environmentId: 'test-environment',
+        podName: 'test-pod',
+        containerName: 'test-container',
+      }),
+      method: 'GET',
+      headers: {
+        // TOOD: these should be text/plain
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.GET_POD_LOGS,
+        arguments: {
+          projectId: 'test-project',
+          environmentId: 'test-environment',
+          podName: 'test-pod',
+          containerName: 'test-container',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching logs for container test-container in pod test-pod: error message',
+        type: 'text',
+      },
+    ])
+  })
+
+
+  test('should return logs', async (t) => {
+    const logs = `{"level":"info","time":"2025-05-09T08:41:36.530819Z","scope":"upstream","message":"lds: add/update listener 'frontend'"}
+{"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
+
+    agent.get(mockedEndpoint).intercept({
+      path: logsPath({
+        projectId: 'test-project',
+        environmentId: 'test-environment',
+        podName: 'test-pod',
+        containerName: 'test-container',
+      }),
+      method: 'GET',
+      headers: {
+        // TOOD: these should be text/plain
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    }).reply(200, logs)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.GET_POD_LOGS,
+        arguments: {
+          projectId: 'test-project',
+          environmentId: 'test-environment',
+          podName: 'test-pod',
+          containerName: 'test-container',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content[0].text, `Logs for container test-container in pod test-pod: ${logs}`)
   })
 })

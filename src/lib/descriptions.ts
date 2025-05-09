@@ -43,6 +43,7 @@ export const toolNames = {
 
   // runtime tools
   LIST_PODS: 'list_pods',
+  GET_POD_LOGS: 'get_pod_logs',
 }
 
 export const toolsDescriptions = {
@@ -74,7 +75,11 @@ export const toolsDescriptions = {
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
 
   // runtime tools
-  LIST_PODS: 'List all the pods in a project environment to know the information about the running services and their status',
+  LIST_PODS: `List all the pods in a project environment to know the information about the running services and their status.`,
+  GET_POD_LOGS: `
+    Get the logs of a specific pod in a project environment.
+    It can be useful to debug issues with the running services.
+  `,
 }
 
 export const paramsDescriptions = {
@@ -113,4 +118,8 @@ export const paramsDescriptions = {
 
   // Deploy
   PIPELINE_ID: `The id of the pipeline to check the status of. Can be found in the response of the ${toolNames.DEPLOY_PROJECT} tool`,
+
+  // Runtime
+  POD_NAME: `The name of the pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
+  CONTAINER_NAME: `The name of the container pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
 }

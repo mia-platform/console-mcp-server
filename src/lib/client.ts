@@ -27,6 +27,11 @@ const UserAgent = `${name}/${version}`
 const m2mPath = '/api/m2m/oauth/token'
 const EXPIRATION_WINDOW_IN_SECONDS = 300
 
+export interface Options {
+  plainText?: boolean
+}
+
+
 export class APIClient {
   private baseURL: string
   private token: AccessToken | undefined
@@ -39,13 +44,16 @@ export class APIClient {
     this.clientSecret = clientSecret || ''
   }
 
-  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams): Promise<T> {
+  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams, options?: Options): Promise<T> {
     const url = new URL(path, this.baseURL)
     if (params) {
       url.search = params.toString()
     }
 
     const { body } = await this.doRequest(url, 'GET', additionalHeaders)
+    if (options?.plainText) {
+      return await body.text() as T
+    }
     return await body.json() as T
   }
 

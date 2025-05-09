@@ -15,9 +15,32 @@
 
 import { APIClient } from '../../lib/client'
 
-export const podsPath = (projectId: string, environmentId: string) => `/api/projects/${projectId}/environments/${environmentId}/pods/describe/`
+export const podsPath = ({
+  projectId,
+  environmentId,
+}: {
+  projectId: string,
+  environmentId: string,
+}) => `/api/projects/${projectId}/environments/${environmentId}/pods/describe/`
+
+export const logsPath = ({
+  projectId,
+  environmentId,
+  podName,
+  containerName,
+}: {
+  projectId: string,
+  environmentId: string,
+  podName: string,
+  containerName: string,
+}) => `/api/projects/${projectId}/environments/${environmentId}/pods/${podName}/containers/${containerName}/logs?file=true`
 
 export async function listPods (client: APIClient, projectId: string, environmentId: string) {
-  const pods = await client.get(podsPath(projectId, environmentId))
+  const pods = await client.get(podsPath({ projectId, environmentId }))
   return pods
+}
+
+export async function getPodLogs (client: APIClient, projectId: string, environmentId: string, podName: string, containerName: string): Promise<string> {
+  const logs = await client.get<string>(logsPath({ projectId, environmentId, podName, containerName }), undefined, undefined, { plainText: true })
+  return logs
 }
