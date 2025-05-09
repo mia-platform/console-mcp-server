@@ -20,6 +20,7 @@ import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
 import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addProjectsCapabilities } from '../tools/projects'
+import { addRuntimeCapabilities } from '../tools/runtime'
 import { addServicesCapabilities } from '../tools/services'
 import { APIClient } from '../lib/client'
 import { description, name, version } from '../../package.json'
@@ -44,6 +45,7 @@ export function getMcpServer (host: string, clientID: string, clientSecret: stri
   addServicesCapabilities(server, client)
   addConfigurationCapabilities(server, client)
   addDeployCapabilities(server, client)
+  addRuntimeCapabilities(server, client)
 
   return server
 }

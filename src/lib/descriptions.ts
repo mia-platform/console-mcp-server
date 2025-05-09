@@ -40,6 +40,9 @@ export const toolNames = {
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'list_configuration_revisions',
+
+  // runtime tools
+  LIST_PODS: 'list_pods',
 }
 
 export const toolsDescriptions = {
@@ -69,6 +72,9 @@ export const toolsDescriptions = {
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
+
+  // runtime tools
+  LIST_PODS: 'List all the pods in a project environment',
 }
 
 export const paramsDescriptions = {
