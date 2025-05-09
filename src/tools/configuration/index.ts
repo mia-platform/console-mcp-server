@@ -17,7 +17,7 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import type { EndpointTypes } from '@mia-platform/console-types/build/constants'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { constants, Endpoints } from '@mia-platform/console-types'
+import { Collections, constants, Endpoints } from '@mia-platform/console-types'
 
 import { APIClient } from '../../lib/client'
 import { ObjectValues } from '../../lib/types'
@@ -63,6 +63,7 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     },
   )
 
+  // TODO: this test could be unused and to remove
   server.tool(
     toolNames.CREATE_OR_UPDATE_ENDPOINT,
     toolsDescriptions.CREATE_OR_UPDATE_ENDPOINT,
@@ -165,11 +166,13 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
       endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
+      collections: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.COLLECTIONS),
     },
-    async ({ projectId, endpoints, refId }): Promise<CallToolResult> => {
+    async ({ projectId, endpoints, collections, refId }): Promise<CallToolResult> => {
       try {
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
+          collections: collections as Collections,
         }
         await saveConfiguration(client, projectId, resourcesToCreate, refId)
         return {

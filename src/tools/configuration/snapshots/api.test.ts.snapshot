@@ -1,3 +1,149 @@
+exports[`configuration API > mergeConfigWithResources > should correctly merge collections with existing collections 1`] = `
+{
+  "title": "[mcp] created resources",
+  "fastDataConfig": {
+    "collections": []
+  },
+  "microfrontendPluginsConfig": {
+    "plugins": []
+  },
+  "extensionsConfig": {
+    "files": {}
+  },
+  "config": {
+    "groups": [],
+    "secrets": [],
+    "cmsCategories": {},
+    "cmsSettings": {
+      "accessGroupsExpression": ""
+    },
+    "cmsDashboard": [],
+    "decorators": {},
+    "endpoints": {},
+    "collections": {
+      "existing-collection": {
+        "name": "existing-collection",
+        "id": "existing-collection",
+        "type": "collection",
+        "fields": [
+          {
+            "name": "_id",
+            "type": "ObjectId",
+            "required": true,
+            "nullable": false
+          }
+        ],
+        "internalEndpoints": [
+          {
+            "basePath": "/existing-collection-endpoint",
+            "defaultState": "PUBLIC"
+          }
+        ],
+        "indexes": []
+      },
+      "new-collection": {
+        "name": "new-collection",
+        "id": "new-collection",
+        "type": "collection",
+        "fields": [
+          {
+            "name": "_id",
+            "type": "ObjectId",
+            "required": true,
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "nullable": false
+          }
+        ],
+        "internalEndpoints": [
+          {
+            "basePath": "/new-collection-endpoint",
+            "defaultState": "PUBLIC"
+          }
+        ],
+        "indexes": []
+      },
+      "another-new-collection": {
+        "name": "another-new-collection",
+        "id": "another-new-collection",
+        "type": "collection",
+        "fields": [
+          {
+            "name": "_id",
+            "type": "ObjectId",
+            "required": true,
+            "nullable": false
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "required": true,
+            "nullable": false
+          }
+        ],
+        "internalEndpoints": [
+          {
+            "basePath": "/another-new-collection-endpoint",
+            "defaultState": "PUBLIC"
+          }
+        ],
+        "indexes": []
+      }
+    },
+    "cmsAnalytics": {},
+    "services": {
+      "existing-service": {
+        "name": "existing-service",
+        "type": "custom",
+        "dockerImage": "existing-image",
+        "replicas": 1,
+        "advanced": false
+      }
+    },
+    "configMaps": {
+      "existing-config-map": {
+        "name": "existing-config-map",
+        "files": [
+          {
+            "name": "key1",
+            "content": "value1"
+          }
+        ]
+      }
+    },
+    "serviceAccounts": {
+      "existing-service-account": {
+        "name": "existing-service-account"
+      }
+    },
+    "listeners": {
+      "existing-listener": {
+        "name": "existing-listener",
+        "port": 8080
+      }
+    },
+    "fastDataConfig": {
+      "collections": []
+    },
+    "microfrontendPluginsConfig": {
+      "plugins": []
+    },
+    "extensionsConfig": {
+      "files": {}
+    },
+    "enabledFeatures": [],
+    "commitId": "commit123",
+    "serviceSecrets": {}
+  },
+  "previousSave": "commit123",
+  "deletedElements": {}
+}
+`;
+
 exports[`configuration API > mergeConfigWithResources > should correctly merge resources when no conflicts exist 1`] = `
 {
   "title": "[mcp] created resources",
@@ -20,7 +166,34 @@ exports[`configuration API > mergeConfigWithResources > should correctly merge r
     "cmsDashboard": [],
     "decorators": {},
     "endpoints": {},
-    "collections": {},
+    "collections": {
+      "new-collection": {
+        "name": "new-collection",
+        "id": "new-collection",
+        "type": "collection",
+        "fields": [
+          {
+            "name": "_id",
+            "type": "ObjectId",
+            "required": true,
+            "nullable": false
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "required": true,
+            "nullable": false
+          }
+        ],
+        "internalEndpoints": [
+          {
+            "basePath": "/new-collection-endpoint",
+            "defaultState": "PUBLIC"
+          }
+        ],
+        "indexes": []
+      }
+    },
     "cmsAnalytics": {},
     "services": {
       "existing-service": {

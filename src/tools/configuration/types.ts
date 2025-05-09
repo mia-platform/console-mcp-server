@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Config, ConfigMaps, ConfigServiceSecrets, Endpoints, Listeners, ServiceAccounts, Services } from '@mia-platform/console-types'
+import { Collections, Config, ConfigMaps, ConfigServiceSecrets, Endpoints, Listeners, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 export interface ResourcesToCreate {
   services?: Services
@@ -22,6 +22,7 @@ export interface ResourcesToCreate {
   serviceSecrets?: ConfigServiceSecrets
   listeners?: Listeners
   endpoints?: Endpoints
+  collections?: Collections
 }
 
 export type RetrievedConfiguration = Config & {

@@ -136,6 +136,35 @@ const mockResourcesToCreate: ResourcesToCreate = {
       port: 8081,
     },
   },
+  collections: {
+    'new-collection': {
+      name: 'new-collection',
+      id: 'new-collection',
+      type: 'collection',
+      fields: [
+        {
+          name: '_id',
+          type: 'ObjectId',
+          required: true,
+          nullable: false,
+        },
+        {
+          name: 'name',
+          type: 'string',
+          required: true,
+          nullable: false,
+        },
+      ],
+      internalEndpoints: [
+        {
+          basePath: '/new-collection-endpoint',
+          defaultState: 'PUBLIC',
+        },
+      ],
+      indexes: [],
+    },
+  },
+  endpoints: {},
 }
 
 const mockSaveResponse: SaveResponse = {
@@ -258,6 +287,10 @@ suite('configuration API', () => {
             listeners: {
               ...mockRetrievedConfiguration.listeners,
               ...mockResourcesToCreate.listeners,
+            },
+            collections: {
+              ...mockRetrievedConfiguration.collections,
+              ...mockResourcesToCreate.collections,
             },
           },
           previousSave: mockRetrievedConfiguration.commitId,
@@ -385,6 +418,13 @@ suite('configuration API', () => {
       // Call the function
       await saveConfiguration(client, projectUId, mockResourcesToCreate, refId)
 
+      // Verify that collections were merged correctly
+      const configToSave = capturedRequestBody as { config: Config }
+      t.assert.deepEqual(configToSave.config.collections, {
+        ...mockRetrievedConfiguration.collections,
+        ...mockResourcesToCreate.collections,
+      })
+
       t.assert.snapshot(capturedRequestBody, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
       })
@@ -441,6 +481,127 @@ suite('configuration API', () => {
       await saveConfiguration(client, projectUId, minimalResources, refId)
 
       t.assert.snapshot(capturedRequestBody, {
+        serializers: [ (value) => JSON.stringify(value, null, 2) ],
+      })
+    })
+
+    test('should correctly merge collections with existing collections', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/backend/projects/${projectUId}/revisions/${encodeURIComponent(refId)}/configuration`
+
+      // Resources with only collections to be added
+      const collectionResources: ResourcesToCreate = {
+        collections: {
+          'new-collection': {
+            name: 'new-collection',
+            id: 'new-collection',
+            type: 'collection',
+            fields: [
+              {
+                name: '_id',
+                type: 'ObjectId',
+                required: true,
+                nullable: false,
+              },
+              {
+                name: 'name',
+                type: 'string',
+                required: true,
+                nullable: false,
+              },
+            ],
+            internalEndpoints: [
+              {
+                basePath: '/new-collection-endpoint',
+                defaultState: 'PUBLIC',
+              },
+            ],
+            indexes: [],
+          },
+          'another-new-collection': {
+            name: 'another-new-collection',
+            id: 'another-new-collection',
+            type: 'collection',
+            fields: [
+              {
+                name: '_id',
+                type: 'ObjectId',
+                required: true,
+                nullable: false,
+              },
+              {
+                name: 'value',
+                type: 'number',
+                required: true,
+                nullable: false,
+              },
+            ],
+            internalEndpoints: [
+              {
+                basePath: '/another-new-collection-endpoint',
+                defaultState: 'PUBLIC',
+              },
+            ],
+            indexes: [],
+          },
+        },
+        services: {},
+        serviceAccounts: {},
+        serviceSecrets: {},
+        configMaps: {},
+        listeners: {},
+        endpoints: {},
+      }
+
+      // Mock the GET request to retrieve previous configuration
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, {
+        ...mockRetrievedConfiguration,
+        collections: {
+          'existing-collection': {
+            name: 'existing-collection',
+            id: 'existing-collection',
+            type: 'collection',
+            fields: [
+              {
+                name: '_id',
+                type: 'ObjectId',
+                required: true,
+                nullable: false,
+              },
+            ],
+            internalEndpoints: [
+              {
+                basePath: '/existing-collection-endpoint',
+                defaultState: 'PUBLIC',
+              },
+            ],
+            indexes: [],
+          },
+        },
+      })
+
+      let capturedRequestBody: unknown = null
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, (opts) => {
+        capturedRequestBody = JSON.parse(opts.body as string)
+        return mockSaveResponse
+      })
+
+      await saveConfiguration(client, projectUId, collectionResources, refId)
+
+      const configToSave = capturedRequestBody as { config: Config }
+      t.assert.snapshot(configToSave, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
       })
     })

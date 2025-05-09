@@ -85,6 +85,10 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
       ...previousConfig.endpoints,
       ...resourcesToCreate.endpoints,
     },
+    collections: {
+      ...previousConfig.collections,
+      ...resourcesToCreate.collections,
+    },
   }
 }
 

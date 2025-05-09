@@ -120,15 +120,604 @@ export const paramsDescriptions = {
   // Configuration
   REF_TYPE: `The type of the reference to use, can be revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   REF_ID: `The id of the reference to use, can be the revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
-  ENDPOINTS: `The endpoints to create or update. The key is the path of the endpoint, the value is the endpoint object`,
+  ENDPOINTS: `
+  The endpoints to create or update. The key is the path of the endpoint, the value is the endpoint object.
+  An example of a custom endpoint is:
+  {
+    "basePath": "/echo",
+    "type": "custom",
+    "public": false,
+    "showInDocumentation": true,
+    "secreted": false,
+    "acl": "true",
+    "service": "echo-service",
+    "port": "80",
+    "pathRewrite": "/",
+    "description": "Endpoint /echo",
+    "tags": [
+      "echo-service"
+    ],
+    "backofficeAcl": {
+      "inherited": true
+    },
+    "allowUnknownRequestContentType": false,
+    "allowUnknownResponseContentType": false,
+    "forceMicroserviceGatewayProxy": false,
+    "listeners": {
+      "frontend": true
+    },
+    "useDownstreamProtocol": true
+  }
 
-  // Deploy
-  PIPELINE_ID: `The id of the pipeline to check the status of. Can be found in the response of the ${toolNames.DEPLOY_PROJECT} tool`,
-
-  // Runtime
-  POD_NAME: `The name of the pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
-  CONTAINER_NAME: `The name of the container pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
-
+  If you want to expose a crud-service endpoint, you can use the following example:
+{
+    "basePath": "/books",
+    "pathName": "/",
+    "pathRewrite": "/books",
+    "type": "crud",
+    "tags": [
+      "crud"
+    ],
+    "description": "Endpoint /crud-books",
+    "collectionId": "books",
+    "public": true,
+    "secreted": false,
+    "showInDocumentation": true,
+    "acl": "true",
+    "backofficeAcl": {
+      "inherited": true
+    },
+    "allowUnknownRequestContentType": false,
+    "allowUnknownResponseContentType": false,
+    "forceMicroserviceGatewayProxy": false,
+    "routes": {
+      "GET/": {
+        "id": "GET/",
+        "verb": "GET",
+        "path": "/",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "POST/": {
+        "id": "POST/",
+        "verb": "POST",
+        "path": "/",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "GET/export": {
+        "id": "GET/export",
+        "verb": "GET",
+        "path": "/export",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": false,
+          "value": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "GET/:id": {
+        "id": "GET/:id",
+        "verb": "GET",
+        "path": "/:id",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "DELETE/:id": {
+        "id": "DELETE/:id",
+        "verb": "DELETE",
+        "path": "/:id",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "DELETE/": {
+        "id": "DELETE/",
+        "verb": "DELETE",
+        "path": "/",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "PATCH/:id": {
+        "id": "PATCH/:id",
+        "verb": "PATCH",
+        "path": "/:id",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "PATCH/": {
+        "id": "PATCH/",
+        "verb": "PATCH",
+        "path": "/",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "GET/count": {
+        "id": "GET/count",
+        "verb": "GET",
+        "path": "/count",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "POST/bulk": {
+        "id": "POST/bulk",
+        "verb": "POST",
+        "path": "/bulk",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "POST/upsert-one": {
+        "id": "POST/upsert-one",
+        "verb": "POST",
+        "path": "/upsert-one",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "PATCH/bulk": {
+        "id": "PATCH/bulk",
+        "verb": "PATCH",
+        "path": "/bulk",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "POST/:id/state": {
+        "id": "POST/:id/state",
+        "verb": "POST",
+        "path": "/:id/state",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      },
+      "POST/state": {
+        "id": "POST/state",
+        "verb": "POST",
+        "path": "/state",
+        "public": {
+          "inherited": true
+        },
+        "secreted": {
+          "inherited": true
+        },
+        "showInDocumentation": {
+          "inherited": true
+        },
+        "acl": {
+          "inherited": true
+        },
+        "backofficeAcl": {
+          "inherited": true
+        },
+        "rateLimit": {
+          "inherited": true
+        },
+        "allowUnknownRequestContentType": {
+          "inherited": true
+        },
+        "allowUnknownResponseContentType": {
+          "inherited": true
+        },
+        "preDecorators": [],
+        "postDecorators": []
+      }
+    },
+    "listeners": {
+      "frontend": true
+    }
+  }
+`,
+  COLLECTIONS: `The crud-service collection to create or update. The key is the name of the collection, the value is the collection object. If crud-service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
+  An example of a crud-service collection is:
+  {
+    "id": "users",
+    "name": "users",
+    "fields": [
+      {
+        "name": "_id",
+        "type": "ObjectId",
+        "required": true,
+        "nullable": false,
+        "description": "_id"
+      },
+      {
+        "name": "creatorId",
+        "type": "string",
+        "required": true,
+        "nullable": false,
+        "description": "creatorId"
+      },
+      {
+        "name": "createdAt",
+        "type": "Date",
+        "required": true,
+        "nullable": false,
+        "description": "createdAt"
+      },
+      {
+        "name": "updaterId",
+        "type": "string",
+        "required": true,
+        "nullable": false,
+        "description": "updaterId"
+      },
+      {
+        "name": "updatedAt",
+        "type": "Date",
+        "required": true,
+        "nullable": false,
+        "description": "updatedAt"
+      },
+      {
+        "name": "__STATE__",
+        "type": "string",
+        "required": true,
+        "nullable": false,
+        "description": "__STATE__"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "required": false,
+        "nullable": false,
+        "sensitivityValue": 0,
+        "encryptionEnabled": false,
+        "encryptionSearchable": false
+      }
+    ],
+    "internalEndpoints": [
+      {
+        "basePath": "/users",
+        "defaultState": "PUBLIC"
+      }
+    ],
+    "type": "collection",
+    "indexes": [
+      {
+        "name": "_id",
+        "type": "normal",
+        "unique": true,
+        "fields": [
+          {
+            "name": "_id",
+            "order": 1
+          }
+        ]
+      },
+      {
+        "name": "createdAt",
+        "type": "normal",
+        "unique": false,
+        "fields": [
+          {
+            "name": "createdAt",
+            "order": -1
+          }
+        ]
+      },
+      {
+        "name": "stateIndex",
+        "type": "normal",
+        "unique": false,
+        "fields": [
+          {
+            "name": "__STATE__",
+            "order": 1
+          }
+        ]
+      }
+    ],
+    "description": "Collection of users",
+    "tags": [
+      "collection"
+    ]
+  }
+`,
   // Endpoints
   ENDPOINT_PATH: 'The path of the endpoint to create or update',
   ENDPOINT_TYPE: 'The type of the endpoint to create or update. Use "custom" as default, if not specified.',
@@ -144,4 +733,11 @@ export const paramsDescriptions = {
   ENDPOINT_DESCRIPTION: 'Description of the endpoint. If not specified, it should be created based on the context',
   ENDPOINT_LISTENERS: 'The listeners to use for the endpoint. This is a list of strings that represent the listeners to use. If not specified, it will be used the default listeners for the project',
   ENDPOINT_SHOW_IN_DOCUMENTATION: 'If true, the endpoint will be shown in the documentation. If false, it will not be shown in the documentation',
+
+  // Deploy
+  PIPELINE_ID: `The id of the pipeline to check the status of. Can be found in the response of the ${toolNames.DEPLOY_PROJECT} tool`,
+
+  // Runtime
+  POD_NAME: `The name of the pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
+  CONTAINER_NAME: `The name of the container pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
 }
