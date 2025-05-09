@@ -20,7 +20,7 @@ import { z } from 'zod'
 import { constants, Endpoints } from '@mia-platform/console-types'
 
 import { APIClient } from '../../lib/client'
-import { ObjectValues } from '../../types/common'
+import { ObjectValues } from '../../lib/types'
 import { ResourcesToCreate } from './types'
 import { getConfiguration, saveConfiguration } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
