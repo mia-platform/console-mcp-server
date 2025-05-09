@@ -86,7 +86,8 @@ exports[`configuration API > mergeConfigWithResources > should correctly merge r
       "files": {}
     },
     "enabledFeatures": [],
-    "commitId": "commit123"
+    "commitId": "commit123",
+    "serviceSecrets": {}
   },
   "previousSave": "commit123",
   "deletedElements": {}
@@ -137,7 +138,8 @@ exports[`configuration API > mergeConfigWithResources > should handle missing op
     "fastDataConfig": {
       "collections": []
     },
-    "commitId": "commit123"
+    "commitId": "commit123",
+    "serviceSecrets": {}
   },
   "previousSave": "commit123",
   "deletedElements": {}

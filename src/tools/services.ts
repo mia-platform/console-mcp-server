@@ -16,7 +16,7 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { CatalogVersionedItem, ConfigMaps, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
+import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { getProjectInfo } from './projects'
@@ -36,7 +36,6 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       name: z.string().describe(paramsDescriptions.SERVICE_NAME).regex(/^[a-z]([-a-z0-9]*[a-z0-9])?$/),
       description: z.string().optional().describe(paramsDescriptions.SERVICE_DESCRIPTION),
-      // environmentId: z.string().optional().describe(paramsDescriptions.ENVIRONMENT_ID),
       refId: z.string().optional().describe(paramsDescriptions.REF_ID),
       marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
       marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_TENANT_ID),
@@ -167,7 +166,7 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     defaultTerminationGracePeriodSeconds,
     defaultMonitoring,
     defaultConfigMaps = [],
-    // defaultSecrets: defaultSecretsFromTemplate = [],
+    defaultSecrets = [],
     defaultDocumentationPath,
     tags,
     mapEnvVarToMountPath,
@@ -245,9 +244,12 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
         return { name, mountPath, viewAsReadOnly, link, subPaths }
       }) }
       : {},
-    // ...defaultSecretsFromTemplate.length > 0
-    //   ? { secrets: defaultSecretsFromTemplate.map((config) => pick([ 'name', 'mountPath' ], config)) }
-    //   : {},
+    ...defaultSecrets.length > 0
+      ? { secrets: defaultSecrets.map((config) => {
+        const { name, mountPath } = config
+        return { name, mountPath }
+      }) }
+      : {},
     containerPorts,
     ...execPreStop
       ? { execPreStop }
@@ -306,6 +308,15 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     }
   }, {} as ConfigMaps)
 
+  const createdSecrets = defaultSecrets.reduce((acc, secret) => {
+    return {
+      ...acc,
+      [secret.name]: {
+        name: secret.name,
+      },
+    }
+  }, {} as ConfigServiceSecrets)
+
   return {
     services: {
       [name]: service,
@@ -314,6 +325,7 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
       [serviceAccountName]: { name: serviceAccountName },
     },
     configMaps: createdConfigMaps,
+    serviceSecrets: createdSecrets,
     listeners: listenersToCreate,
   }
 }

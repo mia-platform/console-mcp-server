@@ -126,6 +126,7 @@ const mockResourcesToCreate: ResourcesToCreate = {
       name: 'new-service-account',
     },
   },
+  serviceSecrets: {},
   configMaps: {
     'new-config-map': {
       name: 'new-config-map',
@@ -196,6 +197,10 @@ suite('configuration API', () => {
             configMaps: {
               ...mockRetrievedConfiguration.configMaps,
               ...mockResourcesToCreate.configMaps,
+            },
+            serviceSecrets: {
+              ...mockRetrievedConfiguration.serviceSecrets,
+              ...mockResourcesToCreate.serviceSecrets,
             },
             serviceAccounts: {
               ...mockRetrievedConfiguration.serviceAccounts,

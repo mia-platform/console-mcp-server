@@ -154,7 +154,7 @@ suite('create service from marketplace adapter', () => {
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
 
-  test('service with configmap', async (t: TestContext) => {
+  test('service with configmap and secret', async (t: TestContext) => {
     const inputResources: ICatalogPlugin.Service = {
       name: 'simple-service',
       type: 'plugin',
@@ -187,6 +187,10 @@ suite('create service from marketplace adapter', () => {
           targetSection: 'collections',
         },
       } ],
+      defaultSecrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
+      } ],
       componentId: 'some-plugin',
       links: [
         { targetSection: 'some-section', enableIf: 'SOME_FT', label: 'Resource' },
@@ -209,6 +213,10 @@ suite('create service from marketplace adapter', () => {
         mountPath: '/',
         link: { targetSection: 'collections' },
         viewAsReadOnly: true,
+      } ],
+      secrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
       } ],
       dockerImage: 'my-docker-image',
       tags: [ ServiceTypes.CUSTOM ],
@@ -272,5 +280,6 @@ suite('create service from marketplace adapter', () => {
     t.assert.deepStrictEqual(output.services['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
+    t.assert.deepStrictEqual(output.serviceSecrets, { 'my-secret': { name: 'my-secret' } })
   })
 })

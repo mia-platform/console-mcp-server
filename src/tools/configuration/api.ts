@@ -39,8 +39,13 @@ export async function saveConfiguration (client: APIClient, project: IProject, r
 }
 
 function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate): Config {
-  const { services, serviceAccounts, configMaps } = resourcesToCreate
-  const { services: previousServices, configMaps: previousConfigMaps, serviceAccounts: previousServiceAccounts } = previousConfig
+  const { services, serviceAccounts, configMaps, serviceSecrets } = resourcesToCreate
+  const {
+    services: previousServices,
+    configMaps: previousConfigMaps,
+    serviceAccounts: previousServiceAccounts,
+    serviceSecrets: previousServiceSecrets,
+  } = previousConfig
 
   // throw an error if a service already exists with the same name
   Object.keys(services).forEach((serviceName) => {
@@ -58,6 +63,10 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
     configMaps: {
       ...previousConfigMaps,
       ...configMaps,
+    },
+    serviceSecrets: {
+      ...previousServiceSecrets,
+      ...serviceSecrets,
     },
     serviceAccounts: {
       ...previousServiceAccounts,
