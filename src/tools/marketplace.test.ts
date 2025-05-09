@@ -82,7 +82,6 @@ suite('marketplace list tool', () => {
         page: 1,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, publicElements)
@@ -96,7 +95,6 @@ suite('marketplace list tool', () => {
         includeTenantId: 'tenantID',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, [ ...publicElements, tenantElement ])
@@ -111,7 +109,6 @@ suite('marketplace list tool', () => {
         types: 'example',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -193,7 +190,6 @@ suite('marketplace item versions tool', () => {
         page: 1,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, itemVersions)
@@ -206,7 +202,6 @@ suite('marketplace item versions tool', () => {
         page: 1,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -268,7 +263,6 @@ suite('marketplace item version info tool', () => {
       path: '/api/tenants/tenantID/marketplace/items/item-id/versions/1.0.0',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, itemInfo)
@@ -277,7 +271,6 @@ suite('marketplace item version info tool', () => {
       path: '/api/tenants/error/marketplace/items/item-id/versions/1.0.0',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })

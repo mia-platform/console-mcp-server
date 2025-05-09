@@ -170,7 +170,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, mockRetrievedConfiguration)
@@ -230,7 +229,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(500, { message: 'Internal server error' })
@@ -251,7 +249,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, mockRetrievedConfiguration)
@@ -298,7 +295,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, mockRetrievedConfiguration)
@@ -319,7 +315,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, mockRetrievedConfiguration)
@@ -376,7 +371,6 @@ suite('configuration API', () => {
         path: configPath,
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
       }).reply(200, minimalRetrievedConfig)

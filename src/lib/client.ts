@@ -44,14 +44,14 @@ export class APIClient {
     this.clientSecret = clientSecret || ''
   }
 
-  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams, options?: Options): Promise<T> {
+  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams): Promise<T> {
     const url = new URL(path, this.baseURL)
     if (params) {
       url.search = params.toString()
     }
 
-    const { body } = await this.doRequest(url, 'GET', additionalHeaders)
-    if (options?.plainText) {
+    const { body, headers } = await this.doRequest(url, 'GET', additionalHeaders)
+    if (headers['content-type']?.includes('text/plain')) {
       return await body.text() as T
     }
     return await body.json() as T
@@ -108,9 +108,10 @@ export class APIClient {
   ): Promise<Dispatcher.ResponseData> {
     await this.validateToken()
 
+    const hdr = headers(this.token, additionalHeaders, !!body)
     const response = await request(url, {
       method: method,
-      headers: headers(this.token, additionalHeaders),
+      headers: hdr,
       ...body && { body: JSON.stringify(body) },
     })
 
@@ -136,12 +137,12 @@ export class APIClient {
   }
 }
 
-function headers (token: AccessToken | undefined, headers: Record<string, unknown> = {}): UndiciHeaders {
+function headers (token: AccessToken | undefined, headers: Record<string, unknown> = {}, hasBody: boolean): UndiciHeaders {
   return {
-    ...headers,
-    'User-Agent': UserAgent,
     Accept: 'application/json',
-    'Content-Type': 'application/json',
+    ...headers,
+    ...hasBody && { 'Content-Type': 'application/json' },
+    'User-Agent': UserAgent,
     ...token && { Authorization: `${token.token_type} ${token.access_token}` },
   }
 }

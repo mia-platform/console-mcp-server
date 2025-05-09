@@ -68,7 +68,6 @@ suite('list pods tool', () => {
       path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -97,7 +96,6 @@ suite('list pods tool', () => {
       path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, pods)
@@ -146,9 +144,7 @@ suite('get pod logs tool', () => {
       }),
       method: 'GET',
       headers: {
-        // TOOD: these should be text/plain
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        Accept: 'text/plain',
       },
     }).reply(500, { message: 'error message' })
 
@@ -187,11 +183,14 @@ suite('get pod logs tool', () => {
       }),
       method: 'GET',
       headers: {
-        // TOOD: these should be text/plain
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+
+        Accept: 'text/plain',
       },
-    }).reply(200, logs)
+    }).reply(200, logs, {
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+    })
 
     const result = await client.request({
       method: 'tools/call',

@@ -104,7 +104,6 @@ suite('projects list tool', () => {
         tenantIds: 'tenantID',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, projects)
@@ -118,7 +117,6 @@ suite('projects list tool', () => {
         tenantIds: 'tenantID,tenantID2',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, [ ...projects, ...secondTenantProjects ])
@@ -132,7 +130,6 @@ suite('projects list tool', () => {
         tenantIds: 'error',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -225,7 +222,6 @@ suite('get project info', () => {
       path: '/api/backend/projects/projectID/',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, project)
@@ -234,7 +230,6 @@ suite('get project info', () => {
       path: '/api/backend/projects/error/',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -294,7 +289,6 @@ suite('create project from template', () => {
       path: '/api/backend/projects/draft',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
       query: {
@@ -310,7 +304,6 @@ suite('create project from template', () => {
       method: 'POST',
       body: JSON.stringify(postProject),
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, project)
@@ -319,7 +312,6 @@ suite('create project from template', () => {
       path: '/api/backend/projects/draft',
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
       query: {

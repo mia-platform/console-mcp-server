@@ -45,7 +45,6 @@ suite('http client test suite without authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -63,7 +62,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -87,7 +85,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -105,7 +102,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -155,7 +151,6 @@ suite('http client test suite without authentication', () => {
       headers: {
         'custom-header': 'customValue',
         Authorization: 'custom authorization',
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -164,7 +159,28 @@ suite('http client test suite without authentication', () => {
     const result = await client.get<TestResponse>(testPath, {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
-      Accept: 'custom accpet value',
+      'User-Agent': 'custom user agent',
+    })
+
+    t.assert.deepEqual(result, { message: 'test' })
+  })
+
+
+  test('set custom headers, custom accept', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      headers: {
+        'custom-header': 'customValue',
+        Authorization: 'custom authorization',
+        Accept: 'custom accept value',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(200, { message: 'test' })
+
+    const result = await client.get<TestResponse>(testPath, {
+      'custom-header': 'customValue',
+      Authorization: 'custom authorization',
+      Accept: 'custom accept value',
       'User-Agent': 'custom user agent',
     })
 
@@ -232,7 +248,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -262,7 +277,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -275,7 +289,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -295,7 +308,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -308,7 +320,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -326,8 +337,7 @@ suite('http client test suite with authentication', () => {
       headers: {
         'custom-header': 'customValue',
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        Accept: 'custom accept value',
         'User-Agent': `${name}/${version}`,
       },
     }).reply(200, { message: 'test' })
@@ -335,7 +345,7 @@ suite('http client test suite with authentication', () => {
     const result = await client.get<TestResponse>(testPath, {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
-      Accept: 'custom accpet value',
+      Accept: 'custom accept value',
       'User-Agent': 'custom user agent',
     })
 

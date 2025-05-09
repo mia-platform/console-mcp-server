@@ -97,7 +97,6 @@ suite('companies list tool', () => {
         page: 1,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, companies)
@@ -127,7 +126,6 @@ suite('companies list tool', () => {
         page: 1,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -165,7 +163,6 @@ suite('company list template', () => {
       method: 'GET',
       query: {},
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, blueprint)
@@ -175,7 +172,6 @@ suite('company list template', () => {
       method: 'GET',
       query: {},
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, {})
@@ -185,7 +181,6 @@ suite('company list template', () => {
       method: 'GET',
       query: {},
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -268,7 +263,6 @@ suite('iam list tool', () => {
         page: 0,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, iamList)
@@ -282,7 +276,6 @@ suite('iam list tool', () => {
         identityType: 'group',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, groupIamList)
@@ -295,7 +288,6 @@ suite('iam list tool', () => {
         page: 0,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
@@ -381,7 +373,6 @@ suite('audit log', () => {
         to: '1234567890',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, auditLogs)
@@ -394,7 +385,6 @@ suite('audit log', () => {
         page: 0,
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })

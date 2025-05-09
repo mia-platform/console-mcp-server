@@ -74,7 +74,6 @@ suite('list configuration revisions tool', () => {
       path: `/api/backend/projects/${projectId}/revisions`,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, revisions)
@@ -83,7 +82,6 @@ suite('list configuration revisions tool', () => {
       path: `/api/backend/projects/${projectId}/versions`,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(200, tags)
@@ -113,7 +111,6 @@ suite('list configuration revisions tool', () => {
       path: `/api/backend/projects/${projectId}/revisions`,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
     }).reply(500, { message: 'error message' })
