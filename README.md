@@ -192,7 +192,197 @@ node --test --import tsx <FILE_PATH>
 Configuration changes:
 
 ```txt
-- In {projectName} project, create an endpoint /foo which exposes the service with name echo and docker image davidebianchi/echo-service. If the service not exists, create it
+In {projectName} project, create an endpoint /foo which exposes the service with name echo and docker image davidebianchi/echo-service. If the service not exists, create it.
+```
+
+### Work in progress prompts
+
+Here is a set of prompts that we are testing just right now and will be stable soon. You can try! If you provide use feedbacks to improve them it will be really appreciated. 
+
+Rember to change the values inside {}.
+
+#### End-to-End Walking Skelethon
+
+```txt
+Create a Mia-Platform project named {projectName} that implement an e-commerce for selling items. Use the {projectBlueprint} template and the tenant {tenantName}
+
+Reuse all items in the marketplace/software catalog in order to maximize the reuse and the source code writte from scratch.
+
+Design the architecture with the following paradigm and add in the project the following items:
+
+- a frontend in react;
+- a backend for frontend in nodejs;
+- a CRUD service
+- an API Gateway
+
+Configure the CRUD service with collections useful to browse items, add to cart, calculate price, create order, pay the order using electronic payments, receive an email notification with the order confirmation and shipping.
+
+The user can see in the personal area the order and the shippings.
+
+Protect the personal area and the payment with OpenID Connect.
+
+Scale all microservice from 2 to max 10.
+
+Once all is create deploy in in DEV Environment and provide me the status of all services when everythin is up and running.
+
+Finally provide the link of the application created.
+```
+
+#### Project Creation
+
+``` txt
+Create a Mia-Platform Project named {projectName} using the default project blueprint in the tenant {tenantName}
+```
+
+#### Microservice Creation
+
+``` txt
+Create a Mia-Platform Project named {projectName} using the default project blueprint in the tenant {tenantName}
+```
+
+#### Resource Creation
+
+``` txt
+Create a microservice named {microserviceName} using the template {templateName} in the project {projectName}
+```
+
+```txt
+Create a microservice for a backend for frontend using the template in software catalog in the current project
+```
+
+#### Runtime Environments and Workload discovery
+
+```txt
+Which are the current configuration of the project {projectName}? Provide a table that list all workloads, replica, status and if is a source code, a container or a resource.
+List also all endpoints exposed and if are protected or public and which microservice expose that endpoint
+```
+
+```txt
+Check all project in the tenant {tenantName} and verify if the are code dubplication and if are properly reused the items in the marketplace/software catalog
+```
+
+#### Workloads troubleshooting and coding
+
+```txt
+Check in Prod environment all containers and if there is some error. If there is an error highilight it and clone the source code of the service. Provide a code snippet to fix that code.
+```
+
+#### API Management, Authentication and Authorization
+
+```txt 
+TODO
+```
+
+#### CRUD Service Management
+
+```txt 
+TODO
+```
+
+#### Microservice Orchestration (Flow Manager)
+
+```txt 
+TODO
+```
+
+#### Data Pipelines Management (Fast Data)
+
+```txt 
+TODO
+```
+
+#### Microfrontend Orchestration (micro-lc)
+
+```txt 
+TODO
+```
+
+#### Blueprints Creation
+
+```txt 
+TODO
+```
+
+#### DevOps Tools Integration
+
+```txt 
+TODO
+```
+
+#### Infrastructure Tools Integration
+
+```txt 
+TODO
+```
+
+#### Project Migration
+
+```txt 
+TODO
+```
+
+#### Workload Scaling and Optimization
+
+```txt 
+TODO
+```
+
+#### Data Discovery
+
+```txt 
+TODO
+```
+
+#### API Discovery
+
+```txt 
+TODO
+```
+
+#### Legacy Systems modernization
+
+```txt 
+TODO
+```
+
+### Example of conversations
+
+You may start with a prompt and tham within the context continue the conversations. Some examples
+
+```txt
+Create the project Demo Projects in my preferred tenant using all defaults
+```
+
+```txt
+What I can do now?
+```
+
+```txt
+Create a microservice to test the coding DevX. Choose you what is better.
+```
+
+```txt
+Clone the microservice in vscode and add the endpoint /hello-mia
+```
+
+```txt
+Test and push the code
+```
+
+```txt
+Deploy that microservice in dev environment
+```
+
+```txt
+Check the status, is up and running?
+```
+
+```txt
+Add the endpoint /hello-mia using the API Gateway and deploy that configuration
+```
+
+```tx
+It's all up and running? If yes provide me the link to call that endpoit
 ```
 
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
