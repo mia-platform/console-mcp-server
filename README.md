@@ -753,6 +753,48 @@ Create a load testing scenario for project {projectName} that simulates peak tra
 ```txt
 Implement chaos testing in the DEV environment for project {projectName} to verify system resilience when services fail
 ```
+
+### Example of conversations
+
+You may start with a prompt and tham within the context continue the conversations. Some examples
+
+```txt
+Create the project Demo Projects in my preferred tenant using all defaults
+```
+
+```txt
+What I can do now?
+```
+
+```txt
+Create a microservice to test the coding DevX. Choose you what is better.
+```
+
+```txt
+Clone the microservice in vscode and add the endpoint /hello-mia
+```
+
+```txt
+Test and push the code
+```
+
+```txt
+Deploy that microservice in dev environment
+```
+
+```txt
+Check the status, is up and running?
+```
+
+```txt
+Add the endpoint /hello-mia using the API Gateway and deploy that configuration
+```
+
+```txt
+It's all up and running? If yes provide me the link to call that endpoit
+```
+
+
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
