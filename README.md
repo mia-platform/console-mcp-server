@@ -270,79 +270,131 @@ Check in Prod environment all containers and if there is some error. If there is
 #### API Management, Authentication and Authorization
 
 ```txt 
-TODO
+Publish the endpoint /hello-wolrd expose by the microservice {microserviceName} and protect it with OAuth2. Only admin users can call that endpoint, configure authorization accordlying.
 ```
 
 #### CRUD Service Management
 
 ```txt 
-TODO
+Create a CRUD Service with the following collections:
+  - customers
+  - products
+  - payments
+  - shipping
+Add the properties needed the describe all domain.
 ```
 
 #### Microservice Orchestration (Flow Manager)
 
 ```txt 
-TODO
+Orchestrate a Saga for purchasing orchestrating the following microservices
+  - CartService, command AddToCart, event ItemAdded
+  - PriceCalculatorService,  command CalculatePrice, event PriceCalculated
+  - PayService, command Pay, event Payed
+Check the API exposed by each service and configure the FlowManger accordling
 ```
 
 #### Data Pipelines Management (Fast Data)
 
 ```txt 
-TODO
+Create a Fast Data Pipeline that aggregate information about Customer from system of record {sysofrecordName1} and system of record {sysofrecordName2}. Call that single view customer_sv.
+Inside customer_sv list:
+  - customer information
+  - orders
+  - preferences
 ```
 
 #### Microfrontend Orchestration (micro-lc)
 
 ```txt 
-TODO
+Create an internal tool (backoffice) using micro-lc and micro frontend composer.
+The backoffice should visualize:
+  - customers
+  - produtcs
+  - payments
+  - shippings
+Create the pages accordling usind the CRUD services exposed in the project {projectName}
 ```
+
 
 #### Blueprints Creation
 
 ```txt 
-TODO
+Create a project blueprint staring from project {projectName} in the tenant {tenantName}
+```
+
+```txt
+Add to Software Catalog the microservice {microserviceName} in the project {projectName} converting to placehoders the real values inside ENV Vars and Config Maps. Call this item {itemName} and provide a proper description
 ```
 
 #### DevOps Tools Integration
 
 ```txt 
-TODO
+Which are the available pipelines in gitlab repository connect to tenant {tenantName}?
 ```
 
 #### Infrastructure Tools Integration
 
 ```txt 
-TODO
+Describe the status of the cluster {clusterName} connected to tenant {tenantName}
 ```
 
 #### Project Migration
 
 ```txt 
-TODO
+Starting from project {originProjectName} in the tenanet {originiTenantName} create another project named {targetProjectName} in the tenant {targetTenantName} with the same configurations of {originProjectName}
 ```
 
 #### Workload Scaling and Optimization
 
 ```txt 
-TODO
+The number of replicas of the microservice {microserviceName} in project {projectName} are correct in production environment?
 ```
 
 #### Data Discovery
 
+Some example, change the names accordling
+
 ```txt 
-TODO
+Which are the properties of the Purchase Data Product? Who puplish it? Who consume it?
 ```
 
 #### API Discovery
 
+Some example, change the names accordling
+
 ```txt 
-TODO
+How I can retrieve the information about logged user via API?
 ```
 
 #### Legacy Systems modernization
 
 ```txt 
-TODO
+Staring from this repository {repoName} analize the code, split in microservice and create a Mia-PLatform project with the splitted microservices.
+```
+
+#### Metrics
+
+```txt
+Which are the DORA metrics of the project {projectName} in last 30 days?
+```
+
+#### Compliance
+
+```txt
+Who have done the last releases in production in the last 7 days for the project {projectName}
+```
+
+#### Concierge
+
+```txt
+Which are my tasks of today?
+```
+
+#### Documentation
+
+```txt
+How I can configure authnetication service?
 ```
 
 ### Example of conversations
