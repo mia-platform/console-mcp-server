@@ -64,7 +64,7 @@ export const toolsDescriptions = {
   // project tools
   LIST_PROJECTS: `List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}`,
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
-  CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant',
+  CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant. Use default template if not specified. The template can be a public one or a private one, in this case you need to specify the tenantId of the template. The project name must be unique in the company or tenant',
 
   // services tools
   CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
