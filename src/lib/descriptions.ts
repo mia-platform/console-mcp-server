@@ -62,7 +62,7 @@ export const toolsDescriptions = {
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
 
   // project tools
-  LIST_PROJECTS: `List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}`,
+  LIST_PROJECTS: `List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}, if you don't specify the tenantId, the tool will list all the projects in the current company or tenant`,
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
   CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant. Use default template if not specified. The template can be a public one or a private one, in this case you need to specify the tenantId of the template. The project name must be unique in the company or tenant',
 
@@ -103,7 +103,7 @@ export const paramsDescriptions = {
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
   MARKETPLACE_ITEM_TYPE: 'Type of marketplace item to filter, empty string means no filter',
-  MARKETPLACE_ITEM_TENANT_ID: `The tenant or project of the marketplace item. Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
+  MARKETPLACE_ITEM_TENANT_ID: `The tenant of the marketplace item. Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
   MARKETPLACE_ITEM_VERSION: `The version of the marketplace item to use. Can be found in the version field of the ${toolNames.LIST_MARKETPLACE} tool. This is optional, if not specified the latest version will be used`,
 
   // Project
