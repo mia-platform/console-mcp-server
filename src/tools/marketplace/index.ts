@@ -18,7 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../../lib/client'
-import { types } from './types'
+import { CatalogItemTypes } from './types'
 import { getMarketplaceItemVersionInfo, listMarketplaceItems, listMarketPlaceItemVersions } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
@@ -28,7 +28,7 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
     toolsDescriptions.LIST_MARKETPLACE,
     {
       tenantId: z.string().optional().describe(paramsDescriptions.TENANT_ID),
-      type: z.enum(types).optional().describe(paramsDescriptions.MARKETPLACE_ITEM_TYPE),
+      type: z.enum(CatalogItemTypes).optional().describe(paramsDescriptions.MARKETPLACE_ITEM_TYPE),
     },
     async ({ tenantId, type }): Promise<CallToolResult> => {
       try {
