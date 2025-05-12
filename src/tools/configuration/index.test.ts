@@ -21,8 +21,8 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 
 import { addConfigurationCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { getAppContext, TestMCPServer } from '../utils.test'
 import { getMockFeatureTogglesClient } from '../../clients/utils.test'
+import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
