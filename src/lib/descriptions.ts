@@ -27,6 +27,7 @@ export const toolNames = {
 
   // project tools
   LIST_PROJECTS: 'list_projects',
+  LIST_PROJECTS_DESCRIPTION: 'List all projects in the company or tenant identified by the tenantId. If no tenantId is specified, it will list all projects in the current company or tenant. Try to use always search paramenter passing the project name if it is specified',
   GET_PROJECT_INFO: 'get_project_info',
   CREATE_PROJECT_FROM_TEMPLATE: 'create_project_from_template',
 
@@ -91,6 +92,8 @@ export const toolsDescriptions = {
 export const paramsDescriptions = {
   // Tenant
   TENANT_ID: `The Mia-Platform Console company or tenant to use. Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool`,
+  SEARCH_STRING_PROJECT: `The search string to use to filter the projects. Try always to use this parameter to filter the projects. Only if you are not able to find the project you are looking for, use only the tenantId parameter. But before doing that try with different combinations of the search string. If you are not able to find the search string use ""`,
+  
   MULTIPLE_TENANT_IDS: `One or more Mia-Platform Console companies or tenants to filter. Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool`,
 
   // IAM

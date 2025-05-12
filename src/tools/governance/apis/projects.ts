@@ -24,10 +24,13 @@ const getProjectDraft = '/api/backend/projects/draft'
 const getProjectGitProviderSubgroups = (projectId: string, group: string) => {
   return `/api/backend/projects/${projectId}/groups/${group}/subgroups`
 }
-export async function listProjects (client: APIClient, tenantIds: string[]) {
+export async function listProjects (client: APIClient, tenantIds: string[], search?: string) {
   const params = new URLSearchParams()
   if (tenantIds.length > 0) {
     params.set('tenantIds', tenantIds.join(','))
+  }
+  if (search) {
+    params.set('search', search)
   }
 
   return await client.getPaginated<Record<string, unknown>>(projectsPath, {}, params)

@@ -28,13 +28,14 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
   // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,
-    toolsDescriptions.LIST_PROJECTS,
+    toolNames.LIST_PROJECTS_DESCRIPTION,
     {
       tenantIds: z.string().array().nonempty().describe(paramsDescriptions.MULTIPLE_TENANT_IDS),
+      search: z.string().describe(paramsDescriptions.SEARCH_STRING_PROJECT),
     },
-    async ({ tenantIds }): Promise<CallToolResult> => {
+    async ({ tenantIds, search }): Promise<CallToolResult> => {
       try {
-        const data = await listProjects(client, tenantIds)
+        const data = await listProjects(client, tenantIds, search)
         return {
           content: [
             {
