@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../lib/client'
+import { AppContext } from '../server/server'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const companiesPath = '/api/backend/tenants/'
@@ -25,7 +26,9 @@ const companyBlueprint = (tenantId: string) => `/api/backend/tenants/${tenantId}
 const listCompanyIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
 const companyAuditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/audit-logs`
 
-export function addCompaniesCapabilities (server: McpServer, client:APIClient) {
+export function addCompaniesCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
+
   server.tool(
     toolNames.LIST_TENANTS,
     toolsDescriptions.LIST_TENANTS,

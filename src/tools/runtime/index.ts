@@ -17,11 +17,12 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { getPodLogs, listPods } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
-export function addRuntimeCapabilities (server: McpServer, client: APIClient) {
+export function addRuntimeCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
   server.tool(
     toolNames.LIST_PODS,
     toolsDescriptions.LIST_PODS,

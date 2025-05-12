@@ -21,7 +21,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 
 import { addDeployCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -43,7 +43,7 @@ suite('setup deploy tools', () => {
   test('should setup deploy tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, apiClient)
+      addDeployCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const result = await client.request(
@@ -64,7 +64,7 @@ suite('deploy project tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, apiClient)
+      addDeployCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -161,7 +161,7 @@ suite('compare_update_for_deploy tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, apiClient)
+      addDeployCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -246,7 +246,7 @@ suite('deploy_pipeline_status tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, apiClient)
+      addDeployCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()

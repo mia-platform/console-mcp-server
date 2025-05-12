@@ -17,11 +17,12 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { compareForDeploy, triggerDeploy, waitForPipelineCompletion } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
-export function addDeployCapabilities (server: McpServer, client:APIClient) {
+export function addDeployCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
   server.tool(
     toolNames.DEPLOY_PROJECT,
     toolsDescriptions.DEPLOY_PROJECT,

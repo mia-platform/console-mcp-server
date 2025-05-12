@@ -19,7 +19,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 import { Collections, ConfigMaps, constants, Endpoints, Services } from '@mia-platform/console-types'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { ObjectValues } from '../../lib/types'
 import { ResourcesToCreate } from './types'
 import { getConfiguration, saveConfiguration } from './api'
@@ -30,7 +30,9 @@ type Endpoint = ObjectValues<Endpoints>
 const revisionsPath = (projectId: string) => `/api/backend/projects/${projectId}/revisions`
 const tagsPath = (projectId: string) => `/api/backend/projects/${projectId}/versions`
 
-export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
+export function addConfigurationCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
+
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,

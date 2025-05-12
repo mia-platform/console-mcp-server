@@ -21,7 +21,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 
 import { addConfigurationCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -148,7 +148,7 @@ suite('list configuration revisions tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, apiClient)
+      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -229,7 +229,7 @@ suite('get configuration tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, apiClient)
+      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -338,7 +338,7 @@ suite('configuration save tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, apiClient)
+      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -615,7 +615,7 @@ suite('create or update endpoint tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, apiClient)
+      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()

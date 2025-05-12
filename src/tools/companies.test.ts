@@ -21,7 +21,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 
 import { addCompaniesCapabilities } from '../tools/companies'
 import { APIClient } from '../lib/client'
-import { TestMCPServer } from './utils.test'
+import { getAppContext, TestMCPServer } from './utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -61,7 +61,7 @@ suite('setup companies tools', () => {
   test('should setup companies tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addCompaniesCapabilities(server, apiClient)
+      addCompaniesCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const result = await client.request(
@@ -81,7 +81,7 @@ suite('companies list tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addCompaniesCapabilities(server, apiClient)
+      addCompaniesCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -152,7 +152,7 @@ suite('company list template', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addCompaniesCapabilities(server, apiClient)
+      addCompaniesCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -249,7 +249,7 @@ suite('iam list tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addCompaniesCapabilities(server, apiClient)
+      addCompaniesCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -357,7 +357,7 @@ suite('audit log', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addCompaniesCapabilities(server, apiClient)
+      addCompaniesCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()

@@ -20,8 +20,8 @@ import test, { beforeEach, suite } from 'node:test'
 
 import { addRuntimeCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { TestMCPServer } from '../utils.test'
 import { toolNames } from '../../lib/descriptions'
+import { getAppContext, TestMCPServer } from '../utils.test'
 import { logsPath, podsPath } from './api'
 
 const mockedEndpoint = 'http://localhost:3000'
@@ -35,7 +35,7 @@ suite('setup runtime tools', () => {
   test('should setup runtime tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, apiClient)
+      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const result = await client.request(
@@ -56,7 +56,7 @@ suite('list pods tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, apiClient)
+      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()
@@ -127,7 +127,7 @@ suite('get pod logs tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, apiClient)
+      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     agent = new MockAgent()

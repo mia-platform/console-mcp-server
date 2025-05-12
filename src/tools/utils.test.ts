@@ -17,6 +17,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
+import { APIClient } from '../lib/client'
+import { AppContext } from '../server/server'
+import { getMockFeatureTogglesClient } from '../clients/utils.test'
+
 export type ToolsBuilder = (server: McpServer) => void
 
 export async function TestMCPServer (toolsBuilder: ToolsBuilder): Promise<Client> {
@@ -39,4 +43,11 @@ export async function TestMCPServer (toolsBuilder: ToolsBuilder): Promise<Client
   ])
 
   return testClient
+}
+
+export function getAppContext (ctx: Partial<AppContext> & {client: APIClient}): AppContext {
+  return {
+    ftClient: getMockFeatureTogglesClient({}),
+    ...ctx,
+  }
 }

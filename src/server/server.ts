@@ -18,12 +18,18 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { addCompaniesCapabilities } from '../tools/companies'
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
-import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addGovernanceCapabilities } from '../tools/governance'
+import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
 import { addServicesCapabilities } from '../tools/services'
 import { APIClient } from '../lib/client'
 import { description, name, version } from '../../package.json'
+import FeatureTogglesClient, { IFeatureTogglesClient } from '../clients/FeaturesToggleClient'
+
+export interface AppContext {
+  client: APIClient
+  ftClient: IFeatureTogglesClient
+}
 
 export function getMcpServer (host: string, clientID: string, clientSecret: string): McpServer {
   const client = new APIClient(host, clientID, clientSecret)
@@ -38,14 +44,20 @@ export function getMcpServer (host: string, clientID: string, clientSecret: stri
       tools: {},
     },
   })
+  const ftClient = new FeatureTogglesClient(client)
 
-  addMarketplaceCapabilities(server, client)
-  addGovernanceCapabilities(server, client)
-  addCompaniesCapabilities(server, client)
-  addServicesCapabilities(server, client)
-  addConfigurationCapabilities(server, client)
-  addDeployCapabilities(server, client)
-  addRuntimeCapabilities(server, client)
+  const appContext: AppContext = {
+    client,
+    ftClient,
+  }
+
+  addMarketplaceCapabilities(server, appContext)
+  addGovernanceCapabilities(server, appContext)
+  addCompaniesCapabilities(server, appContext)
+  addServicesCapabilities(server, appContext)
+  addConfigurationCapabilities(server, appContext)
+  addDeployCapabilities(server, appContext)
+  addRuntimeCapabilities(server, appContext)
 
   return server
 }

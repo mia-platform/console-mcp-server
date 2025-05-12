@@ -17,12 +17,12 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { createProjectFromTemplate, getProjectInfo, listProjects } from './apis/projects'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
-
-export function addGovernanceCapabilities (server: McpServer, client:APIClient) {
+export function addGovernanceCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
   server.tool(
     toolNames.LIST_PROJECTS,
     toolsDescriptions.LIST_PROJECTS,

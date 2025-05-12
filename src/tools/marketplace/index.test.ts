@@ -21,7 +21,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 
 import { addMarketplaceCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -49,7 +49,7 @@ suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, apiClient)
+      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const result = await client.request(
@@ -68,7 +68,7 @@ suite('marketplace list tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, apiClient)
+      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -176,7 +176,7 @@ suite('marketplace item versions tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, apiClient)
+      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -253,7 +253,7 @@ suite('marketplace item version info tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, apiClient)
+      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()

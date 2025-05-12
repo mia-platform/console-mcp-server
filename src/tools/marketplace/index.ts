@@ -17,12 +17,14 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { CatalogItemTypes } from './types'
 import { getMarketplaceItemVersionInfo, listMarketplaceItems, listMarketPlaceItemVersions } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
-export function addMarketplaceCapabilities (server: McpServer, client:APIClient) {
+export function addMarketplaceCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
+
   server.tool(
     toolNames.LIST_MARKETPLACE,
     toolsDescriptions.LIST_MARKETPLACE,

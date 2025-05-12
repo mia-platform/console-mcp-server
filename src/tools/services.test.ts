@@ -19,6 +19,7 @@ import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
+import { AppContext } from '../server/server'
 import { TestMCPServer } from './utils.test'
 import { addServicesCapabilities, servicePayloadFromMarketplaceItem } from './services'
 
@@ -30,7 +31,7 @@ suite('setup services tools', () => {
   test('should setup services tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addServicesCapabilities(server, apiClient)
+      addServicesCapabilities(server, { client: apiClient } as AppContext)
     })
 
     const result = await client.request(
@@ -150,7 +151,7 @@ suite('create service from marketplace adapter', () => {
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
 
-    t.assert.deepStrictEqual(output.services['simple-service'], expected)
+    t.assert.deepStrictEqual(output.services?.['simple-service'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
 
@@ -277,7 +278,7 @@ suite('create service from marketplace adapter', () => {
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
 
-    t.assert.deepStrictEqual(output.services['simple-service'], expectedService)
+    t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
     t.assert.deepStrictEqual(output.serviceSecrets, { 'my-secret': { name: 'my-secret' } })
@@ -417,7 +418,7 @@ suite('create service from marketplace adapter', () => {
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
 
-    t.assert.deepStrictEqual(output.services['simple-service'], expectedService)
+    t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
 })

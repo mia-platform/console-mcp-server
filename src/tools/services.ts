@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
+import { AppContext } from '../server/server'
 import { getProjectInfo } from './governance/apis/projects'
 import { ResourcesToCreate } from './configuration/types'
 import { saveConfiguration } from './configuration/api'
@@ -27,7 +28,8 @@ import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descrip
 
 const { ServiceTypes } = constants
 
-export function addServicesCapabilities (server: McpServer, client: APIClient) {
+export function addServicesCapabilities (server: McpServer, appContext: AppContext) {
+  const { client } = appContext
   server.tool(
     toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
     toolsDescriptions.CREATE_SERVICE_FROM_MARKETPLACE,

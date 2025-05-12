@@ -21,7 +21,7 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 import { addGovernanceCapabilities } from '.'
 import { APIClient } from '../../lib/client'
 import { ProjectDraft } from './types'
-import { TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -69,7 +69,7 @@ suite('setup projects tools', () => {
   test('should setup projects tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, apiClient)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const result = await client.request(
@@ -88,7 +88,7 @@ suite('projects list tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, apiClient)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -211,7 +211,7 @@ suite('get project info', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, apiClient)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
@@ -278,7 +278,7 @@ suite('create project from template', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, apiClient)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
     })
 
     const agent = new MockAgent()
