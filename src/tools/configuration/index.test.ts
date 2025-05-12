@@ -22,6 +22,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { addConfigurationCapabilities } from '.'
 import { APIClient } from '../../lib/client'
 import { getAppContext, TestMCPServer } from '../utils.test'
+import { getMockFeatureTogglesClient } from '../../clients/utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -229,7 +230,13 @@ suite('get configuration tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
+      const appContext = getAppContext({
+        client: apiClient,
+        ftClient: getMockFeatureTogglesClient({
+          fetchActiveFeatures: () => Promise.resolve({}),
+        }),
+      })
+      addConfigurationCapabilities(server, appContext)
     })
 
     agent = new MockAgent()
@@ -338,7 +345,13 @@ suite('configuration save tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
+      const appContext = getAppContext({
+        client: apiClient,
+        ftClient: getMockFeatureTogglesClient({
+          fetchActiveFeatures: () => Promise.resolve({}),
+        }),
+      })
+      addConfigurationCapabilities(server, appContext)
     })
 
     agent = new MockAgent()
@@ -615,7 +628,13 @@ suite('create or update endpoint tool', () => {
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
+      const appContext = getAppContext({
+        client: apiClient,
+        ftClient: getMockFeatureTogglesClient({
+          fetchActiveFeatures: () => Promise.resolve({}),
+        }),
+      })
+      addConfigurationCapabilities(server, appContext)
     })
 
     agent = new MockAgent()
