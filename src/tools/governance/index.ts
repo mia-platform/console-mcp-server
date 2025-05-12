@@ -22,7 +22,7 @@ import { createProjectFromTemplate, getProjectInfo, listProjects } from './apis/
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 
-export function addProjectsCapabilities (server: McpServer, client:APIClient) {
+export function addGovernanceCapabilities (server: McpServer, client:APIClient) {
   server.tool(
     toolNames.LIST_PROJECTS,
     toolsDescriptions.LIST_PROJECTS,
