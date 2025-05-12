@@ -18,7 +18,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 import { APIClient } from '../lib/client'
-import { AppContext } from '../server/server'
+import { AppContext } from './server'
 import { getMockFeatureTogglesClient } from '../clients/utils.test'
 
 export type ToolsBuilder = (server: McpServer) => void
