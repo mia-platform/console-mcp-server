@@ -53,7 +53,7 @@ export async function createProjectFromTemplate (
   })
 
   const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
-  
+
   const projectBody: PostProject = {
     name: projectName,
     description,
@@ -65,7 +65,6 @@ export async function createProjectFromTemplate (
     visibility: draftResponse.repository?.visibility || '',
     providerId: draftResponse.repository?.providerId || '',
     pipelines: draftResponse.pipelines,
-    secrets: [],
     enableConfGenerationOnDeploy: true,
   }
 
