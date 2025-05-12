@@ -85,7 +85,7 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
     },
     async ({ path, type, isPublic, acl, targetService, port, pathRewrite, description, listeners, refId, projectId }): Promise<CallToolResult> => {
       try {
-        const config = await getConfiguration(client, projectId, refId)
+        const config = await getConfiguration(appContext, projectId, refId)
 
         const services = Object.values(config.services || {})
         if (!services.find((s) => s.type === 'custom' && s.advanced === false && [ 'api-gateway', 'api-gateway-envoy' ].includes(s.sourceComponentId || ''))) {
@@ -170,7 +170,7 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
     },
     async ({ projectId, refId }): Promise<CallToolResult> => {
       try {
-        const config = await getConfiguration(client, projectId, refId)
+        const config = await getConfiguration(appContext, projectId, refId)
         return {
           content: [
             {
@@ -212,7 +212,7 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
           services: services as Services,
           configMaps: configMaps as ConfigMaps,
         }
-        await saveConfiguration(client, projectId, resourcesToCreate, refId)
+        await saveConfiguration(appContext, projectId, resourcesToCreate, refId)
         return {
           content: [
             {

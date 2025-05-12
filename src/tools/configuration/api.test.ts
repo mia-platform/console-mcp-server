@@ -19,6 +19,9 @@ import { Config, constants } from '@mia-platform/console-types'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
+import { getAppContext } from '../utils.test'
+import { getMockFeatureTogglesClient } from '../../clients/utils.test'
 import { getConfiguration, saveConfiguration } from './api'
 import { ResourcesToCreate, SaveResponse } from './types'
 
@@ -174,9 +177,14 @@ const mockSaveResponse: SaveResponse = {
 suite('configuration API', () => {
   let client: APIClient
   let agent: MockAgent
+  let appContext: AppContext
 
   beforeEach(() => {
     client = new APIClient(mockedEndpoint)
+    appContext = getAppContext({
+      client,
+      ftClient: getMockFeatureTogglesClient({ fetchActiveFeatures: () => Promise.resolve({}) }),
+    })
     agent = new MockAgent()
     setGlobalDispatcher(agent)
   })
@@ -196,7 +204,32 @@ suite('configuration API', () => {
       }).reply(200, mockRetrievedConfiguration)
 
       // Call the function and verify the result
-      const result = await getConfiguration(client, projectUId, refId)
+      const result = await getConfiguration(appContext, projectUId, refId)
+      t.assert.deepEqual(result, mockRetrievedConfiguration)
+    })
+
+    test('should retrieve configuration correctly - ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT true', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/projects/${projectUId}/environments/${encodeURIComponent(refId)}/configuration`
+
+      // Mock the GET request
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, mockRetrievedConfiguration)
+
+      const appContext = getAppContext({
+        client,
+        ftClient: getMockFeatureTogglesClient({
+          fetchActiveFeatures: () => Promise.resolve({ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT: true }),
+        }),
+      })
+
+      // Call the function and verify the result
+      const result = await getConfiguration(appContext, projectUId, refId)
       t.assert.deepEqual(result, mockRetrievedConfiguration)
     })
 
@@ -215,7 +248,7 @@ suite('configuration API', () => {
       }).reply(200, mockRetrievedConfiguration)
 
       // Call the function and verify the result
-      const result = await getConfiguration(client, projectUId, refId)
+      const result = await getConfiguration(appContext, projectUId, refId)
       t.assert.deepEqual(result, mockRetrievedConfiguration)
     })
 
@@ -234,7 +267,7 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        getConfiguration(client, projectUId, refId),
+        getConfiguration(appContext, projectUId, refId),
         Error('Failed to retrieve configuration'),
       )
     })
@@ -299,7 +332,76 @@ suite('configuration API', () => {
       }).reply(200, mockSaveResponse)
 
       // Call the function and check the result
-      const result = await saveConfiguration(client, projectUId, mockResourcesToCreate, refId)
+      const result = await saveConfiguration(appContext, projectUId, mockResourcesToCreate, refId)
+      t.assert.deepEqual(result, mockSaveResponse)
+    })
+
+    test('should save configuration correctly - ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT true', async (t) => {
+      const refId = 'main'
+      const configPath = `/api/projects/${projectUId}/environments/${encodeURIComponent(refId)}/configuration`
+
+      // Mock the GET request to retrieve previous configuration
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+        },
+      }).reply(200, mockRetrievedConfiguration)
+
+      // Mock the POST request to save the new configuration
+      agent.get(mockedEndpoint).intercept({
+        path: configPath,
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          title: '[mcp] created resources',
+          fastDataConfig: mockRetrievedConfiguration.fastDataConfig,
+          microfrontendPluginsConfig: mockRetrievedConfiguration.microfrontendPluginsConfig,
+          extensionsConfig: mockRetrievedConfiguration.extensionsConfig,
+          config: {
+            ...mockRetrievedConfiguration,
+            services: {
+              ...mockRetrievedConfiguration.services,
+              ...mockResourcesToCreate.services,
+            },
+            configMaps: {
+              ...mockRetrievedConfiguration.configMaps,
+              ...mockResourcesToCreate.configMaps,
+            },
+            serviceSecrets: {
+              ...mockRetrievedConfiguration.serviceSecrets,
+              ...mockResourcesToCreate.serviceSecrets,
+            },
+            serviceAccounts: {
+              ...mockRetrievedConfiguration.serviceAccounts,
+              ...mockResourcesToCreate.serviceAccounts,
+            },
+            listeners: {
+              ...mockRetrievedConfiguration.listeners,
+              ...mockResourcesToCreate.listeners,
+            },
+            collections: {
+              ...mockRetrievedConfiguration.collections,
+              ...mockResourcesToCreate.collections,
+            },
+          },
+          previousSave: mockRetrievedConfiguration.commitId,
+          deletedElements: {},
+        }),
+      }).reply(200, mockSaveResponse)
+
+      const appContext = getAppContext({
+        client,
+        ftClient: getMockFeatureTogglesClient({
+          fetchActiveFeatures: () => Promise.resolve({ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT: true }),
+        }),
+      })
+
+      // Call the function and check the result
+      const result = await saveConfiguration(appContext, projectUId, mockResourcesToCreate, refId)
       t.assert.deepEqual(result, mockSaveResponse)
     })
 
@@ -318,7 +420,7 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, projectUId, mockResourcesToCreate, refId),
+        saveConfiguration(appContext, projectUId, mockResourcesToCreate, refId),
         Error('Internal server error'),
       )
     })
@@ -347,7 +449,7 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, projectUId, mockResourcesToCreate, refId),
+        saveConfiguration(appContext, projectUId, mockResourcesToCreate, refId),
         Error('Failed to save configuration'),
       )
     })
@@ -383,7 +485,7 @@ suite('configuration API', () => {
 
       // Call the function and check it rejects with the error
       await t.assert.rejects(
-        saveConfiguration(client, projectUId, conflictingResources, refId, {
+        saveConfiguration(appContext, projectUId, conflictingResources, refId, {
           throwIfServiceAlreadyExists: true,
         }),
         Error('Service existing-service already exists'),
@@ -431,7 +533,7 @@ suite('configuration API', () => {
         return mockSaveResponse
       })
 
-      await saveConfiguration(client, projectUId, resourceToUpdate, refId)
+      await saveConfiguration(appContext, projectUId, resourceToUpdate, refId)
 
       t.assert.snapshot(capturedRequestBody, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
@@ -466,7 +568,7 @@ suite('configuration API', () => {
       })
 
       // Call the function
-      await saveConfiguration(client, projectUId, mockResourcesToCreate, refId)
+      await saveConfiguration(appContext, projectUId, mockResourcesToCreate, refId)
 
       // Verify that collections were merged correctly
       const configToSave = capturedRequestBody as { config: Config }
@@ -528,7 +630,7 @@ suite('configuration API', () => {
       })
 
       // Call the function
-      await saveConfiguration(client, projectUId, minimalResources, refId)
+      await saveConfiguration(appContext, projectUId, minimalResources, refId)
 
       t.assert.snapshot(capturedRequestBody, {
         serializers: [ (value) => JSON.stringify(value, null, 2) ],
@@ -648,7 +750,7 @@ suite('configuration API', () => {
         return mockSaveResponse
       })
 
-      await saveConfiguration(client, projectUId, collectionResources, refId)
+      await saveConfiguration(appContext, projectUId, collectionResources, refId)
 
       const configToSave = capturedRequestBody as { config: Config }
       t.assert.snapshot(configToSave, {

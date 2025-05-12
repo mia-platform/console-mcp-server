@@ -57,7 +57,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
         )
 
         const refId = consolidateRefId(args.refId, project)
-        const response = await saveConfiguration(client, project._id, resourceToCreate, refId, {
+        const response = await saveConfiguration(appContext, project._id, resourceToCreate, refId, {
           throwIfServiceAlreadyExists: true,
         })
 

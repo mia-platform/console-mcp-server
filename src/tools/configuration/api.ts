@@ -15,18 +15,46 @@
 
 import { Config } from '@mia-platform/console-types'
 
-import { APIClient } from '../../lib/client'
+import { AppContext } from '../../server/server'
 import { ConfigToSave, ResourcesToCreate, RetrievedConfiguration, SaveConfigurationOptions, SaveResponse } from './types'
 
-const configurationPath = (projectId: string, refId: string) => `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
+const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
 
-export async function getConfiguration (client: APIClient, projectUId: string, refId: string): Promise<RetrievedConfiguration> {
-  const response = await client.get<RetrievedConfiguration>(configurationPath(projectUId, refId))
+interface FlowOptions {
+  isEnvironmentBased: boolean
+}
+
+const configurationPath = (projectId: string, refId: string, options?: FlowOptions) => {
+  const { isEnvironmentBased } = options || {}
+  if (isEnvironmentBased) {
+    return `/api/projects/${projectId}/environments/${encodeURIComponent(refId)}/configuration`
+  }
+  return `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
+}
+
+
+export async function getConfiguration (ctx: AppContext, projectUId: string, refId: string, options?: FlowOptions): Promise<RetrievedConfiguration> {
+  if (!options) {
+    const ft = await ctx.ftClient.fetchActiveFeatures([ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT ], {
+      projectId: projectUId,
+    })
+    options = {
+      isEnvironmentBased: ft[ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT],
+    }
+  }
+  const response = await ctx.client.get<RetrievedConfiguration>(configurationPath(projectUId, refId, options))
   return response
 }
 
-export async function saveConfiguration (client: APIClient, projectUId: string, resourcesToCreate: ResourcesToCreate, refId: string, options?: SaveConfigurationOptions): Promise<SaveResponse> {
-  const previousCommit = await getConfiguration(client, projectUId, refId)
+export async function saveConfiguration (ctx: AppContext, projectUId: string, resourcesToCreate: ResourcesToCreate, refId: string, options?: SaveConfigurationOptions): Promise<SaveResponse> {
+  const ft = await ctx.ftClient.fetchActiveFeatures([ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT ], {
+    projectId: projectUId,
+  })
+
+  const isEnvironmentBased = ft[ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT]
+  const previousCommit = await getConfiguration(ctx, projectUId, refId, {
+    isEnvironmentBased,
+  })
 
   const mergedConfigWithResourceToCreate: Config = mergeConfigWithResources(previousCommit, resourcesToCreate, options)
 
@@ -40,7 +68,7 @@ export async function saveConfiguration (client: APIClient, projectUId: string, 
     deletedElements: {},
   }
 
-  return await client.post<SaveResponse>(configurationPath(projectUId, refId), newConfig)
+  return await ctx.client.post<SaveResponse>(configurationPath(projectUId, refId, { isEnvironmentBased }), newConfig)
 }
 
 function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate, options?: SaveConfigurationOptions): Config {
