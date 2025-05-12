@@ -16,30 +16,11 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { CatalogItem, CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
 
-import { APIClient } from '../lib/client'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
-
-const listMarketplacePath = '/api/marketplace/'
-const listMarketplaceItemVersions = (tenantId: string, marketplaceId: string) => {
-  return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions`
-}
-const marketplaceItemVersionInfo = (tenantId: string, marketplaceId: string, version: string) => {
-  return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions/${version}`
-}
-
-const types = [
-  'application',
-  'example',
-  'extension',
-  'custom-resource',
-  'plugin',
-  'proxy',
-  'sidecar',
-  'template',
-  '', // allow empty string to indicate no type to filter
-] as const
+import { APIClient } from '../../lib/client'
+import { types } from './types'
+import { getMarketplaceItemVersionInfo, listMarketplaceItems, listMarketPlaceItemVersions } from './api'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 export function addMarketplaceCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -143,24 +124,4 @@ export function addMarketplaceCapabilities (server: McpServer, client:APIClient)
       }
     },
   )
-}
-
-export async function listMarketplaceItems (client: APIClient, tenantId?: string, type?: string) {
-  const params = new URLSearchParams()
-  if (tenantId) {
-    params.set('includeTenantId', tenantId)
-  }
-  if (type) {
-    params.set('types', type)
-  }
-
-  return await client.getPaginated<CatalogItem>(listMarketplacePath, {}, params)
-}
-
-export async function listMarketPlaceItemVersions (client: APIClient, itemId: string, tenantId: string) {
-  return await client.getPaginated<CatalogItemRelease>(listMarketplaceItemVersions(tenantId, itemId))
-}
-
-export async function getMarketplaceItemVersionInfo (client: APIClient, itemId: string, tenantId: string, version: string) {
-  return await client.get<CatalogVersionedItem>(marketplaceItemVersionInfo(tenantId, itemId, version))
 }

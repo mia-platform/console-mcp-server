@@ -19,9 +19,9 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
-import { addMarketplaceCapabilities } from './marketplace'
-import { APIClient } from '../lib/client'
-import { TestMCPServer } from './utils.test'
+import { addMarketplaceCapabilities } from '.'
+import { APIClient } from '../../lib/client'
+import { TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 

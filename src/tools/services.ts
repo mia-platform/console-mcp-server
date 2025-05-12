@@ -22,7 +22,7 @@ import { APIClient } from '../lib/client'
 import { getProjectInfo } from './governance/apis/projects'
 import { ResourcesToCreate } from './configuration/types'
 import { saveConfiguration } from './configuration/api'
-import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace'
+import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace/api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
 const { ServiceTypes } = constants
