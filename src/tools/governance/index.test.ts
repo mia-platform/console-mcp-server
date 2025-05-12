@@ -21,7 +21,7 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 import { addGovernanceCapabilities } from '.'
 import { APIClient } from '../../lib/client'
 import { ProjectDraft } from './types'
-import { getAppContext, TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 

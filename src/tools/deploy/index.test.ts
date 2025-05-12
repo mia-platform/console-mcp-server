@@ -21,7 +21,7 @@ import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotoc
 
 import { addDeployCapabilities } from '.'
 import { APIClient } from '../../lib/client'
-import { getAppContext, TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 

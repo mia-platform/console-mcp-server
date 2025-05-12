@@ -21,7 +21,7 @@ import test, { beforeEach, suite } from 'node:test'
 import { addRuntimeCapabilities } from '.'
 import { APIClient } from '../../lib/client'
 import { toolNames } from '../../lib/descriptions'
-import { getAppContext, TestMCPServer } from '../utils.test'
+import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
 import { logsPath, podsPath } from './api'
 
 const mockedEndpoint = 'http://localhost:3000'

@@ -20,7 +20,7 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { APIClient } from '../../lib/client'
 import { AppContext } from '../../server/server'
-import { getAppContext } from '../utils.test'
+import { getAppContext } from '../../server/test-utils.test'
 import { getMockFeatureTogglesClient } from '../../clients/utils.test'
 import { getConfiguration, saveConfiguration } from './api'
 import { ResourcesToCreate, SaveResponse } from './types'

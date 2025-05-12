@@ -15,7 +15,6 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
-import { addCompaniesCapabilities } from '../tools/companies'
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
 import { addGovernanceCapabilities } from '../tools/governance'
@@ -53,7 +52,6 @@ export function getMcpServer (host: string, clientID: string, clientSecret: stri
 
   addMarketplaceCapabilities(server, appContext)
   addGovernanceCapabilities(server, appContext)
-  addCompaniesCapabilities(server, appContext)
   addServicesCapabilities(server, appContext)
   addConfigurationCapabilities(server, appContext)
   addDeployCapabilities(server, appContext)

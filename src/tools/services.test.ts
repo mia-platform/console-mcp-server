@@ -20,7 +20,7 @@ import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, IProj
 
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
-import { TestMCPServer } from './utils.test'
+import { TestMCPServer } from '../server/test-utils.test'
 import { addServicesCapabilities, servicePayloadFromMarketplaceItem } from './services'
 
 const { ServiceTypes } = constants
