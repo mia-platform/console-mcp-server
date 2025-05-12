@@ -13,65 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { APIClient } from '../lib/client'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
-const deployPath = (projectId: string) => `/api/deploy/projects/${projectId}/trigger/pipeline/`
-const compareUpdatePath = (projectId: string) => `/api/deploy/projects/${projectId}/compare/raw`
-const pipelineStatusPath = (projectId: string, pipelineId: string) => `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`
-
-interface TriggerDeployResponse {
-  id: number
-  url: string
-}
-
-interface PipelineStatus {
-  id: number
-  status: string
-}
-
-interface Manifest {
-  content: string
-  name: string
-  resourceName: string
-  type: string
-}
-
-interface CompareForDeployResponse {
-  lastDeployedManifests: Manifest[]
-  revisionManifests: Manifest[]
-}
-
-async function waitForPipelineCompletion (
-  client: APIClient,
-  projectId: string,
-  pipelineId: string,
-  timeout = 5 * 60 * 1000,
-  interval = 5000,
-): Promise<PipelineStatus> {
-  const startTime = Date.now()
-
-  while (true) {
-    const status = await client.get<PipelineStatus>(pipelineStatusPath(projectId, pipelineId))
-
-    if ([ 'success', 'failed', 'canceled', 'abandoned', 'skipped', 'succededWithIssues' ].includes(status.status)) {
-      return status
-    }
-
-    if (Date.now() - startTime > timeout) {
-      throw new Error(`Pipeline execution timed out after ${timeout}ms`)
-    }
-
-    // Wait before polling again
-    if (process.env.NODE_ENV === 'test') {
-      interval = 0
-    }
-    await new Promise((resolve) => setTimeout(resolve, interval))
-  }
-}
+import { APIClient } from '../../lib/client'
+import { compareForDeploy, triggerDeploy, waitForPipelineCompletion } from './api'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 export function addDeployCapabilities (server: McpServer, client:APIClient) {
   server.tool(
@@ -85,12 +33,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
-        const data = await client.post<TriggerDeployResponse>(deployPath(projectId), {
-          environment,
-          revision,
-          refType,
-        })
-
+        const data = await triggerDeploy(client, projectId, { environment, revision, refType })
         return {
           content: [
             {
@@ -124,11 +67,7 @@ export function addDeployCapabilities (server: McpServer, client:APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
-        const data = await client.get<CompareForDeployResponse>(compareUpdatePath(projectId), {}, new URLSearchParams({
-          fromEnvironment: environment,
-          toRef: revision,
-          refType,
-        }))
+        const data = await compareForDeploy(client, projectId, { environment, revision, refType })
         return {
           content: [
             {

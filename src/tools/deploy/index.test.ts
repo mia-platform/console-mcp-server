@@ -19,9 +19,9 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
-import { addDeployCapabilities } from './deploy'
-import { APIClient } from '../lib/client'
-import { TestMCPServer } from './utils.test'
+import { addDeployCapabilities } from '.'
+import { APIClient } from '../../lib/client'
+import { TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
