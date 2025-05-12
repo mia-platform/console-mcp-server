@@ -25,6 +25,8 @@ import { getAppContext, TestMCPServer } from '../utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 
+// Project tools tests
+
 const projects = [
   { id: 1, name: 'name', tenant: 'tenantID' },
   { id: 2, name: 'name', tenant: 'tenantID' },
@@ -65,8 +67,8 @@ const project = {
   description: 'description',
 }
 
-suite('setup projects tools', () => {
-  test('should setup projects tools to a server', async (t) => {
+suite('setup governance tools', () => {
+  test('should setup tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
       addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
@@ -79,7 +81,7 @@ suite('setup projects tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 3)
+    t.assert.equal(result.tools.length, 7)
   })
 })
 
@@ -361,6 +363,396 @@ suite('create project from template', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error creating project from template templateID: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+// Tenant tools tests
+
+const companies = [
+  { id: 1, name: 'name' },
+  { id: 2, name: 'name2' },
+]
+
+const blueprint = {
+  id: 1,
+  name: 'name',
+  templates: [
+    {
+      id: 1, name: 'template1',
+    },
+    {
+      id: 2, name: 'template2',
+    },
+  ],
+}
+
+const groupIamList = [
+  { name: 'name', type: 'group' },
+]
+
+const iamList = [
+  { name: 'name', type: 'type' },
+  ...groupIamList,
+]
+
+const auditLogs = [
+  { id: 1, log: 'log' },
+  { id: 2, log: 'log2' },
+]
+
+suite('companies list tool', () => {
+  let client: Client
+  let agent: MockAgent
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+    })
+
+    agent = new MockAgent()
+    setGlobalDispatcher(agent)
+  })
+
+  test('should return companies', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, companies)
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenants',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(companies),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenants',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching companies: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('company list template', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/tenantID/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, blueprint)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/empty/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, {})
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/error/project-blueprint/',
+      method: 'GET',
+      query: {},
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return company templates', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'tenantID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(blueprint.templates),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return empty array without templates object', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'empty',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify([]),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_templates',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching templates for company error: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('iam list tool', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/tenantID/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, iamList)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/tenantID/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+        identityType: 'group',
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, groupIamList)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/companies/error/identities',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return complete iam list', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'tenantID',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(iamList),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return filtered iam list', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'tenantID',
+          identityType: 'group',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(groupIamList),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching IAM for company error: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('audit log', () => {
+  let client: Client
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      const apiClient = new APIClient(mockedEndpoint)
+      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+    })
+
+    const agent = new MockAgent()
+    setGlobalDispatcher(agent)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/tenantID/audit-logs',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+        from: '1234567890',
+        to: '1234567890',
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, auditLogs)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/tenants/error/audit-logs',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 0,
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(500, { message: 'error message' })
+  })
+
+  test('should return audit logs', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'view_audit_logs',
+        arguments: {
+          tenantId: 'tenantID',
+          to: '1234567890',
+          from: '1234567890',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(auditLogs),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'view_audit_logs',
+        arguments: {
+          tenantId: 'error',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching audit logs for company error: error message',
         type: 'text',
       },
     ])

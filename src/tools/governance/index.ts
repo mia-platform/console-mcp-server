@@ -19,10 +19,13 @@ import { z } from 'zod'
 
 import { AppContext } from '../../server/server'
 import { createProjectFromTemplate, getProjectInfo, listProjects } from './apis/projects'
+import { getCompanyAuditLogs, listCompanies, listCompanyIAMIdentities, listCompanyTemplates } from './apis/companies'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 export function addGovernanceCapabilities (server: McpServer, appContext: AppContext) {
   const { client } = appContext
+
+  // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,
     toolsDescriptions.LIST_PROJECTS,
@@ -112,6 +115,132 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
             {
               type: 'text',
               text: `Error creating project from template ${templateId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  // Tenant tools
+  server.tool(
+    toolNames.LIST_TENANTS,
+    toolsDescriptions.LIST_TENANTS,
+    {},
+    async (): Promise<CallToolResult> => {
+      try {
+        const data = await listCompanies(client)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching companies: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.LIST_TENANT_TEMPLATES,
+    toolsDescriptions.LIST_TENANTS_TEMPLATES,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+    },
+    async ({ tenantId }): Promise<CallToolResult> => {
+      try {
+        const blueprint = await listCompanyTemplates(client, tenantId)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(blueprint['templates'] || []),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching templates for company ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.LIST_TENANT_IAM,
+    toolsDescriptions.LIST_TENANTS_IAM,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramsDescriptions.IAM_IDENTITY_TYPE),
+    },
+    async ({ tenantId, identityType }): Promise<CallToolResult> => {
+      try {
+        const data = await listCompanyIAMIdentities(client, tenantId, identityType)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching IAM for company ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.VIEW_TENANT_AUDIT_LOGS,
+    toolsDescriptions.VIEW_TENANTS_AUDIT_LOGS,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      from: z.string().optional().describe(paramsDescriptions.AUDIT_LOG_FROM),
+      to: z.string().optional().describe(paramsDescriptions.AUDIT_LOG_TO),
+    },
+    async ({ tenantId, from, to }): Promise<CallToolResult> => {
+      try {
+        const data = await getCompanyAuditLogs(client, tenantId, from, to)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching audit logs for company ${tenantId}: ${err.message}`,
             },
           ],
         }
