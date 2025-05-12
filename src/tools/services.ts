@@ -38,7 +38,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       name: z.string().describe(paramsDescriptions.SERVICE_NAME).regex(/^[a-z]([-a-z0-9]*[a-z0-9])?$/),
       description: z.string().optional().describe(paramsDescriptions.SERVICE_DESCRIPTION),
-      refId: z.string().optional().describe(paramsDescriptions.REF_ID),
+      refId: z.string().describe(paramsDescriptions.REF_ID),
       marketplaceItemId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_ID),
       marketplaceItemTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITEM_TENANT_ID),
       marketplaceItemVersion: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITEM_VERSION),
@@ -56,8 +56,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
           args.description,
         )
 
-        const refId = consolidateRefId(args.refId, project)
-        const response = await saveConfiguration(appContext, project._id, resourceToCreate, refId, {
+        const response = await saveConfiguration(appContext, project._id, resourceToCreate, args.refId, {
           throwIfServiceAlreadyExists: true,
         })
 
@@ -82,16 +81,6 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
       }
     },
   )
-}
-
-function consolidateRefId (refId: string | undefined, project: IProject): string {
-  if (refId) {
-    return refId
-  }
-  if (project.defaultBranch) {
-    return project.defaultBranch
-  }
-  throw new Error('No environmentId provided and no default branch found in the project')
 }
 
 async function getMarketplaceItem (
