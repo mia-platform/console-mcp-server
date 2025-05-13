@@ -66,7 +66,7 @@ export function addRuntimeCapabilities (server: McpServer, appContext: AppContex
     },
     async ({ projectId, environmentId, podName, containerName }): Promise<CallToolResult> => {
       try {
-        const logs = await getPodLogs(client, projectId, environmentId, podName, containerName)
+        const logs = await getPodLogs(client, projectId, environmentId, podName, containerName, 100)
         return {
           content: [
             {

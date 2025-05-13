@@ -28,21 +28,23 @@ export const logsPath = ({
   environmentId,
   podName,
   containerName,
+  lines = 500,
 }: {
   projectId: string,
   environmentId: string,
   podName: string,
   containerName: string,
-}) => `/api/projects/${projectId}/environments/${environmentId}/pods/${podName}/containers/${containerName}/logs?file=true`
+  lines?: number,
+}) => `/api/projects/${projectId}/environments/${environmentId}/pods/${podName}/containers/${containerName}/logs?file=true&tailLines=${lines}`
 
 export async function listPods (client: APIClient, projectId: string, environmentId: string) {
   const pods = await client.get(podsPath({ projectId, environmentId }))
   return pods
 }
 
-export async function getPodLogs (client: APIClient, projectId: string, environmentId: string, podName: string, containerName: string): Promise<string> {
+export async function getPodLogs (client: APIClient, projectId: string, environmentId: string, podName: string, containerName: string, lines?: number): Promise<string> {
   const logs = await client.get<string>(
-    logsPath({ projectId, environmentId, podName, containerName }),
+    logsPath({ projectId, environmentId, podName, containerName, lines }),
     {
       Accept: 'text/plain',
     },
