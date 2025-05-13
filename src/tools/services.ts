@@ -13,20 +13,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import path from 'node:path'
+
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
+import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject, Listeners } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
-import { getProjectInfo } from './governance/apis/projects'
 import { ResourcesToCreate } from './configuration/types'
 import { saveConfiguration } from './configuration/api'
+import { getGitProviderProjectGroups, getProjectInfo } from './governance/apis/projects'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from './marketplace/api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../lib/descriptions'
 
-const { ServiceTypes } = constants
+const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants
+
+const createServiceRepository = (projectId: string) => {
+  return `/api/backend/projects/${projectId}/service`
+}
 
 export function addServicesCapabilities (server: McpServer, appContext: AppContext) {
   const { client } = appContext
@@ -119,7 +125,7 @@ async function getMarketplaceItem (
 }
 
 async function createServiceFromMarkeplaceItem (
-  _client: APIClient,
+  client: APIClient,
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
   name: string,
@@ -128,7 +134,10 @@ async function createServiceFromMarkeplaceItem (
   let resourcesToCreate: ResourcesToCreate
   switch (marketplaceItem.type) {
   case 'plugin':
-    resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, project, name, description)
+    resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, name, description)
+    break
+  case 'template':
+    resourcesToCreate = await servicePayloadFromTemplate(client, marketplaceItem as ICatalogTemplate.Item, project, name, description)
     break
   default:
     throw new Error('TODO')
@@ -139,7 +148,7 @@ async function createServiceFromMarkeplaceItem (
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 
-export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _project: IProject, name: string, description?: string): ResourcesToCreate {
+export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item|ICatalogTemplate.Item, name: string, description?: string, dockerImageName?: string): ResourcesToCreate {
   const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
   if (!serviceToCreateItemKey) {
     throw new Error('No service found in the marketplace item')
@@ -151,7 +160,6 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
   }
 
   const {
-    links,
     defaultEnvironmentVariables = [],
     defaultResources,
     dockerImage,
@@ -161,27 +169,23 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     defaultConfigMaps = [],
     defaultSecrets = [],
     defaultDocumentationPath,
-    tags,
     mapEnvVarToMountPath,
     componentId,
     containerPorts = [],
-    additionalContainers,
-    execPreStop,
-    args,
     defaultArgs,
     defaultLogParser = constants.MIA_LOG_PARSER_JSON,
   } = serviceToCreate
   const serviceAccountName = name
-  const listenersToCreate = item.resources?.listeners
+  let listenersToCreate: Listeners | undefined
 
-  const service: CustomService = {
+  let service: CustomService = {
     name,
     type: ServiceTypes.CUSTOM,
-    tags: tags || [ ServiceTypes.CUSTOM ],
+    tags: [ ServiceTypes.CUSTOM ],
     description,
     advanced: false,
     sourceComponentId: componentId,
-    dockerImage,
+    dockerImage: dockerImageName || dockerImage || '',
     sourceMarketplaceItem: {
       itemId: item.itemId,
       tenantId: item.tenantId,
@@ -214,7 +218,6 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     resources: defaultResources,
     probes: defaultProbes,
     serviceAccountName,
-    links,
     ...defaultMonitoring
       ? { monitoring: defaultMonitoring }
       : {},
@@ -244,13 +247,25 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
       }) }
       : {},
     containerPorts,
-    ...execPreStop
-      ? { execPreStop }
-      : {},
-    ...args && { args },
-    ...defaultArgs && { args: defaultArgs },
-    ...additionalContainers
-      ? { additionalContainers: additionalContainers.map((container) => {
+  }
+
+  if (item.type === 'plugin') {
+    const {
+      links,
+      tags,
+      execPreStop,
+      args,
+      additionalContainers,
+    } = serviceToCreate as ICatalogPlugin.Resources['services'][string]
+    listenersToCreate = item.resources?.listeners
+
+    service = {
+      ...service,
+      links,
+      ...tags && { tags },
+      ...execPreStop && { execPreStop },
+      ...args && { args },
+      ...additionalContainers && { additionalContainers: additionalContainers.map((container) => {
         const {
           args,
           containerPorts,
@@ -277,44 +292,13 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
             valueType: EnvironmentVariablesTypes.PLAIN_TEXT,
           })),
         }
-      }) }
-      : {},
-    // ...additionalContainers
-    //   ? { additionalContainers: additionalContainers.map((container) => ({
-    //     ...omit([
-    //       'repositoryUrl',
-    //       'defaultEnvironmentVariables',
-    //       'defaultArgs',
-    //       'defaultMonitoring',
-    //       'defaultProbes',
-    //       'defaultConfigMaps',
-    //       'defaultSecrets',
-    //       'defaultDocumentationPath',
-    //       'defaultResources',
-    //     ], container),
-    //     ...container.repositoryUrl
-    //       ? { repoUrl: container.repositoryUrl }
-    //       : {},
-    //     ...container.defaultEnvironmentVariables
-    //       ? { environment: container.defaultEnvironmentVariables }
-    //       : {},
-    //     ...container.defaultArgs
-    //       ? { args: container.defaultArgs }
-    //       : {},
-    //     ...container.defaultMonitoring
-    //       ? { args: container.defaultMonitoring }
-    //       : {},
-    //     ...container.defaultResources
-    //       ? { resources: container.defaultResources }
-    //       : {},
-    //     ...container.defaultProbes
-    //       ? { probes: container.defaultProbes }
-    //       : {},
-    //     ...container.defaultConfigMaps
-    //       ? { configMaps: container.defaultConfigMaps }
-    //       : {},
-    //   })) }
-    // : {},
+      }) },
+    }
+  }
+
+  service = {
+    ...service,
+    ...defaultArgs && { args: defaultArgs },
   }
 
   const createdConfigMaps: ConfigMaps = defaultConfigMaps.reduce((acc, configMap) => {
@@ -350,4 +334,91 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     serviceSecrets: createdSecrets,
     listeners: listenersToCreate,
   }
+}
+
+export async function servicePayloadFromTemplate (
+  client: APIClient,
+  item: ICatalogTemplate.Item,
+  project: IProject,
+  name: string,
+  description?: string,
+): Promise<ResourcesToCreate> {
+  const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
+  if (!serviceToCreateItemKey) {
+    throw new Error('No service found in the marketplace item')
+  }
+
+  const serviceToCreate = item.resources?.services?.[serviceToCreateItemKey]
+  if (!serviceToCreate) {
+    throw new Error('No service found in the marketplace item')
+  }
+
+  const projectGroups = await getGitProviderProjectGroups(client, project._id, path.dirname(project.configurationGitPath))
+
+  let groupName: string | undefined
+  if (projectGroups.length === 1) {
+    groupName = projectGroups[0]['full_path'] as string
+  } else {
+    for (const projectGroup of projectGroups) {
+      if ((projectGroup['full_path'] as string).endsWith('/services')) {
+        groupName = projectGroup['full_path'] as string
+        break
+      }
+    }
+  }
+
+  if (!groupName) {
+    throw new Error('No group found for the project')
+  }
+
+  const projectProviderType = project.pipelines?.type
+  if (!projectProviderType) {
+    throw new Error('No provider type found for the project')
+  }
+
+  let pipeline: string | undefined
+  if (serviceToCreate.pipelines) {
+    if (projectProviderType in serviceToCreate.pipelines) {
+      pipeline = projectProviderType
+    }
+  }
+
+  const imageName = generateImageName(name, project, groupName)
+  const containerRegistryId = project.containerRegistries?.filter((registry) => registry.isDefault)[0]?.id
+
+  const createServiceRepositoryBody = {
+    serviceName: name,
+    resourceName: serviceToCreateItemKey,
+    groupName,
+    ...description && { serviceDescription: description },
+    templateId: item._id,
+    defaultConfigMaps: serviceToCreate.defaultConfigMaps,
+    defaultSecrets: serviceToCreate.defaultSecrets,
+    repoName: name,
+    pipeline,
+    imageName,
+    containerRegistryId,
+  }
+
+  const createdService = await client.post<Record<string, unknown>>(createServiceRepository(project._id), createServiceRepositoryBody)
+  return servicePayloadFromMarketplaceItem(item, name, description, createdService['dockerImage'] as string)
+}
+
+function generateImageName (name: string, project: IProject, groupName: string): string {
+  if (project.dockerImageNameSuggestion) {
+    switch (project.dockerImageNameSuggestion.type) {
+    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID:
+      return `${project.projectId}/${name}`
+    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.REPOSITORY:
+      return `${groupName}/${name}`
+    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.CONSTANT_PREFIX:
+      return `${(project.dockerImageNameSuggestion as DockerSuggestionPrefix).prefix}/${name}`
+    }
+  }
+
+  return name
+}
+
+interface DockerSuggestionPrefix {
+  prefix: string
 }

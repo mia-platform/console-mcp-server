@@ -16,7 +16,7 @@
 import { suite, test, TestContext } from 'node:test'
 
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, IProject } from '@mia-platform/console-types'
+import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
@@ -149,7 +149,7 @@ suite('create service from marketplace adapter', () => {
       },
     }
 
-    const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
+    const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
 
     t.assert.deepStrictEqual(output.services?.['simple-service'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
@@ -276,7 +276,7 @@ suite('create service from marketplace adapter', () => {
       },
     }
 
-    const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
+    const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
 
     t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
@@ -416,7 +416,7 @@ suite('create service from marketplace adapter', () => {
       },
     }
 
-    const output = servicePayloadFromMarketplaceItem(marketplaceItem, {} as IProject, 'simple-service', 'some-description')
+    const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
 
     t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })

@@ -80,5 +80,5 @@ export async function getGitProviderProjectGroups (client: APIClient, projectId:
   })
 
   const escapedPath = encodeURIComponent(gitConfigPath)
-  return await client.getPaginated<Record<string, unknown>>(getProjectGitProviderSubgroups(projectId, escapedPath), {}, params, 0)
+  return await client.getPaginated<Record<string, unknown>>(getProjectGitProviderSubgroups(projectId, escapedPath), {}, params)
 }
