@@ -54,7 +54,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
         const project = await getProjectInfo(client, args.projectId)
 
         const marketplaceItem = await getMarketplaceItem(client, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
-        const resourceToCreate = await createServiceFromMarkeplaceItem(
+        const resourceToCreate = await createServiceFromMarketplaceItem(
           client,
           project,
           marketplaceItem,
@@ -124,7 +124,7 @@ async function getMarketplaceItem (
   }
 }
 
-async function createServiceFromMarkeplaceItem (
+async function createServiceFromMarketplaceItem (
   client: APIClient,
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
