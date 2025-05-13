@@ -29,17 +29,32 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     toolNames.LIST_MARKETPLACE,
     toolsDescriptions.LIST_MARKETPLACE,
     {
-      tenantId: z.string().optional().describe(paramsDescriptions.TENANT_ID),
+      tenantId: z.string().optional().describe(paramsDescriptions.MARKETPLACE_TENANT_ID_FILTER),
       type: z.enum(CatalogItemTypes).optional().describe(paramsDescriptions.MARKETPLACE_ITEM_TYPE),
+      search: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITEM_SEARCH),
     },
-    async ({ tenantId, type }): Promise<CallToolResult> => {
+    async ({ tenantId, type, search }): Promise<CallToolResult> => {
       try {
-        const data = await listMarketplaceItems(client, tenantId, type)
+        const data = await listMarketplaceItems(client, tenantId, type, search)
+        const mappedData = data.map((item) => {
+          const { itemId, name, tenantId, type, description, supportedBy, isLatest, version } = item
+
+          return {
+            itemId,
+            name,
+            tenantId,
+            type,
+            description,
+            supportedBy,
+            isLatest,
+            version,
+          }
+        })
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(data),
+              text: JSON.stringify(mappedData),
             },
           ],
         }

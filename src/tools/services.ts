@@ -168,6 +168,7 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     additionalContainers,
     execPreStop,
     args,
+    defaultArgs,
     defaultLogParser = constants.MIA_LOG_PARSER_JSON,
   } = serviceToCreate
   const serviceAccountName = name
@@ -246,9 +247,8 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item, _p
     ...execPreStop
       ? { execPreStop }
       : {},
-    ...args
-      ? { args }
-      : {},
+    ...args && { args },
+    ...defaultArgs && { args: defaultArgs },
     ...additionalContainers
       ? { additionalContainers: additionalContainers.map((container) => {
         const {

@@ -26,24 +26,33 @@ import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
 const mockedEndpoint = 'http://localhost:3000'
 
 const publicElements = [
-  { id: 1, name: 'item', tenant: 'public' },
-  { id: 2, name: 'item', tenant: 'public' },
-  { id: 3, name: 'item', tenant: 'public' },
+  { _id: 1, name: 'item1', tenantId: 'public', itemId: 'item-id-1' },
+  { _id: 2, name: 'item2', tenantId: 'public', itemId: 'item-id-2' },
+  { _id: 3, name: 'item3', tenantId: 'public', itemId: 'item-id-3' },
+]
+
+const expectedPublicElementList = [
+  { itemId: 'item-id-1', name: 'item1', tenantId: 'public' },
+  { itemId: 'item-id-2', name: 'item2', tenantId: 'public' },
+  { itemId: 'item-id-3', name: 'item3', tenantId: 'public' },
 ]
 
 const itemVersions = [
-  { id: 1, name: 'item', tenant: 'public', version: '1.0.0' },
-  { id: 1, name: 'item', tenant: 'public', version: '1.1.0' },
+  { _id: 1, name: 'item1', tenantId: 'public', version: '1.0.0' },
+  { _id: 1, name: 'item1', tenantId: 'public', version: '1.1.0' },
 ]
 
 const itemInfo = {
-  id: 1,
+  _id: 1,
   name: 'item',
-  tenant: 'public',
+  tenantId: 'public',
   version: '1.0.0',
 }
 
-const tenantElement = { id: 4, name: 'item', tenant: 'tenantID' }
+const tenantElement = { _id: 4, name: 'item4', tenantId: 'tenantID', itemId: 'item-id-4' }
+const expectedTenantElementList = [
+  { itemId: 'item-id-4', name: 'item4', tenantId: 'tenantID' },
+]
 
 suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
@@ -105,6 +114,19 @@ suite('marketplace list tool', () => {
       query: {
         per_page: 200,
         page: 1,
+        name: 'item1',
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, [ publicElements[0] ])
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/marketplace/',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
         includeTenantId: 'error',
         types: 'example',
       },
@@ -125,11 +147,31 @@ suite('marketplace list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(publicElements),
+        text: JSON.stringify(expectedPublicElementList),
         type: 'text',
       },
     ])
   })
+
+  test('should return public elements searching by name', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace',
+        arguments: {
+          search: 'item1',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify([ expectedPublicElementList[0] ]),
+        type: 'text',
+      },
+    ])
+  })
+
 
   test('should return public elements plus tenant ones', async (t) => {
     const result = await client.request({
@@ -144,7 +186,7 @@ suite('marketplace list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify([ ...publicElements, tenantElement ]),
+        text: JSON.stringify([ ...expectedPublicElementList, ...expectedTenantElementList ]),
         type: 'text',
       },
     ])

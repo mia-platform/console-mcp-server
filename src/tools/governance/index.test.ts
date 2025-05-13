@@ -28,12 +28,16 @@ const mockedEndpoint = 'http://localhost:3000'
 // Project tools tests
 
 const projects = [
-  { id: 1, name: 'name', tenant: 'tenantID' },
-  { id: 2, name: 'name', tenant: 'tenantID' },
+  { _id: 1, name: 'name', tenantId: 'tenantID' },
+  { _id: 2, name: 'name', tenantId: 'tenantID' },
 ]
 
 const secondTenantProjects = [
-  { id: 1, name: 'name', tenant: 'tenantID2' },
+  { _id: 1, name: 'name', tenantId: 'tenantID2' },
+]
+
+const searchedProjects = [
+  { _id: '123', name: 'searched', tenantId: 'tenantID' },
 ]
 
 const draft: ProjectDraft = {
@@ -128,6 +132,20 @@ suite('projects list tool', () => {
       query: {
         per_page: 200,
         page: 1,
+        tenantIds: 'tenantID',
+        search: 'searched',
+      },
+      headers: {
+        Accept: 'application/json',
+      },
+    }).reply(200, searchedProjects)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/projects/',
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
         tenantIds: 'error',
       },
       headers: {
@@ -150,6 +168,26 @@ suite('projects list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: JSON.stringify(projects),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return projects with search', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_projects',
+        arguments: {
+          tenantIds: [ 'tenantID' ],
+          search: 'searched',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(searchedProjects),
         type: 'text',
       },
     ])

@@ -25,13 +25,16 @@ const marketplaceItemVersionInfo = (tenantId: string, marketplaceId: string, ver
   return `/api/tenants/${tenantId}/marketplace/items/${marketplaceId}/versions/${version}`
 }
 
-export async function listMarketplaceItems (client: APIClient, tenantId?: string, type?: string) {
+export async function listMarketplaceItems (client: APIClient, tenantId?: string, type?: string, search?: string) {
   const params = new URLSearchParams()
   if (tenantId) {
     params.set('includeTenantId', tenantId)
   }
   if (type) {
     params.set('types', type)
+  }
+  if (search) {
+    params.set('name', search)
   }
 
   return await client.getPaginated<CatalogItem>(listMarketplacePath, {}, params)

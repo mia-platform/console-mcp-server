@@ -58,17 +58,26 @@ export const toolsDescriptions = {
   VIEW_TENANTS_AUDIT_LOGS: 'View audit logs for a company or tenant to see who did what and when',
 
   // marketplace tools
-  LIST_MARKETPLACE: 'List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified',
+  LIST_MARKETPLACE: `
+  List Mia-Platform Console marketplace items for a given company or tenant or the public ones if no company or tenant is specified.
+  If the api-gateway is required, and not differently specified, create the envoy based api-gateway.
+  `,
   LIST_MARKETPLACE_ITEMS_VERSIONS: 'List all the available versions of a marketplace item',
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
 
   // project tools
   LIST_PROJECTS: `List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}, if you don't specify the tenantId, the tool will list all the projects in the current company or tenant`,
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
-  CREATE_PROJECT_FROM_TEMPLATE: 'Create a new Mia-Platform Console project from a template in the given company or tenant. Use default template if not specified. The template can be a public one or a private one, in this case you need to specify the tenantId of the template. The project name must be unique in the company or tenant',
+  CREATE_PROJECT_FROM_TEMPLATE: `
+  Create a new Mia-Platform Console project from a template in the given company or tenant.
+  Use default template if not specified.
+  The template can be a public one or a private one, in this case you need to specify the tenantId of the template.
+  The project name must be unique in the company or tenant.
+  If no further action are required, return the _id and the link to the Console project at the user.
+  `,
 
   // services tools
-  CREATE_SERVICE_FROM_MARKETPLACE: 'Create a new service in a Mia-Platform Console project starting from an element of the marketplace',
+  CREATE_SERVICE_FROM_MARKETPLACE: `Create a new service in a Mia-Platform Console project starting from an element of the marketplace`,
 
   // deploy tools
   DEPLOY_PROJECT: `Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool ${toolNames.COMPARE_UPDATE_FOR_DEPLOY}. After running deploy, check the status of the pipeline using the tool ${toolNames.PIPELINE_STATUS}`,
@@ -84,7 +93,10 @@ export const toolsDescriptions = {
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
-  CREATE_OR_UPDATE_ENDPOINT: `Create or update an endpoint for the project configuration. After running this tool, save the configuration using the tool ${toolNames.CONFIGURATION_TO_SAVE}`,
+  CREATE_OR_UPDATE_ENDPOINT: `
+  Create or update an endpoint for the project configuration.
+  After running this tool, save the configuration using the tool ${toolNames.CONFIGURATION_TO_SAVE} passing all the endpoints of the project as input.
+  `,
   CONFIGURATION_TO_SAVE: 'Save the configuration for a project',
   GET_CONFIGURATION: 'Get the actual configuration for a project for a specific revision or tag',
 }
@@ -93,7 +105,7 @@ export const paramsDescriptions = {
   // Tenant
   TENANT_ID: `The Mia-Platform Console company or tenant to use. Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool`,
   SEARCH_STRING_PROJECT: `The search string to use to filter the projects. Try always to use this parameter to filter the projects. Only if you are not able to find the project you are looking for, use only the tenantId parameter. But before doing that try with different combinations of the search string. If you are not able to find the search string use ""`,
-  
+
   MULTIPLE_TENANT_IDS: `One or more Mia-Platform Console companies or tenants to filter. Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool`,
 
   // IAM
@@ -105,9 +117,26 @@ export const paramsDescriptions = {
 
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
-  MARKETPLACE_ITEM_TYPE: 'Type of marketplace item to filter, empty string means no filter',
+  MARKETPLACE_ITEM_TYPE: `
+  Type of marketplace item to filter, empty string means no filter.
+  Possible values are:
+  - application: Applications are bundles of resources that brings together services (i.e., plugins, templates, and examples), endpoints, CRUD collections, and public variables to ease the setup of large-scale artifacts.
+  - example: Examples works no differently than templates, in the sense that they too provide an archive with base configurations. Unlike templates, examples should come with some features already implemented and tailored to help the user better familiarize with the development environment.
+  - extension: Extensions are custom pages that enhances Console capabilities by integrating it into the sidebar navigation. Since extensions have their own dedicated section, they are left out by the Software Catalog UI. Extensions can still be managed with miactl, and API calls.
+  - custom-resource: Infrastructure resources are custom objects that are not part of the standard Console supported resources. They can be managed from the dedicated section of the Console Design area.
+  - plugin: Plugins are services that can be instantiated from the microservices section of the Console Design area. Practically speaking, plugins are Docker images that comes with some predefined configurations to make them work in Console projects (e.g., environment variables, config maps, probes...).
+  - proxy: Proxies are specific configurations used to invoke APIs that are not part of the current project but may be exposed by an external provider or another project. Proxies can be instantiated from the dedicated section of the Console Design area.
+  - sidecar: Sidecars are secondary utility containers running side by side with the main container in the same host. They are Docker images that can be instantiated from the dedicated section of the Console Design area.
+  - template: Teamplates can be instantiated in Console the same as plugins. The difference is that they provide an archive that is cloned in the Project scope, instead of a Docker image, giving developers direct access to the codebase to evolve it at will. Templates are meant to be starting points with the bear minimum needed to start a service. Just like plugins, templates may also come with some predefined configurations.
+  - infrastructure-component-runtime: Infrastructure Component runtime items are custom objects that are not part of the standard Console supported resources. They can be managed in the context of Infrastructure Project to be able to collect runtime data for visualization within Console.
+  `,
   MARKETPLACE_ITEM_TENANT_ID: `The tenant of the marketplace item. Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
   MARKETPLACE_ITEM_VERSION: `The version of the marketplace item to use. Can be found in the version field of the ${toolNames.LIST_MARKETPLACE} tool. This is optional, if not specified the latest version will be used`,
+  MARKETPLACE_ITEM_SEARCH: `The search string to use to filter the marketplace items. This is optional, if not specified all the marketplace items will be returned`,
+  MARKETPLACE_TENANT_ID_FILTER: `
+  The Mia-Platform Console company or tenant for which to return both the public and private marketplace resources.
+  Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool.
+  `,
 
   // Project
   PROJECT_ID: `The project to use. Can be found in the _id field of the ${toolNames.LIST_PROJECTS} tool`,

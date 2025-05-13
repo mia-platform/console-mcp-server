@@ -195,6 +195,34 @@ Configuration changes:
 In {projectName} project, create an endpoint /foo which exposes the service with name echo and docker image davidebianchi/echo-service. If the service not exists, create it.
 ```
 
+E2E:
+
+```txt
+Create a Mia-Platform project named "MCP Tester". After the project creation, add resources to create an e-commerce for selling items.
+Use the default blueprint.
+
+Reuse all items in the marketplace/software catalog to maximize reuse and minimize code written from scratch.
+
+Design the architecture with the following components:
+
+A frontend in React
+A backend for frontend in Node.js
+A CRUD service
+An API Gateway using envoy (with name api-gateway)
+Configure the CRUD service with collections useful to:
+
+Browse items and categories
+Add items to cart
+Calculate prices with discounts
+Create and manage orders
+Process payments using electronic payment methods
+Send email notifications with order confirmations and shipping updates
+And expose needed endpoints to reach the frontend and expose the backend for frontend.
+The user should be able to see order history and shipping status in their personal area.
+
+Once everything is created, deploy in the DEV Environment and provide me the status of all services when everything is up and running.
+```
+
 ### Work in progress prompts
 
 Here is a set of prompts that we are testing just right now and will be stable soon. You can try them out! If you provide us feedback to improve them, it will be greatly appreciated.
