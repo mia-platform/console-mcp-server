@@ -13,4 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type ObjectValues<T> = NonNullable<T>[keyof NonNullable<T>]
+import { createHash } from 'node:crypto'
+
+export function sha256 (str: string): string {
+  return createHash('sha256').update(str).digest('hex')
+}

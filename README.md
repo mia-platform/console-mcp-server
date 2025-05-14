@@ -12,8 +12,20 @@ with Mia-Platform Console APIs, enabling advanced automation and interaction cap
 
 1. To run the server in a container, you will need to have [Docker] installed.
 1. Once Docker is installed, you will also need to ensure Docker is running.
-1. Lastly you will need to [Create a Mia-Platform Service Account]. For now the only authentication method supported is
+1. Lastly you will need to a way ot authenticate to your Mia-Platform Console installation, you either have to:
+    - [Create a Mia-Platform Service Account] with `Client Secret Basic`
+    authorization mode (the only one supported at this time)
   the `Client Secret Basic` one.
+    - Use miactl authentication: if you have [`miactl`][miactl] installed you can run any command to login,
+     the same session will then be used by the mcp server to authenticate.
+
+> [!WARNING]
+> When using miactl session, auto-refresh by the MCP Server is not currently supported,
+> once the session created with miactl expires you have to refresh it with miactl again.
+---
+> [!IMPORTANT]
+> When using miactl session, the host you provide to the MCP Server **MUST** be the exact same as the one
+> you have logged in with miactl, including scheme and any possible trailing slash.
 
 ## Installation
 
@@ -827,10 +839,10 @@ It's all up and running? If yes provide me the link to call that endpoit
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
-
 [Model Context Protocol (MCP)]: https://modelcontextprotocol.io/introduction
 [Docker]: https://www.docker.com/
 [Create a Mia-Platform Service Account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
 [VS Code's agent mode documentation]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
 [nvm]: https://github.com/nvm-sh/nvm
 [mise]: https://mise.jdx.dev
+[miactl]: https://github.com/mia-platform/miactl

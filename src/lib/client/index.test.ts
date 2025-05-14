@@ -18,8 +18,8 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { constants } from '@mia-platform/console-types'
 
-import { APIClient } from './client'
-import { name, version } from '../../package.json'
+import { APIClient } from '.'
+import { name, version } from '../../../package.json'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
 const mockedEndpoint = 'http://localhost:3000'

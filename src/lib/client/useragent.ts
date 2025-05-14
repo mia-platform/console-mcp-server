@@ -13,4 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type ObjectValues<T> = NonNullable<T>[keyof NonNullable<T>]
+import { name, version } from '../../../package.json'
+
+export const UserAgent = `${name}/${version}`

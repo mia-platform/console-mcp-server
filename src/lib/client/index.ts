@@ -13,24 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import qs from 'node:querystring'
+import { constants } from '@mia-platform/console-types'
 import { request } from 'undici'
 import Dispatcher, { UndiciHeaders } from 'undici/types/dispatcher'
 
-import { constants } from '@mia-platform/console-types'
-
-import { name, version } from '../../package.json'
+import { UserAgent } from './useragent'
+import { AccessToken, doAuthentication } from './token'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
 
-const UserAgent = `${name}/${version}`
-const m2mPath = '/api/m2m/oauth/token'
 const EXPIRATION_WINDOW_IN_SECONDS = 300
 
 export interface Options {
   plainText?: boolean
 }
-
 
 export class APIClient {
   private baseURL: string
@@ -125,15 +121,14 @@ export class APIClient {
   }
 
   private async validateToken (): Promise<void> {
-    if (!this.clientID || !this.clientSecret) {
-      return
-    }
-
     if (this.token && !this.token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
       return
     }
 
-    this.token = await doAuthentication(this.baseURL, this.clientID, this.clientSecret)
+    this.token = await doAuthentication(this.baseURL, {
+      clientId: this.clientID,
+      clientSecret: this.clientSecret,
+    })
   }
 }
 
@@ -144,46 +139,5 @@ function headers (token: AccessToken | undefined, headers: Record<string, unknow
     ...hasBody && { 'Content-Type': 'application/json' },
     'User-Agent': UserAgent,
     ...token && { Authorization: `${token.token_type} ${token.access_token}` },
-  }
-}
-
-async function doAuthentication (basePath: string, clientId: string, clientCredentials: string): Promise<AccessToken> {
-  const url = new URL(m2mPath, basePath)
-
-  const { statusCode, body } = await request(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientCredentials}`).toString('base64')}`,
-      'User-Agent': UserAgent,
-    },
-    body: qs.stringify({
-      grant_type: 'client_credentials',
-    }),
-  })
-
-  if (statusCode != 200) {
-    const data = await body.json() as Record<string, string>
-    const message = data.message || `Unknown error with status ${statusCode}`
-    throw new Error(message)
-  }
-
-  const data = await body.json() as Record<string, string>
-  return new AccessToken(data.access_token, data.token_type, parseInt(data.expires_in, 10))
-}
-
-class AccessToken {
-  access_token: string
-  token_type: string
-  private expires_at: number
-
-  constructor (token: string, token_type: string, expires_in: number) {
-    this.access_token = token
-    this.token_type = token_type
-    this.expires_at = Date.now() + expires_in * 1000
-  }
-
-  expired (expirationWindowSeconds: number): boolean {
-    return this.expires_at - (Date.now() + expirationWindowSeconds * 1000) <= 0
   }
 }

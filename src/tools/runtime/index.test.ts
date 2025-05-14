@@ -141,6 +141,7 @@ suite('get pod logs tool', () => {
         environmentId: 'test-environment',
         podName: 'test-pod',
         containerName: 'test-container',
+        lines: 100,
       }),
       method: 'GET',
       headers: {
@@ -180,6 +181,7 @@ suite('get pod logs tool', () => {
         environmentId: 'test-environment',
         podName: 'test-pod',
         containerName: 'test-container',
+        lines: 100,
       }),
       method: 'GET',
       headers: {
