@@ -148,7 +148,14 @@ async function createServiceFromMarketplaceItem (
 
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 
-export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item|ICatalogTemplate.Item, name: string, description?: string, dockerImageName?: string): ResourcesToCreate {
+export function servicePayloadFromMarketplaceItem (
+  item: ICatalogPlugin.Item|ICatalogTemplate.Item,
+  name: string,
+  description?: string,
+  dockerImageName?: string,
+  repoUrl?: string,
+  sshUrl?: string,
+): ResourcesToCreate {
   const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
   if (!serviceToCreateItemKey) {
     throw new Error('No service found in the marketplace item')
@@ -186,6 +193,8 @@ export function servicePayloadFromMarketplaceItem (item: ICatalogPlugin.Item|ICa
     advanced: false,
     sourceComponentId: componentId,
     dockerImage: dockerImageName || dockerImage || '',
+    repoUrl,
+    sshUrl,
     sourceMarketplaceItem: {
       itemId: item.itemId,
       tenantId: item.tenantId,
@@ -401,7 +410,14 @@ export async function servicePayloadFromTemplate (
   }
 
   const createdService = await client.post<Record<string, unknown>>(createServiceRepository(project._id), createServiceRepositoryBody)
-  return servicePayloadFromMarketplaceItem(item, name, description, createdService['dockerImage'] as string)
+  return servicePayloadFromMarketplaceItem(
+    item,
+    name,
+    description,
+    createdService['dockerImage'] as string,
+    createdService['webUrl'] as string,
+    createdService['sshUrl'] as string,
+  )
 }
 
 function generateImageName (name: string, project: IProject, groupName: string): string {
