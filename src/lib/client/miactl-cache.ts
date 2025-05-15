@@ -44,11 +44,8 @@ async function getMiactlCache (endpoint: string): Promise<MiactlCache|undefined>
 
   const cacheKey = sha256(endpoint)
   cacheFolderPath = join(cacheFolderPath, 'miactl', cacheKey)
-  console.log('loading miactl token cache from', cacheKey, cacheFolderPath)
 
   const cacheContent = await fs.readFile(cacheFolderPath, { encoding: 'utf-8' })
-  console.log('cache content', cacheContent)
-
   if (!cacheContent) {
     return undefined
   }
