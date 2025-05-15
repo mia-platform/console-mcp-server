@@ -414,18 +414,23 @@ const companies = [
   { id: 2, name: 'name2' },
 ]
 
-const blueprint = {
-  id: 1,
-  name: 'name',
-  templates: [
-    {
-      id: 1, name: 'template1',
-    },
-    {
-      id: 2, name: 'template2',
-    },
-  ],
-}
+const templates = [
+  {
+    _id: '123', templateId: 'template-1-id', name: 'template1',
+  },
+  {
+    _id: '456', templateId: 'template-2-id', name: 'template2',
+  },
+]
+
+const expectedTemplatesToolOutput = [
+  {
+    templateId: 'template-1-id', name: 'template1',
+  },
+  {
+    templateId: 'template-2-id', name: 'template2',
+  },
+]
 
 const groupIamList = [
   { name: 'name', type: 'group' },
@@ -525,27 +530,33 @@ suite('company list template', () => {
     setGlobalDispatcher(agent)
 
     agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants/tenantID/project-blueprint/',
+      path: '/api/backend/templates/',
       method: 'GET',
-      query: {},
+      query: {
+        tenantId: 'tenantID',
+      },
       headers: {
         Accept: 'application/json',
       },
-    }).reply(200, blueprint)
+    }).reply(200, templates)
 
     agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants/empty/project-blueprint/',
+      path: '/api/backend/templates/',
       method: 'GET',
-      query: {},
+      query: {
+        tenantId: 'empty',
+      },
       headers: {
         Accept: 'application/json',
       },
-    }).reply(200, {})
+    }).reply(200, [])
 
     agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants/error/project-blueprint/',
+      path: '/api/backend/templates/',
       method: 'GET',
-      query: {},
+      query: {
+        tenantId: 'error',
+      },
       headers: {
         Accept: 'application/json',
       },
@@ -565,7 +576,7 @@ suite('company list template', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(blueprint.templates),
+        text: JSON.stringify(expectedTemplatesToolOutput),
         type: 'text',
       },
     ])

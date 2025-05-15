@@ -17,9 +17,17 @@ import { APIClient } from '../../../lib/client'
 
 
 const companiesPath = '/api/backend/tenants/'
-const companyBlueprint = (tenantId: string) => `/api/backend/tenants/${tenantId}/project-blueprint/`
+const companyTemplates = (tenantId: string) => `/api/backend/templates/?tenantId=${tenantId}`
 const listCompanyIAMPathTemplate = (tenantId: string) => `/api/companies/${tenantId}/identities`
 const companyAuditLogsPathTemplate = (tenantId: string) => `/api/tenants/${tenantId}/audit-logs`
+
+interface Template {
+  name: string
+  description?: string
+  templateId: string
+  tenantId: string
+  deploy: Record<string, unknown>
+}
 
 
 export async function listCompanies (client: APIClient) {
@@ -27,7 +35,7 @@ export async function listCompanies (client: APIClient) {
 }
 
 export async function listCompanyTemplates (client: APIClient, tenantId: string) {
-  return await client.get<Record<string, unknown>>(companyBlueprint(tenantId))
+  return await client.get<Template[]>(companyTemplates(tenantId))
 }
 
 export async function listCompanyIAMIdentities (client: APIClient, tenantId: string, type?: string) {

@@ -173,12 +173,21 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantId }): Promise<CallToolResult> => {
       try {
-        const blueprint = await listCompanyTemplates(client, tenantId)
+        const templates = await listCompanyTemplates(client, tenantId)
+        const mappedBlueprint = (templates || []).map((item) => {
+          const { templateId, name, tenantId, deploy } = item
+          return {
+            templateId,
+            name,
+            tenantId,
+            deploy,
+          }
+        })
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(blueprint['templates'] || []),
+              text: JSON.stringify(mappedBlueprint),
             },
           ],
         }

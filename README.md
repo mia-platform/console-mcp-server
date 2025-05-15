@@ -219,7 +219,7 @@ E2E:
 
 ```txt
 Create a Mia-Platform project named "MCP Tester". After the project creation, add resources to create an e-commerce for selling items.
-Use the default blueprint.
+Use the template with authentication.
 
 Reuse all items in the marketplace/software catalog to maximize reuse and minimize code written from scratch.
 
