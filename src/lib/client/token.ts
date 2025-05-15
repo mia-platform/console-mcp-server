@@ -44,11 +44,9 @@ interface AuthnOpts {
 
 export async function doAuthentication (basePath: string, options: AuthnOpts): Promise<AccessToken|undefined> {
   if (options.clientId && options.clientSecret) {
-    console.error('do authentication with m2m credentials')
     return await doM2MAuthentication(basePath, options.clientId, options.clientSecret)
   }
 
-  console.error('do authentication with miactl token from cache')
   return await loadMiactlToken(basePath)
 }
 
@@ -80,7 +78,5 @@ async function doM2MAuthentication (basePath: string, clientId: string, clientCr
   }
 
   const data = await body.json() as M2MTokenResponse
-
-  console.error('data tokentype', data)
   return new AccessToken(data.access_token, data.token_type, data.expires_in)
 }

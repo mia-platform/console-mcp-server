@@ -61,8 +61,7 @@ export async function loadMiactlToken (endpoint: string): Promise<AccessToken | 
 
     const expiresInSeconds = Math.floor((new Date(cache.expiry).getTime() - Date.now()) / 1000)
     return new AccessToken(cache.access_token, 'Bearer', expiresInSeconds)
-  } catch (err) {
-    console.error('Error loading miactl token from cache:', (err as Error).message)
+  } catch {
     return undefined
   }
 }

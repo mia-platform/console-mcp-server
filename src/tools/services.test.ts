@@ -13,17 +13,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite, test, TestContext } from 'node:test'
+import { beforeEach, suite, test, TestContext } from 'node:test'
+import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin } from '@mia-platform/console-types'
+import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
 import { TestMCPServer } from '../server/test-utils.test'
-import { addServicesCapabilities, servicePayloadFromMarketplaceItem } from './services'
+import { addServicesCapabilities, servicePayloadFromMarketplaceItem, servicePayloadFromTemplate } from './services'
 
-const { ServiceTypes } = constants
+const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants
 
 const mockedEndpoint = 'http://localhost:3000'
 
@@ -45,7 +46,7 @@ suite('setup services tools', () => {
   })
 })
 
-suite('create service from marketplace adapter', () => {
+suite('create service from marketplace plugin', () => {
   test('simple service without configmap or secrets', async (t: TestContext) => {
     const inputResources: ICatalogPlugin.Service = {
       name: 'simple-service',
@@ -150,7 +151,6 @@ suite('create service from marketplace adapter', () => {
     }
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
-
     t.assert.deepStrictEqual(output.services?.['simple-service'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
@@ -277,7 +277,6 @@ suite('create service from marketplace adapter', () => {
     }
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
-
     t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
@@ -417,8 +416,338 @@ suite('create service from marketplace adapter', () => {
     }
 
     const output = servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
-
     t.assert.deepStrictEqual(output.services?.['simple-service'], expectedService)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
+  })
+})
+
+suite('create service from marketplace template', () => {
+  let agent: MockAgent
+  beforeEach(() => {
+    agent = new MockAgent()
+    setGlobalDispatcher(agent)
+  })
+
+  test('simple service without configmap or secrets', async (t: TestContext) => {
+    const inputResources: ICatalogTemplate.Service = {
+      name: 'simple-template',
+      type: 'template',
+      archiveUrl: 'http://archive.url',
+      pipelines: {
+        'gitlab-ci': {
+        },
+        'github-actions': {},
+      },
+      componentId: 'some-template',
+    }
+
+    const project: IProject = {
+      _id: '000000000000000000000',
+      name: 'my-project',
+      configurationGitPath: '/path/for/project/configuration',
+      projectId: 'my-project-id',
+      environments: [],
+      repository: {
+        providerId: 'gitlab',
+      },
+      pipelines: {
+        type: 'gitlab-ci',
+      },
+      containerRegistries: [
+        {
+          id: 'registry-id',
+          name: 'registry',
+          hostname: 'host.name',
+          isDefault: true,
+        },
+      ],
+      dockerImageNameSuggestion: {
+        type: DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID,
+      },
+    }
+
+    const expected = {
+      name: 'my-template',
+      type: ServiceTypes.CUSTOM,
+      description: 'some-description',
+      advanced: false,
+      containerPorts: [],
+      sourceMarketplaceItem: { itemId: 'simple-template', tenantId: 'public', version: 'v1.0.0' },
+      dockerImage: 'host.name/my-project-id/my-template',
+      tags: [ ServiceTypes.CUSTOM ],
+      environment: [],
+      serviceAccountName: 'my-template',
+      logParser: constants.MIA_LOG_PARSER_JSON,
+      swaggerPath: '/documentation/json',
+      repoUrl: 'https://git.url/path/for/project/services/my-template',
+      sshUrl: 'git@git.url:path/for/project/services/my-template',
+      replicas: 1,
+      sourceComponentId: 'some-template',
+    }
+
+    const marketplaceItem: ICatalogTemplate.Item = {
+      _id: 'simple-template-id',
+      itemId: 'simple-template',
+      name: 'simple-template',
+      releaseDate: '1970-01-01T00:00:00.000Z',
+      lifecycleStatus: 'published',
+      type: 'template',
+      tenantId: 'public',
+      version: {
+        name: 'v1.0.0',
+        releaseDate: '1970-01-01T00:00:00.000Z',
+        lifecycleStatus: 'published',
+        releaseNote: '-',
+      },
+      resources: {
+        services: {
+          'simple-template': inputResources,
+        },
+      },
+    }
+
+    const apiClient = new APIClient(mockedEndpoint)
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${project._id}/groups/${encodeURIComponent('/path/for/project')}/subgroups`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      query: {
+        includeSelf: 'true',
+        page: '1',
+        per_page: '200',
+      },
+    }).reply(200, [
+      {
+        full_path: '/path/for/project',
+      },
+      {
+        full_path: '/path/for/project/services',
+      },
+    ])
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${project._id}/service`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        serviceName: 'my-template',
+        resourceName: 'simple-template',
+        groupName: '/path/for/project/services',
+        serviceDescription: 'some-description',
+        templateId: marketplaceItem._id,
+        repoName: 'my-template',
+        pipeline: 'gitlab-ci',
+        imageName: `${project.projectId}/my-template`,
+        containerRegistryId: project.containerRegistries?.[0].id,
+      }),
+    }).reply(200, {
+      dockerImage: `host.name/${project.projectId}/my-template`,
+      webUrl: 'https://git.url/path/for/project/services/my-template',
+      sshUrl: 'git@git.url:path/for/project/services/my-template',
+    })
+    const output = await servicePayloadFromTemplate(apiClient, marketplaceItem, project, 'my-template', 'some-description')
+    t.assert.deepStrictEqual(output.services?.['my-template'], expected)
+    t.assert.deepStrictEqual(output.serviceAccounts, { 'my-template': { name: 'my-template' } })
+  })
+
+  test('service with configmap and secret', async (t: TestContext) => {
+    const inputResources: ICatalogTemplate.Service = {
+      name: 'simple-template',
+      type: 'template',
+      archiveUrl: 'http://archive.url',
+      pipelines: {
+        'github-actions': {},
+      },
+      componentId: 'some-template',
+      defaultEnvironmentVariables: [
+        { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'env2', value: 'val2', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'CONFIG_PATH', value: '/foo/bar', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+      ],
+      defaultResources: {
+        memoryLimits: { min: '85Mi', max: '136Mi' },
+        cpuLimits: { min: '23m', max: '77m' },
+      },
+      defaultProbes: {
+        liveness: { path: '/-/custom/', port: 'http' },
+        readiness: { path: '/-/custom/', port: 'http' },
+        startup: { cmd: [ 'command' ] },
+      },
+      defaultTerminationGracePeriodSeconds: 100,
+      defaultDocumentationPath: '/documentation/custom',
+      defaultConfigMaps: [ {
+        name: 'my-config',
+        mountPath: '/',
+        files: [ {
+          name: 'my-file',
+          content: 'my-content',
+        } ],
+        viewAsReadOnly: true,
+      } ],
+      defaultSecrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
+      } ],
+    }
+
+    const project: IProject = {
+      _id: '000000000000000000000',
+      name: 'my-project',
+      configurationGitPath: '/path/for/project/configuration',
+      projectId: 'my-project-id',
+      environments: [],
+      repository: {
+        providerId: 'gitlab',
+      },
+      pipelines: {
+        type: 'gitlab-ci',
+      },
+      containerRegistries: [
+        {
+          id: 'registry-id',
+          name: 'registry',
+          hostname: 'host.name',
+          isDefault: true,
+        },
+      ],
+      dockerImageNameSuggestion: {
+        type: DOCKER_IMAGE_NAME_SUGGESTION_TYPES.CONSTANT_PREFIX,
+        prefix: 'prefix',
+      },
+    }
+
+    const expected = {
+      name: 'my-template',
+      type: ServiceTypes.CUSTOM,
+      description: 'some-description',
+      advanced: false,
+      containerPorts: [],
+      sourceMarketplaceItem: { itemId: 'simple-template', tenantId: 'public', version: 'v1.0.0' },
+      dockerImage: 'host.name/prefix/my-template',
+      tags: [ ServiceTypes.CUSTOM ],
+      environment: [
+        { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'env2', value: 'val2', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+        { name: 'CONFIG_PATH', value: '/foo/bar', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
+      ],
+      resources: {
+        memoryLimits: { min: '85Mi', max: '136Mi' },
+        cpuLimits: { min: '23m', max: '77m' },
+      },
+      configMaps: [ {
+        name: 'my-config',
+        mountPath: '/',
+        viewAsReadOnly: true,
+      } ],
+      secrets: [ {
+        name: 'my-secret',
+        mountPath: '/foo/bar',
+      } ],
+      probes: {
+        liveness: { path: '/-/custom/', port: 'http' },
+        readiness: { path: '/-/custom/', port: 'http' },
+        startup: { cmd: [ 'command' ] },
+      },
+      serviceAccountName: 'my-template',
+      logParser: constants.MIA_LOG_PARSER_JSON,
+      swaggerPath: '/documentation/custom',
+      repoUrl: 'https://git.url/path/for/project/my-template',
+      sshUrl: 'git@git.url:path/for/project/my-template',
+      replicas: 1,
+      sourceComponentId: 'some-template',
+      terminationGracePeriodSeconds: 100,
+    }
+
+    const marketplaceItem: ICatalogTemplate.Item = {
+      _id: 'simple-template-id',
+      itemId: 'simple-template',
+      name: 'simple-template',
+      releaseDate: '1970-01-01T00:00:00.000Z',
+      lifecycleStatus: 'published',
+      type: 'template',
+      tenantId: 'public',
+      version: {
+        name: 'v1.0.0',
+        releaseDate: '1970-01-01T00:00:00.000Z',
+        lifecycleStatus: 'published',
+        releaseNote: '-',
+      },
+      resources: {
+        services: {
+          'simple-template': inputResources,
+        },
+      },
+    }
+
+    const expectedConfigMaps: ConfigMaps = {
+      'my-config': {
+        name: 'my-config',
+        files: [ {
+          name: 'my-file',
+          content: 'my-content',
+        } ],
+      },
+    }
+
+    const apiClient = new APIClient(mockedEndpoint)
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${project._id}/groups/${encodeURIComponent('/path/for/project')}/subgroups`,
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+      },
+      query: {
+        includeSelf: 'true',
+        page: '1',
+        per_page: '200',
+      },
+    }).reply(200, [
+      {
+        full_path: '/path/for/project',
+      },
+    ])
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${project._id}/service`,
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        serviceName: 'my-template',
+        resourceName: 'simple-template',
+        groupName: '/path/for/project',
+        serviceDescription: 'some-description',
+        templateId: marketplaceItem._id,
+        defaultConfigMaps: [
+          {
+            name: 'my-config',
+            mountPath: '/',
+            files: [ {
+              name: 'my-file',
+              content: 'my-content',
+            } ],
+            viewAsReadOnly: true,
+          },
+        ],
+        defaultSecrets: [ { name: 'my-secret', mountPath: '/foo/bar' } ],
+        repoName: 'my-template',
+        imageName: 'prefix/my-template',
+        containerRegistryId: project.containerRegistries?.[0].id,
+      }),
+    }).reply(200, {
+      dockerImage: `host.name/prefix/my-template`,
+      webUrl: 'https://git.url/path/for/project/my-template',
+      sshUrl: 'git@git.url:path/for/project/my-template',
+    })
+    const output = await servicePayloadFromTemplate(apiClient, marketplaceItem, project, 'my-template', 'some-description')
+    t.assert.deepStrictEqual(output.services?.['my-template'], expected)
+    t.assert.deepStrictEqual(output.serviceAccounts, { 'my-template': { name: 'my-template' } })
+    t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)
+    t.assert.deepStrictEqual(output.serviceSecrets, { 'my-secret': { name: 'my-secret' } })
   })
 })

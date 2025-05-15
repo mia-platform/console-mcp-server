@@ -189,20 +189,18 @@ export function servicePayloadFromMarketplaceItem (
     name,
     type: ServiceTypes.CUSTOM,
     tags: [ ServiceTypes.CUSTOM ],
-    description,
+    ...description && { description },
     advanced: false,
-    sourceComponentId: componentId,
+    ...componentId && { sourceComponentId: componentId },
     dockerImage: dockerImageName || dockerImage || '',
-    repoUrl,
-    sshUrl,
+    ...repoUrl && { repoUrl },
+    ...sshUrl && { sshUrl },
     sourceMarketplaceItem: {
       itemId: item.itemId,
       tenantId: item.tenantId,
       version: item.version?.name || 'NA',
     },
-    ...mapEnvVarToMountPath
-      ? { mapEnvVarToMountPath }
-      : {},
+    ...mapEnvVarToMountPath && { mapEnvVarToMountPath },
     environment: defaultEnvironmentVariables.map((env) => {
       switch (env.valueType) {
       case 'plain':
@@ -224,13 +222,11 @@ export function servicePayloadFromMarketplaceItem (
       }
     }),
     logParser: defaultLogParser,
-    resources: defaultResources,
-    probes: defaultProbes,
+    ...defaultResources && { resources: defaultResources },
+    ...defaultProbes && { probes: defaultProbes },
     serviceAccountName,
-    ...defaultMonitoring
-      ? { monitoring: defaultMonitoring }
-      : {},
-    terminationGracePeriodSeconds: defaultTerminationGracePeriodSeconds,
+    ...defaultMonitoring && { monitoring: defaultMonitoring },
+    ...defaultTerminationGracePeriodSeconds && { terminationGracePeriodSeconds: defaultTerminationGracePeriodSeconds },
     replicas: 1,
     swaggerPath: defaultDocumentationPath !== ''
       ? defaultDocumentationPath || DEFAULT_DOCUMENTATION_PATH
@@ -239,7 +235,12 @@ export function servicePayloadFromMarketplaceItem (
       ? { configMaps: defaultConfigMaps.map((configMap) => {
         const { name, usePreserve, mountPath, viewAsReadOnly, link, files } = configMap
         if (!usePreserve) {
-          return { name, mountPath, viewAsReadOnly, link }
+          return {
+            name,
+            mountPath,
+            viewAsReadOnly: !!viewAsReadOnly,
+            ...link && { link },
+          }
         }
 
         const subPaths = files.
@@ -255,7 +256,7 @@ export function servicePayloadFromMarketplaceItem (
         return { name, mountPath }
       }) }
       : {},
-    containerPorts,
+    ...containerPorts && { containerPorts },
   }
 
   if (item.type === 'plugin') {
@@ -401,10 +402,10 @@ export async function servicePayloadFromTemplate (
     groupName,
     ...description && { serviceDescription: description },
     templateId: item._id,
-    defaultConfigMaps: serviceToCreate.defaultConfigMaps,
-    defaultSecrets: serviceToCreate.defaultSecrets,
+    ...serviceToCreate.defaultConfigMaps && { defaultConfigMaps: serviceToCreate.defaultConfigMaps },
+    ...serviceToCreate.defaultSecrets && { defaultSecrets: serviceToCreate.defaultSecrets },
     repoName: name,
-    pipeline,
+    ...pipeline && { pipeline },
     imageName,
     containerRegistryId,
   }
