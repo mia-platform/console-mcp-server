@@ -22,7 +22,7 @@ import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICata
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
 import { TestMCPServer } from '../server/test-utils.test'
-import { addServicesCapabilities, servicePayloadFromMarketplaceItem, servicePayloadFromTemplate } from './services'
+import { addServicesCapabilities, servicePayloadFromMarketplaceItem, servicePayloadFromTemplateOrExample } from './services'
 
 const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants
 
@@ -549,7 +549,7 @@ suite('create service from marketplace template', () => {
       webUrl: 'https://git.url/path/for/project/services/my-template',
       sshUrl: 'git@git.url:path/for/project/services/my-template',
     })
-    const output = await servicePayloadFromTemplate(apiClient, marketplaceItem, project, 'my-template', 'some-description')
+    const output = await servicePayloadFromTemplateOrExample(apiClient, marketplaceItem, project, 'my-template', 'some-description')
     t.assert.deepStrictEqual(output.services?.['my-template'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'my-template': { name: 'my-template' } })
   })
@@ -744,7 +744,7 @@ suite('create service from marketplace template', () => {
       webUrl: 'https://git.url/path/for/project/my-template',
       sshUrl: 'git@git.url:path/for/project/my-template',
     })
-    const output = await servicePayloadFromTemplate(apiClient, marketplaceItem, project, 'my-template', 'some-description')
+    const output = await servicePayloadFromTemplateOrExample(apiClient, marketplaceItem, project, 'my-template', 'some-description')
     t.assert.deepStrictEqual(output.services?.['my-template'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'my-template': { name: 'my-template' } })
     t.assert.deepStrictEqual(output.configMaps, expectedConfigMaps)

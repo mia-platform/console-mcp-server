@@ -18,7 +18,7 @@ import path from 'node:path'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
-import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject, Listeners } from '@mia-platform/console-types'
+import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogExample, ICatalogPlugin, ICatalogTemplate, IProject, Listeners } from '@mia-platform/console-types'
 
 import { APIClient } from '../lib/client'
 import { AppContext } from '../server/server'
@@ -137,7 +137,10 @@ async function createServiceFromMarketplaceItem (
     resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, name, description)
     break
   case 'template':
-    resourcesToCreate = await servicePayloadFromTemplate(client, marketplaceItem as ICatalogTemplate.Item, project, name, description)
+    resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogTemplate.Item, project, name, description)
+    break
+  case 'example':
+    resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogExample.Item, project, name, description)
     break
   default:
     throw new Error('TODO')
@@ -149,7 +152,7 @@ async function createServiceFromMarketplaceItem (
 const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 
 export function servicePayloadFromMarketplaceItem (
-  item: ICatalogPlugin.Item|ICatalogTemplate.Item,
+  item: ICatalogPlugin.Item | ICatalogTemplate.Item | ICatalogExample.Item,
   name: string,
   description?: string,
   dockerImageName?: string,
@@ -346,9 +349,9 @@ export function servicePayloadFromMarketplaceItem (
   }
 }
 
-export async function servicePayloadFromTemplate (
+export async function servicePayloadFromTemplateOrExample (
   client: APIClient,
-  item: ICatalogTemplate.Item,
+  item: ICatalogTemplate.Item | ICatalogExample.Item,
   project: IProject,
   name: string,
   description?: string,
