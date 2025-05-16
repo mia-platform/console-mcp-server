@@ -60,7 +60,7 @@ export async function loadMiactlToken (endpoint: string): Promise<AccessToken | 
     }
 
     const expiresInSeconds = Math.floor((new Date(cache.expiry).getTime() - Date.now()) / 1000)
-    return new AccessToken(cache.access_token, 'Bearer', expiresInSeconds)
+    return new AccessToken(cache.access_token, 'Bearer', expiresInSeconds, cache.refresh_token)
   } catch {
     return undefined
   }
