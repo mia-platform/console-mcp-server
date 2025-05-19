@@ -1,15 +1,12 @@
 # Examples
 
-Here you can see some propmts that you can ask to the `mcp-server`
-
-Configuration changes:
+Here you can see some propmts that you can ask to the `mcp-server`.  
+Remember to change the values inside the curly braces `{}` with your specific information.
 
 ```txt
 In {projectName} project, create an endpoint /foo which exposes the service with name echo and docker image
 davidebianchi/echo-service. If the service not exists, create it.
 ```
-
-E2E:
 
 ```txt
 Create a Mia-Platform project named "MCP Tester". After the project creation, add resources to create an e-commerce for selling items.
@@ -36,15 +33,6 @@ The user should be able to see order history and shipping status in their person
 
 Once everything is created, deploy in the DEV Environment and provide me the status of all services when everything is up and running.
 ```
-
-## Work in progress prompts
-
-Here is a set of prompts that we are testing just right now and will be stable soon. You can try them out! If you provide
-us feedback to improve them, it will be greatly appreciated.
-
-Remember to change the values inside the curly braces `{}` with your specific information.
-
-### End-to-End Walking Skeleton
 
 ```txt
 Create a Mia-Platform project named {projectName} that implements an e-commerce for selling items. Use the {projectBlueprint} template and the tenant {tenantName}.
@@ -97,8 +85,6 @@ Ensure all patient data is secured using proper authentication and authorization
 Deploy to the DEV environment and show me the deployment status.
 ```
 
-### Project Creation
-
 ```txt
 Create a Mia-Platform Project named {projectName} using the default project blueprint in the tenant {tenantName}
 ```
@@ -111,8 +97,6 @@ Create a Mia-Platform Project named {projectName} using the microservices-orient
 Create a Mia-Platform Project named {projectName} for a data analytics platform. Use the {blueprintName} blueprint in the tenant {tenantName}. Configure three environments: DEV, STAGING, and PRODUCTION
 ```
 
-### Microservice Creation
-
 ```txt
 Add a new Node.js microservice named {microserviceName} to project {projectName}. Use the Express framework template and configure it with 2 replicas
 ```
@@ -124,8 +108,6 @@ Create a Java Spring Boot microservice named {microserviceName} in project {proj
 ```txt
 Add a Python FastAPI microservice named {microserviceName} to project {projectName}. Configure it to connect to the existing MongoDB instance and implement proper error handling
 ```
-
-### Resource Creation
 
 ```txt
 Create a microservice named {microserviceName} using the template {templateName} in the project {projectName}
@@ -142,8 +124,6 @@ Create a MongoDB resource named {resourceName} in project {projectName} with 10G
 ```txt
 Add a Redis cache named {cacheName} to project {projectName} with 1GB memory and configure proper persistence options
 ```
-
-### Runtime Environments and Workload Discovery
 
 ```txt
 Which are the current configurations of the project {projectName}? Provide a table that lists all workloads, replicas, status and if it's source code, a container, or a resource.
@@ -162,8 +142,6 @@ Show me the resource utilization of all services in project {projectName} in the
 Compare the configurations between DEV and PRODUCTION environments for project {projectName} and highlight any inconsistencies or differences that could cause deployment issues
 ```
 
-### Workloads Troubleshooting and Coding
-
 ```txt
 Check in Prod environment all containers and if there are any errors. If there is an error, highlight it and clone the source code of the service. Provide a code snippet to fix that code
 ```
@@ -180,8 +158,6 @@ The microservice {microserviceName} in project {projectName} is experiencing hig
 Service {serviceName} in project {projectName} is crashing on startup. Review the logs, identify the root cause, and provide a solution
 ```
 
-### API Management, Authentication and Authorization
-
 ```txt
 Publish the endpoint /hello-world exposed by the microservice {microserviceName} and protect it with OAuth2. Only admin users can call that endpoint, configure authorization accordingly
 ```
@@ -197,8 +173,6 @@ Implement rate limiting on the /api/v1/users endpoint in project {projectName} t
 ```txt
 Configure cross-origin resource sharing (CORS) for all API endpoints in project {projectName} to allow requests from the domain example.com
 ```
-
-### CRUD Service Management
 
 ```txt
 Create a CRUD Service with the following collections:
@@ -226,8 +200,6 @@ Add a new collection named 'reviews' to the existing CRUD Service in project {pr
 ```txt
 Configure full-text search on the 'products' collection in project {projectName} to allow users to search by name and description. Implement sorting options by price and popularity
 ```
-
-### Microservice Orchestration (Flow Manager)
 
 ```txt
 Orchestrate a Saga for purchasing orchestrating the following microservices:
@@ -257,8 +229,6 @@ Implement an order processing workflow in project {projectName} that includes:
 
 Configure timeouts for each step and implement retry logic for the payment processing step
 ```
-
-### Data Pipelines Management (Fast Data)
 
 ```txt
 Create a Fast Data Pipeline that aggregates information about Customer from system of record {sysofrecordName1} and system of record {sysofrecordName2}. Call that single view customer_sv.
@@ -291,8 +261,6 @@ Implement a Fast Data Pipeline for customer behavior analysis that:
   - Creates a real-time customer profile with preferences and behavior patterns
   - Stores the results in a dedicated collection for the recommendation engine
 ```
-
-### Microfrontend Orchestration (micro-lc)
 
 ```txt
 Create an internal tool (backoffice) using micro-lc and micro frontend composer.
@@ -336,8 +304,6 @@ Implement a modular operations dashboard for project {projectName} using micro-l
 Allow users to customize their view by selecting which components to display
 ```
 
-### Blueprints Creation
-
 ```txt
 Create a project blueprint starting from project {projectName} in the tenant {tenantName}
 ```
@@ -353,8 +319,6 @@ Create a comprehensive e-commerce project blueprint based on project {projectNam
 ```txt
 Create a blueprint for a standard microservice architecture with API Gateway, authentication service, and scalable backend services based on the project {projectName}. Name the blueprint "{blueprintName}" and add documentation explaining key components
 ```
-
-### DevOps Tools Integration
 
 ```txt
 Which are the available pipelines in GitLab repository connected to tenant {tenantName}?
@@ -381,8 +345,6 @@ Set up monitoring and alerting for all services in project {projectName} using P
 Integrate SonarQube code quality checking into the CI pipeline for project {projectName} and configure it to block merges if quality gates fail
 ```
 
-### Infrastructure Tools Integration
-
 ```txt
 Describe the status of the cluster {clusterName} connected to tenant {tenantName}
 ```
@@ -398,8 +360,6 @@ Set up autoscaling for project {projectName} based on CPU utilization and reques
 ```txt
 Configure network policies for project {projectName} to isolate services and restrict communication between microservices to only what's necessary for operation
 ```
-
-### Project Migration
 
 ```txt
 Starting from project {originProjectName} in the tenant {originTenantName} create another project named {targetProjectName} in the tenant {targetTenantName} with the same configurations of {originProjectName}
@@ -417,8 +377,6 @@ Create a new version of project {projectName} that upgrades all dependencies and
 Clone project {sourceProject} to create {targetProject}, but replace the authentication service with the new OAuth2 implementation from the marketplace
 ```
 
-### Workload Scaling and Optimization
-
 ```txt
 Are the number of replicas of the microservice {microserviceName} in project {projectName} correct in the production environment?
 ```
@@ -434,8 +392,6 @@ Optimize resource requests and limits for all services in project {projectName} 
 ```txt
 Configure horizontal pod autoscaling for the {microserviceName} service based on custom metrics from the application (e.g., queue length, active users)
 ```
-
-### Data Discovery
 
 ```txt
 What are the properties of the Purchase Data Product? Who publishes it? Who consumes it?
@@ -453,8 +409,6 @@ List all collections in the CRUD service of project {projectName} with their sch
 Show me all data products in tenant {tenantName} related to customer information, who produces them, and which applications consume them
 ```
 
-### API Discovery
-
 ```txt
 How can I retrieve the information about the logged-in user via API?
 ```
@@ -470,8 +424,6 @@ Generate OpenAPI documentation for all RESTful services in project {projectName}
 ```txt
 Show me all endpoints in project {projectName} that handle customer data and verify if they are properly secured
 ```
-
-### Legacy Systems Modernization
 
 ```txt
 Starting from this repository {repoName}, analyze the code, split into microservices, and create a Mia-Platform project with the splitted microservices
@@ -489,8 +441,6 @@ Create API wrappers for the legacy system {legacySystemName} to expose its funct
 Implement a strangler pattern to gradually migrate functionality from the legacy system {legacySystem} to new microservices in project {projectName}, starting with the customer management module
 ```
 
-### Metrics and Analytics
-
 ```txt
 What are the DORA metrics of the project {projectName} in the last 30 days?
 ```
@@ -506,8 +456,6 @@ Show me the usage patterns of the {microserviceName} API in project {projectName
 ```txt
 Generate a report on error rates and types for all services in project {projectName} for the last month, grouped by service and error category
 ```
-
-### Compliance and Auditing
 
 ```txt
 Who has done the last releases in production in the last 7 days for the project {projectName}?
@@ -525,8 +473,6 @@ List all users who have accessed sensitive data in project {projectName} in the 
 Verify that all services in project {projectName} comply with the company's security policy requirements for authentication, authorization, and data protection
 ```
 
-### Concierge and Task Management
-
 ```txt
 What are my tasks for today?
 ```
@@ -542,8 +488,6 @@ Schedule a deployment of the latest version of {microserviceName} to production 
 ```txt
 What outstanding pull requests do I need to review for project {projectName}?
 ```
-
-### Documentation and Self-Service
 
 ```txt
 How can I configure the authentication service?
@@ -561,8 +505,6 @@ Generate comprehensive documentation for project {projectName}, including archit
 Create a troubleshooting guide for common issues with the CRUD service in project {projectName}, including error codes and resolution steps
 ```
 
-### Observability and Logging
-
 ```txt
 Show me the logs for microservice {microserviceName} in project {projectName} from the last hour filtered to only show error messages
 ```
@@ -579,8 +521,6 @@ Create a custom dashboard in Grafana for project {projectName} that shows key pe
 Configure log aggregation for project {projectName} to centralize all application and system logs for easier troubleshooting
 ```
 
-### Testing and Quality Assurance
-
 ```txt
 Generate comprehensive test cases for the API endpoints in microservice {microserviceName} based on its OpenAPI specification
 ```
@@ -596,10 +536,6 @@ Create a load testing scenario for project {projectName} that simulates peak tra
 ```txt
 Implement chaos testing in the DEV environment for project {projectName} to verify system resilience when services fail
 ```
-
-### Example of conversations
-
-You may start with a prompt and tham within the context continue the conversations. Some examples
 
 ```txt
 Create the project Demo Projects in my preferred tenant using all defaults
