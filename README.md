@@ -27,6 +27,10 @@ with Mia-Platform Console APIs, enabling advanced automation and interaction cap
 > When using miactl session, the host you provide to the MCP Server **MUST** be the exact same as the one
 > you have logged in with miactl, including scheme and any possible trailing slash.
 
+### How to Run
+
+To run the MCP server on your machine you can follow the instructions in the [Setup Documentation]
+
 ### Run from sources
 
 If you don't have Docker installed, you can use NPM and Node.js for running it locally. Once you have cloned the
@@ -114,8 +118,8 @@ node --test --import tsx <FILE_PATH>
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
 [Model Context Protocol (MCP)]: https://modelcontextprotocol.io/introduction
 [Docker]: https://www.docker.com/
+[Setup Documentation]: /docs/20_setup.md
 [Create a Mia-Platform Service Account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
-[VS Code's agent mode documentation]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
 [nvm]: https://github.com/nvm-sh/nvm
 [mise]: https://mise.jdx.dev
 [miactl]: https://github.com/mia-platform/miactl
