@@ -25,7 +25,6 @@ Which are the current configurations of the project {projectName}? Provide a tab
 List also all endpoints exposed and if they are protected or public and which microservice exposes that endpoint
 ```
 
-
 ```txt
 Analyze the logs of microservice {microserviceName} in project {projectName} from the last 24 hours. Identify any recurring errors and suggest fixes
 ```
