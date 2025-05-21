@@ -69,7 +69,7 @@ Once these steps are completed you can setup the MCP server using the `node` com
 ## Local Development
 
 To help with the development of the server you need Node.js installed on your machine.  
-The reccomended way is to use a version manager like [nvm] or [mise].
+The recommended way is to use a version manager like [nvm] or [mise].
 
 Once you have setup your environment with the correct Node.js version declared inside the `.nvmrc` file you can run the
 following command:
@@ -99,7 +99,7 @@ npm run local:test  -- --host https://CONSOLE_HOST
 ```
 
 This command will download and launch the MCP inspector on `http://localhost:6274` where you can test if the
-implementation will work correctly testing the tools discovery and calls without the needs of a working llm environmnet.
+implementation will work correctly testing the tools discovery and calls without the needs of a working llm environment.
 
 To run tests for new implementations you can use:
 
