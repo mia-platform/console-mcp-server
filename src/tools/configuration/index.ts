@@ -16,7 +16,7 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { Collections, ConfigMaps, Endpoints, Services } from '@mia-platform/console-types'
+import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { AppContext } from '../../server/server'
 import { ResourcesToCreate } from './types'
@@ -103,14 +103,16 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
       collections: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.COLLECTIONS),
       services: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICES),
       configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
+      serviceAccounts: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICE_ACCOUNTS),
     },
-    async ({ projectId, endpoints, collections, refId, services, configMaps }): Promise<CallToolResult> => {
+    async ({ projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
           collections: collections as Collections,
           services: services as Services,
           configMaps: configMaps as ConfigMaps,
+          serviceAccounts: serviceAccounts as ServiceAccounts,
         }
         await saveConfiguration(appContext, projectId, resourcesToCreate, refId)
         return {

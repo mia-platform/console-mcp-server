@@ -148,7 +148,7 @@ export const paramsDescriptions = {
   REF_TYPE: `The type of the reference to use, can be revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   REF_ID: `The id of the reference to use, can be the revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   ENDPOINTS: `
-  The endpoints to create or update. The key is the path of the endpoint, the value is the endpoint object.
+  The endpoints to create or update. If a service with componentId of api-gateway or api-gateway-envoy not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool. The key is the path of the endpoint, the value is the endpoint object.
   Always set the tags to the endpoint, if not specified it can be set to empty array.
   An example of a custom endpoint is:
   {
@@ -902,6 +902,12 @@ export const paramsDescriptions = {
         content: '{}'
       }
     ]
+  }
+`,
+  SERVICE_ACCOUNTS: `The service accounts to create or update. The key is the name of the service account, the value is the service account name.
+  An example of a service account is:
+  {
+    name: 'echo-service',
   }
 `,
 
