@@ -10,7 +10,7 @@
     "build": "rimraf mcp-server && tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
-    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.12.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLATFORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio",
+    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.13.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLATFORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio",
     "start": "npm run build && node mcp-server start",
     "start:stdio": "npm run start -- --stdio",
     "test": "NODE_ENV=test node --test --import tsx 'src/**/*.test.ts'"
@@ -25,17 +25,17 @@
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
-    "@mia-platform/console-types": "^0.37.4",
-    "@modelcontextprotocol/sdk": "^1.11.4",
-    "commander": "^13.1.0",
+    "@mia-platform/console-types": "^0.37.5",
+    "@modelcontextprotocol/sdk": "^1.11.5",
+    "commander": "^14.0.0",
     "fastify": "^5.3.3",
-    "undici": "^7.9.0",
-    "zod": "^3.24.4"
+    "undici": "^7.10.0",
+    "zod": "^3.25.20"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
     "@stylistic/eslint-plugin-js": "^4.2.0",
-    "@types/node": "^22.15.19",
+    "@types/node": "^22.15.21",
     "c8": "^10.1.3",
     "eslint": "^9.27.0",
     "rimraf": "^6.0.1",
