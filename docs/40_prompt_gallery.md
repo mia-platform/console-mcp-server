@@ -1,6 +1,7 @@
 # Prompt Gallery
 
-Here is a set of prompts that we are testing just right now and will be stable soon. You can try them out! If you provide us feedback to improve them, it will be greatly appreciated.
+Here is a set of prompts that we are testing just right now and will be stable soon. You can try them out! If you
+provide us feedback to improve them, it will be greatly appreciated.
 
 Remember to change the values inside the curly braces `{}` with your specific information.
 
@@ -142,7 +143,7 @@ Service {serviceName} in project {projectName} is crashing on startup. Review th
 
 ## API Management, Authentication and Authorization
 
-```txt 
+```txt
 Publish the endpoint /hello-world exposed by the microservice {microserviceName} and protect it with OAuth2. Only admin users can call that endpoint, configure authorization accordingly
 ```
 
@@ -160,7 +161,7 @@ Configure cross-origin resource sharing (CORS) for all API endpoints in project 
 
 ## CRUD Service Management
 
-```txt 
+```txt
 Create a CRUD Service with the following collections:
   - customers
   - products
@@ -189,7 +190,7 @@ Configure full-text search on the 'products' collection in project {projectName}
 
 ## Microservice Orchestration (Flow Manager)
 
-```txt 
+```txt
 Orchestrate a Saga for purchasing orchestrating the following microservices:
   - CartService, command AddToCart, event ItemAdded
   - PriceCalculatorService, command CalculatePrice, event PriceCalculated
@@ -220,7 +221,7 @@ Configure timeouts for each step and implement retry logic for the payment proce
 
 ## Data Pipelines Management (Fast Data)
 
-```txt 
+```txt
 Create a Fast Data Pipeline that aggregates information about Customer from system of record {sysofrecordName1} and system of record {sysofrecordName2}. Call that single view customer_sv.
 Inside customer_sv list:
   - customer information
@@ -254,7 +255,7 @@ Implement a Fast Data Pipeline for customer behavior analysis that:
 
 ## Microfrontend Orchestration (micro-lc)
 
-```txt 
+```txt
 Create an internal tool (backoffice) using micro-lc and micro frontend composer.
 The backoffice should visualize:
   - customers
@@ -298,7 +299,7 @@ Allow users to customize their view by selecting which components to display
 
 ## Blueprints Creation
 
-```txt 
+```txt
 Create a project blueprint starting from project {projectName} in the tenant {tenantName}
 ```
 
@@ -316,7 +317,7 @@ Create a blueprint for a standard microservice architecture with API Gateway, au
 
 ## DevOps Tools Integration
 
-```txt 
+```txt
 Which are the available pipelines in GitLab repository connected to tenant {tenantName}?
 ```
 
@@ -343,7 +344,7 @@ Integrate SonarQube code quality checking into the CI pipeline for project {proj
 
 ## Infrastructure Tools Integration
 
-```txt 
+```txt
 Describe the status of the cluster {clusterName} connected to tenant {tenantName}
 ```
 
@@ -361,7 +362,7 @@ Configure network policies for project {projectName} to isolate services and res
 
 ## Project Migration
 
-```txt 
+```txt
 Starting from project {originProjectName} in the tenant {originTenantName} create another project named {targetProjectName} in the tenant {targetTenantName} with the same configurations of {originProjectName}
 ```
 
@@ -379,7 +380,7 @@ Clone project {sourceProject} to create {targetProject}, but replace the authent
 
 ## Workload Scaling and Optimization
 
-```txt 
+```txt
 Are the number of replicas of the microservice {microserviceName} in project {projectName} correct in the production environment?
 ```
 
@@ -397,7 +398,7 @@ Configure horizontal pod autoscaling for the {microserviceName} service based on
 
 ## Data Discovery
 
-```txt 
+```txt
 What are the properties of the Purchase Data Product? Who publishes it? Who consumes it?
 ```
 
@@ -415,7 +416,7 @@ Show me all data products in tenant {tenantName} related to customer information
 
 ## API Discovery
 
-```txt 
+```txt
 How can I retrieve the information about the logged-in user via API?
 ```
 
@@ -433,7 +434,7 @@ Show me all endpoints in project {projectName} that handle customer data and ver
 
 ## Legacy Systems Modernization
 
-```txt 
+```txt
 Starting from this repository {repoName}, analyze the code, split into microservices, and create a Mia-Platform project with the splitted microservices
 ```
 
