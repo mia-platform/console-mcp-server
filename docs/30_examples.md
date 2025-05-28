@@ -39,7 +39,28 @@ Show me the resource utilization of all services in project {projectName} in the
 Compare the configurations between DEV and PRODUCTION environments for project {projectName} and highlight any inconsistencies or differences that could cause deployment issues
 ```
 
-NOT WORKING
+## CRUD Service Management
+
+```txt
+Create a CRUD Service with the following collections in {projectName}:
+  - customers
+  - products
+  - payments
+  - shipping
+Add the properties needed to describe all domains
+```
+
+```txt
+Create a CRUD Service for an inventory management system with the following collections in {projectName}:
+  - items (with only this additional fields for SKU, name, description, quantity, location, supplier)
+  - suppliers (with only this additional fields for name, contact information, payment terms)
+  - purchase_orders (with only this additional fields for order date, supplier, items, status, delivery date)
+  - inventory_movements (with only this additional fields for item, quantity, direction, timestamp, reason)
+
+Add appropriate indexes for optimizing common queries
+```
+
+## NOT WORKING
 
 missing tool for adding/changin environments
 
@@ -101,4 +122,16 @@ Error in changing the endpoint because it cannot set the requestsPerSecond prope
 
 ```txt
 Implement rate limiting on the /api/v1/users endpoint in project {projectName} to prevent abuse. Allow 100 requests per minute for authenticated users and 10 requests per minute for anonymous users
+```
+
+create the correct configuration but the projection isn't visible from the ui
+
+```txt
+Add a new collection named 'reviews' to the existing CRUD Service in project {projectName}. Include fields for product_id, user_id, rating, comment, and date. Create a projection that joins reviews with products
+```
+
+cannot create the fulltext search index because the console don't support it
+
+```txt
+Configure full-text search on the 'products' collection in project {projectName} to allow users to search by name and description. Implement sorting options by price and popularity
 ```

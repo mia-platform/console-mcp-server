@@ -177,7 +177,8 @@ export const paramsDescriptions = {
     "useDownstreamProtocol": true
   }
 
-  If you want to expose an endpoint which targets the crud-service, use the following example:
+  If you want to expose an endpoint which targets the crud-service, use the following example, the routes supported
+  are the only ones defined in the example, no other routes are supported:
 {
     "basePath": "/books",
     "pathName": "/",
