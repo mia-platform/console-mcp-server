@@ -44,7 +44,7 @@ export async function listCompanyIAMIdentities (client: APIClient, tenantId: str
     params.set('identityType', type)
   }
 
-  return await client.getPaginated<Record<string, unknown>>(listCompanyIAMPathTemplate(tenantId), {}, params, 0)
+  return await client.getPaginated<Record<string, unknown>>(listCompanyIAMPathTemplate(tenantId), params, 0)
 }
 
 export async function getCompanyAuditLogs (client: APIClient, tenantId: string, from?: string, to?: string) {
@@ -56,5 +56,5 @@ export async function getCompanyAuditLogs (client: APIClient, tenantId: string, 
     params.set('to', to)
   }
 
-  return await client.getPaginated<Record<string, unknown>>(companyAuditLogsPathTemplate(tenantId), {}, params, 0)
+  return await client.getPaginated<Record<string, unknown>>(companyAuditLogsPathTemplate(tenantId), params, 0)
 }

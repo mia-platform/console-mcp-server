@@ -46,7 +46,7 @@ suite('FeatureTogglesClient', () => {
       path: `${featureTogglesPath}?featureToggleIds=${featureToggleIds.join(',')}`,
       method: 'GET',
       headers: {
-        'content-type': 'application/json',
+        Accept: 'application/json',
       },
     }).reply(200, mockResponse)
 
@@ -72,7 +72,7 @@ suite('FeatureTogglesClient', () => {
       path: `${featureTogglesPath}?featureToggleIds=${featureToggleIds.join(',')}&tenantId=${context.tenantId}&projectId=${context.projectId}&envId=${context.envId}`,
       method: 'GET',
       headers: {
-        'content-type': 'application/json',
+        Accept: 'application/json',
       },
     }).reply(200, mockResponse)
 
@@ -97,7 +97,7 @@ suite('FeatureTogglesClient', () => {
       path: `${featureTogglesPath}?featureToggleIds=${featureToggleIds.join(',')}`,
       method: 'GET',
       headers: {
-        'content-type': 'application/json',
+        Accept: 'application/json',
       },
     }).reply(500, { error: 'Internal Server Error' })
 

@@ -32,7 +32,7 @@ export async function triggerDeploy (client: APIClient, projectId: string, paylo
 }
 
 export async function compareForDeploy (client: APIClient, projectId: string, payload: TriggerOptions) {
-  const data = await client.get<CompareForDeployResponse>(compareUpdatePath(projectId), {}, new URLSearchParams({
+  const data = await client.get<CompareForDeployResponse>(compareUpdatePath(projectId), new URLSearchParams({
     fromEnvironment: payload.environment,
     toRef: payload.revision,
     refType: payload.refType,

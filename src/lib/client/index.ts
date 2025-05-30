@@ -33,20 +33,35 @@ export class APIClient {
   private token: AccessToken | undefined
   private clientID: string
   private clientSecret: string
+  private additionalHeaders: UndiciHeaders
 
-  constructor (baseURL: string, clientID?: string, clientSecret?: string) {
+  constructor (baseURL: string, clientID?: string, clientSecret?: string, additionalHeaders: UndiciHeaders = {}) {
     this.baseURL = baseURL
     this.clientID = clientID || ''
     this.clientSecret = clientSecret || ''
+    this.additionalHeaders = additionalHeaders
   }
 
-  async get<T> (path: string, additionalHeaders: Record<string, unknown> = {}, params?: URLSearchParams): Promise<T> {
+  async getPlain<T> (path: string, params?: URLSearchParams): Promise<T> {
+    return this.getRequest<T>(path, params, true)
+  }
+
+  async get<T> (path: string, params?: URLSearchParams): Promise<T> {
+    return this.getRequest<T>(path, params)
+  }
+
+  private async getRequest<T> (path: string, params?: URLSearchParams, plain = false): Promise<T> {
     const url = new URL(path, this.baseURL)
     if (params) {
       url.search = params.toString()
     }
 
-    const { body, headers } = await this.doRequest(url, 'GET', additionalHeaders)
+    let accept: string | undefined
+    if (plain) {
+      accept = 'text/plain'
+    }
+
+    const { body, headers } = await this.doRequest(url, 'GET', undefined, accept)
     if (headers['content-type']?.includes('text/plain')) {
       return await body.text() as T
     }
@@ -56,7 +71,6 @@ export class APIClient {
   async post<T> (
     path: string,
     body = {},
-    additionalHeaders: Record<string, unknown> = {},
     params?: URLSearchParams,
   ): Promise<T> {
     const url = new URL(path, this.baseURL)
@@ -64,13 +78,12 @@ export class APIClient {
       url.search = params.toString()
     }
 
-    const { body: returnBody } = await this.doRequest(url, 'POST', additionalHeaders, body)
+    const { body: returnBody } = await this.doRequest(url, 'POST', body)
     return await returnBody.json() as T
   }
 
   async getPaginated<T> (
     path: string,
-    additionalHeaders: Record<string, unknown> = {},
     params = new URLSearchParams(),
     startingPage = 1,
     maxPage = 10,
@@ -84,7 +97,7 @@ export class APIClient {
       params.set('page', `${page}`)
       url.search = params.toString()
 
-      const { body, headers } = await this.doRequest(url, 'GET', additionalHeaders)
+      const { body, headers } = await this.doRequest(url, 'GET')
       const items = await body.json() as T[]
       results.push(...items)
       const totalPages = headers[API_CONSOLE_TOTAL_PAGES_HEADER_KEY]
@@ -99,12 +112,12 @@ export class APIClient {
   private async doRequest (
     url: URL,
     method: string,
-    additionalHeaders: Record<string, unknown> = {},
     body?: Record<string, unknown>,
+    accept = 'application/json',
   ): Promise<Dispatcher.ResponseData> {
     await this.validateToken()
 
-    const hdr = headers(this.token, additionalHeaders, !!body)
+    const hdr = headers(this.token, accept, this.additionalHeaders, !!body)
     const response = await request(url, {
       method: method,
       headers: hdr,
@@ -132,9 +145,9 @@ export class APIClient {
   }
 }
 
-function headers (token: AccessToken | undefined, headers: Record<string, unknown> = {}, hasBody: boolean): UndiciHeaders {
+function headers (token: AccessToken | undefined, accept: string, headers: UndiciHeaders = {}, hasBody: boolean): UndiciHeaders {
   return {
-    Accept: 'application/json',
+    Accept: accept,
     ...headers,
     ...hasBody && { 'Content-Type': 'application/json' },
     'User-Agent': UserAgent,

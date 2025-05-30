@@ -33,7 +33,7 @@ export async function listProjects (client: APIClient, tenantIds: string[], sear
     params.set('search', search)
   }
 
-  return await client.getPaginated<Record<string, unknown>>(projectsPath, {}, params)
+  return await client.getPaginated<Record<string, unknown>>(projectsPath, params)
 }
 
 export async function getProjectInfo (client: APIClient, projectId: string) {
@@ -55,7 +55,7 @@ export async function createProjectFromTemplate (
     projectName,
   })
 
-  const draftResponse = await client.get<ProjectDraft>(getProjectDraft, {}, params)
+  const draftResponse = await client.get<ProjectDraft>(getProjectDraft, params)
 
   const projectBody: PostProject = {
     name: projectName,
@@ -80,5 +80,8 @@ export async function getGitProviderProjectGroups (client: APIClient, projectId:
   })
 
   const escapedPath = encodeURIComponent(gitConfigPath)
-  return await client.getPaginated<Record<string, unknown>>(getProjectGitProviderSubgroups(projectId, escapedPath), {}, params)
+  return await client.getPaginated<Record<string, unknown>>(
+    getProjectGitProviderSubgroups(projectId, escapedPath),
+    params,
+  )
 }

@@ -14,6 +14,7 @@
 // limitations under the License.
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
@@ -30,8 +31,13 @@ export interface AppContext {
   ftClient: IFeatureTogglesClient
 }
 
-export function getMcpServer (host: string, clientID: string, clientSecret: string): McpServer {
-  const client = new APIClient(host, clientID, clientSecret)
+export function getMcpServer (
+  host: string,
+  clientID: string,
+  clientSecret: string,
+  additionalHeaders: UndiciHeaders = {},
+): McpServer {
+  const client = new APIClient(host, clientID, clientSecret, additionalHeaders)
   const server = new McpServer({
     name,
     description,

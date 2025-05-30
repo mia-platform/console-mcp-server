@@ -43,11 +43,6 @@ export async function listPods (client: APIClient, projectId: string, environmen
 }
 
 export async function getPodLogs (client: APIClient, projectId: string, environmentId: string, podName: string, containerName: string, lines?: number): Promise<string> {
-  const logs = await client.get<string>(
-    logsPath({ projectId, environmentId, podName, containerName, lines }),
-    {
-      Accept: 'text/plain',
-    },
-  )
+  const logs = await client.getPlain<string>(logsPath({ projectId, environmentId, podName, containerName, lines }))
   return logs
 }

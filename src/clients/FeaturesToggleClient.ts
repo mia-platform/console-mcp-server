@@ -44,12 +44,13 @@ export default class FeatureTogglesClient implements IFeatureTogglesClient {
     if (featureToggleIds.length === 0) {
       return {}
     }
-    const activeFeatures = await this.client.get<FeatureTogglesResponse>('/api/feature-toggles', {
-      'content-type': 'application/json',
-    }, new URLSearchParams({
-      featureToggleIds: featureToggleIds.join(','),
-      ...ftContext as Record<string, string>,
-    }))
+    const activeFeatures = await this.client.get<FeatureTogglesResponse>(
+      '/api/feature-toggles',
+      new URLSearchParams({
+        featureToggleIds: featureToggleIds.join(','),
+        ...ftContext as Record<string, string>,
+      }),
+    )
 
     return activeFeatures
   }

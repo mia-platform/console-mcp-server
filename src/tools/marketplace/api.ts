@@ -37,7 +37,7 @@ export async function listMarketplaceItems (client: APIClient, tenantId?: string
     params.set('name', search)
   }
 
-  return await client.getPaginated<CatalogItem>(listMarketplacePath, {}, params)
+  return await client.getPaginated<CatalogItem>(listMarketplacePath, params)
 }
 
 export async function listMarketPlaceItemVersions (client: APIClient, itemId: string, tenantId: string) {
