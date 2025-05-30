@@ -91,7 +91,7 @@ export class APIClient {
     const url = new URL(path, this.baseURL)
     params.set('per_page', '200')
 
-    const results:T[] = []
+    const results: T[] = []
     let page = startingPage
     do {
       params.set('page', `${page}`)

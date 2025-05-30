@@ -26,10 +26,10 @@ export interface ProjectDraft {
     provider?: {
       label?: string
       type?: string
-    },
+    }
     gitPath?: string
     visibility?: string
-  },
+  }
   pipelines?: Pick<IProject, 'pipelines'>
 }
 

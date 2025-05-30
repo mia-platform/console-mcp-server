@@ -23,7 +23,7 @@ import { httpServer } from './httpserver.js'
 suite('test http streaming server', () => {
   const testHost = 'http://localhost:3000'
 
-  let fastify:FastifyInstance
+  let fastify: FastifyInstance
   beforeEach(async () => {
     fastify = Fastify({
       logger: false,

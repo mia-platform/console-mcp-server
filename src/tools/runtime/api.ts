@@ -19,8 +19,8 @@ export const podsPath = ({
   projectId,
   environmentId,
 }: {
-  projectId: string,
-  environmentId: string,
+  projectId: string
+  environmentId: string
 }) => `/api/projects/${projectId}/environments/${environmentId}/pods/describe/`
 
 export const logsPath = ({
@@ -30,11 +30,11 @@ export const logsPath = ({
   containerName,
   lines = 500,
 }: {
-  projectId: string,
-  environmentId: string,
-  podName: string,
-  containerName: string,
-  lines?: number,
+  projectId: string
+  environmentId: string
+  podName: string
+  containerName: string
+  lines?: number
 }) => `/api/projects/${projectId}/environments/${environmentId}/pods/${podName}/containers/${containerName}/logs?file=true&tailLines=${lines}`
 
 export async function listPods (client: APIClient, projectId: string, environmentId: string) {

@@ -26,9 +26,9 @@ export enum ScopeType {
 }
 
 export interface FeatureTogglesContext {
-  tenantId?: string,
-  projectId?: string,
-  envId?: string,
+  tenantId?: string
+  projectId?: string
+  envId?: string
 }
 
 export type IFeatureTogglesClient = Omit<FeatureTogglesClient, 'client'>

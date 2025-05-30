@@ -39,17 +39,17 @@ export class AccessToken {
     return this.expires_at - (Date.now() + expirationWindowSeconds * 1000) <= 0
   }
 
-  refreshToken (): string|undefined {
+  refreshToken (): string | undefined {
     return this.refresh_token
   }
 }
 
 interface AuthnOpts {
-  clientId?: string,
-  clientSecret?: string,
+  clientId?: string
+  clientSecret?: string
 }
 
-export async function doAuthentication (baseURL: string, options: AuthnOpts): Promise<AccessToken|undefined> {
+export async function doAuthentication (baseURL: string, options: AuthnOpts): Promise<AccessToken | undefined> {
   if (options.clientId && options.clientSecret) {
     return await doM2MAuthentication(baseURL, options.clientId, options.clientSecret)
   }
@@ -95,7 +95,7 @@ async function doM2MAuthentication (baseURL: string, clientId: string, clientCre
   return new AccessToken(data.access_token, data.token_type, data.expires_in)
 }
 
-async function doUserAuthentication (baseURL: string): Promise<AccessToken|undefined> {
+async function doUserAuthentication (baseURL: string): Promise<AccessToken | undefined> {
   const miactlToken = await loadMiactlToken(baseURL)
   if (!miactlToken) {
     return undefined

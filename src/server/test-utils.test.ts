@@ -45,7 +45,7 @@ export async function TestMCPServer (toolsBuilder: ToolsBuilder): Promise<Client
   return testClient
 }
 
-export function getAppContext (ctx: Partial<AppContext> & {client: APIClient}): AppContext {
+export function getAppContext (ctx: Partial<AppContext> & { client: APIClient }): AppContext {
   return {
     ftClient: getMockFeatureTogglesClient({}),
     ...ctx,

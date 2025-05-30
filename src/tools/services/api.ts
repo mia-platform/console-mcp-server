@@ -56,12 +56,12 @@ export async function getMarketplaceItem (
   const marketplaceItem = await getMarketplaceItemVersionInfo(client, marketplaceItemId, marketplaceItemTenantId, marketplaceItemVersion)
   const type = marketplaceItem.type
   switch (type) {
-  case 'plugin':
-  case 'template':
-  case 'example':
-    return marketplaceItem
-  default:
-    throw new Error(`Cannot create a new service from marketplace item ${marketplaceItemId}: ${type} is invalid`)
+    case 'plugin':
+    case 'template':
+    case 'example':
+      return marketplaceItem
+    default:
+      throw new Error(`Cannot create a new service from marketplace item ${marketplaceItemId}: ${type} is invalid`)
   }
 }
 
@@ -74,17 +74,17 @@ export async function createServiceFromMarketplaceItem (
 ): Promise<ResourcesToCreate> {
   let resourcesToCreate: ResourcesToCreate
   switch (marketplaceItem.type) {
-  case 'plugin':
-    resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, name, description)
-    break
-  case 'template':
-    resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogTemplate.Item, project, name, description)
-    break
-  case 'example':
-    resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogExample.Item, project, name, description)
-    break
-  default:
-    throw new Error(`Not supported marketplace item type: ${marketplaceItem.type}`)
+    case 'plugin':
+      resourcesToCreate = servicePayloadFromMarketplaceItem(marketplaceItem as ICatalogPlugin.Item, name, description)
+      break
+    case 'template':
+      resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogTemplate.Item, project, name, description)
+      break
+    case 'example':
+      resourcesToCreate = await servicePayloadFromTemplateOrExample(client, marketplaceItem as ICatalogExample.Item, project, name, description)
+      break
+    default:
+      throw new Error(`Not supported marketplace item type: ${marketplaceItem.type}`)
   }
 
   return resourcesToCreate
@@ -220,22 +220,22 @@ function servicePayloadFromMarketplaceItem (
     ...mapEnvVarToMountPath && { mapEnvVarToMountPath },
     environment: defaultEnvironmentVariables.map((env) => {
       switch (env.valueType) {
-      case 'plain':
-        return {
-          ...env,
-          value: env.value || '',
-          valueType: EnvironmentVariablesTypes.PLAIN_TEXT,
-        }
-      case 'secret':
-        return {
-          ...env,
-          valueType: EnvironmentVariablesTypes.FROM_SECRET,
-        }
-      case 'downwardAPI':
-        return {
-          ...env,
-          valueType: EnvironmentVariablesTypes.DOWNWARD_API,
-        }
+        case 'plain':
+          return {
+            ...env,
+            value: env.value || '',
+            valueType: EnvironmentVariablesTypes.PLAIN_TEXT,
+          }
+        case 'secret':
+          return {
+            ...env,
+            valueType: EnvironmentVariablesTypes.FROM_SECRET,
+          }
+        case 'downwardAPI':
+          return {
+            ...env,
+            valueType: EnvironmentVariablesTypes.DOWNWARD_API,
+          }
       }
     }),
     logParser: defaultLogParser,
@@ -366,12 +366,12 @@ function servicePayloadFromMarketplaceItem (
 export function generateImageName (name: string, project: IProject, groupName: string): string {
   if (project.dockerImageNameSuggestion) {
     switch (project.dockerImageNameSuggestion.type) {
-    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID:
-      return `${project.projectId}/${name}`
-    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.REPOSITORY:
-      return `${groupName}/${name}`
-    case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.CONSTANT_PREFIX:
-      return `${(project.dockerImageNameSuggestion as DockerSuggestionPrefix).prefix}/${name}`
+      case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID:
+        return `${project.projectId}/${name}`
+      case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.REPOSITORY:
+        return `${groupName}/${name}`
+      case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.CONSTANT_PREFIX:
+        return `${(project.dockerImageNameSuggestion as DockerSuggestionPrefix).prefix}/${name}`
     }
   }
 

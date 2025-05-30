@@ -35,8 +35,8 @@ interface MiactlCache {
   expiry: string // ISO-8601 format
 }
 
-async function getMiactlCache (endpoint: string): Promise<MiactlCache|undefined> {
-  let cacheFolderPath: string|undefined = process.env['XDG_CACHE_HOME']
+async function getMiactlCache (endpoint: string): Promise<MiactlCache | undefined> {
+  let cacheFolderPath: string | undefined = process.env['XDG_CACHE_HOME']
   if (!cacheFolderPath) {
     const home = homeFolderPath()
     cacheFolderPath = join(home, '.cache')

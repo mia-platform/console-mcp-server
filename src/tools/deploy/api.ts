@@ -21,9 +21,9 @@ const compareUpdatePath = (projectId: string) => `/api/deploy/projects/${project
 const pipelineStatusPath = (projectId: string, pipelineId: string) => `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`
 
 export interface TriggerOptions {
-  environment: string,
-  revision: string,
-  refType: string,
+  environment: string
+  revision: string
+  refType: string
 }
 
 export async function triggerDeploy (client: APIClient, projectId: string, payload: TriggerOptions) {
