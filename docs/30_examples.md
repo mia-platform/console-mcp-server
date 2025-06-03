@@ -1,6 +1,6 @@
 # Examples
 
-Here you can see some propmts that you can ask to the `mcp-server`.  
+Here you can see some prompts that you can ask to the `mcp-server`.  
 Remember to change the values inside the curly braces `{}` with your specific information.
 
 ## Project Creation
