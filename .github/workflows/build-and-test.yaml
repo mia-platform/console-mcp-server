@@ -23,7 +23,7 @@ jobs:
       with:
         show-progress: false
     - name: Set up Node.js
-      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: .nvmrc
         check-latest: false
@@ -51,7 +51,7 @@ jobs:
       with:
         show-progress: false
     - name: Set up Node.js
-      uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e # v4.3.0
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: .nvmrc
         check-latest: false
@@ -127,7 +127,7 @@ jobs:
         platforms: linux/amd64,linux/arm64
     - name: Build and Push
       id: docker-build
-      uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v6.15.0
+      uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
       with:
         context: .
         push: true
