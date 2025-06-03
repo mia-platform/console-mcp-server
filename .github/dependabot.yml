@@ -34,7 +34,7 @@ updates:
 # enable npm dependencies security updates
 - package-ecosystem: npm
   open-pull-requests-limit: 0
-  rebase-stategy: auto
+  rebase-strategy: auto
   directory: /
   schedule:
     interval: daily
