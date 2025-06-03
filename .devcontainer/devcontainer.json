@@ -17,7 +17,6 @@
       },
       "extensions": [
         "christian-kohler.npm-intellisense",
-        "docker.docker",
         "editorconfig.editorconfig",
         "davidanson.vscode-markdownlint"
       ]

@@ -1,12 +1,12 @@
 // Copyright Mia srl
 // SPDX-License-Identifier: Apache-2.0
-
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,8 +18,8 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { constants } from '@mia-platform/console-types'
 
-import { APIClient } from './client'
-import { name, version } from '../../package.json'
+import { APIClient } from '.'
+import { name, version } from '../../../package.json'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
 const mockedEndpoint = 'http://localhost:3000'
@@ -45,7 +45,6 @@ suite('http client test suite without authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -63,7 +62,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -72,7 +70,7 @@ suite('http client test suite without authentication', () => {
     })
 
     await t.assert.rejects(
-      client.get(testPath, {}, new URLSearchParams({ test: 'testValue' })),
+      client.get(testPath, new URLSearchParams({ test: 'testValue' })),
       Error('custom error message'),
     )
   })
@@ -87,7 +85,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -105,7 +102,6 @@ suite('http client test suite without authentication', () => {
         test: 'testValue',
       },
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
@@ -115,32 +111,80 @@ suite('http client test suite without authentication', () => {
       },
     })
 
-    const result = await client.getPaginated<TestResponse>(testPath, {}, new URLSearchParams({ test: 'testValue' }))
+    const result = await client.getPaginated<TestResponse>(testPath, new URLSearchParams({ test: 'testValue' }))
     t.assert.deepEqual(result, [
       { message: 'first' },
       { message: 'second' },
     ])
   })
 
+  test('post request', async (t) => {
+    const body = {
+      key: 'value',
+      array: [
+        'element',
+      ],
+      number: 1,
+      object: {
+        key: 'value',
+      },
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+      body: JSON.stringify(body),
+    }).reply(200, { message: 'test' })
+
+    const result = await client.post<TestResponse>(testPath, body)
+    t.assert.deepEqual(result, { message: 'test' })
+  })
+
   test('set custom headers, don\'t override fixed ones', async (t) => {
+    const customHeadersClient = new APIClient(mockedEndpoint, '', '', {
+      'custom-header': 'customValue',
+      Authorization: 'custom authorization',
+      'User-Agent': 'custom user agent',
+    })
     agent.get(mockedEndpoint).intercept({
       path: testPath,
       headers: {
         'custom-header': 'customValue',
         Authorization: 'custom authorization',
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
       },
     }).reply(200, { message: 'test' })
 
-    const result = await client.get<TestResponse>(testPath, {
+    const result = await customHeadersClient.get<TestResponse>(testPath)
+    t.assert.deepEqual(result, { message: 'test' })
+  })
+
+
+  test('set custom headers, custom accept', async (t) => {
+    const customHeadersClient = new APIClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
-      Accept: 'custom accpet value',
+      Accept: 'custom accept value',
       'User-Agent': 'custom user agent',
     })
 
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      headers: {
+        'custom-header': 'customValue',
+        Authorization: 'custom authorization',
+        Accept: 'custom accept value',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(200, { message: 'test' })
+
+    const result = await customHeadersClient.get<TestResponse>(testPath)
     t.assert.deepEqual(result, { message: 'test' })
   })
 })
@@ -205,7 +249,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -220,7 +263,7 @@ suite('http client test suite with authentication', () => {
     const client = new APIClient(mockedEndpoint, clientID, failAuthenticationSecret)
 
     await t.assert.rejects(
-      client.get(testPath, {}, new URLSearchParams({ test: 'testValue' })),
+      client.get(testPath, new URLSearchParams({ test: 'testValue' })),
       Error('failed authentication'),
     )
   })
@@ -235,7 +278,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -248,7 +290,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -268,7 +309,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -281,7 +321,6 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         Accept: 'application/json',
         'User-Agent': `${name}/${version}`,
         Authorization: `Bearer ${accessToken}`,
@@ -292,25 +331,24 @@ suite('http client test suite with authentication', () => {
   })
 
   test('set custom headers, don\'t override fixed ones', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, clientSecret)
+    const client = new APIClient(mockedEndpoint, clientID, clientSecret, {
+      'custom-header': 'customValue',
+      Authorization: 'custom authorization',
+      Accept: 'custom accept value',
+      'User-Agent': 'custom user agent',
+    })
 
     agent.get(mockedEndpoint).intercept({
       path: testPath,
       headers: {
         'custom-header': 'customValue',
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        Accept: 'custom accept value',
         'User-Agent': `${name}/${version}`,
       },
     }).reply(200, { message: 'test' })
 
-    const result = await client.get<TestResponse>(testPath, {
-      'custom-header': 'customValue',
-      Authorization: 'custom authorization',
-      Accept: 'custom accpet value',
-      'User-Agent': 'custom user agent',
-    })
+    const result = await client.get<TestResponse>(testPath)
 
     t.assert.deepEqual(result, { message: 'test' })
   })

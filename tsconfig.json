@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "outDir": "./build",
+    "outDir": "./mcp-server",
     "rootDir": "./src",
     "strict": true,
     "resolveJsonModule": true,
@@ -29,6 +29,7 @@
   "include": ["src/**/*"],
   "exclude": [
     "node_modules",
-    "build",
+    "mcp-server",
+    "src/**/*.test.ts"
   ]
 }

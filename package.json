@@ -2,44 +2,45 @@
   "name": "console-mcp-server",
   "version": "1.0.0",
   "description": "Mia-Platform Console MCP Server",
-  "main": "build/index.js",
+  "main": "mcp-server/index.js",
   "files": [
-    "build"
+    "mcp-server"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf mcp-server && tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
-    "server:test": "npm run build && node build/index.js start",
-    "local:test": "npm run build && npx @modelcontextprotocol/inspector -e MIA_PLATFORM_CLIENT_ID=${MIA_PLATFORM_CLIENT_ID} -e MIA_PLATFORM_CLIENT_SECRET=${MIA_PLATFORM_CLIENT_SECRET} -- node build/index.js start --stdio",
-    "test": "node --test --import tsx src/**/*.test.ts"
+    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.13.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLATFORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio",
+    "start": "npm run build && node mcp-server start",
+    "start:stdio": "npm run start -- --stdio",
+    "test": "NODE_ENV=test node --test --import tsx 'src/**/*.test.ts'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mia-platform/console-mcp-server.git"
   },
-  "author": "",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mia-platform/console-mcp-server/issues"
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
-    "@mia-platform/console-types": "^0.37.0",
-    "@modelcontextprotocol/sdk": "^1.10.1",
-    "commander": "^13.1.0",
-    "fastify": "^5.3.2",
-    "undici": "^7.8.0",
-    "zod": "^3.24.3"
+    "@mia-platform/console-types": "^0.37.6",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "commander": "^14.0.0",
+    "fastify": "^5.3.3",
+    "undici": "^7.10.0",
+    "zod": "^3.25.49"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
-    "@stylistic/eslint-plugin-js": "^4.2.0",
-    "@types/node": "^22.14.1",
+    "@stylistic/eslint-plugin": "^4.4.0",
+    "@types/node": "^22.15.29",
     "c8": "^10.1.3",
-    "eslint": "^9.25.1",
-    "tsx": "^4.19.3",
+    "eslint": "^9.28.0",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.4",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.0"
+    "typescript-eslint": "^8.33.1"
   }
 }

@@ -14,6 +14,7 @@ node_modules
 .nvmrc
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
+default.env
 Dockerfile
 eslint.config.mjs
 README.md

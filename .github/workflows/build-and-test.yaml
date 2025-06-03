@@ -65,6 +65,7 @@ jobs:
     name: Build Docker Image and Release
     needs:
     - test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
       actions: read
