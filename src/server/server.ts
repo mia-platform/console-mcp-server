@@ -29,6 +29,7 @@ import FeatureTogglesClient, { IFeatureTogglesClient } from '../clients/Features
 export interface AppContext {
   client: APIClient
   ftClient: IFeatureTogglesClient
+  marketplaceClient: APIClient
 }
 
 export function getMcpServer (
@@ -37,7 +38,6 @@ export function getMcpServer (
   clientSecret: string,
   additionalHeaders: UndiciHeaders = {},
 ): McpServer {
-  const client = new APIClient(host, clientID, clientSecret, additionalHeaders)
   const server = new McpServer({
     name,
     description,
@@ -49,11 +49,12 @@ export function getMcpServer (
       tools: {},
     },
   })
-  const ftClient = new FeatureTogglesClient(client)
 
+  const client = new APIClient(host, clientID, clientSecret, additionalHeaders)
   const appContext: AppContext = {
-    client,
-    ftClient,
+    client: client,
+    ftClient: new FeatureTogglesClient(client),
+    marketplaceClient: new APIClient(host, clientID, clientSecret, additionalHeaders),
   }
 
   addMarketplaceCapabilities(server, appContext)

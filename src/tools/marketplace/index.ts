@@ -23,7 +23,7 @@ import { getMarketplaceItemVersionInfo, listMarketplaceItems, listMarketPlaceIte
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 export function addMarketplaceCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
+  const { marketplaceClient } = appContext
 
   server.tool(
     toolNames.LIST_MARKETPLACE,
@@ -35,7 +35,7 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     },
     async ({ tenantId, type, search }): Promise<CallToolResult> => {
       try {
-        const data = await listMarketplaceItems(client, tenantId, type, search)
+        const data = await listMarketplaceItems(marketplaceClient, tenantId, type, search)
         const mappedData = data.map((item) => {
           const { itemId, name, tenantId, type, description, supportedBy, isLatest, version } = item
 
@@ -81,7 +81,7 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     },
     async ({ marketplaceItemId, marketplaceItemTenantId }): Promise<CallToolResult> => {
       try {
-        const data = await listMarketPlaceItemVersions(client, marketplaceItemId, marketplaceItemTenantId)
+        const data = await listMarketPlaceItemVersions(marketplaceClient, marketplaceItemId, marketplaceItemTenantId)
         return {
           content: [
             {
@@ -115,7 +115,7 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     async ({ marketplaceItemId, marketplaceItemTenantId, marketplaceItemVersion }): Promise<CallToolResult> => {
       try {
         const data = await getMarketplaceItemVersionInfo(
-          client,
+          marketplaceClient,
           marketplaceItemId,
           marketplaceItemTenantId,
           marketplaceItemVersion,

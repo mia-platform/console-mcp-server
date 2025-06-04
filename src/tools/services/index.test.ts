@@ -27,7 +27,7 @@ suite('setup services tools', () => {
   test('should setup services tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
       const apiClient = new APIClient(mockedEndpoint)
-      addServicesCapabilities(server, { client: apiClient } as AppContext)
+      addServicesCapabilities(server, { client: apiClient, marketplaceClient: apiClient } as AppContext)
     })
 
     const result = await client.request(

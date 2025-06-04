@@ -24,7 +24,7 @@ import { createServiceFromMarketplaceItem, getMarketplaceItem } from './api'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
 
 export function addServicesCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
+  const { client, marketplaceClient } = appContext
   server.tool(
     toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
     toolsDescriptions.CREATE_SERVICE_FROM_MARKETPLACE,
@@ -42,7 +42,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
       try {
         const project = await getProjectInfo(client, args.projectId)
 
-        const marketplaceItem = await getMarketplaceItem(client, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
+        const marketplaceItem = await getMarketplaceItem(marketplaceClient, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
         const resourceToCreate = await createServiceFromMarketplaceItem(
           client,
           project,
