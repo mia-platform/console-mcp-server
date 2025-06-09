@@ -17,9 +17,9 @@ import { suite, test } from 'node:test'
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addServicesCapabilities } from '.'
-import { APIClient } from '../../lib/client'
+import { APIClient } from '../../apis/http-client'
 import { AppContext } from '../../server/server'
-import { TestMCPServer } from '../../server/test-utils.test'
+import { TestMCPServer } from '../../server/utils.test'
 
 const mockedEndpoint = 'http://localhost:3000'
 

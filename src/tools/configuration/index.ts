@@ -18,17 +18,11 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
 
-import { AppContext } from '../../server/server'
-import { ResourcesToCreate } from './types'
-import { getConfiguration, saveConfiguration } from './api'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { APIClient } from '../../apis/client'
+import { ResourcesToCreate } from '../../apis/types/configuration'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-const revisionsPath = (projectId: string) => `/api/backend/projects/${projectId}/revisions`
-const tagsPath = (projectId: string) => `/api/backend/projects/${projectId}/versions`
-
-export function addConfigurationCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
-
+export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
@@ -37,13 +31,12 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
-        const revisions = await client.get(revisionsPath(projectId))
-        const tags = await client.get(tagsPath(projectId))
+        const revisions = await client.getConfigurationRevisions(projectId)
         return {
           content: [
             {
               type: 'text',
-              text: `Revisions: ${JSON.stringify(revisions)}\nVersion: ${JSON.stringify(tags)}`,
+              text: JSON.stringify(revisions),
             },
           ],
         }
@@ -70,7 +63,7 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
     },
     async ({ projectId, refId }): Promise<CallToolResult> => {
       try {
-        const config = await getConfiguration(appContext, projectId, refId)
+        const config = await client.getConfiguration(projectId, refId)
         return {
           content: [
             {
@@ -114,7 +107,7 @@ export function addConfigurationCapabilities (server: McpServer, appContext: App
           configMaps: configMaps as ConfigMaps,
           serviceAccounts: serviceAccounts as ServiceAccounts,
         }
-        await saveConfiguration(appContext, projectId, resourcesToCreate, refId)
+        await client.saveConfiguration(projectId, refId, resourcesToCreate)
         return {
           content: [
             {

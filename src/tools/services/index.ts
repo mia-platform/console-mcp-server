@@ -21,7 +21,7 @@ import { AppContext } from '../../server/server'
 import { getProjectInfo } from '../governance/apis/projects'
 import { saveConfiguration } from '../configuration/api'
 import { createServiceFromMarketplaceItem, getMarketplaceItem } from './api'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 export function addServicesCapabilities (server: McpServer, appContext: AppContext) {
   const { client, marketplaceClient } = appContext

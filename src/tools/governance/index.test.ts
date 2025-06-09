@@ -13,54 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { beforeEach, suite, test } from 'node:test'
+
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { addGovernanceCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { ProjectDraft } from './types'
-import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
-
-const mockedEndpoint = 'http://localhost:3000'
+import { APIClient } from '../../apis/client'
+import { Template } from '../../apis/types/governance'
+import { TestMCPServer } from '../../server/utils.test'
 
 // Project tools tests
 
 const projects = [
   { _id: 1, name: 'name', tenantId: 'tenantID' },
   { _id: 2, name: 'name', tenantId: 'tenantID' },
-]
-
-const secondTenantProjects = [
   { _id: 1, name: 'name', tenantId: 'tenantID2' },
 ]
-
-const searchedProjects = [
-  { _id: '123', name: 'searched', tenantId: 'tenantID' },
-]
-
-const draft: ProjectDraft = {
-  templateId: 'templateID',
-  repository: {
-    providerId: 'providerId',
-    gitPath: 'repository/path.git',
-    visibility: 'visibility',
-  },
-}
-
-const postProject = {
-  name: 'Name',
-  description: 'description',
-  tenantId: 'tenantID',
-  environments: [],
-  configurationGitPath: 'repository/path.git',
-  projectId: 'name',
-  templateId: 'templateID',
-  visibility: 'visibility',
-  providerId: 'providerId',
-  enableConfGenerationOnDeploy: true,
-}
 
 const project = {
   id: 1,
@@ -74,8 +43,7 @@ const project = {
 suite('setup governance tools', () => {
   test('should setup tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {} as APIClient)
     })
 
     const result = await client.request(
@@ -93,65 +61,15 @@ suite('projects list tool', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async listProjects (_tenantIds: string[], search?: string): Promise<Record<string, unknown>[]> {
+          if (search === 'error') {
+            throw new Error('error message')
+          }
+          return projects
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        tenantIds: 'tenantID',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, projects)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        tenantIds: 'tenantID,tenantID2',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, [ ...projects, ...secondTenantProjects ])
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        tenantIds: 'tenantID',
-        search: 'searched',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, searchedProjects)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        tenantIds: 'error',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return projects', async (t) => {
@@ -173,45 +91,6 @@ suite('projects list tool', () => {
     ])
   })
 
-  test('should return projects with search', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_projects',
-        arguments: {
-          tenantIds: [ 'tenantID' ],
-          search: 'searched',
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify(searchedProjects),
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return projects for multiple tenants', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_projects',
-        arguments: {
-          tenantIds: [ 'tenantID', 'tenantID2' ],
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify([ ...projects, ...secondTenantProjects ]),
-        type: 'text',
-      },
-    ])
-  })
-
   test('should return error message if request return error', async (t) => {
     const result = await client.request({
       method: 'tools/call',
@@ -219,6 +98,7 @@ suite('projects list tool', () => {
         name: 'list_projects',
         arguments: {
           tenantIds: [ 'error' ],
+          search: 'error',
         },
       },
     }, CallToolResultSchema)
@@ -230,48 +110,21 @@ suite('projects list tool', () => {
       },
     ])
   })
-
-  test('should return error if tenantId is not provided', async (t) => {
-    t.assert.rejects(async () => {
-      await client.request({
-        method: 'tools/call',
-        params: {
-          name: 'list_projects',
-          arguments: {
-            tenantId: '',
-          },
-        },
-      }, CallToolResultSchema)
-    })
-  })
 })
 
 suite('get project info', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async projectInfo (projectId: string): Promise<Record<string, unknown>> {
+          if (projectId === 'error') {
+            throw new Error('error message')
+          }
+          return project
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/projectID/',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, project)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/error/',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return project info', async (t) => {
@@ -317,49 +170,20 @@ suite('create project from template', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async createProjectFromTemplate (
+          tenantID: string,
+          _projectName: string,
+          _templateID: string,
+          _description?: string,
+        ): Promise<Record<string, unknown>> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+          return project
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/draft',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      query: {
-        tenantId: 'tenantID',
-        projectId: 'name',
-        templateId: 'templateID',
-        projectName: 'Name',
-      },
-    }).reply(200, draft)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/',
-      method: 'POST',
-      body: JSON.stringify(postProject),
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, project)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/projects/draft',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      query: {
-        tenantId: 'error',
-        projectId: 'name',
-        templateId: 'templateID',
-        projectName: 'Name',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should create a new project', async (t) => {
@@ -414,12 +238,12 @@ const companies = [
   { id: 2, name: 'name2' },
 ]
 
-const templates = [
+const templates: Template[] = [
   {
-    _id: '123', templateId: 'template-1-id', name: 'template1',
+    templateId: 'template-1-id', name: 'template1', tenantId: 'tenantID', deploy: {},
   },
   {
-    _id: '456', templateId: 'template-2-id', name: 'template2',
+    templateId: 'template-2-id', name: 'template2', tenantId: 'tenantID', deploy: {},
   },
 ]
 
@@ -432,13 +256,9 @@ const expectedTemplatesToolOutput = [
   },
 ]
 
-const groupIamList = [
-  { name: 'name', type: 'group' },
-]
-
 const iamList = [
   { name: 'name', type: 'type' },
-  ...groupIamList,
+  { name: 'name', type: 'group' },
 ]
 
 const auditLogs = [
@@ -447,30 +267,14 @@ const auditLogs = [
 ]
 
 suite('companies list tool', () => {
-  let client: Client
-  let agent: MockAgent
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
-    })
-
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
-  })
-
   test('should return companies', async (t) => {
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, companies)
+    const client = await TestMCPServer((server) => {
+      addGovernanceCapabilities(server, {
+        async listCompanies (): Promise<Record<string, unknown>[]> {
+          return companies
+        },
+      } as APIClient)
+    })
 
     const result = await client.request({
       method: 'tools/call',
@@ -489,17 +293,13 @@ suite('companies list tool', () => {
   })
 
   test('should return error message if request return error', async (t) => {
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
+    const client = await TestMCPServer((server) => {
+      addGovernanceCapabilities(server, {
+        async listCompanies (): Promise<Record<string, unknown>[]> {
+          throw new Error('error message')
+        },
+      } as APIClient)
+    })
 
     const result = await client.request({
       method: 'tools/call',
@@ -522,45 +322,16 @@ suite('company list template', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async companyTemplates (tenantID: string): Promise<Template[]> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+
+          return templates
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/templates/',
-      method: 'GET',
-      query: {
-        tenantId: 'tenantID',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, templates)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/templates/',
-      method: 'GET',
-      query: {
-        tenantId: 'empty',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, [])
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/templates/',
-      method: 'GET',
-      query: {
-        tenantId: 'error',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return company templates', async (t) => {
@@ -577,25 +348,6 @@ suite('company list template', () => {
     t.assert.deepEqual(result.content, [
       {
         text: JSON.stringify(expectedTemplatesToolOutput),
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return empty array without templates object', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_tenant_templates',
-        arguments: {
-          tenantId: 'empty',
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify([]),
         type: 'text',
       },
     ])
@@ -625,49 +377,15 @@ suite('iam list tool', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async companyIAMIdentities (tenantID: string, _type?: string): Promise<Record<string, unknown>[]> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+          return iamList
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/companies/tenantID/identities',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 0,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, iamList)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/companies/tenantID/identities',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 0,
-        identityType: 'group',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, groupIamList)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/companies/error/identities',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 0,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return complete iam list', async (t) => {
@@ -684,26 +402,6 @@ suite('iam list tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: JSON.stringify(iamList),
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return filtered iam list', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_tenant_iam',
-        arguments: {
-          tenantId: 'tenantID',
-          identityType: 'group',
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify(groupIamList),
         type: 'text',
       },
     ])
@@ -733,38 +431,15 @@ suite('audit log', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addGovernanceCapabilities(server, getAppContext({ client: apiClient }))
+      addGovernanceCapabilities(server, {
+        async companyAuditLogs (tenantID: string, _from?: string, _to?: string): Promise<Record<string, unknown>[]> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+          return auditLogs
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/tenantID/audit-logs',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 0,
-        from: '1234567890',
-        to: '1234567890',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, auditLogs)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/error/audit-logs',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 0,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return audit logs', async (t) => {

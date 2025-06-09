@@ -28,7 +28,7 @@ export interface Options {
   plainText?: boolean
 }
 
-export class APIClient {
+export class HTTPClient {
   private baseURL: string
   private token: AccessToken | undefined
   private clientID: string

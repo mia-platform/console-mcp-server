@@ -45,3 +45,11 @@ export interface PostProject extends Omit<IProject, '_id' | 'repository'> {
   templateId: string
   providerId: string
 }
+
+export interface Template {
+  name: string
+  description?: string
+  templateId: string
+  tenantId: string
+  deploy: Record<string, unknown>
+}

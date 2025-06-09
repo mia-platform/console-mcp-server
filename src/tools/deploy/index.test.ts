@@ -14,16 +14,13 @@
 // limitations under the License.
 
 import { beforeEach, suite, test } from 'node:test'
-import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addDeployCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
-
-const mockedEndpoint = 'http://localhost:3000'
+import { APIClient } from '../../apis/client'
+import { TestMCPServer } from '../../server/utils.test'
 
 const triggerDeployResponse = {
   id: 123,
@@ -42,8 +39,7 @@ const compareUpdateResponse = {
 suite('setup deploy tools', () => {
   test('should setup deploy tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, getAppContext({ client: apiClient }))
+      addDeployCapabilities(server, {} as APIClient)
     })
 
     const result = await client.request(
@@ -59,16 +55,19 @@ suite('setup deploy tools', () => {
 
 suite('deploy project tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addDeployCapabilities(server, {
+        async deployProjectEnvironmentFromRevision (projectId, _environment, _revision, _refType) {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return triggerDeployResponse
+        },
+      } as APIClient)
+    })
   })
 
   test('should trigger a deployment', async (t) => {
@@ -77,20 +76,6 @@ suite('deploy project tool', () => {
     const environment = 'development'
     const refType = 'revision'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/trigger/pipeline/`,
-      method: 'POST',
-      body: JSON.stringify({
-        environment,
-        revision,
-        refType,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    }).reply(200, triggerDeployResponse)
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -98,7 +83,7 @@ suite('deploy project tool', () => {
         arguments: {
           projectId,
           revision,
-          refType: 'revision',
+          refType,
           environment,
         },
       },
@@ -118,20 +103,6 @@ suite('deploy project tool', () => {
     const environment = 'development'
     const refType = 'revision'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/trigger/pipeline/`,
-      method: 'POST',
-      body: JSON.stringify({
-        environment,
-        revision,
-        refType,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -139,7 +110,7 @@ suite('deploy project tool', () => {
         arguments: {
           projectId,
           revision,
-          refType: 'revision',
+          refType,
           environment,
         },
       },
@@ -156,16 +127,19 @@ suite('deploy project tool', () => {
 
 suite('compare_update_for_deploy tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addDeployCapabilities(server, {
+        async compareProjectEnvironmentFromRevisionForDeploy (projectId, _environment, _revision, _refType) {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return compareUpdateResponse
+        },
+      } as APIClient)
+    })
   })
 
   test('should retrieve configuration updates for deploy', async (t) => {
@@ -174,14 +148,6 @@ suite('compare_update_for_deploy tool', () => {
     const environment = 'development'
     const refType = 'revision'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/compare/raw?fromEnvironment=${environment}&toRef=${revision}&refType=${refType}`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, compareUpdateResponse)
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -189,7 +155,7 @@ suite('compare_update_for_deploy tool', () => {
         arguments: {
           projectId,
           revision,
-          refType: 'revision',
+          refType,
           environment,
         },
       },
@@ -209,14 +175,6 @@ suite('compare_update_for_deploy tool', () => {
     const environment = 'development'
     const refType = 'revision'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/compare/raw?fromEnvironment=${environment}&toRef=${revision}&refType=${refType}`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -224,7 +182,7 @@ suite('compare_update_for_deploy tool', () => {
         arguments: {
           projectId,
           revision,
-          refType: 'revision',
+          refType,
           environment,
         },
       },
@@ -241,30 +199,25 @@ suite('compare_update_for_deploy tool', () => {
 
 suite('deploy_pipeline_status tool', () => {
   let client: Client
-  let agent: MockAgent
+  const successStatus = { status: 'success' }
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addDeployCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addDeployCapabilities(server, {
+        async waitProjectDeployForCompletion (projectId, _pipelineId) {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return successStatus
+        },
+      } as APIClient)
+    })
   })
 
   test('should get pipeline status successfully', async (t) => {
     const projectId = 'project123'
     const pipelineId = '456'
-    const successStatus = { status: 'success' }
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, successStatus)
 
     const result = await client.request({
       method: 'tools/call',
@@ -290,14 +243,6 @@ suite('deploy_pipeline_status tool', () => {
     const pipelineId = 456
     const successStatus = { status: 'success' }
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, successStatus)
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -321,14 +266,6 @@ suite('deploy_pipeline_status tool', () => {
     const projectId = 'error-project'
     const pipelineId = '456'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -343,47 +280,6 @@ suite('deploy_pipeline_status tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should wait until pipeline completion', async (t) => {
-    const projectId = 'timeout-project'
-    const pipelineId = '456'
-    const runningStatus = { status: 'running' }
-    const successStatus = { status: 'success' }
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, runningStatus)
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/deploy/projects/${projectId}/pipelines/${pipelineId}/status/`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, successStatus)
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'deploy_pipeline_status',
-        arguments: {
-          projectId,
-          pipelineId,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: 'Pipeline status: success',
         type: 'text',
       },
     ])

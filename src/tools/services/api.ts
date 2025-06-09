@@ -17,10 +17,10 @@ import path from 'node:path'
 
 import { CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogExample, ICatalogPlugin, ICatalogTemplate, IProject, Listeners } from '@mia-platform/console-types'
 
-import { APIClient } from '../../lib/client'
 import { DockerSuggestionPrefix } from './types'
 import { getGitProviderProjectGroups } from '../governance/apis/projects'
-import { ResourcesToCreate } from '../configuration/types'
+import { HTTPClient } from '../../apis/http-client'
+import { ResourcesToCreate } from '../../apis/types/configuration'
 import { getMarketplaceItemVersionInfo, listMarketPlaceItemVersions } from '../marketplace/api'
 
 export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
@@ -31,7 +31,7 @@ export const createServiceRepositoryPath = (projectId: string) => {
 const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes } = constants
 
 export async function getMarketplaceItem (
-  client: APIClient,
+  client: HTTPClient,
   marketplaceItemId: string,
   marketplaceItemTenantId: string,
   marketplaceItemVersion?: string,
@@ -66,7 +66,7 @@ export async function getMarketplaceItem (
 }
 
 export async function createServiceFromMarketplaceItem (
-  client: APIClient,
+  client: HTTPClient,
   project: IProject,
   marketplaceItem: CatalogVersionedItem,
   name: string,
@@ -91,7 +91,7 @@ export async function createServiceFromMarketplaceItem (
 }
 
 async function servicePayloadFromTemplateOrExample (
-  client: APIClient,
+  client: HTTPClient,
   item: ICatalogTemplate.Item | ICatalogExample.Item,
   project: IProject,
   name: string,

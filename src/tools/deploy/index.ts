@@ -17,12 +17,10 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { AppContext } from '../../server/server'
-import { compareForDeploy, triggerDeploy, waitForPipelineCompletion } from './api'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { APIClient } from '../../apis/client'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addDeployCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
+export function addDeployCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.DEPLOY_PROJECT,
     toolsDescriptions.DEPLOY_PROJECT,
@@ -34,7 +32,7 @@ export function addDeployCapabilities (server: McpServer, appContext: AppContext
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
-        const data = await triggerDeploy(client, projectId, { environment, revision, refType })
+        const data = await client.deployProjectEnvironmentFromRevision(projectId, environment, revision, refType)
         return {
           content: [
             {
@@ -68,7 +66,7 @@ export function addDeployCapabilities (server: McpServer, appContext: AppContext
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
-        const data = await compareForDeploy(client, projectId, { environment, revision, refType })
+        const data = await client.compareProjectEnvironmentFromRevisionForDeploy(projectId, environment, revision, refType)
         return {
           content: [
             {
@@ -103,7 +101,7 @@ export function addDeployCapabilities (server: McpServer, appContext: AppContext
         const pipelineIdString = typeof pipelineId === 'number'
           ? pipelineId.toString()
           : pipelineId
-        const status = await waitForPipelineCompletion(client, projectId, pipelineIdString)
+        const status = await client.waitProjectDeployForCompletion(projectId, pipelineIdString)
 
         return {
           content: [

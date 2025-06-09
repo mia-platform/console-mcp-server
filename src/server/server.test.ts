@@ -20,7 +20,7 @@ import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { getMcpServer } from './server'
-import { toolsDescriptions } from '../lib/descriptions'
+import { toolsDescriptions } from '../tools/descriptions'
 
 suite('initialize server', () => {
   test('get mcp server', async (t) => {

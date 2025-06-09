@@ -13,7 +13,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Collections, Config, ConfigMaps, ConfigServiceSecrets, Endpoints, Listeners, ServiceAccounts, Services } from '@mia-platform/console-types'
+import {
+  Collections,
+  ConfigMaps,
+  ConfigServiceSecrets,
+  Config as ConfigType,
+  Endpoints,
+  Listeners,
+  ServiceAccounts,
+  Services,
+} from '@mia-platform/console-types'
+
+export type Config = ConfigType
+
+export type RetrievedConfiguration = ConfigType & {
+  fastDataConfig: unknown
+  microfrontendPluginsConfig: unknown
+  extensionsConfig: unknown
+  enabledFeatures: unknown
+}
 
 export interface ResourcesToCreate {
   services?: Services
@@ -23,13 +41,6 @@ export interface ResourcesToCreate {
   listeners?: Listeners
   endpoints?: Endpoints
   collections?: Collections
-}
-
-export type RetrievedConfiguration = Config & {
-  fastDataConfig: unknown
-  microfrontendPluginsConfig: unknown
-  extensionsConfig: unknown
-  enabledFeatures: unknown
 }
 
 export interface ConfigToSave {
@@ -49,4 +60,8 @@ export interface SaveResponse {
 
 export interface SaveConfigurationOptions {
   throwIfServiceAlreadyExists?: boolean
+}
+
+export interface DockerSuggestionPrefix {
+  prefix: string
 }

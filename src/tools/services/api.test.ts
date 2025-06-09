@@ -18,7 +18,7 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { CatalogItemRelease, CatalogVersionedItem, ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject } from '@mia-platform/console-types'
 
-import { APIClient } from '../../lib/client'
+import { APIClient } from '../../apis/http-client'
 import { createServiceFromMarketplaceItem, generateImageName, getMarketplaceItem } from './api'
 
 const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants

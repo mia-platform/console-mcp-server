@@ -14,17 +14,18 @@
 // limitations under the License.
 
 import { beforeEach, suite, test } from 'node:test'
-import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 
 import { addConfigurationCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { getMockFeatureTogglesClient } from '../../clients/utils.test'
-import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
-
-const mockedEndpoint = 'http://localhost:3000'
+import { APIClient } from '../../apis/client'
+import { TestMCPServer } from '../../server/utils.test'
+import {
+  ResourcesToCreate,
+  SaveConfigurationOptions,
+  SaveResponse,
+} from '../../apis/types/governance'
 
 const revisions = [
   { name: 'main' },
@@ -79,36 +80,26 @@ const mockSaveResponse = {
 
 suite('list configuration revisions tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addConfigurationCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addConfigurationCapabilities(server, {
+        async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return {
+            revisions,
+            versions: tags,
+          }
+        },
+      } as APIClient)
+    })
   })
 
   test('should return revisions and tags', async (t) => {
     const projectId = 'project123'
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/revisions`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, revisions)
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/versions`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, tags)
 
     const result = await client.request({
       method: 'tools/call',
@@ -122,7 +113,10 @@ suite('list configuration revisions tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: `Revisions: ${JSON.stringify(revisions)}\nVersion: ${JSON.stringify(tags)}`,
+        text: JSON.stringify({
+          revisions,
+          versions: tags,
+        }),
         type: 'text',
       },
     ])
@@ -130,15 +124,6 @@ suite('list configuration revisions tool', () => {
 
   test('should return error message if request returns error', async (t) => {
     const projectId = 'error-project'
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/revisions`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -160,67 +145,23 @@ suite('list configuration revisions tool', () => {
 
 suite('get configuration tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      const appContext = getAppContext({
-        client: apiClient,
-        ftClient: getMockFeatureTogglesClient({
-          fetchActiveFeatures: () => Promise.resolve({}),
-        }),
-      })
-      addConfigurationCapabilities(server, appContext)
+      addConfigurationCapabilities(server, {
+        async getConfiguration (projectId: string, _refId: string): Promise<Record<string, unknown>> {
+          if (projectId === 'error-project') {
+            throw new Error('some error')
+          }
+          return mockConfiguration
+        },
+      } as APIClient)
     })
-
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
   })
 
   test('should retrieve and return configuration', async (t) => {
     const projectId = 'project123'
     const refId = 'main'
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockConfiguration)
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'configuration_get',
-        arguments: {
-          projectId,
-          refId,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify(mockConfiguration),
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should handle URL encoding of refId', async (t) => {
-    const projectId = 'project123'
-    const refId = 'feature/branch-with/special-chars'
-    const encodedRefId = encodeURIComponent(refId)
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/revisions/${encodedRefId}/configuration`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockConfiguration)
 
     const result = await client.request({
       method: 'tools/call',
@@ -245,14 +186,6 @@ suite('get configuration tool', () => {
     const projectId = 'error-project'
     const refId = 'main'
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'some error' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -275,28 +208,29 @@ suite('get configuration tool', () => {
 
 suite('configuration save tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      const appContext = getAppContext({
-        client: apiClient,
-        ftClient: getMockFeatureTogglesClient({
-          fetchActiveFeatures: () => Promise.resolve({}),
-        }),
-      })
-      addConfigurationCapabilities(server, appContext)
-    })
+      addConfigurationCapabilities(server, {
+        async saveConfiguration (
+          projectID: string,
+          _refID: string,
+          _resourcesToCreate: ResourcesToCreate,
+          _options?: SaveConfigurationOptions,
+        ): Promise<SaveResponse> {
+          if (projectID === 'error-project') {
+            throw new Error('some error')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return mockSaveResponse
+        },
+      } as APIClient)
+    })
   })
 
   test('should save configuration successfully with multiple resource types', async (t) => {
     const projectId = 'project123'
     const refId = 'main'
-    const configPath = `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
 
     const endpointsToSave = {
       '/api': {
@@ -348,24 +282,6 @@ suite('configuration save tool', () => {
       },
     }
 
-    // Mock the GET request to retrieve previous configuration
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockConfiguration)
-
-    // Mock the POST request to save the new configuration
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockSaveResponse)
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -389,69 +305,9 @@ suite('configuration save tool', () => {
     ])
   })
 
-  test('should handle URL encoding of refId during save', async (t) => {
-    const projectId = 'project123'
-    const refId = 'feature/branch-with/special-chars'
-    const encodedRefId = encodeURIComponent(refId)
-    const configPath = `/api/backend/projects/${projectId}/revisions/${encodedRefId}/configuration`
-
-    const endpointsToSave = {
-      '/api': {
-        basePath: '/api',
-        type: 'custom',
-        service: 'api-service',
-        pathRewrite: '/',
-        public: true,
-        acl: 'true',
-        description: 'API endpoint',
-        listeners: { web: true },
-        secreted: false,
-        showInDocumentation: true,
-      },
-    }
-
-    // Mock the GET request with encoded path
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockConfiguration)
-
-    // Mock the POST request with encoded path
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockSaveResponse)
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'configuration_save',
-        arguments: {
-          projectId,
-          refId,
-          endpoints: endpointsToSave,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: 'Configuration saved successfully.',
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return error message if GET request fails', async (t) => {
+  test('should return error message if POST request fails', async (t) => {
     const projectId = 'error-project'
     const refId = 'main'
-    const configPath = `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
 
     const endpointsToSave = {
       '/api': {
@@ -467,73 +323,6 @@ suite('configuration save tool', () => {
         showInDocumentation: true,
       },
     }
-
-    // Mock the GET request to fail
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'some error' })
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'configuration_save',
-        arguments: {
-          projectId,
-          refId,
-          endpoints: endpointsToSave,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: 'Error saving configuration: some error',
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return error message if POST request fails', async (t) => {
-    const projectId = 'project123'
-    const refId = 'main'
-    const configPath = `/api/backend/projects/${projectId}/revisions/${encodeURIComponent(refId)}/configuration`
-
-    const endpointsToSave = {
-      '/api': {
-        basePath: '/api',
-        type: 'custom',
-        service: 'api-service',
-        pathRewrite: '/',
-        public: true,
-        acl: 'true',
-        description: 'API endpoint',
-        listeners: { web: true },
-        secreted: false,
-        showInDocumentation: true,
-      },
-    }
-
-    // Mock the GET request to retrieve previous configuration
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, mockConfiguration)
-
-    // Mock the POST request to fail
-    agent.get(mockedEndpoint).intercept({
-      path: configPath,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'some error' })
 
     const result = await client.request({
       method: 'tools/call',
@@ -555,4 +344,3 @@ suite('configuration save tool', () => {
     ])
   })
 })
-

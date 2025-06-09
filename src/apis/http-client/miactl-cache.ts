@@ -18,7 +18,7 @@ import { join } from 'path'
 import os from 'os'
 
 import { AccessToken } from './token'
-import { sha256 } from '../crypto'
+import { sha256 } from './crypto'
 
 function homeFolderPath (): string {
   const homeDir = os.homedir()

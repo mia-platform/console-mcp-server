@@ -18,7 +18,7 @@ import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { constants } from '@mia-platform/console-types'
 
-import { APIClient } from '.'
+import { HTTPClient } from '.'
 import { name, version } from '../../../package.json'
 
 const { API_CONSOLE_TOTAL_PAGES_HEADER_KEY } = constants
@@ -30,7 +30,7 @@ interface TestResponse {
 }
 
 suite('http client test suite without authentication', () => {
-  const client = new APIClient(mockedEndpoint)
+  const client = new HTTPClient(mockedEndpoint)
   let agent: MockAgent
   beforeEach(() => {
     agent = new MockAgent()
@@ -146,7 +146,7 @@ suite('http client test suite without authentication', () => {
   })
 
   test('set custom headers, don\'t override fixed ones', async (t) => {
-    const customHeadersClient = new APIClient(mockedEndpoint, '', '', {
+    const customHeadersClient = new HTTPClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
       'User-Agent': 'custom user agent',
@@ -167,7 +167,7 @@ suite('http client test suite without authentication', () => {
 
 
   test('set custom headers, custom accept', async (t) => {
-    const customHeadersClient = new APIClient(mockedEndpoint, '', '', {
+    const customHeadersClient = new HTTPClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
       Accept: 'custom accept value',
@@ -240,7 +240,7 @@ suite('http client test suite with authentication', () => {
   })
 
   test('get request', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, clientSecret)
+    const client = new HTTPClient(mockedEndpoint, clientID, clientSecret)
     const response: TestResponse = {
       message: 'success',
     }
@@ -260,7 +260,7 @@ suite('http client test suite with authentication', () => {
   })
 
   test('failed authentication', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, failAuthenticationSecret)
+    const client = new HTTPClient(mockedEndpoint, clientID, failAuthenticationSecret)
 
     await t.assert.rejects(
       client.get(testPath, new URLSearchParams({ test: 'testValue' })),
@@ -269,7 +269,7 @@ suite('http client test suite with authentication', () => {
   })
 
   test('dont\'t call authentication endpoint if access token is already set and is valid', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, clientSecret)
+    const client = new HTTPClient(mockedEndpoint, clientID, clientSecret)
     const response: TestResponse = {
       message: 'success',
     }
@@ -300,7 +300,7 @@ suite('http client test suite with authentication', () => {
   })
 
   test('call authentication endpoint if access token is already set but expired', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, expiringSecret)
+    const client = new HTTPClient(mockedEndpoint, clientID, expiringSecret)
     const response: TestResponse = {
       message: 'success',
     }
@@ -331,7 +331,7 @@ suite('http client test suite with authentication', () => {
   })
 
   test('set custom headers, don\'t override fixed ones', async (t) => {
-    const client = new APIClient(mockedEndpoint, clientID, clientSecret, {
+    const client = new HTTPClient(mockedEndpoint, clientID, clientSecret, {
       'custom-header': 'customValue',
       Authorization: 'custom authorization',
       Accept: 'custom accept value',
