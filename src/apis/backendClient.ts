@@ -130,6 +130,36 @@ export class BackendClient {
     return this.#client.post<SaveResponse>(this.#environmentConfigurationPath(prjID, refID), configuration)
   }
 
+  createRepository (
+    projectID: string,
+    templateID: string,
+    name: string,
+    resourceName: string,
+    projectGroupPath: string,
+    imageName: string,
+    containerRegistryID?: string,
+    pipeline?: string,
+    defaultConfigMaps?: Record<string, unknown>[],
+    defaultSecrets?: Record<string, unknown>[],
+    description?: string,
+  ): Promise<Record<string, unknown>> {
+    const createServiceRepositoryBody = {
+      serviceName: name,
+      resourceName: resourceName,
+      projectGroupPath,
+      ...description && { serviceDescription: description },
+      templateId: templateID,
+      ...defaultConfigMaps && { defaultConfigMaps },
+      ...defaultSecrets && { defaultSecrets },
+      repoName: name,
+      ...pipeline && { pipeline },
+      imageName,
+      containerRegistryId: containerRegistryID,
+    }
+
+    return this.#client.post<Record<string, unknown>>(this.#createRepositoryPath(projectID), createServiceRepositoryBody)
+  }
+
   #revisionConfigurationPath (prjID: string, refID: string): string {
     if (this.#internal) {
       return `/projects/${prjID}/revisions/${encodeURIComponent(refID)}/configuration`
@@ -212,5 +242,12 @@ export class BackendClient {
       return `/projects/${projectID}/groups/${group}/subgroups`
     }
     return `/api/backend/projects/${projectID}/groups/${group}/subgroups`
+  }
+
+  #createRepositoryPath (projectID: string): string {
+    if (this.#internal) {
+      return `/projects/${projectID}/service`
+    }
+    return `/api/backend/projects/${projectID}/service`
   }
 }

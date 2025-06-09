@@ -269,16 +269,101 @@ export class APIClient {
         break
       case 'template':
       case 'example': {
-        const projectGroups = await this.#backendClient.projectGitProviderGroups(project._id, path.dirname(project.configurationGitPath))
+        const projectGroup = await this.#serviceGitGroupPath(project._id, project.configurationGitPath)
+        const imageName = generateImageName(name, project, projectGroup)
         const item = marketplaceItem as ICatalogTemplate.Item | ICatalogExample.Item
-        resourcesToCreate = await servicePayloadFromTemplateOrExample(item, project, name, description)
+        const repositoryInfos = await this.#createRepositoryForMarketplaceItem(
+          item,
+          project,
+          name,
+          imageName,
+          projectGroup,
+          description,
+        )
+        resourcesToCreate = await servicePayloadFromMarketplaceItem(
+          item,
+          name,
+          description,
+          repositoryInfos['dockerImage'] as string,
+          repositoryInfos['webUrl'] as string,
+          repositoryInfos['sshUrl'] as string,
+        )
         break
       }
+
       default:
         throw new Error(`Not supported marketplace item type: ${marketplaceItem.type}`)
     }
 
     return resourcesToCreate
+  }
+
+  async #serviceGitGroupPath (projectID: string, projectGitPath: string): Promise<string> {
+    const projectGroups = await this.#backendClient.projectGitProviderGroups(projectID, path.dirname(projectGitPath))
+    let groupName: string | undefined
+    if (projectGroups.length === 1) {
+      groupName = projectGroups[0]['full_path'] as string
+    } else {
+      for (const projectGroup of projectGroups) {
+        if ((projectGroup['full_path'] as string).endsWith('/services')) {
+          groupName = projectGroup['full_path'] as string
+          break
+        }
+      }
+    }
+
+    if (!groupName) {
+      throw new Error('No group found for the project')
+    }
+
+    return groupName
+  }
+
+  #createRepositoryForMarketplaceItem (
+    item: ICatalogTemplate.Item | ICatalogExample.Item,
+    project: IProject,
+    name: string,
+    imageName: string,
+    projectGroup: string,
+    description?: string,
+  ): Promise<Record<string, unknown>> {
+    const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
+    if (!serviceToCreateItemKey) {
+      throw new Error('No service found in the marketplace item')
+    }
+
+    const serviceToCreate = item.resources?.services?.[serviceToCreateItemKey]
+    if (!serviceToCreate) {
+      throw new Error('No service found in the marketplace item')
+    }
+
+    const projectProviderType = project.pipelines?.type
+    if (!projectProviderType) {
+      throw new Error('No provider type found for the project')
+    }
+
+    let pipeline: string | undefined
+    if (serviceToCreate.pipelines) {
+      if (projectProviderType in serviceToCreate.pipelines) {
+        pipeline = projectProviderType
+      }
+    }
+
+    const containerRegistryId = project.containerRegistries?.filter((registry) => registry.isDefault)[0]?.id
+
+    return this.#backendClient.createRepository(
+      project._id,
+      item._id,
+      name,
+      serviceToCreateItemKey,
+      projectGroup,
+      imageName,
+      containerRegistryId,
+      pipeline,
+      serviceToCreate.defaultConfigMaps,
+      serviceToCreate.defaultSecrets,
+      description,
+    )
   }
 }
 
@@ -333,81 +418,7 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
   }
 }
 
-async function servicePayloadFromTemplateOrExample (
-  item: ICatalogTemplate.Item | ICatalogExample.Item,
-  project: IProject,
-  name: string,
-  description?: string,
-): Promise<ResourcesToCreate> {
-  const serviceToCreateItemKey = Object.keys(item.resources?.services || {})?.[0]
-  if (!serviceToCreateItemKey) {
-    throw new Error('No service found in the marketplace item')
-  }
-
-  const serviceToCreate = item.resources?.services?.[serviceToCreateItemKey]
-  if (!serviceToCreate) {
-    throw new Error('No service found in the marketplace item')
-  }
-
-  const projectGroups = await getGitProviderProjectGroups(client, project._id, path.dirname(project.configurationGitPath))
-
-  let groupName: string | undefined
-  if (projectGroups.length === 1) {
-    groupName = projectGroups[0]['full_path'] as string
-  } else {
-    for (const projectGroup of projectGroups) {
-      if ((projectGroup['full_path'] as string).endsWith('/services')) {
-        groupName = projectGroup['full_path'] as string
-        break
-      }
-    }
-  }
-
-  if (!groupName) {
-    throw new Error('No group found for the project')
-  }
-
-  const projectProviderType = project.pipelines?.type
-  if (!projectProviderType) {
-    throw new Error('No provider type found for the project')
-  }
-
-  let pipeline: string | undefined
-  if (serviceToCreate.pipelines) {
-    if (projectProviderType in serviceToCreate.pipelines) {
-      pipeline = projectProviderType
-    }
-  }
-
-  const imageName = generateImageName(name, project, groupName)
-  const containerRegistryId = project.containerRegistries?.filter((registry) => registry.isDefault)[0]?.id
-
-  const createServiceRepositoryBody = {
-    serviceName: name,
-    resourceName: serviceToCreateItemKey,
-    groupName,
-    ...description && { serviceDescription: description },
-    templateId: item._id,
-    ...serviceToCreate.defaultConfigMaps && { defaultConfigMaps: serviceToCreate.defaultConfigMaps },
-    ...serviceToCreate.defaultSecrets && { defaultSecrets: serviceToCreate.defaultSecrets },
-    repoName: name,
-    ...pipeline && { pipeline },
-    imageName,
-    containerRegistryId,
-  }
-
-  const createdService = await client.post<Record<string, unknown>>(createServiceRepositoryPath(project._id), createServiceRepositoryBody)
-  return servicePayloadFromMarketplaceItem(
-    item,
-    name,
-    description,
-    createdService['dockerImage'] as string,
-    createdService['webUrl'] as string,
-    createdService['sshUrl'] as string,
-  )
-}
-
-function servicePayloadFromMarketplaceItem (
+export function servicePayloadFromMarketplaceItem (
   item: ICatalogPlugin.Item | ICatalogTemplate.Item | ICatalogExample.Item,
   name: string,
   description?: string,
@@ -605,7 +616,7 @@ function servicePayloadFromMarketplaceItem (
   }
 }
 
-function generateImageName (name: string, project: IProject, groupName: string): string {
+export function generateImageName (name: string, project: IProject, groupName: string): string {
   if (project.dockerImageNameSuggestion) {
     switch (project.dockerImageNameSuggestion.type) {
       case DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID:

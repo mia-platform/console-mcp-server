@@ -17,20 +17,15 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { AppContext } from '../../server/server'
-import { getProjectInfo } from '../governance/apis/projects'
-import { saveConfiguration } from '../configuration/api'
-import { createServiceFromMarketplaceItem, getMarketplaceItem } from './api'
+import { APIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addServicesCapabilities (server: McpServer, appContext: AppContext) {
-  const { client, marketplaceClient } = appContext
+export function addServicesCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
     toolsDescriptions.CREATE_SERVICE_FROM_MARKETPLACE,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
-      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       name: z.string().describe(paramsDescriptions.SERVICE_NAME).regex(/^[a-z]([-a-z0-9]*[a-z0-9])?$/),
       description: z.string().optional().describe(paramsDescriptions.SERVICE_DESCRIPTION),
       refId: z.string().describe(paramsDescriptions.REF_ID),
@@ -40,26 +35,21 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
     },
     async (args): Promise<CallToolResult> => {
       try {
-        const project = await getProjectInfo(client, args.projectId)
-
-        const marketplaceItem = await getMarketplaceItem(marketplaceClient, args.marketplaceItemId, args.marketplaceItemTenantId, args.marketplaceItemVersion)
-        const resourceToCreate = await createServiceFromMarketplaceItem(
-          client,
-          project,
-          marketplaceItem,
+        const response = await client.createServiceFromMarketplaceItem(
+          args.projectId,
           args.name,
+          args.refId,
+          args.marketplaceItemId,
+          args.marketplaceItemTenantId,
+          args.marketplaceItemVersion,
           args.description,
         )
-
-        const response = await saveConfiguration(appContext, project._id, resourceToCreate, args.refId, {
-          throwIfServiceAlreadyExists: true,
-        })
 
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify({ response }),
+              text: JSON.stringify(response),
             },
           ],
         }
@@ -69,7 +59,7 @@ export function addServicesCapabilities (server: McpServer, appContext: AppConte
           content: [
             {
               type: 'text',
-              text: `Error creating the ${args.name} project: ${err.message}`,
+              text: `Error creating ${args.name} service: ${err.message}`,
             },
           ],
         }

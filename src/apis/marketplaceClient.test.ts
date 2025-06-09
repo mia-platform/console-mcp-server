@@ -23,7 +23,7 @@ const tenantID = 'tenantID'
 const itemID = 'itemid'
 const search = 'item1'
 const type = 'example'
-const version = '1.0.0'
+const version = '1.0.1'
 
 const tenantItems = [
   { _id: 1, name: 'item1', tenantId: 'public', itemId: 'item-id-1' },
@@ -34,7 +34,7 @@ const publicItems = [
   { itemId: 'item-id-2', name: 'item2', tenantId: 'public' },
 ]
 
-suite('Feature Toggle Internal Client', () => {
+suite('Marketplace Internal Client', () => {
   const client = MarketplaceClientInternal('', '')
   let agent: MockAgent
 
@@ -94,8 +94,8 @@ suite('Feature Toggle Internal Client', () => {
 
   test('list marketplace item versions', async (t: TestContext) => {
     const versions = [
-      { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' },
-      { version: '1.0.1', itemId: 'item-id-1', tenantId: 'public' },
+      { version: version, itemId: 'item-id-1', tenantId: 'public', isLatest: false },
+      { version: '1.0.1', itemId: 'item-id-1', tenantId: 'public', isLatest: true },
     ]
 
     agent.get(internalEndpoint).intercept({
@@ -124,7 +124,7 @@ suite('Feature Toggle Internal Client', () => {
   })
 
   test('marketplace item info', async (t: TestContext) => {
-    const mockedResponse = { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' }
+    const mockedResponse = { version: version, itemId: 'item-id-1', tenantId: 'public' }
 
     agent.get(internalEndpoint).intercept({
       path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
@@ -136,10 +136,10 @@ suite('Feature Toggle Internal Client', () => {
   })
 
   test('marketplace item latest version info', async (t: TestContext) => {
-    const mockedResponse = { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' }
+    const mockedResponse = { version: version, itemId: itemID, tenantId: 'public' }
     const versions = [
-      { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' },
-      { version: '1.0.1', itemId: 'item-id-1', tenantId: 'public' },
+      { version: '1.0.0', itemId: itemID, tenantId: 'public', isLatest: false },
+      { version: version, itemId: itemID, tenantId: 'public', isLatest: true },
     ]
 
     agent.get(internalEndpoint).intercept({
@@ -169,7 +169,7 @@ suite('Feature Toggle Internal Client', () => {
   })
 })
 
-suite('Feature Toggle Client', () => {
+suite('Marketplace Client', () => {
   const mockedEndpoint = 'http://localhost:3000'
   const client = new MarketplaceClient(new HTTPClient(mockedEndpoint))
   let agent: MockAgent
@@ -219,7 +219,7 @@ suite('Feature Toggle Client', () => {
   test('list marketplace item versions', async (t: TestContext) => {
     const versions = [
       { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' },
-      { version: '1.0.1', itemId: 'item-id-1', tenantId: 'public' },
+      { version: version, itemId: 'item-id-1', tenantId: 'public' },
     ]
 
     agent.get(mockedEndpoint).intercept({
@@ -236,7 +236,7 @@ suite('Feature Toggle Client', () => {
   })
 
   test('marketplace item info', async (t: TestContext) => {
-    const mockedResponse = { version: '1.0.0', itemId: 'item-id-1', tenantId: 'public' }
+    const mockedResponse = { version: version, itemId: 'item-id-1', tenantId: 'public' }
 
     agent.get(mockedEndpoint).intercept({
       path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
@@ -245,5 +245,38 @@ suite('Feature Toggle Client', () => {
 
     const result = await client.marketplaceItemInfo(tenantID, itemID, version)
     t.assert.deepEqual(result, mockedResponse)
+  })
+
+  test('marketplace item latest version info', async (t: TestContext) => {
+    const mockedResponse = { version: version, itemId: itemID, tenantId: 'public' }
+    const versions = [
+      { version: '1.0.0', itemId: itemID, tenantId: 'public', isLatest: false },
+      { version: version, itemId: itemID, tenantId: 'public', isLatest: true },
+    ]
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      method: 'GET',
+      query: {
+        per_page: 200,
+        page: 1,
+      },
+    }).reply(200, versions)
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      method: 'GET',
+    }).reply(200, mockedResponse)
+
+    const result = await client.marketplaceItemInfo(tenantID, itemID)
+    t.assert.deepEqual(result, mockedResponse)
+  })
+
+  test('marketplace item info must throw if the API call fails', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      method: 'GET',
+    }).reply(500, { error: 'Internal Server Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })
   })
 })
