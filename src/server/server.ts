@@ -23,13 +23,7 @@ import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
 import { addServicesCapabilities } from '../tools/services'
 import { APIClient } from '../apis/client'
-import { HTTPClient } from '../apis/http-client'
 import { description, name, version } from '../../package.json'
-
-export interface AppContext {
-  client: HTTPClient
-  marketplaceClient: HTTPClient
-}
 
 export function getMcpServer (
   host: string,
@@ -50,15 +44,10 @@ export function getMcpServer (
   })
 
   const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
-  const client = new HTTPClient(host, clientID, clientSecret, additionalHeaders)
-  const appContext: AppContext = {
-    client: client,
-    marketplaceClient: new HTTPClient(host, clientID, clientSecret, additionalHeaders),
-  }
 
   addMarketplaceCapabilities(server, apiClient)
-  addGovernanceCapabilities(server, appContext)
-  addServicesCapabilities(server, appContext)
+  addGovernanceCapabilities(server, apiClient)
+  addServicesCapabilities(server, apiClient)
   addConfigurationCapabilities(server, apiClient)
   addDeployCapabilities(server, apiClient)
   addRuntimeCapabilities(server, apiClient)

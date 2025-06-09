@@ -247,15 +247,6 @@ const templates: Template[] = [
   },
 ]
 
-const expectedTemplatesToolOutput = [
-  {
-    templateId: 'template-1-id', name: 'template1',
-  },
-  {
-    templateId: 'template-2-id', name: 'template2',
-  },
-]
-
 const iamList = [
   { name: 'name', type: 'type' },
   { name: 'name', type: 'group' },
@@ -347,7 +338,7 @@ suite('company list template', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(expectedTemplatesToolOutput),
+        text: JSON.stringify(templates),
         type: 'text',
       },
     ])
