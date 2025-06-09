@@ -42,7 +42,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: '/tenants',
+      path: '/tenants/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -56,7 +56,7 @@ suite('Backend Internal Client', () => {
 
   test('list companies must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: '/tenants',
+      path: '/tenants/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -173,7 +173,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects`,
+      path: '/projects/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -188,7 +188,7 @@ suite('Backend Internal Client', () => {
 
   test('list projects must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects`,
+      path: '/projects/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -292,7 +292,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects`,
+      path: '/projects/',
       method: 'POST',
       body: JSON.stringify(body),
     }).reply(200, mockedResult)
@@ -316,7 +316,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects`,
+      path: '/projects/',
       method: 'POST',
       body: JSON.stringify(body),
     }).reply(500, { error: 'Internal Server Error' })
@@ -442,7 +442,7 @@ suite('Backend Client', () => {
     ]
 
     agent.get(mockedEndpoint).intercept({
-      path: '/api/backend/tenants',
+      path: '/api/backend/tenants/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -520,7 +520,7 @@ suite('Backend Client', () => {
     ]
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects`,
+      path: '/api/backend/projects/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -598,7 +598,7 @@ suite('Backend Client', () => {
     }
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects`,
+      path: `/api/backend/projects/`,
       method: 'POST',
       body: JSON.stringify(body),
     }).reply(200, mockedResult)

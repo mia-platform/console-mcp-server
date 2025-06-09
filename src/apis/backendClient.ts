@@ -176,9 +176,9 @@ export class BackendClient {
 
   #companiesPath (): string {
     if (this.#internal) {
-      return '/tenants'
+      return '/tenants/'
     }
-    return '/api/backend/tenants'
+    return '/api/backend/tenants/'
   }
 
   #companyTemplatesPath (): string {
@@ -204,9 +204,9 @@ export class BackendClient {
 
   #projectsPath (): string {
     if (this.#internal) {
-      return '/projects'
+      return '/projects/'
     }
-    return '/api/backend/projects'
+    return '/api/backend/projects/'
   }
 
   #projectsDraftPath (): string {
