@@ -134,7 +134,7 @@ suite('Deploy Internal Client', () => {
     agent.get(internalEndpoint).intercept({
       path: `/projects/${projectID}/pipelines/${pipelineID}/status/`,
       method: 'GET',
-    }).reply(200, mockedStatus)
+    }).reply(200, mockedStatus).persist()
 
     await t.assert.rejects(
       async () => await client.waitForPipelineCompletion(projectID, pipelineID, 1, 10),
