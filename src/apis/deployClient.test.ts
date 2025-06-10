@@ -135,8 +135,9 @@ suite('Deploy Internal Client', () => {
       path: `/projects/${projectID}/pipelines/${pipelineID}/status/`,
       method: 'GET',
     }).reply(200, mockedStatus)
+
     await t.assert.rejects(
-      async () => await client.waitForPipelineCompletion(projectID, pipelineID, 1, 1),
+      async () => await client.waitForPipelineCompletion(projectID, pipelineID, 1, 10),
       { name: 'Error' },
     )
   })

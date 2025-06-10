@@ -218,9 +218,9 @@ export class BackendClient {
 
   #projectInfoPath (projectID: string): string {
     if (this.#internal) {
-      return `/projects/${projectID}`
+      return `/projects/${projectID}/`
     }
-    return `/api/backend/projects/${projectID}`
+    return `/api/backend/projects/${projectID}/`
   }
 
   #projectRevisionsPath (projectID: string): string {

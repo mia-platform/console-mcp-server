@@ -209,7 +209,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}`,
+      path: `/projects/${projectId}/`,
       method: 'GET',
       query: {},
     }).reply(200, mockedResult)
@@ -220,7 +220,7 @@ suite('Backend Internal Client', () => {
 
   test('get project info must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}`,
+      path: `/projects/${projectId}/`,
       method: 'GET',
       query: {},
     }).reply(500, { error: 'Internal Server Error' })
@@ -543,7 +543,7 @@ suite('Backend Client', () => {
     }
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${projectId}`,
+      path: `/api/backend/projects/${projectId}/`,
       method: 'GET',
       query: {},
     }).reply(200, mockedResult)
