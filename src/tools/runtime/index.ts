@@ -17,12 +17,10 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { AppContext } from '../../server/server'
-import { getPodLogs, listPods } from './api'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { APIClient } from '../../apis/client'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addRuntimeCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
+export function addRuntimeCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_PODS,
     toolsDescriptions.LIST_PODS,
@@ -32,7 +30,7 @@ export function addRuntimeCapabilities (server: McpServer, appContext: AppContex
     },
     async ({ projectId, environmentId }): Promise<CallToolResult> => {
       try {
-        const pods = await listPods(client, projectId, environmentId)
+        const pods = await client.listPods(projectId, environmentId)
         return {
           content: [
             {
@@ -66,7 +64,7 @@ export function addRuntimeCapabilities (server: McpServer, appContext: AppContex
     },
     async ({ projectId, environmentId, podName, containerName }): Promise<CallToolResult> => {
       try {
-        const logs = await getPodLogs(client, projectId, environmentId, podName, containerName, 100)
+        const logs = await client.podLogs(projectId, environmentId, podName, containerName, 100)
         return {
           content: [
             {

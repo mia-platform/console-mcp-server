@@ -47,6 +47,12 @@ export default tseslint.config(
           allowSeparatedGroups: true,
         },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+        },
+      ],
       '@stylistic/multiline-comment-style': 'off',
       '@stylistic/lines-between-class-members': 'off',
       '@stylistic/newline-per-chained-call': 'off',
@@ -108,15 +114,15 @@ export default tseslint.config(
         {
           multiline: {
             delimiter: 'none',
-            requireLast: true
+            requireLast: true,
           },
           singleline: {
             delimiter: 'comma',
-            requireLast: false
+            requireLast: false,
           },
-          multilineDetection: 'brackets'
+          multilineDetection: 'brackets',
         },
-      ]
+      ],
     },
   },
 )

@@ -14,42 +14,15 @@
 // limitations under the License.
 
 import { beforeEach, suite, test, TestContext } from 'node:test'
+
+import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject } from '@mia-platform/console-types'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
-import { CatalogItemRelease, CatalogVersionedItem, ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject } from '@mia-platform/console-types'
-
-import { APIClient } from '../../lib/client'
-import { createServiceFromMarketplaceItem, generateImageName, getMarketplaceItem } from './api'
+import { generateImageName, servicePayloadFromMarketplaceItem } from './client'
 
 const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants
-const mockedEndpoint = 'http://localhost:3000'
-const mockedProject: IProject = {
-  _id: '000000000000000000000',
-  name: 'my-project',
-  configurationGitPath: '/path/for/project/configuration',
-  projectId: 'my-project-id',
-  environments: [],
-  repository: {
-    providerId: 'gitlab',
-  },
-  pipelines: {
-    type: 'gitlab-ci',
-  },
-  containerRegistries: [
-    {
-      id: 'registry-id',
-      name: 'registry',
-      hostname: 'host.name',
-      isDefault: true,
-    },
-  ],
-  dockerImageNameSuggestion: {
-    type: DOCKER_IMAGE_NAME_SUGGESTION_TYPES.PROJECT_ID,
-  },
-}
 
 suite('create service from marketplace plugin', () => {
-  const client = new APIClient(mockedEndpoint)
   test('simple service without configmap or secrets', async (t: TestContext) => {
     const inputResources: ICatalogPlugin.Service = {
       name: 'simple-service',
@@ -132,7 +105,7 @@ suite('create service from marketplace plugin', () => {
       replicas: 1,
     }
 
-    const marketplaceItem: CatalogVersionedItem = {
+    const marketplaceItem: ICatalogPlugin.Item = {
       _id: 'simple-service-id',
       itemId: 'simple-service',
       name: 'simple-service',
@@ -153,7 +126,7 @@ suite('create service from marketplace plugin', () => {
       },
     }
 
-    const output = await createServiceFromMarketplaceItem(client, mockedProject, marketplaceItem, 'simple-service', 'some-description')
+    const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
     t.assert.deepStrictEqual(output.services?.['simple-service'], expected)
     t.assert.deepStrictEqual(output.serviceAccounts, { 'simple-service': { name: 'simple-service' } })
   })
@@ -201,7 +174,7 @@ suite('create service from marketplace plugin', () => {
       ],
     }
 
-    const marketplaceItem: CatalogVersionedItem = {
+    const marketplaceItem: ICatalogPlugin.Item = {
       _id: 'simple-service-id',
       itemId: 'simple-service',
       name: 'simple-service',
@@ -222,7 +195,7 @@ suite('create service from marketplace plugin', () => {
       },
     }
 
-    const output = await createServiceFromMarketplaceItem(client, mockedProject, marketplaceItem, 'simple-service', 'some-description')
+    const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
 
     const expectedService = {
       name: 'simple-service',
@@ -338,7 +311,7 @@ suite('create service from marketplace plugin', () => {
         },
       ],
     }
-    const marketplaceItem: CatalogVersionedItem = {
+    const marketplaceItem: ICatalogPlugin.Item = {
       _id: 'simple-service-id',
       itemId: 'simple-service',
       name: 'simple-service',
@@ -359,7 +332,7 @@ suite('create service from marketplace plugin', () => {
       },
     }
 
-    const output = await createServiceFromMarketplaceItem(client, mockedProject, marketplaceItem, 'simple-service', 'some-description')
+    const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
 
     const expectedService = {
       name: 'simple-service',
@@ -424,7 +397,6 @@ suite('create service from marketplace plugin', () => {
 })
 
 suite('create service from marketplace template', () => {
-  const client = new APIClient(mockedEndpoint)
   let agent: MockAgent
   beforeEach(() => {
     agent = new MockAgent()
@@ -444,7 +416,7 @@ suite('create service from marketplace template', () => {
       componentId: 'some-template',
     }
 
-    const marketplaceItem: CatalogVersionedItem = {
+    const marketplaceItem: ICatalogTemplate.Item = {
       _id: 'simple-template-id',
       itemId: 'simple-template',
       name: 'simple-template',
@@ -465,50 +437,14 @@ suite('create service from marketplace template', () => {
       },
     }
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${mockedProject._id}/groups/${encodeURIComponent('/path/for/project')}/subgroups`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      query: {
-        includeSelf: 'true',
-        page: '1',
-        per_page: '200',
-      },
-    }).reply(200, [
-      {
-        full_path: '/path/for/project',
-      },
-      {
-        full_path: '/path/for/project/services',
-      },
-    ])
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${mockedProject._id}/service`,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify({
-        serviceName: 'my-template',
-        resourceName: 'simple-template',
-        groupName: '/path/for/project/services',
-        serviceDescription: 'some-description',
-        templateId: marketplaceItem._id,
-        repoName: 'my-template',
-        pipeline: 'gitlab-ci',
-        imageName: `${mockedProject.projectId}/my-template`,
-        containerRegistryId: mockedProject.containerRegistries?.[0].id,
-      }),
-    }).reply(200, {
-      dockerImage: `host.name/${mockedProject.projectId}/my-template`,
-      webUrl: 'https://git.url/path/for/project/services/my-template',
-      sshUrl: 'git@git.url:path/for/project/services/my-template',
-    })
-
-    const output = await createServiceFromMarketplaceItem(client, mockedProject, marketplaceItem, 'my-template', 'some-description')
+    const output = await servicePayloadFromMarketplaceItem(
+      marketplaceItem,
+      'my-template',
+      'some-description',
+      'host.name/my-project-id/my-template',
+      'https://git.url/path/for/project/services/my-template',
+      'git@git.url:path/for/project/services/my-template',
+    )
 
     const expected = {
       name: 'my-template',
@@ -572,7 +508,7 @@ suite('create service from marketplace template', () => {
       } ],
     }
 
-    const marketplaceItem: CatalogVersionedItem = {
+    const marketplaceItem: ICatalogTemplate.Item = {
       _id: 'simple-template-id',
       itemId: 'simple-template',
       name: 'simple-template',
@@ -593,58 +529,14 @@ suite('create service from marketplace template', () => {
       },
     }
 
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${mockedProject._id}/groups/${encodeURIComponent('/path/for/project')}/subgroups`,
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-      query: {
-        includeSelf: 'true',
-        page: '1',
-        per_page: '200',
-      },
-    }).reply(200, [
-      {
-        full_path: '/path/for/project',
-      },
-    ])
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/backend/projects/${mockedProject._id}/service`,
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        serviceName: 'my-template',
-        resourceName: 'simple-template',
-        groupName: '/path/for/project',
-        serviceDescription: 'some-description',
-        templateId: marketplaceItem._id,
-        defaultConfigMaps: [
-          {
-            name: 'my-config',
-            mountPath: '/',
-            files: [ {
-              name: 'my-file',
-              content: 'my-content',
-            } ],
-            viewAsReadOnly: true,
-          },
-        ],
-        defaultSecrets: [ { name: 'my-secret', mountPath: '/foo/bar' } ],
-        repoName: 'my-template',
-        imageName: `${mockedProject.projectId}/my-template`,
-        containerRegistryId: mockedProject.containerRegistries?.[0].id,
-      }),
-    }).reply(200, {
-      dockerImage: `host.name/${mockedProject.projectId}/my-template`,
-      webUrl: 'https://git.url/path/for/project/my-template',
-      sshUrl: 'git@git.url:path/for/project/my-template',
-    })
-
-    const output = await createServiceFromMarketplaceItem(client, mockedProject, marketplaceItem, 'my-template', 'some-description')
+    const output = await servicePayloadFromMarketplaceItem(
+      marketplaceItem,
+      'my-template',
+      'some-description',
+      'host.name/my-project-id/my-template',
+      'https://git.url/path/for/project/my-template',
+      'git@git.url:path/for/project/my-template',
+    )
 
     const expected = {
       name: 'my-template',
@@ -653,7 +545,7 @@ suite('create service from marketplace template', () => {
       advanced: false,
       containerPorts: [],
       sourceMarketplaceItem: { itemId: 'simple-template', tenantId: 'public', version: 'v1.0.0' },
-      dockerImage: `host.name/${mockedProject.projectId}/my-template`,
+      dockerImage: 'host.name/my-project-id/my-template',
       tags: [ ServiceTypes.CUSTOM ],
       environment: [
         { name: 'env1', value: 'val1', valueType: EnvironmentVariablesTypes.PLAIN_TEXT },
@@ -704,6 +596,15 @@ suite('create service from marketplace template', () => {
 })
 
 suite('generate image names', () => {
+  const mockedProject: IProject = {
+    _id: '000000000000000000',
+    name: 'My Project',
+    projectId: 'my-project',
+    configurationGitPath: 'path/for/project',
+    environments: [],
+    repository: {},
+  }
+
   test('generate image name with project id', async (t: TestContext) => {
     const project = {
       ...mockedProject,
@@ -736,125 +637,5 @@ suite('generate image names', () => {
     }
     const imageName = await generateImageName('name', project, 'group')
     t.assert.strictEqual(imageName, `prefix/name`)
-  })
-})
-
-suite('get marketplace item', () => {
-  const client = new APIClient(mockedEndpoint)
-  const marketplaceItem = {
-    _id: '000000000000000000000000',
-    category: {
-      id: 'category-id',
-      label: 'Category Label',
-    },
-    componentsIds: [],
-    description: 'description',
-    documentation: {
-      type: 'markdown',
-      url: 'https://git.host/path/to/refs/heads/2.0.0/README.md',
-    },
-    imageUrl: '/path/to/image.png',
-    isLatest: true,
-    itemId: 'item-id',
-    lifecycleStatus: 'published',
-    name: 'get latest version',
-    releaseDate: '1970-01-01T00:00:00.000Z',
-    repositoryUrl: 'https://git.host/path/to/tree/2.0.0',
-    resources: {
-      services: {
-        service: {
-          type: 'template',
-          name: 'item-id',
-          description: 'description',
-          archiveUrl: 'https://git.hos/path/to/archive/refs/heads/2.0.0.tar.gz',
-          pipelines: {
-            'gitlab-ci': {
-              path: '/path/to/ci.yml',
-            },
-          },
-          defaultDocumentationPath: '',
-          containerPorts: [
-            {
-              name: 'http',
-              from: 80,
-              to: 3000,
-              protocol: 'TCP',
-            },
-          ],
-        },
-      },
-    },
-    supportedBy: 'Public',
-    supportedByImageUrl: '/path/to/image.png',
-    tenantId: 'public',
-    type: 'template',
-    version: {
-      name: '2.0.0',
-      releaseNote: '-',
-    },
-    visibility: {
-      public: true,
-    },
-  }
-
-  let agent: MockAgent
-  beforeEach(() => {
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/public/marketplace/items/item-id/versions/2.0.0',
-      method: 'GET',
-      query: {},
-    }).reply(200, marketplaceItem)
-  })
-
-  test('get marketplace item from latest version', async (t: TestContext) => {
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/public/marketplace/items/item-id/versions',
-      method: 'GET',
-      query: {
-        page: '1',
-        per_page: '200',
-      },
-    }).reply(200, [
-      {
-        name: 'get latest version',
-        description: 'description',
-        lifecycleStatus: 'published',
-        reference: '000000000000000000000000',
-        releaseDate: '1970-01-01T00:00:00.000Z',
-        releaseNote: '-',
-        version: '1.0.0',
-        isLatest: false,
-        security: false,
-        visibility: {
-          allTenants: false,
-          public: true,
-        },
-      },
-      {
-        name: 'get latest version',
-        description: 'description',
-        lifecycleStatus: 'published',
-        reference: '000000000000000000000000',
-        releaseDate: '1970-01-01T00:00:00.000Z',
-        releaseNote: '-',
-        version: '2.0.0',
-        isLatest: true,
-        security: false,
-        visibility: {
-          allTenants: false,
-          public: true,
-        },
-      },
-    ] as CatalogItemRelease[])
-    const item = await getMarketplaceItem(client, 'item-id', 'public')
-    t.assert.deepStrictEqual(item, marketplaceItem)
-  })
-
-  test('get marketplace item from specific version', async (t: TestContext) => {
-    const item = await getMarketplaceItem(client, 'item-id', 'public', '2.0.0')
-    t.assert.deepStrictEqual(item, marketplaceItem)
   })
 })

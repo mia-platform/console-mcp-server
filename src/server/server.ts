@@ -22,14 +22,8 @@ import { addGovernanceCapabilities } from '../tools/governance'
 import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
 import { addServicesCapabilities } from '../tools/services'
-import { APIClient } from '../lib/client'
+import { APIClient } from '../apis/client'
 import { description, name, version } from '../../package.json'
-import FeatureTogglesClient, { IFeatureTogglesClient } from '../clients/FeaturesToggleClient'
-
-export interface AppContext {
-  client: APIClient
-  ftClient: IFeatureTogglesClient
-}
 
 export function getMcpServer (
   host: string,
@@ -37,7 +31,6 @@ export function getMcpServer (
   clientSecret: string,
   additionalHeaders: UndiciHeaders = {},
 ): McpServer {
-  const client = new APIClient(host, clientID, clientSecret, additionalHeaders)
   const server = new McpServer({
     name,
     description,
@@ -49,19 +42,15 @@ export function getMcpServer (
       tools: {},
     },
   })
-  const ftClient = new FeatureTogglesClient(client)
 
-  const appContext: AppContext = {
-    client,
-    ftClient,
-  }
+  const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
 
-  addMarketplaceCapabilities(server, appContext)
-  addGovernanceCapabilities(server, appContext)
-  addServicesCapabilities(server, appContext)
-  addConfigurationCapabilities(server, appContext)
-  addDeployCapabilities(server, appContext)
-  addRuntimeCapabilities(server, appContext)
+  addMarketplaceCapabilities(server, apiClient)
+  addGovernanceCapabilities(server, apiClient)
+  addServicesCapabilities(server, apiClient)
+  addConfigurationCapabilities(server, apiClient)
+  addDeployCapabilities(server, apiClient)
+  addRuntimeCapabilities(server, apiClient)
 
   return server
 }

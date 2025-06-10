@@ -13,29 +13,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-import { MockAgent, setGlobalDispatcher } from 'undici'
 import test, { beforeEach, suite } from 'node:test'
 
-import { addRuntimeCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { toolNames } from '../../lib/descriptions'
-import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
-import { logsPath, podsPath } from './api'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
-const mockedEndpoint = 'http://localhost:3000'
+import { addRuntimeCapabilities } from '.'
+import { APIClient } from '../../apis/client'
+import { TestMCPServer } from '../../server/utils.test'
+import { toolNames } from '../descriptions'
 
 const pods = [
   { name: 'test-pod', status: 'running' },
   { name: 'test-pod-2', status: 'completed' },
 ]
 
+const logs = `{"level":"info","time":"2025-05-09T08:41:36.530819Z","scope":"upstream","message":"lds: add/update listener 'frontend'"}
+{"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
+
 suite('setup runtime tools', () => {
   test('should setup runtime tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
+      addRuntimeCapabilities(server, {} as APIClient)
     })
 
     const result = await client.request(
@@ -51,33 +50,28 @@ suite('setup runtime tools', () => {
 
 suite('list pods tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addRuntimeCapabilities(server, {
+        async listPods (projectId, _environmentId): Promise<Record<string, unknown>[]> {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return pods
+        },
+      } as APIClient)
+    })
   })
 
   test('should return error when pods are not found', async (t) => {
-    agent.get(mockedEndpoint).intercept({
-      path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'list_pods',
         arguments: {
-          projectId: 'test-project',
+          projectId: 'error-project',
           environmentId: 'test-environment',
         },
       },
@@ -92,14 +86,6 @@ suite('list pods tool', () => {
   })
 
   test('should list pods', async (t) => {
-    agent.get(mockedEndpoint).intercept({
-      path: podsPath({ projectId: 'test-project', environmentId: 'test-environment' }),
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, pods)
-
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -122,39 +108,28 @@ suite('list pods tool', () => {
 
 suite('get pod logs tool', () => {
   let client: Client
-  let agent: MockAgent
 
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addRuntimeCapabilities(server, getAppContext({ client: apiClient }))
-    })
+      addRuntimeCapabilities(server, {
+        async podLogs (projectId, _environmentId, _podName, _containerName, _lines): Promise<string> {
+          if (projectId === 'error-project') {
+            throw new Error('error message')
+          }
 
-    agent = new MockAgent()
-    setGlobalDispatcher(agent)
+          return logs
+        },
+      } as APIClient)
+    })
   })
 
   test('should return error when logs are not found', async (t) => {
-    agent.get(mockedEndpoint).intercept({
-      path: logsPath({
-        projectId: 'test-project',
-        environmentId: 'test-environment',
-        podName: 'test-pod',
-        containerName: 'test-container',
-        lines: 100,
-      }),
-      method: 'GET',
-      headers: {
-        Accept: 'text/plain',
-      },
-    }).reply(500, { message: 'error message' })
-
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: toolNames.GET_POD_LOGS,
         arguments: {
-          projectId: 'test-project',
+          projectId: 'error-project',
           environmentId: 'test-environment',
           podName: 'test-pod',
           containerName: 'test-container',
@@ -172,28 +147,6 @@ suite('get pod logs tool', () => {
 
 
   test('should return logs', async (t) => {
-    const logs = `{"level":"info","time":"2025-05-09T08:41:36.530819Z","scope":"upstream","message":"lds: add/update listener 'frontend'"}
-{"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
-
-    agent.get(mockedEndpoint).intercept({
-      path: logsPath({
-        projectId: 'test-project',
-        environmentId: 'test-environment',
-        podName: 'test-pod',
-        containerName: 'test-container',
-        lines: 100,
-      }),
-      method: 'GET',
-      headers: {
-
-        Accept: 'text/plain',
-      },
-    }).reply(200, logs, {
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-    })
-
     const result = await client.request({
       method: 'tools/call',
       params: {

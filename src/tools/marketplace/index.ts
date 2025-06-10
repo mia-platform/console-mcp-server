@@ -17,14 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { AppContext } from '../../server/server'
-import { CatalogItemTypes } from './types'
-import { getMarketplaceItemVersionInfo, listMarketplaceItems, listMarketPlaceItemVersions } from './api'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { APIClient } from '../../apis/client'
+import { CatalogItemTypes } from '../../apis/types/marketplace'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addMarketplaceCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
-
+export function addMarketplaceCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_MARKETPLACE,
     toolsDescriptions.LIST_MARKETPLACE,
@@ -35,7 +32,7 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     },
     async ({ tenantId, type, search }): Promise<CallToolResult> => {
       try {
-        const data = await listMarketplaceItems(client, tenantId, type, search)
+        const data = await client.listMarketplaceItems(tenantId, type, search)
         const mappedData = data.map((item) => {
           const { itemId, name, tenantId, type, description, supportedBy, isLatest, version } = item
 
@@ -81,7 +78,7 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     },
     async ({ marketplaceItemId, marketplaceItemTenantId }): Promise<CallToolResult> => {
       try {
-        const data = await listMarketPlaceItemVersions(client, marketplaceItemId, marketplaceItemTenantId)
+        const data = await client.marketplaceItemVersions(marketplaceItemTenantId, marketplaceItemId)
         return {
           content: [
             {
@@ -114,10 +111,9 @@ export function addMarketplaceCapabilities (server: McpServer, appContext: AppCo
     },
     async ({ marketplaceItemId, marketplaceItemTenantId, marketplaceItemVersion }): Promise<CallToolResult> => {
       try {
-        const data = await getMarketplaceItemVersionInfo(
-          client,
-          marketplaceItemId,
+        const data = await client.marketplaceItemInfo(
           marketplaceItemTenantId,
+          marketplaceItemId,
           marketplaceItemVersion,
         )
         return {

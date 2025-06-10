@@ -14,27 +14,26 @@
 // limitations under the License.
 
 import { beforeEach, suite, test } from 'node:test'
-import { MockAgent, setGlobalDispatcher } from 'undici'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addMarketplaceCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { getAppContext, TestMCPServer } from '../../server/test-utils.test'
+import { APIClient } from '../../apis/client'
+import { TestMCPServer } from '../../server/utils.test'
 
-const mockedEndpoint = 'http://localhost:3000'
-
-const publicElements = [
+const elements = [
   { _id: 1, name: 'item1', tenantId: 'public', itemId: 'item-id-1' },
   { _id: 2, name: 'item2', tenantId: 'public', itemId: 'item-id-2' },
   { _id: 3, name: 'item3', tenantId: 'public', itemId: 'item-id-3' },
+  { _id: 4, name: 'item4', tenantId: 'tenantID', itemId: 'item-id-4' },
 ]
 
-const expectedPublicElementList = [
+const expectedElements = [
   { itemId: 'item-id-1', name: 'item1', tenantId: 'public' },
   { itemId: 'item-id-2', name: 'item2', tenantId: 'public' },
   { itemId: 'item-id-3', name: 'item3', tenantId: 'public' },
+  { itemId: 'item-id-4', name: 'item4', tenantId: 'tenantID' },
 ]
 
 const itemVersions = [
@@ -49,16 +48,10 @@ const itemInfo = {
   version: '1.0.0',
 }
 
-const tenantElement = { _id: 4, name: 'item4', tenantId: 'tenantID', itemId: 'item-id-4' }
-const expectedTenantElementList = [
-  { itemId: 'item-id-4', name: 'item4', tenantId: 'tenantID' },
-]
-
 suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
+      addMarketplaceCapabilities(server, {} as APIClient)
     })
 
     const result = await client.request(
@@ -76,64 +69,16 @@ suite('marketplace list tool', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
+      addMarketplaceCapabilities(server, {
+        async listMarketplaceItems (tenantId, _type, _search): Promise<Record<string, unknown>[]> {
+          if (tenantId === 'error') {
+            throw new Error('error message')
+          }
+
+          return elements
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/marketplace/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, publicElements)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/marketplace/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        includeTenantId: 'tenantID',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, [ ...publicElements, tenantElement ])
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/marketplace/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        name: 'item1',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, [ publicElements[0] ])
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/marketplace/',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-        includeTenantId: 'error',
-        types: 'example',
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return public elements', async (t) => {
@@ -147,46 +92,7 @@ suite('marketplace list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(expectedPublicElementList),
-        type: 'text',
-      },
-    ])
-  })
-
-  test('should return public elements searching by name', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_marketplace',
-        arguments: {
-          search: 'item1',
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify([ expectedPublicElementList[0] ]),
-        type: 'text',
-      },
-    ])
-  })
-
-
-  test('should return public elements plus tenant ones', async (t) => {
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'list_marketplace',
-        arguments: {
-          tenantId: 'tenantID',
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: JSON.stringify([ ...expectedPublicElementList, ...expectedTenantElementList ]),
+        text: JSON.stringify(expectedElements),
         type: 'text',
       },
     ])
@@ -217,36 +123,16 @@ suite('marketplace item versions tool', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
+      addMarketplaceCapabilities(server, {
+        async marketplaceItemVersions (tenantID, _itemID): Promise<Record<string, unknown>[]> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+
+          return itemVersions
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/tenantID/marketplace/items/item-id/versions',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, itemVersions)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/error/marketplace/items/item-id/versions',
-      method: 'GET',
-      query: {
-        per_page: 200,
-        page: 1,
-      },
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return item versions', async (t) => {
@@ -294,28 +180,16 @@ suite('marketplace item version info tool', () => {
   let client: Client
   beforeEach(async () => {
     client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addMarketplaceCapabilities(server, getAppContext({ client: apiClient }))
+      addMarketplaceCapabilities(server, {
+        async marketplaceItemInfo (tenantID, _itemID, _version): Promise<Record<string, unknown>> {
+          if (tenantID === 'error') {
+            throw new Error('error message')
+          }
+
+          return itemInfo
+        },
+      } as APIClient)
     })
-
-    const agent = new MockAgent()
-    setGlobalDispatcher(agent)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/tenantID/marketplace/items/item-id/versions/1.0.0',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(200, itemInfo)
-
-    agent.get(mockedEndpoint).intercept({
-      path: '/api/tenants/error/marketplace/items/item-id/versions/1.0.0',
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-      },
-    }).reply(500, { message: 'error message' })
   })
 
   test('should return item versions', async (t) => {

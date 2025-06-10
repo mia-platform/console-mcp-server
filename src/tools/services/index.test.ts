@@ -12,22 +12,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import { suite, test } from 'node:test'
+import test, { beforeEach, suite } from 'node:test'
 
-import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
+import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addServicesCapabilities } from '.'
-import { APIClient } from '../../lib/client'
-import { AppContext } from '../../server/server'
-import { TestMCPServer } from '../../server/test-utils.test'
+import { APIClient } from '../../apis/client'
+import { SaveResponse } from '../../apis/types/configuration'
+import { TestMCPServer } from '../../server/utils.test'
+import { toolNames } from '../descriptions'
 
-const mockedEndpoint = 'http://localhost:3000'
+const projectId = 'project-id'
+const name = 'name'
+const description = 'description'
+const refId = 'reference-id'
+const marketplaceItemId = 'item-id'
+const marketplaceItemTenantId = 'tenant-id'
+const marketplaceItemVersion = 'version'
+
+const saveResponse = {
+  id: 'save-id',
+}
 
 suite('setup services tools', () => {
   test('should setup services tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      const apiClient = new APIClient(mockedEndpoint)
-      addServicesCapabilities(server, { client: apiClient } as AppContext)
+      addServicesCapabilities(server, {} as APIClient)
     })
 
     const result = await client.request(
@@ -38,5 +49,80 @@ suite('setup services tools', () => {
     )
 
     t.assert.equal(result.tools.length, 1)
+  })
+})
+
+suite('create service from marketplace tool', () => {
+  let client: Client
+
+  beforeEach(async () => {
+    client = await TestMCPServer((server) => {
+      addServicesCapabilities(server, {
+        async createServiceFromMarketplaceItem (
+          projectID: string,
+          _name: string,
+          _refID: string,
+          _marketplaceItemID: string,
+          _marketplaceItemTenantID: string,
+          _marketplaceItemVersion?: string,
+          _description?: string,
+        ): Promise<SaveResponse> {
+          if (projectID === 'error') {
+            throw new Error('error message')
+          }
+          return saveResponse
+        },
+      } as APIClient)
+    })
+  })
+
+  test('should create a service from marketplace item', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
+        arguments: {
+          projectId,
+          name,
+          description,
+          refId,
+          marketplaceItemId,
+          marketplaceItemTenantId,
+          marketplaceItemVersion,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(saveResponse),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error when pods are not found', async (t) => {
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
+        arguments: {
+          projectId: 'error',
+          name,
+          description,
+          refId,
+          marketplaceItemId,
+          marketplaceItemTenantId,
+          marketplaceItemVersion,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating ${name} service: error message`,
+        type: 'text',
+      },
+    ])
   })
 })

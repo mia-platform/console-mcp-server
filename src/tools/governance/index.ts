@@ -17,14 +17,10 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { AppContext } from '../../server/server'
-import { createProjectFromTemplate, getProjectInfo, listProjects } from './apis/projects'
-import { getCompanyAuditLogs, listCompanies, listCompanyIAMIdentities, listCompanyTemplates } from './apis/companies'
-import { paramsDescriptions, toolNames, toolsDescriptions } from '../../lib/descriptions'
+import { APIClient } from '../../apis/client'
+import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addGovernanceCapabilities (server: McpServer, appContext: AppContext) {
-  const { client } = appContext
-
+export function addGovernanceCapabilities (server: McpServer, client: APIClient) {
   // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,
@@ -35,7 +31,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantIds, search }): Promise<CallToolResult> => {
       try {
-        const data = await listProjects(client, tenantIds, search)
+        const data = await client.listProjects(tenantIds, search)
         const mappedData = data.map((item) => {
           const { _id, name, tenantId, tenantName, description, flavor, info } = item
           return {
@@ -78,7 +74,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
-        const data = await getProjectInfo(client, projectId)
+        const data = await client.projectInfo(projectId)
         return {
           content: [
             {
@@ -112,7 +108,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantId, projectName, projectDescription, templateId }): Promise<CallToolResult> => {
       try {
-        const project = await createProjectFromTemplate(client, tenantId, projectName, templateId, projectDescription)
+        const project = await client.createProjectFromTemplate(tenantId, projectName, templateId, projectDescription)
         return {
           content: [
             {
@@ -142,7 +138,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     {},
     async (): Promise<CallToolResult> => {
       try {
-        const data = await listCompanies(client)
+        const data = await client.listCompanies()
         return {
           content: [
             {
@@ -173,7 +169,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantId }): Promise<CallToolResult> => {
       try {
-        const templates = await listCompanyTemplates(client, tenantId)
+        const templates = await client.companyTemplates(tenantId)
         const mappedBlueprint = (templates || []).map((item) => {
           const { templateId, name, tenantId, deploy } = item
           return {
@@ -214,7 +210,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantId, identityType }): Promise<CallToolResult> => {
       try {
-        const data = await listCompanyIAMIdentities(client, tenantId, identityType)
+        const data = await client.companyIAMIdentities(tenantId, identityType)
         return {
           content: [
             {
@@ -247,7 +243,7 @@ export function addGovernanceCapabilities (server: McpServer, appContext: AppCon
     },
     async ({ tenantId, from, to }): Promise<CallToolResult> => {
       try {
-        const data = await getCompanyAuditLogs(client, tenantId, from, to)
+        const data = await client.companyAuditLogs(tenantId, from, to)
         return {
           content: [
             {
