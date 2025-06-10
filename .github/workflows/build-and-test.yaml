@@ -88,12 +88,12 @@ jobs:
       with:
         username: ${{ secrets.BOT_DOCKER_USERNAME }}
         password: ${{ secrets.BOT_DOCKER_TOKEN }}
-    # - name: Docker Login to Mia registry
-    #   uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-    #   with:
-    #     registry: nexus.mia-platform.eu
-    #     username: ${{ secrets.NEXUS_USER }}
-    #     password: ${{ secrets.NEXUS_TOKEN }}
+    - name: Docker Login to Mia registry
+      uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+      with:
+        registry: nexus.mia-platform.eu
+        username: ${{ secrets.NEXUS_USER }}
+        password: ${{ secrets.NEXUS_TOKEN }}
     - name: Set up QEMU
       uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
       with:
@@ -107,6 +107,7 @@ jobs:
         images: |
           ghcr.io/mia-platform/console-mcp-server
           docker.io/miaplatform/console-mcp-server
+          nexus.mia-platform.eu/console/mcp-server
         tags: |
           type=raw,value=latest,enable={{is_default_branch}}
           type=semver,pattern={{version}}
@@ -137,34 +138,37 @@ jobs:
         platforms: ${{ steps.buildx.outputs.platforms }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-  #   - name: Install Cosign
-  #     uses: sigstore/cosign-installer@d7d6bc7722e3daa8354c50bcb52f4837da5e9b6a # v3.8.1
-  #   - name: GCP Auth
-  #     uses: google-github-actions/auth@71f986410dfbc7added4569d411d040a91dc6935 # v2.1.8
-  #     if: github.ref_type == 'tag'
-  #     with:
-  #       project_id: ${{ secrets.MIA_PLATFORM_KMS_GCP_PROJECT }}
-  #       workload_identity_provider: ${{ secrets.MIA_PLATFORM_WIF }}
-  #       create_credentials_file: true
-  #   - name: Generate SBOM
-  #     uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # v0.18.0
-  #     with:
-  #       artifact-name: console-mcp-server-sbom.spdx.json
-  #       output-file: ./console-mcp-server-sbom.spdx.json
-  #       image: nexus.mia-platform.eu/core/console-mcp-server:${{ steps.meta.output.version.main }}
-  #       upload-release-assets: true
-  #   - name: Sign image with a key
-  #       run: |
-  #         images=""
-  #         for tag in ${TAGS}; do
-  #           images+="${tag}@${DIGEST} "
-  #         done
-  #         cosign sign --recursive --yes --key env://COSIGN_PRIVATE_KEY ${images}
-  #         cosign attest --recursive --yes --key env//COSIGN_PRIVATE_KEY --predicate "console-mcp-server-sbom.spdx.json" --type="spdxjson" ${images}
-  #       env:
-  #         TAGS: |
-  #         ghcr.io/mia-platform/console-mcp-server:${{ steps.meta.output.version.main }}
-  #         docker.io/miaplatform/console-mcp-server:${{ steps.meta.output.version.main }}
-  #         nexus.mia-platform.eu/core/console-mcp-server:${{ steps.meta.output.version.main }}
-  #         COSIGN_PRIVATE_KEY: ${{ secrets.MIA_PLATFORM_KEY_KMS }}
-  #         DIGEST: ${{ steps.docker-build.outputs.digest }}
+    - name: Install Cosign
+      uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+      if: github.ref_type == 'tag'
+    - name: GCP Auth
+      uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+      if: github.ref_type == 'tag'
+      with:
+        project_id: ${{ secrets.MIA_PLATFORM_KMS_GCP_PROJECT }}
+        workload_identity_provider: ${{ secrets.MIA_PLATFORM_WIF }}
+        create_credentials_file: true
+    - name: Generate SBOM
+      uses: anchore/sbom-action@e11c554f704a0b820cbf8c51673f6945e0731532 # v0.20.0
+      if: github.ref_type == 'tag'
+      with:
+        artifact-name: mcp-server-sbom.spdx.json
+        output-file: ./mcp-server-sbom.spdx.json
+        image: nexus.mia-platform.eu/console/mcp-server:${{ steps.meta.output.version.main }}
+        upload-release-assets: true
+    - name: Sign image with a key
+      if: github.ref_type == 'tag'
+      run: |
+        images=""
+        for tag in ${TAGS}; do
+          images+="${tag}@${DIGEST} "
+        done
+        cosign sign --recursive --yes --key env://COSIGN_PRIVATE_KEY ${images}
+        cosign attest --recursive --yes --key env//COSIGN_PRIVATE_KEY --predicate "mcp-server-sbom.spdx.json" --type="spdxjson" ${images}
+      env:
+        TAGS: |
+          ghcr.io/mia-platform/console-mcp-server:${{ steps.meta.output.version.main }}
+          docker.io/miaplatform/console-mcp-server:${{ steps.meta.output.version.main }}
+          nexus.mia-platform.eu/console/mcp-server:${{ steps.meta.output.version.main }}
+        COSIGN_PRIVATE_KEY: ${{ secrets.MIA_PLATFORM_KEY_KMS }}
+        DIGEST: ${{ steps.docker-build.outputs.digest }}
