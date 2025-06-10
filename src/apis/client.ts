@@ -16,7 +16,20 @@
 import path from 'node:path'
 
 import { UndiciHeaders } from 'undici/types/dispatcher'
-import { CatalogItemRelease, CatalogVersionedItem, ConfigMaps, ConfigServiceSecrets, constants, CustomService, EnvironmentVariablesTypes, ICatalogExample, ICatalogPlugin, ICatalogTemplate, IProject, Listeners } from '@mia-platform/console-types'
+import {
+    CatalogItemRelease,
+    CatalogVersionedItem,
+    ConfigMaps,
+    ConfigServiceSecrets,
+    constants,
+    CustomService,
+    EnvironmentVariablesTypes,
+    ICatalogExample,
+    ICatalogPlugin,
+    ICatalogTemplate,
+    IProject,
+    Listeners
+  } from '@mia-platform/console-types'
 
 import { HTTPClient } from './http-client'
 import { BackendClient, BackendClientInternal } from './backendClient'
