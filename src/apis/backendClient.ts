@@ -20,7 +20,7 @@ import { HTTPClient } from './http-client'
 import { ConfigToSave, RetrievedConfiguration, SaveResponse } from './types/configuration'
 import { PostProject, ProjectDraft, Template } from './types/governance'
 
-export const internalEndpoint = 'http://internal.local:3000'
+export const internalEndpoint = process.env.BACKEND_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
 export function BackendClientInternal (
   clientID?: string,

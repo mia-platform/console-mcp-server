@@ -18,7 +18,7 @@ import { UndiciHeaders } from 'undici/types/dispatcher'
 import { HTTPClient } from './http-client'
 import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
 
-export const internalEndpoint = 'http://internal.local:3000'
+export const internalEndpoint = process.env.DEPLOY_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
 export function DeployClientInternal (
   clientID?: string,

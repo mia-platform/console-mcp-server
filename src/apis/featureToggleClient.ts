@@ -17,7 +17,7 @@ import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { HTTPClient } from './http-client'
 
-export const internalEndpoint = 'http://internal.local:3000'
+export const internalEndpoint = process.env.FEATURE_TOGGLE_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
 export function FeatureToggleClientInternal (
   clientID?: string,

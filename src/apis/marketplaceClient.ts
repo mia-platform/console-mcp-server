@@ -18,7 +18,7 @@ import { UndiciHeaders } from 'undici/types/dispatcher'
 import { HTTPClient } from './http-client'
 import { CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
 
-export const internalEndpoint = 'http://internal.local:3000'
+export const internalEndpoint = process.env.MARKETPLACE_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
 export function MarketplaceClientInternal (
   clientID?: string,
