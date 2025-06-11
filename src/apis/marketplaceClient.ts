@@ -31,11 +31,11 @@ export function MarketplaceClientInternal (
 
 export class MarketplaceClient {
   #client: HTTPClient
-  #internal: boolean
+  // #internal: boolean
 
-  constructor (client: HTTPClient, internal = false) {
+  constructor (client: HTTPClient, _internal = false) {
     this.#client = client
-    this.#internal = internal
+    // this.#internal = internal
   }
 
   async listMarketplaceItems (tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
@@ -74,26 +74,14 @@ export class MarketplaceClient {
   }
 
   #marketplacePath (): string {
-    if (this.#internal) {
-      return '/marketplace/'
-    }
-
     return '/api/marketplace/'
   }
 
   #itemVersionsPath (tenantID: string, itemID: string): string {
-    if (this.#internal) {
-      return `/tenants/${tenantID}/marketplace/items/${itemID}/versions`
-    }
-
     return `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`
   }
 
   #itemInfoPath (tenantID: string, itemID: string, version: string): string {
-    if (this.#internal) {
-      return `/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`
-    }
-
     return `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`
   }
 }

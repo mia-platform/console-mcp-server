@@ -30,11 +30,11 @@ export function KubernetesClientInternal (
 
 export class KubernetesClient {
   #client: HTTPClient
-  #internal: boolean
+  // #internal: boolean
 
-  constructor (client: HTTPClient, internal = false) {
+  constructor (client: HTTPClient, _internal = false) {
     this.#client = client
-    this.#internal = internal
+    // this.#internal = internal
   }
 
   async listPods (projectID: string, environmentID: string): Promise<Record<string, unknown>[]> {
@@ -56,18 +56,10 @@ export class KubernetesClient {
   }
 
   #podsPath (projectID: string, environmentID: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/environments/${environmentID}/pods/describe/`
-    }
-
     return `/api/projects/${projectID}/environments/${environmentID}/pods/describe/`
   }
 
   #logsPath (projectID: string, environmentID: string, podName: string, containerName: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`
-    }
-
     return `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`
   }
 }

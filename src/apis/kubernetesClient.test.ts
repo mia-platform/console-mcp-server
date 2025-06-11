@@ -41,7 +41,7 @@ suite('Feature Toggle Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectID}/environments/${environmentID}/pods/describe/`,
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/describe/`,
       method: 'GET',
     }).reply(200, mockResponse)
 
@@ -51,7 +51,7 @@ suite('Feature Toggle Internal Client', () => {
 
   test('list pods available must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectID}/environments/${environmentID}/pods/describe/`,
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/describe/`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
 
@@ -63,7 +63,7 @@ suite('Feature Toggle Internal Client', () => {
 {"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`,
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`,
       method: 'GET',
       headers: {
         Accept: 'text/plain',
@@ -84,7 +84,7 @@ suite('Feature Toggle Internal Client', () => {
 
   test('get pod logs must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`,
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}/containers/${containerName}/logs`,
       method: 'GET',
       headers: {
         Accept: 'text/plain',

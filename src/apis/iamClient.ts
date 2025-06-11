@@ -17,18 +17,18 @@ import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { HTTPClient } from './http-client'
 
-export const internalEndpoint = process.env.FEATURE_TOGGLE_INTERNAL_ENDPOINT || 'http://internal.local:3000'
+export const internalEndpoint = process.env.IAM_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
-export function FeatureToggleClientInternal (
+export function IAMClientInternal (
   clientID?: string,
   clientSecret?: string,
   additionalHeaders: UndiciHeaders = {},
-): FeatureToggleClient {
+): IAMClient {
   const client = new HTTPClient(internalEndpoint, clientID, clientSecret, additionalHeaders)
-  return new FeatureToggleClient(client, true)
+  return new IAMClient(client, true)
 }
 
-export class FeatureToggleClient {
+export class IAMClient {
   #client: HTTPClient
   #internal: boolean
 
@@ -37,23 +37,34 @@ export class FeatureToggleClient {
     this.#internal = internal
   }
 
-  async getToggles (projectID: string, featureToggleIds: string[]): Promise<Record<string, boolean>> {
-    if (featureToggleIds.length === 0) {
-      return {}
-    }
-
+  companyIAMIdentities (tenantID: string, type?: string): Promise<Record<string, unknown>[]> {
     const params = new URLSearchParams({
-      projectId: projectID,
-      featureToggleIds: featureToggleIds.join(','),
+      ...type && { identityType: type },
     })
 
-    return this.#client.get<Record<string, boolean>>(this.#featureTogglePath(), params)
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params)
   }
 
-  #featureTogglePath (): string {
+  companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
+    const params = new URLSearchParams({
+      ...from && { from },
+      ...to && { to },
+    })
+
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params)
+  }
+
+  #companyIAMPath (tenantID: string): string {
     if (this.#internal) {
-      return '/feature-toggles'
+      return `/companies/${tenantID}/identities`
     }
-    return '/api/feature-toggles'
+    return `/api/companies/${tenantID}/identities`
+  }
+
+  #companyAuditLogsPath (tenantID: string): string {
+    if (this.#internal) {
+      return `/tenants/${tenantID}/audit-logs`
+    }
+    return `/api/tenants/${tenantID}/audit-logs`
   }
 }

@@ -46,7 +46,7 @@ suite('Marketplace Internal Client', () => {
 
   test('list marketplace items', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: '/marketplace/',
+      path: '/api/marketplace/',
       method: 'GET',
       query: {
         per_page: 200,
@@ -56,7 +56,7 @@ suite('Marketplace Internal Client', () => {
     t.assert.deepEqual(await client.listMarketplaceItems(), publicItems)
 
     agent.get(internalEndpoint).intercept({
-      path: '/marketplace/',
+      path: '/api/marketplace/',
       method: 'GET',
       query: {
         per_page: 200,
@@ -67,7 +67,7 @@ suite('Marketplace Internal Client', () => {
     t.assert.deepEqual(await client.listMarketplaceItems(tenantID), [ ...publicItems, ...tenantItems ])
 
     agent.get(internalEndpoint).intercept({
-      path: '/marketplace/',
+      path: '/api/marketplace/',
       method: 'GET',
       query: {
         per_page: 200,
@@ -82,7 +82,7 @@ suite('Marketplace Internal Client', () => {
 
   test('list marketplace items must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: '/marketplace/',
+      path: '/api/marketplace/',
       method: 'GET',
       query: {
         per_page: 200,
@@ -99,7 +99,7 @@ suite('Marketplace Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -113,7 +113,7 @@ suite('Marketplace Internal Client', () => {
 
   test('list marketplace item versions must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -127,7 +127,7 @@ suite('Marketplace Internal Client', () => {
     const mockedResponse = { version: version, itemId: 'item-id-1', tenantId: 'public' }
 
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
@@ -143,7 +143,7 @@ suite('Marketplace Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -152,7 +152,7 @@ suite('Marketplace Internal Client', () => {
     }).reply(200, versions)
 
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
@@ -162,7 +162,7 @@ suite('Marketplace Internal Client', () => {
 
   test('marketplace item info must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
     await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })

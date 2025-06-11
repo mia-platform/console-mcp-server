@@ -33,11 +33,11 @@ export function BackendClientInternal (
 
 export class BackendClient {
   #client: HTTPClient
-  #internal: boolean
+  // #internal: boolean
 
-  constructor (client: HTTPClient, internal = false) {
+  constructor (client: HTTPClient, _internal = false) {
     this.#client = client
-    this.#internal = internal
+    // this.#internal = internal
   }
 
   listCompanies (): Promise<Record<string, unknown>[]> {
@@ -47,23 +47,6 @@ export class BackendClient {
   companyTemplates (tenantID: string): Promise<Template[]> {
     const params = new URLSearchParams({ tenantId: tenantID })
     return this.#client.getPaginated<Template>(this.#companyTemplatesPath(), params)
-  }
-
-  companyIAMIdentities (tenantID: string, type?: string): Promise<Record<string, unknown>[]> {
-    const params = new URLSearchParams({
-      ...type && { identityType: type },
-    })
-
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params)
-  }
-
-  companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
-    const params = new URLSearchParams({
-      ...from && { from },
-      ...to && { to },
-    })
-
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params)
   }
 
   listProjects (tenantIDs: string[], search?: string): Promise<Record<string, unknown>[]> {
@@ -161,93 +144,46 @@ export class BackendClient {
   }
 
   #revisionConfigurationPath (prjID: string, refID: string): string {
-    if (this.#internal) {
-      return `/projects/${prjID}/revisions/${encodeURIComponent(refID)}/configuration`
-    }
     return `/api/backend/projects/${prjID}/revisions/${encodeURIComponent(refID)}/configuration`
   }
 
   #environmentConfigurationPath (prjID: string, refID: string): string {
-    if (this.#internal) {
-      return `/projects/${prjID}/environments/${encodeURIComponent(refID)}/configuration`
-    }
     return `/api/projects/${prjID}/environments/${encodeURIComponent(refID)}/configuration`
   }
 
   #companiesPath (): string {
-    if (this.#internal) {
-      return '/tenants/'
-    }
     return '/api/backend/tenants/'
   }
 
   #companyTemplatesPath (): string {
-    if (this.#internal) {
-      return `/templates/`
-    }
     return `/api/backend/templates/`
   }
 
-  #companyIAMPath (tenantID: string): string {
-    if (this.#internal) {
-      return `/companies/${tenantID}/identities`
-    }
-    return `/api/companies/${tenantID}/identities`
-  }
-
-  #companyAuditLogsPath (tenantID: string): string {
-    if (this.#internal) {
-      return `/tenants/${tenantID}/audit-logs`
-    }
-    return `/api/tenants/${tenantID}/audit-logs`
-  }
-
   #projectsPath (): string {
-    if (this.#internal) {
-      return '/projects/'
-    }
     return '/api/backend/projects/'
   }
 
   #projectsDraftPath (): string {
-    if (this.#internal) {
-      return '/projects/draft'
-    }
     return '/api/backend/projects/draft'
   }
 
   #projectInfoPath (projectID: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/`
-    }
     return `/api/backend/projects/${projectID}/`
   }
 
   #projectRevisionsPath (projectID: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/revisions`
-    }
     return `/api/backend/projects/${projectID}/revisions`
   }
 
   #projectVersionsPath (projectID: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/versions`
-    }
     return `/api/backend/projects/${projectID}/versions`
   }
 
   #projectGitProviderSubgroupsPath (projectID: string, group: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/groups/${group}/subgroups`
-    }
     return `/api/backend/projects/${projectID}/groups/${group}/subgroups`
   }
 
   #createRepositoryPath (projectID: string): string {
-    if (this.#internal) {
-      return `/projects/${projectID}/service`
-    }
     return `/api/backend/projects/${projectID}/service`
   }
 }

@@ -42,7 +42,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: '/tenants/',
+      path: '/api/backend/tenants/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -56,7 +56,7 @@ suite('Backend Internal Client', () => {
 
   test('list companies must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: '/tenants/',
+      path: '/api/backend/tenants/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -74,7 +74,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/templates/`,
+      path: `/api/backend/templates/`,
       method: 'GET',
       query: {
         per_page: '200',
@@ -89,7 +89,7 @@ suite('Backend Internal Client', () => {
 
   test('list company templates must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/templates/`,
+      path: `/api/backend/templates/`,
       method: 'GET',
       query: {
         per_page: '200',
@@ -101,71 +101,6 @@ suite('Backend Internal Client', () => {
     await t.assert.rejects(async () => await client.companyTemplates(tenantId), { name: 'Error' })
   })
 
-  test('list company iam identities', async (t: TestContext) => {
-    const mockedResult = [
-      { id: 'identity1', type: 'user', name: 'User 1' },
-    ]
-
-    agent.get(internalEndpoint).intercept({
-      path: `/companies/${tenantId}/identities`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-        identityType: 'type',
-      },
-    }).reply(200, mockedResult)
-
-    const result = await client.companyIAMIdentities(tenantId, 'type')
-    t.assert.deepStrictEqual(result, mockedResult)
-  })
-
-  test('list company iam identities must thrown if the API call fails', async (t: TestContext) => {
-    agent.get(internalEndpoint).intercept({
-      path: `/companies/${tenantId}/identities`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-      },
-    }).reply(500, { error: 'Internal Server Error' })
-
-    await t.assert.rejects(async () => await client.companyIAMIdentities(tenantId), { name: 'Error' })
-  })
-
-  test('list company audit logs', async (t: TestContext) => {
-    const mockedResult = [
-      { id: 'identity1', type: 'user', name: 'User 1' },
-    ]
-
-    agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantId}/audit-logs`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-        from: '0000000000000000',
-        to: '9999999999999999',
-      },
-    }).reply(200, mockedResult)
-
-    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
-    t.assert.deepStrictEqual(result, mockedResult)
-  })
-
-  test('list company audit logs must thrown if the API call fails', async (t: TestContext) => {
-    agent.get(internalEndpoint).intercept({
-      path: `/tenants/${tenantId}/audit-logs`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-      },
-    }).reply(500, { error: 'Internal Server Error' })
-
-    await t.assert.rejects(async () => await client.companyAuditLogs(tenantId), { name: 'Error' })
-  })
-
   test('list projects', async (t: TestContext) => {
     const mockedResult = [
       { id: 'project1', name: 'Project 1' },
@@ -173,7 +108,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: '/projects/',
+      path: '/api/backend/projects/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -188,7 +123,7 @@ suite('Backend Internal Client', () => {
 
   test('list projects must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: '/projects/',
+      path: '/api/backend/projects/',
       method: 'GET',
       query: {
         per_page: '200',
@@ -209,7 +144,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/`,
+      path: `/api/backend/projects/${projectId}/`,
       method: 'GET',
       query: {},
     }).reply(200, mockedResult)
@@ -220,7 +155,7 @@ suite('Backend Internal Client', () => {
 
   test('get project info must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/`,
+      path: `/api/backend/projects/${projectId}/`,
       method: 'GET',
       query: {},
     }).reply(500, { error: 'Internal Server Error' })
@@ -238,7 +173,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/draft`,
+      path: `/api/backend/projects/draft`,
       method: 'GET',
       query: {
         tenantId,
@@ -255,7 +190,7 @@ suite('Backend Internal Client', () => {
 
   test('get new project draft must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/draft`,
+      path: `/api/backend/projects/draft`,
       method: 'GET',
       query: {
         tenantId,
@@ -292,7 +227,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: '/projects/',
+      path: '/api/backend/projects/',
       method: 'POST',
       body: JSON.stringify(body),
     }).reply(200, mockedResult)
@@ -316,7 +251,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: '/projects/',
+      path: '/api/backend/projects/',
       method: 'POST',
       body: JSON.stringify(body),
     }).reply(500, { error: 'Internal Server Error' })
@@ -338,7 +273,7 @@ suite('Backend Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/groups/${encodeURIComponent(group)}/subgroups`,
+      path: `/api/backend/projects/${projectId}/groups/${encodeURIComponent(group)}/subgroups`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -355,7 +290,7 @@ suite('Backend Internal Client', () => {
     const group = 'group/path/to/escape'
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/groups/${encodeURIComponent(group)}/subgroups`,
+      path: `/api/backend/projects/${projectId}/groups/${encodeURIComponent(group)}/subgroups`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -373,7 +308,7 @@ suite('Backend Internal Client', () => {
     }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/revisions/${refId}/configuration`,
+      path: `/api/backend/projects/${projectId}/revisions/${refId}/configuration`,
       method: 'GET',
     }).reply(200, mockedResult)
 
@@ -381,7 +316,7 @@ suite('Backend Internal Client', () => {
     t.assert.deepStrictEqual(revisionResult, mockedResult)
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/environments/${refId}/configuration`,
+      path: `/api/projects/${projectId}/environments/${refId}/configuration`,
       method: 'GET',
     }).reply(200, mockedResult)
     const environmentResult = await client.getEnvironmentBasedConfiguration(projectId, refId)
@@ -390,7 +325,7 @@ suite('Backend Internal Client', () => {
 
   test('get configuration must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/revisions/${refId}/configuration`,
+      path: `/api/backend/projects/${projectId}/revisions/${refId}/configuration`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
     await t.assert.rejects(
@@ -407,7 +342,7 @@ suite('Backend Internal Client', () => {
     const mockedResult = { id: 'save-id' }
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/revisions/${refId}/configuration`,
+      path: `/api/backend/projects/${projectId}/revisions/${refId}/configuration`,
       method: 'POST',
       body: JSON.stringify(data),
     }).reply(200, mockedResult)
@@ -415,7 +350,7 @@ suite('Backend Internal Client', () => {
     t.assert.deepStrictEqual(revisionResult, mockedResult)
 
     agent.get(internalEndpoint).intercept({
-      path: `/projects/${projectId}/environments/${refId}/configuration`,
+      path: `/api/projects/${projectId}/environments/${refId}/configuration`,
       method: 'POST',
       body: JSON.stringify(data),
     }).reply(200, mockedResult)
@@ -471,45 +406,6 @@ suite('Backend Client', () => {
     }).reply(200, mockedResult)
 
     const result = await client.companyTemplates(tenantId)
-    t.assert.deepStrictEqual(result, mockedResult)
-  })
-
-  test('list company iam identities', async (t: TestContext) => {
-    const mockedResult = [
-      { id: 'identity1', type: 'user', name: 'User 1' },
-    ]
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/companies/${tenantId}/identities`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-        identityType: 'type',
-      },
-    }).reply(200, mockedResult)
-
-    const result = await client.companyIAMIdentities(tenantId, 'type')
-    t.assert.deepStrictEqual(result, mockedResult)
-  })
-
-  test('list company audit logs', async (t: TestContext) => {
-    const mockedResult = [
-      { id: 'identity1', type: 'user', name: 'User 1' },
-    ]
-
-    agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantId}/audit-logs`,
-      method: 'GET',
-      query: {
-        per_page: '200',
-        page: '1',
-        from: '0000000000000000',
-        to: '9999999999999999',
-      },
-    }).reply(200, mockedResult)
-
-    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
     t.assert.deepStrictEqual(result, mockedResult)
   })
 

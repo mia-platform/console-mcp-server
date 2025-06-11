@@ -45,6 +45,7 @@ import {
 } from './types/configuration'
 import { DeployClient, DeployClientInternal } from './deployClient'
 import { FeatureToggleClient, FeatureToggleClientInternal } from './featureToggleClient'
+import { IAMClient, IAMClientInternal } from './iamClient'
 import { KubernetesClient, KubernetesClientInternal } from './kubernetesClient'
 import { MarketplaceClient, MarketplaceClientInternal } from './marketplaceClient'
 import { PostProject, Template } from './types/governance'
@@ -58,6 +59,7 @@ export class APIClient {
   #deployClient: DeployClient
   #featureFlagsClient: FeatureToggleClient
   #kubernetesClient: KubernetesClient
+  #iamClient: IAMClient
   #marketplaceClient: MarketplaceClient
 
   constructor (
@@ -71,6 +73,7 @@ export class APIClient {
       this.#backendClient = new BackendClient(client)
       this.#deployClient = new DeployClient(client)
       this.#featureFlagsClient = new FeatureToggleClient(client)
+      this.#iamClient = new IAMClient(client)
       this.#kubernetesClient = new KubernetesClient(client)
       this.#marketplaceClient = new MarketplaceClient(client)
       return
@@ -80,6 +83,7 @@ export class APIClient {
     this.#deployClient = DeployClientInternal(clientID, clientSecret, additionalHeaders)
     this.#featureFlagsClient = FeatureToggleClientInternal(clientID, clientSecret, additionalHeaders)
     this.#kubernetesClient = KubernetesClientInternal(clientID, clientSecret, additionalHeaders)
+    this.#iamClient = IAMClientInternal(clientID, clientSecret, additionalHeaders)
     this.#marketplaceClient = MarketplaceClientInternal(clientID, clientSecret, additionalHeaders)
   }
 
@@ -92,11 +96,11 @@ export class APIClient {
   }
 
   async companyIAMIdentities (tenantID: string, type?: string): Promise<Record<string, unknown>[]> {
-    return await this.#backendClient.companyIAMIdentities(tenantID, type)
+    return await this.#iamClient.companyIAMIdentities(tenantID, type)
   }
 
   async companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
-    return await this.#backendClient.companyAuditLogs(tenantID, from, to)
+    return await this.#iamClient.companyAuditLogs(tenantID, from, to)
   }
 
   async listProjects (tenantIDs: string[], search?: string): Promise<Record<string, unknown>[]> {
