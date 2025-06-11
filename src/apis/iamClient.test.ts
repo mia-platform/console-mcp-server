@@ -32,69 +32,69 @@ suite('IAM Internal Client', () => {
   })
 
   test('list company iam identities', async (t: TestContext) => {
-      const mockedResult = [
-        { id: 'identity1', type: 'user', name: 'User 1' },
-      ]
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
 
-      agent.get(internalEndpoint).intercept({
-        path: `/companies/${tenantId}/identities`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-          identityType: 'type',
-        },
-      }).reply(200, mockedResult)
+    agent.get(internalEndpoint).intercept({
+      path: `/companies/${tenantId}/identities`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+        identityType: 'type',
+      },
+    }).reply(200, mockedResult)
 
-      const result = await client.companyIAMIdentities(tenantId, 'type')
-      t.assert.deepStrictEqual(result, mockedResult)
-    })
+    const result = await client.companyIAMIdentities(tenantId, 'type')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
 
-    test('list company iam identities must thrown if the API call fails', async (t: TestContext) => {
-      agent.get(internalEndpoint).intercept({
-        path: `/companies/${tenantId}/identities`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-        },
-      }).reply(500, { error: 'Internal Server Error' })
+  test('list company iam identities must thrown if the API call fails', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/companies/${tenantId}/identities`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+      },
+    }).reply(500, { error: 'Internal Server Error' })
 
-      await t.assert.rejects(async () => await client.companyIAMIdentities(tenantId), { name: 'Error' })
-    })
+    await t.assert.rejects(async () => await client.companyIAMIdentities(tenantId), { name: 'Error' })
+  })
 
-    test('list company audit logs', async (t: TestContext) => {
-      const mockedResult = [
-        { id: 'identity1', type: 'user', name: 'User 1' },
-      ]
+  test('list company audit logs', async (t: TestContext) => {
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
 
-      agent.get(internalEndpoint).intercept({
-        path: `/tenants/${tenantId}/audit-logs`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-          from: '0000000000000000',
-          to: '9999999999999999',
-        },
-      }).reply(200, mockedResult)
+    agent.get(internalEndpoint).intercept({
+      path: `/tenants/${tenantId}/audit-logs`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+        from: '0000000000000000',
+        to: '9999999999999999',
+      },
+    }).reply(200, mockedResult)
 
-      const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
-      t.assert.deepStrictEqual(result, mockedResult)
-    })
+    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
 
-    test('list company audit logs must thrown if the API call fails', async (t: TestContext) => {
-      agent.get(internalEndpoint).intercept({
-        path: `/tenants/${tenantId}/audit-logs`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-        },
-      }).reply(500, { error: 'Internal Server Error' })
+  test('list company audit logs must thrown if the API call fails', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/tenants/${tenantId}/audit-logs`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+      },
+    }).reply(500, { error: 'Internal Server Error' })
 
-      await t.assert.rejects(async () => await client.companyAuditLogs(tenantId), { name: 'Error' })
-    })
+    await t.assert.rejects(async () => await client.companyAuditLogs(tenantId), { name: 'Error' })
+  })
 })
 
 suite('IAM Client', () => {
@@ -109,41 +109,41 @@ suite('IAM Client', () => {
   })
 
   test('list company iam identities', async (t: TestContext) => {
-      const mockedResult = [
-        { id: 'identity1', type: 'user', name: 'User 1' },
-      ]
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
 
-      agent.get(mockedEndpoint).intercept({
-        path: `/api/companies/${tenantId}/identities`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-          identityType: 'type',
-        },
-      }).reply(200, mockedResult)
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/companies/${tenantId}/identities`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+        identityType: 'type',
+      },
+    }).reply(200, mockedResult)
 
-      const result = await client.companyIAMIdentities(tenantId, 'type')
-      t.assert.deepStrictEqual(result, mockedResult)
-    })
+    const result = await client.companyIAMIdentities(tenantId, 'type')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
 
-    test('list company audit logs', async (t: TestContext) => {
-      const mockedResult = [
-        { id: 'identity1', type: 'user', name: 'User 1' },
-      ]
+  test('list company audit logs', async (t: TestContext) => {
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
 
-      agent.get(mockedEndpoint).intercept({
-        path: `/api/tenants/${tenantId}/audit-logs`,
-        method: 'GET',
-        query: {
-          per_page: '200',
-          page: '1',
-          from: '0000000000000000',
-          to: '9999999999999999',
-        },
-      }).reply(200, mockedResult)
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantId}/audit-logs`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '1',
+        from: '0000000000000000',
+        to: '9999999999999999',
+      },
+    }).reply(200, mockedResult)
 
-      const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
-      t.assert.deepStrictEqual(result, mockedResult)
-    })
+    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
 })
