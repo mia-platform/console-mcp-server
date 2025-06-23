@@ -148,8 +148,8 @@ export class APIClient {
   ): Promise<SaveResponse> {
     const project = await this.#backendClient.projectInfo(projectID)
     const marketplaceItem = await this.marketplaceItemInfo(
-      marketplaceItemID,
       marketplaceItemTenantID,
+      marketplaceItemID,
       marketplaceItemVersion,
     )
 
