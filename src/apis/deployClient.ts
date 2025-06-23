@@ -44,13 +44,13 @@ export class DeployClient {
     revision: string,
     revisionType: string,
   ): Promise<TriggerDeployResponse> {
-    const params = new URLSearchParams({
-      fromEnvironment: environment,
-      toRef: revision,
+    const body = {
+      revision,
       refType: revisionType,
-    })
+      environment,
+    }
 
-    return await this.#client.get<TriggerDeployResponse>(this.#deployPath(projectID), params)
+    return await this.#client.post<TriggerDeployResponse>(this.#deployPath(projectID), body)
   }
 
   async compareForDeploy (

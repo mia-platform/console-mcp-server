@@ -43,12 +43,12 @@ suite('Deploy Internal Client', () => {
 
     agent.get(internalEndpoint).intercept({
       path: `/projects/${projectID}/trigger/pipeline/`,
-      method: 'GET',
-      query: {
-        fromEnvironment: environment,
-        toRef: refId,
+      method: 'POST',
+      body: JSON.stringify({
+        revision: refId,
         refType: revisionType,
-      },
+        environment,
+      }),
     }).reply(200, mockedResult)
 
     const result = await client.triggerDeploy(projectID, environment, refId, revisionType)
@@ -58,12 +58,12 @@ suite('Deploy Internal Client', () => {
   test('trigger deploy must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
       path: `/projects/${projectID}/trigger/pipeline/`,
-      method: 'GET',
-      query: {
-        fromEnvironment: environment,
-        toRef: refId,
+      method: 'POST',
+      body: JSON.stringify({
+        revision: refId,
         refType: revisionType,
-      },
+        environment,
+      }),
     }).reply(500, { error: 'Internal Server Error' })
 
     await t.assert.rejects(
@@ -173,12 +173,12 @@ suite('Deploy Client', () => {
 
     agent.get(mockedEndpoint).intercept({
       path: `/api/deploy/projects/${projectID}/trigger/pipeline/`,
-      method: 'GET',
-      query: {
-        fromEnvironment: environment,
-        toRef: refId,
+      method: 'POST',
+      body: JSON.stringify({
+        revision: refId,
         refType: revisionType,
-      },
+        environment,
+      }),
     }).reply(200, mockedResult)
 
     const result = await client.triggerDeploy(projectID, environment, refId, revisionType)
