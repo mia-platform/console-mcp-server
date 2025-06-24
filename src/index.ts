@@ -33,7 +33,8 @@ program.
   option('-p, --port <port>', 'port to run the server on', '3000').
   option('--stdio', 'run the server locally', false).
   option('--host <host>', 'Mia-Platform Console host').
-  action(({ host, stdio, port }) => {
+  option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
+  action(({ host, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
 
@@ -53,7 +54,7 @@ program.
       clientSecret,
     })
 
-    return fastify.listen({ port: parseInt(port, 10) }, function (err) {
+    return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {
         fastify.log.error(err)
         process.exit(1)

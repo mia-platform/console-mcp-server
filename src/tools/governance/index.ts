@@ -139,11 +139,18 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     async (): Promise<CallToolResult> => {
       try {
         const data = await client.listCompanies()
+        const tenants = data.map((tenant) => {
+          return {
+            tenantId: tenant.tenantId,
+            name: tenant.name,
+            defaultTemplateId: tenant.defaultTemplateId,
+          }
+        })
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(data),
+              text: JSON.stringify(tenants),
             },
           ],
         }
