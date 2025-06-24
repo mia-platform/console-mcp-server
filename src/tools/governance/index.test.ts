@@ -234,8 +234,8 @@ suite('create project from template', () => {
 // Tenant tools tests
 
 const companies = [
-  { id: 1, name: 'name' },
-  { id: 2, name: 'name2' },
+  { tenantId: 1, name: 'name', defaultTemplateId: 'template-id-1' },
+  { tenantId: 2, name: 'name2', defaultTemplateId: 'template-id-2' },
 ]
 
 const templates: Template[] = [
