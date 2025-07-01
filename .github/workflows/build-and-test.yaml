@@ -164,7 +164,7 @@ jobs:
           images+="${tag}@${DIGEST} "
         done
         cosign sign --recursive --yes --key env://COSIGN_PRIVATE_KEY ${images}
-        cosign attest --recursive --yes --key env//COSIGN_PRIVATE_KEY --predicate "mcp-server-sbom.spdx.json" --type="spdxjson" ${images}
+        cosign attest --yes --key env//COSIGN_PRIVATE_KEY --predicate "mcp-server-sbom.spdx.json" --type="spdxjson" ${images}
       env:
         TAGS: |
           ghcr.io/mia-platform/console-mcp-server:${{ steps.meta.output.version.main }}
