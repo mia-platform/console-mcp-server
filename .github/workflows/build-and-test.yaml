@@ -172,3 +172,20 @@ jobs:
           nexus.mia-platform.eu/console/mcp-server:${{ steps.meta.outputs.version }}
         COSIGN_PRIVATE_KEY: ${{ secrets.MIA_PLATFORM_KEY_KMS }}
         DIGEST: ${{ steps.docker-build.outputs.digest }}
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: yarn build-icons
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
