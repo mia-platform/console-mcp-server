@@ -184,6 +184,7 @@ jobs:
           node-version-file: .nvmrc
           check-latest: false
           cache: npm
+          registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npm run build
       - run: npm publish --access=public
