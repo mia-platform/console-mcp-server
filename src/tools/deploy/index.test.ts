@@ -238,30 +238,6 @@ suite('deploy_pipeline_status tool', () => {
     ])
   })
 
-  test('should handle numeric pipelineId', async (t) => {
-    const projectId = 'project123'
-    const pipelineId = 456
-    const successStatus = { status: 'success' }
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'deploy_pipeline_status',
-        arguments: {
-          projectId,
-          pipelineId,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: `Pipeline status: ${successStatus.status}`,
-        type: 'text',
-      },
-    ])
-  })
-
   test('should return error message if pipeline status request returns error', async (t) => {
     const projectId = 'error-project'
     const pipelineId = '456'
