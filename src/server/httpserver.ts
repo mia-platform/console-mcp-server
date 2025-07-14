@@ -21,6 +21,7 @@ import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
 
 import { getMcpServer } from './server'
 import { IncomingHttpHeaders } from 'undici/types/header'
+import { statusRoutes } from './statusRoutes'
 
 export interface HTTPServerOptions {
   host: string
@@ -90,4 +91,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       id: null,
     })
   })
+
+  fastify.register(statusRoutes, { prefix: '/-/' })
 }
