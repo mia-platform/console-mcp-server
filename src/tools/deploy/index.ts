@@ -94,14 +94,11 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     toolsDescriptions.PIPELINE_STATUS,
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
-      pipelineId: z.union([ z.string(), z.number() ]).describe(paramsDescriptions.PIPELINE_ID),
+      pipelineId: z.string().describe(paramsDescriptions.PIPELINE_ID),
     },
     async ({ projectId, pipelineId }): Promise<CallToolResult> => {
       try {
-        const pipelineIdString = typeof pipelineId === 'number'
-          ? pipelineId.toString()
-          : pipelineId
-        const status = await client.waitProjectDeployForCompletion(projectId, pipelineIdString)
+        const status = await client.waitProjectDeployForCompletion(projectId, pipelineId)
 
         return {
           content: [
