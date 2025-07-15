@@ -574,4 +574,94 @@ suite('Backend Client', () => {
     const environmentResult = await client.saveEnvironmentBasedConfiguration(projectId, refId, data)
     t.assert.deepStrictEqual(environmentResult, mockedResult)
   })
+
+  test('create repository', async (t: TestContext) => {
+    const templateId = 'template-id'
+    const serviceName = 'test-service'
+    const resourceName = 'test-resource'
+    const groupPath = 'test-group'
+    const imageName = 'test-image'
+    const containerRegistryId = 'registry-id'
+    const pipeline = 'test-pipeline'
+    const defaultConfigMaps = [ { name: 'config1' } ]
+    const defaultSecrets = [ { name: 'secret1' } ]
+    const description = 'Test service description'
+
+    const expectedBody = {
+      serviceName,
+      resourceName,
+      groupName: groupPath,
+      serviceDescription: description,
+      templateId,
+      defaultConfigMaps,
+      defaultSecrets,
+      repoName: serviceName,
+      pipeline,
+      imageName,
+      containerRegistryId,
+    }
+
+    const mockedResult = {
+      id: 'repository-id',
+      name: serviceName,
+      status: 'created',
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/service`,
+      method: 'POST',
+      body: JSON.stringify(expectedBody),
+    }).reply(200, mockedResult)
+
+    const result = await client.createRepository(
+      projectId,
+      templateId,
+      serviceName,
+      resourceName,
+      groupPath,
+      imageName,
+      containerRegistryId,
+      pipeline,
+      defaultConfigMaps,
+      defaultSecrets,
+      description,
+    )
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('create repository must thrown if the API call fails', async (t: TestContext) => {
+    const templateId = 'template-id'
+    const serviceName = 'test-service'
+    const resourceName = 'test-resource'
+    const groupPath = 'test-group'
+    const imageName = 'test-image'
+
+    const expectedBody = {
+      serviceName,
+      resourceName,
+      groupName: groupPath,
+      templateId,
+      repoName: serviceName,
+      imageName,
+      containerRegistryId: undefined,
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/service`,
+      method: 'POST',
+      body: JSON.stringify(expectedBody),
+    }).reply(500, { error: 'Internal Server Error' })
+
+    await t.assert.rejects(
+      async () => await client.createRepository(
+        projectId,
+        templateId,
+        serviceName,
+        resourceName,
+        groupPath,
+        imageName,
+      ),
+      { name: 'Error' },
+    )
+  })
 })

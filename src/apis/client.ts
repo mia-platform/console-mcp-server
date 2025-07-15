@@ -158,7 +158,7 @@ export class APIClient {
       throw new Error(`Cannot create a new service from marketplace item ${marketplaceItemID}: ${marketplaceItem.type} is invalid`)
     }
 
-    const resourcesToCreate = await this.#resourceToCreateFromMaketplaceItem(
+    const resourcesToCreate = await this.#resourceToCreateFromMarketplaceItem(
       project,
       marketplaceItem,
       name,
@@ -273,7 +273,7 @@ export class APIClient {
     return this.#marketplaceClient.marketplaceItemInfo(tenantID, itemID, version)
   }
 
-  async #resourceToCreateFromMaketplaceItem (
+  async #resourceToCreateFromMarketplaceItem (
     project: IProject,
     marketplaceItem: CatalogVersionedItem,
     name: string,
@@ -318,15 +318,16 @@ export class APIClient {
   async #serviceGitGroupPath (projectID: string, projectGitPath: string): Promise<string> {
     const projectGroups = await this.#backendClient.projectGitProviderGroups(projectID, path.dirname(projectGitPath))
     let groupName: string | undefined
-    if (projectGroups.length === 1) {
-      groupName = projectGroups[0]['full_path'] as string
-    } else {
+    if (projectGroups.length > 1) {
       for (const projectGroup of projectGroups) {
         if ((projectGroup['full_path'] as string).endsWith('/services')) {
           groupName = projectGroup['full_path'] as string
           break
         }
       }
+    }
+    if (!groupName) {
+      groupName = projectGroups[0]['full_path'] as string
     }
 
     if (!groupName) {
