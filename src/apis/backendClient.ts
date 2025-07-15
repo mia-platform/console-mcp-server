@@ -129,7 +129,7 @@ export class BackendClient {
     const createServiceRepositoryBody = {
       serviceName: name,
       resourceName: resourceName,
-      projectGroupPath,
+      groupName: projectGroupPath,
       ...description && { serviceDescription: description },
       templateId: templateID,
       ...defaultConfigMaps && { defaultConfigMaps },
