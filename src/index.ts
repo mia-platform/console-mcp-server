@@ -63,9 +63,9 @@ program.
     })
   })
 
-// If no command is provided, default to 'start --stdio'
-if (process.argv.length === 2) {
-  process.argv.push('start', '--stdio')
-}
-
 program.parse(process.argv)
+
+if (!program.args.length) {
+  program.help()
+  process.exit(0)
+}
