@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Copyright Mia srl
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -13,27 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 
 import Fastify from 'fastify'
 import { httpServer } from './server/httpserver'
 import { runStdioServer } from './server/stdio'
-import { description, name, version } from '../package.json'
+import { description, version } from '../package.json'
 
 const program = new Command()
 
 program.
-  name(name).
+  name('console-mcp-server').
   description(description).
   version(version, '-v, --version')
 
 program.
   command('start').
   description('start the Mia-Platform Console MCP Server').
-  option('-p, --port <port>', 'port to run the server on', '3000').
-  option('--stdio', 'run the server locally', false).
-  option('--host <host>', 'Mia-Platform Console host').
+  option('--stdio', 'run the server in stdio mode (default when using npx)', false).
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
+  addOption(new Option('-p, --port <port>', 'port to run the server on').default('3000').env('HTTP_PORT')).
+  addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   action(({ host, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''

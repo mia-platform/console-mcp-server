@@ -3,6 +3,9 @@
   "version": "1.0.3",
   "description": "Mia-Platform Console MCP Server",
   "main": "mcp-server/index.js",
+  "bin": {
+    "console-mcp-server": "mcp-server/index.js"
+  },
   "files": [
     "mcp-server"
   ],
