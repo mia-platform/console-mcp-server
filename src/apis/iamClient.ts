@@ -42,7 +42,7 @@ export class IAMClient {
       ...type && { identityType: type },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params)
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params, 0)
   }
 
   companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
@@ -51,7 +51,7 @@ export class IAMClient {
       ...to && { to },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params)
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params, 0)
   }
 
   #companyIAMPath (tenantID: string): string {
