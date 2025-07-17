@@ -32,6 +32,12 @@ export class IAMClient {
   #client: HTTPClient
   #internal: boolean
 
+  /**
+   * Since IAM APIs with pagination have parameter "page" starting from zero,
+   * we need to include this value in the requests to get the first page.
+   */
+  #DEFAULT_START_PAGE_IAM_APIS = 0
+
   constructor (client: HTTPClient, internal = false) {
     this.#client = client
     this.#internal = internal
@@ -42,7 +48,7 @@ export class IAMClient {
       ...type && { identityType: type },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params, 0)
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params, this.#DEFAULT_START_PAGE_IAM_APIS)
   }
 
   companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
@@ -51,7 +57,7 @@ export class IAMClient {
       ...to && { to },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params, 0)
+    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params, this.#DEFAULT_START_PAGE_IAM_APIS)
   }
 
   #companyIAMPath (tenantID: string): string {
