@@ -18,14 +18,18 @@ import { beforeEach, suite, test } from 'node:test'
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 
-import { addConfigurationCapabilities } from '.'
 import { APIClient } from '../../apis/client'
 import { TestMCPServer } from '../../server/utils.test'
+import {
+  addConfigurationCapabilities,
+  ERR_AI_FEATURES_NOT_ENABLED,
+  ERR_NO_TENANT_ID,
+} from '.'
 import {
   ResourcesToCreate,
   SaveConfigurationOptions,
   SaveResponse,
-} from '../../apis/types/governance'
+} from '../../apis/types/configuration'
 
 const revisions = [
   { name: 'main' },
@@ -78,6 +82,12 @@ const mockSaveResponse = {
   id: 'new-commit-id',
 }
 
+function isAiFeaturesEnabledForTenantMock (tenantId: string): boolean {
+  // Placeholder for actual feature check logic
+  // This function should return true if AI features are enabled for the given tenant
+  return tenantId !== 'not-enabled-tenant'
+}
+
 suite('list configuration revisions tool', () => {
   let client: Client
 
@@ -94,11 +104,16 @@ suite('list configuration revisions tool', () => {
             versions: tags,
           }
         },
+
+        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+          return isAiFeaturesEnabledForTenantMock(tenantId)
+        },
       } as APIClient)
     })
   })
 
-  test('should return revisions and tags', async (t) => {
+  test('should return error empty tenant is passed', async (t) => {
+    const tenantId = ''
     const projectId = 'project123'
 
     const result = await client.request({
@@ -106,6 +121,53 @@ suite('list configuration revisions tool', () => {
       params: {
         name: 'list_configuration_revisions',
         arguments: {
+          tenantId,
+          projectId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching revisions or versions: ${ERR_NO_TENANT_ID}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error if AI features are not enabled for tenant', async (t) => {
+    const tenantId = 'not-enabled-tenant'
+    const projectId = 'project123'
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_configuration_revisions',
+        arguments: {
+          tenantId,
+          projectId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching revisions or versions: ${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return revisions and tags', async (t) => {
+    const tenantId = 'tenant123'
+    const projectId = 'project123'
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_configuration_revisions',
+        arguments: {
+          tenantId,
           projectId,
         },
       },
@@ -123,12 +185,15 @@ suite('list configuration revisions tool', () => {
   })
 
   test('should return error message if request returns error', async (t) => {
+    const tenantId = 'tenant123'
     const projectId = 'error-project'
+
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'list_configuration_revisions',
         arguments: {
+          tenantId,
           projectId,
         },
       },

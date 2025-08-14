@@ -87,6 +87,15 @@ export class APIClient {
     this.#marketplaceClient = MarketplaceClientInternal(clientID, clientSecret, additionalHeaders)
   }
 
+  async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+    const tenantRules = await this.#backendClient.getCompanyRules(tenantId)
+    if (!tenantRules || !tenantRules['aiFeaturesEnabled']) {
+      return false
+    }
+
+    return Boolean(tenantRules['aiFeaturesEnabled'])
+  }
+
   async listCompanies (): Promise<Record<string, unknown>[]> {
     return await this.#backendClient.listCompanies()
   }

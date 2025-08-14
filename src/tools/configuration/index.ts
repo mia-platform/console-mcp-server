@@ -22,15 +22,34 @@ import { APIClient } from '../../apis/client'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
+export const ERR_NO_TENANT_ID = 'No tenantId specified'
+export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
+
+async function assertAiFeaturesEnabledForTenant (client: APIClient, tenantId: string): Promise<void> {
+  // Placeholder for actual feature check logic
+  // This function should throw an error if AI features are not enabled for the given tenant
+  if (!tenantId) {
+    throw new Error(ERR_NO_TENANT_ID)
+  }
+
+  const isEnabled = await client.isAiFeaturesEnabledForTenant(tenantId)
+  if (!isEnabled) {
+    throw new Error(`${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`)
+  }
+}
+
 export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
     {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
     },
-    async ({ projectId }): Promise<CallToolResult> => {
+    async ({ projectId, tenantId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const revisions = await client.getConfigurationRevisions(projectId)
         return {
           content: [
