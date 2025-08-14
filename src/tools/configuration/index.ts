@@ -77,11 +77,14 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     toolNames.GET_CONFIGURATION,
     toolsDescriptions.GET_CONFIGURATION,
     {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
     },
-    async ({ projectId, refId }): Promise<CallToolResult> => {
+    async ({ tenantId, projectId, refId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const config = await client.getConfiguration(projectId, refId)
         return {
           content: [

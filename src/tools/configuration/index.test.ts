@@ -220,11 +220,16 @@ suite('get configuration tool', () => {
           }
           return mockConfiguration
         },
+
+        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+          return isAiFeaturesEnabledForTenantMock(tenantId)
+        },
       } as APIClient)
     })
   })
 
-  test('should retrieve and return configuration', async (t) => {
+  test('should return error empty tenant is passed', async (t) => {
+    const tenantId = ''
     const projectId = 'project123'
     const refId = 'main'
 
@@ -233,6 +238,57 @@ suite('get configuration tool', () => {
       params: {
         name: 'configuration_get',
         arguments: {
+          tenantId,
+          projectId,
+          refId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching configuration: ${ERR_NO_TENANT_ID}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error if AI features are not enabled for tenant', async (t) => {
+    const tenantId = 'not-enabled-tenant'
+    const projectId = 'project123'
+    const refId = 'main'
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_get',
+        arguments: {
+          tenantId,
+          projectId,
+          refId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should retrieve and return configuration', async (t) => {
+    const tenantId = 'tenant123'
+    const projectId = 'project123'
+    const refId = 'main'
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_get',
+        arguments: {
+          tenantId,
           projectId,
           refId,
         },
@@ -248,6 +304,7 @@ suite('get configuration tool', () => {
   })
 
   test('should return error message if API request fails', async (t) => {
+    const tenantId = 'tenant123'
     const projectId = 'error-project'
     const refId = 'main'
 
@@ -256,6 +313,7 @@ suite('get configuration tool', () => {
       params: {
         name: 'configuration_get',
         arguments: {
+          tenantId,
           projectId,
           refId,
         },
