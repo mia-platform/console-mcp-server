@@ -112,6 +112,7 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     toolNames.CONFIGURATION_TO_SAVE,
     toolsDescriptions.CONFIGURATION_TO_SAVE,
     {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
       endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
@@ -120,8 +121,10 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
       configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
       serviceAccounts: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICE_ACCOUNTS),
     },
-    async ({ projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
+    async ({ tenantId, projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
           collections: collections as Collections,

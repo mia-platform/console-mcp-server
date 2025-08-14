@@ -347,11 +347,98 @@ suite('configuration save tool', () => {
 
           return mockSaveResponse
         },
+
+        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+          return isAiFeaturesEnabledForTenantMock(tenantId)
+        },
       } as APIClient)
     })
   })
 
+  test('should return error empty tenant is passed', async (t) => {
+    const tenantId = ''
+    const projectId = 'project123'
+    const refId = 'main'
+
+    const endpointsToSave = {
+      '/api': {
+        basePath: '/api',
+        type: 'custom',
+        service: 'api-service',
+        pathRewrite: '/',
+        public: true,
+        acl: 'true',
+        description: 'API endpoint',
+        listeners: { web: true },
+        secreted: false,
+        showInDocumentation: true,
+      },
+    }
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_save',
+        arguments: {
+          tenantId,
+          projectId,
+          refId,
+          endpoints: endpointsToSave,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error saving configuration: ${ERR_NO_TENANT_ID}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error if AI features are not enabled for tenant', async (t) => {
+    const tenantId = 'not-enabled-tenant'
+    const projectId = 'project123'
+    const refId = 'main'
+
+    const endpointsToSave = {
+      '/api': {
+        basePath: '/api',
+        type: 'custom',
+        service: 'api-service',
+        pathRewrite: '/',
+        public: true,
+        acl: 'true',
+        description: 'API endpoint',
+        listeners: { web: true },
+        secreted: false,
+        showInDocumentation: true,
+      },
+    }
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_save',
+        arguments: {
+          tenantId,
+          projectId,
+          refId,
+          endpoints: endpointsToSave,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
   test('should save configuration successfully with multiple resource types', async (t) => {
+    const tenantId = 'tenant123'
     const projectId = 'project123'
     const refId = 'main'
 
@@ -410,6 +497,7 @@ suite('configuration save tool', () => {
       params: {
         name: 'configuration_save',
         arguments: {
+          tenantId,
           projectId,
           refId,
           endpoints: endpointsToSave,
@@ -429,6 +517,7 @@ suite('configuration save tool', () => {
   })
 
   test('should return error message if POST request fails', async (t) => {
+    const tenantId = 'tenant123'
     const projectId = 'error-project'
     const refId = 'main'
 
@@ -452,6 +541,7 @@ suite('configuration save tool', () => {
       params: {
         name: 'configuration_save',
         arguments: {
+          tenantId,
           projectId,
           refId,
           endpoints: endpointsToSave,
