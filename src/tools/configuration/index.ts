@@ -13,10 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import assert from 'node:assert'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
+import { Collections, ConfigMaps, Endpoints, IProject, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { APIClient } from '../../apis/client'
 import { ResourcesToCreate } from '../../apis/types/configuration'
@@ -36,17 +37,22 @@ async function assertAiFeaturesEnabledForTenant (client: APIClient, tenantId: st
   }
 }
 
+async function assertAiFeaturesEnabledForProject (client: APIClient, project: IProject): Promise<void> {
+  assert(project.tenantId, 'Project must have a tenantId')
+  await assertAiFeaturesEnabledForTenant(client, project.tenantId)
+}
+
 export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,
     {
-      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
     },
-    async ({ projectId, tenantId }): Promise<CallToolResult> => {
+    async ({ projectId }): Promise<CallToolResult> => {
       try {
-        await assertAiFeaturesEnabledForTenant(client, tenantId)
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
 
         const revisions = await client.getConfigurationRevisions(projectId)
         return {

@@ -116,7 +116,7 @@ export class APIClient {
     return await this.#backendClient.listProjects(tenantIDs, search)
   }
 
-  async projectInfo (projectID: string): Promise<Record<string, unknown>> {
+  async projectInfo (projectID: string): Promise<IProject> {
     return await this.#backendClient.projectInfo(projectID)
   }
 
