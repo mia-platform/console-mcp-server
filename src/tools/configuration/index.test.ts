@@ -15,7 +15,6 @@
 
 import assert from 'node:assert'
 import {
-  beforeEach,
   it,
   mock,
   suite,
@@ -30,7 +29,6 @@ import { TestMCPServer } from '../../server/utils.test'
 import {
   addConfigurationCapabilities,
   ERR_AI_FEATURES_NOT_ENABLED,
-  ERR_NO_TENANT_ID,
 } from '.'
 import {
   ResourcesToCreate,
@@ -162,34 +160,26 @@ suite('list configuration revisions tool', () => {
     })
 
   it('returns error - if getProjectInfo fails', async (t) => {
-    const testTenantId = 'tenant123'
-    const projectId = 'project123'
+    const testProjectId = 'project123'
 
     const expectedError = 'error fetching project info'
     const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
       throw new Error(expectedError)
     })
-    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
-      assert.strictEqual(tenantId, testTenantId)
-      return false
-    })
 
     const client = await getTestMCPServerClient({
-      getConfigurationRevisionsMockFn,
       getProjectInfoMockFn,
-      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'list_configuration_revisions',
         arguments: {
-          projectId,
+          projectId: testProjectId,
         },
       },
     }, CallToolResultSchema)
 
-    assert.strictEqual(aiFeaturesMockFn.mock.callCount(), 0)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching revisions or versions: ${expectedError}`,
@@ -200,16 +190,15 @@ suite('list configuration revisions tool', () => {
 
   it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
-    const projectId = 'project123'
+    const testProjectId = 'project123'
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
-      assert.strictEqual(projectId, projectId)
+      assert.equal(projectId, testProjectId)
       return {
         id: projectId,
         tenantId: testTenantId,
       } as unknown as IProject
     })
-
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
       assert.strictEqual(tenantId, testTenantId)
       return false
@@ -225,12 +214,12 @@ suite('list configuration revisions tool', () => {
       params: {
         name: 'list_configuration_revisions',
         arguments: {
-          projectId,
+          projectId: testProjectId,
         },
       },
     }, CallToolResultSchema)
 
-    assert.strictEqual(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching revisions or versions: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -241,10 +230,10 @@ suite('list configuration revisions tool', () => {
 
   it('returns revisions and tags', async (t) => {
     const testTenantId = 'tenant123'
-    const projectId = 'project123'
+    const testProjectId = 'project123'
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
-      assert.strictEqual(projectId, projectId)
+      assert.equal(projectId, testProjectId)
       return {
         id: projectId,
         tenantId: testTenantId,
@@ -266,11 +255,12 @@ suite('list configuration revisions tool', () => {
         name: 'list_configuration_revisions',
         arguments: {
           tenantId: testTenantId,
-          projectId,
+          projectId: testProjectId,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: JSON.stringify({
@@ -284,10 +274,10 @@ suite('list configuration revisions tool', () => {
 
   it('returns error - if request returns error', async (t) => {
     const testTenantId = 'tenant123'
-    const projectId = 'error-project'
+    const testProjectId = 'error-project'
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
-      assert.strictEqual(projectId, projectId)
+      assert.equal(projectId, testProjectId)
       return {
         id: projectId,
         tenantId: testTenantId,
@@ -309,11 +299,12 @@ suite('list configuration revisions tool', () => {
         name: 'list_configuration_revisions',
         arguments: {
           tenantId: testTenantId,
-          projectId,
+          projectId: testProjectId,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching revisions or versions: error message',
@@ -324,8 +315,6 @@ suite('list configuration revisions tool', () => {
 })
 
 suite('get configuration tool', () => {
-  let client: Client
-
   const getConfigurationMockFn =
     mock.fn(async (projectId: string, _refId: string) => {
       if (projectId === 'error-project') {
@@ -335,25 +324,24 @@ suite('get configuration tool', () => {
       return mockConfiguration
     })
 
-  beforeEach(async () => {
-    client = await getTestMCPServerClient({
-      getConfigurationMockFn,
-      isAiFeaturesEnabledForTenantMockFn: mock.fn(async (tenantId: string) => tenantId !== 'not-enabled-tenant'),
-    })
-  })
-
-  it('should return error empty tenant is passed', async (t) => {
-    const tenantId = ''
-    const projectId = 'project123'
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
     const refId = 'main'
 
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_get',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
         },
       },
@@ -361,49 +349,82 @@ suite('get configuration tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching configuration: ${ERR_NO_TENANT_ID}`,
+        text: `Error fetching configuration: ${expectedError}`,
         type: 'text',
       },
     ])
   })
 
   it('should return error if AI features are not enabled for tenant', async (t) => {
-    const tenantId = 'not-enabled-tenant'
-    const projectId = 'project123'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
     const refId = 'main'
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_get',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`,
+        text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
         type: 'text',
       },
     ])
   })
 
   it('should retrieve and return configuration', async (t) => {
-    const tenantId = 'tenant123'
-    const projectId = 'project123'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
     const refId = 'main'
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      getConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_get',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
         },
       },
@@ -418,22 +439,39 @@ suite('get configuration tool', () => {
   })
 
   it('should return error message if API request fails', async (t) => {
-    const tenantId = 'tenant123'
-    const projectId = 'error-project'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
     const refId = 'main'
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      getConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_get',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching configuration: some error',
@@ -444,8 +482,6 @@ suite('get configuration tool', () => {
 })
 
 suite('configuration save tool', () => {
-  let client: Client
-
   const saveConfigurationMockFn =
     mock.fn(async (projectId: string) => {
       if (projectId === 'error-project') {
@@ -455,16 +491,55 @@ suite('configuration save tool', () => {
       return mockSaveResponse
     })
 
-  beforeEach(async () => {
-    client = await getTestMCPServerClient({
-      saveConfigurationMockFn,
-      isAiFeaturesEnabledForTenantMockFn: mock.fn(async (tenantId: string) => tenantId !== 'not-enabled-tenant'),
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
+    const refId = 'main'
+
+    const endpointsToSave = {
+      '/api': {
+        basePath: '/api',
+        type: 'custom',
+        service: 'api-service',
+        pathRewrite: '/',
+        public: true,
+        acl: 'true',
+        description: 'API endpoint',
+        listeners: { web: true },
+        secreted: false,
+        showInDocumentation: true,
+      },
+    }
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
     })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_save',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpoints: endpointsToSave,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error saving configuration: ${expectedError}`,
+        type: 'text',
+      },
+    ])
   })
 
-  it('should return error empty tenant is passed', async (t) => {
-    const tenantId = ''
-    const projectId = 'project123'
+  it('returns error - when AI features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
     const refId = 'main'
 
     const endpointsToSave = {
@@ -482,71 +557,47 @@ suite('configuration save tool', () => {
       },
     }
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      saveConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_save',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
           endpoints: endpointsToSave,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error saving configuration: ${ERR_NO_TENANT_ID}`,
+        text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
         type: 'text',
       },
     ])
   })
 
-  it('should return error if AI features are not enabled for tenant', async (t) => {
-    const tenantId = 'not-enabled-tenant'
-    const projectId = 'project123'
-    const refId = 'main'
-
-    const endpointsToSave = {
-      '/api': {
-        basePath: '/api',
-        type: 'custom',
-        service: 'api-service',
-        pathRewrite: '/',
-        public: true,
-        acl: 'true',
-        description: 'API endpoint',
-        listeners: { web: true },
-        secreted: false,
-        showInDocumentation: true,
-      },
-    }
-
-    const result = await client.request({
-      method: 'tools/call',
-      params: {
-        name: 'configuration_save',
-        arguments: {
-          tenantId,
-          projectId,
-          refId,
-          endpoints: endpointsToSave,
-        },
-      },
-    }, CallToolResultSchema)
-
-    t.assert.deepEqual(result.content, [
-      {
-        text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`,
-        type: 'text',
-      },
-    ])
-  })
-
-  it('should save configuration successfully with multiple resource types', async (t) => {
-    const tenantId = 'tenant123'
-    const projectId = 'project123'
+  it('saves configuration successfully with multiple resource types', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
     const refId = 'main'
 
     const endpointsToSave = {
@@ -599,13 +650,30 @@ suite('configuration save tool', () => {
       },
     }
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      saveConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_save',
         arguments: {
-          tenantId,
-          projectId,
+          tenantId: testTenantId,
+          projectId: testProjectId,
           refId,
           endpoints: endpointsToSave,
           services: servicesToSave,
@@ -615,6 +683,7 @@ suite('configuration save tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: 'Configuration saved successfully.',
@@ -624,8 +693,8 @@ suite('configuration save tool', () => {
   })
 
   it('should return error message if POST request fails', async (t) => {
-    const tenantId = 'tenant123'
-    const projectId = 'error-project'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
     const refId = 'main'
 
     const endpointsToSave = {
@@ -643,19 +712,36 @@ suite('configuration save tool', () => {
       },
     }
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      saveConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'configuration_save',
         arguments: {
-          tenantId,
-          projectId,
+          projectId: testProjectId,
           refId,
           endpoints: endpointsToSave,
         },
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error saving configuration: some error',

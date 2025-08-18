@@ -23,12 +23,11 @@ import { APIClient } from '../../apis/client'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export const ERR_NO_TENANT_ID = 'No tenantId specified'
 export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
 
 async function assertAiFeaturesEnabledForTenant (client: APIClient, tenantId: string): Promise<void> {
   if (!tenantId) {
-    throw new Error(ERR_NO_TENANT_ID)
+    throw new Error('No tenantId provided')
   }
 
   const isEnabled = await client.isAiFeaturesEnabledForTenant(tenantId)
@@ -81,13 +80,13 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     toolNames.GET_CONFIGURATION,
     toolsDescriptions.GET_CONFIGURATION,
     {
-      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
     },
-    async ({ tenantId, projectId, refId }): Promise<CallToolResult> => {
+    async ({ projectId, refId }): Promise<CallToolResult> => {
       try {
-        await assertAiFeaturesEnabledForTenant(client, tenantId)
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
 
         const config = await client.getConfiguration(projectId, refId)
         return {
@@ -116,7 +115,6 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     toolNames.CONFIGURATION_TO_SAVE,
     toolsDescriptions.CONFIGURATION_TO_SAVE,
     {
-      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
       endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
@@ -125,9 +123,10 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
       configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
       serviceAccounts: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICE_ACCOUNTS),
     },
-    async ({ tenantId, projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
+    async ({ projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
-        await assertAiFeaturesEnabledForTenant(client, tenantId)
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
 
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
