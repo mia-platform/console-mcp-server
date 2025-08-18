@@ -13,7 +13,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { beforeEach, suite, test } from 'node:test'
+import {
+  suite,
+  test,
+} from 'node:test'
 
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
@@ -82,40 +85,84 @@ const mockSaveResponse = {
   id: 'new-commit-id',
 }
 
-function isAiFeaturesEnabledForTenantMock (tenantId: string): boolean {
-  // Placeholder for actual feature check logic
-  // This function should return true if AI features are enabled for the given tenant
-  return tenantId !== 'not-enabled-tenant'
+interface GetTestMCPServerClientParams {
+  getConfigurationRevisionsMockFn: (projectId: string) => Promise<Record<string, unknown>>
+  getConfigurationMockFn: (projectId: string, refId: string) => Promise<Record<string, unknown>>
+  saveConfigurationMockFn: (projectId: string) => Promise<SaveResponse>
+
+  isAiFeaturesEnabledForTenantMockFn: (tenantId: string) => Promise<boolean>
+}
+
+const defaultTestParams: GetTestMCPServerClientParams = {
+  getConfigurationRevisionsMockFn: async (projectId: string) => {
+    if (projectId === 'error-project') {
+      throw new Error('error message')
+    }
+
+    return {
+      revisions,
+      versions: tags,
+    }
+  },
+  getConfigurationMockFn: async (projectId: string, _refId: string) => {
+    if (projectId === 'error-project') {
+      throw new Error('some error')
+    }
+
+    return mockConfiguration
+  },
+  saveConfigurationMockFn: async (projectId: string) => {
+    if (projectId === 'error-project') {
+      throw new Error('some error')
+    }
+
+    return mockSaveResponse
+  },
+
+  isAiFeaturesEnabledForTenantMockFn: async (tenantId: string) => {
+    return tenantId !== 'not-enabled-tenant'
+  },
+}
+
+async function getTestMCPServerClient ({
+  isAiFeaturesEnabledForTenantMockFn: isAiFeaturesEnabledForTenantFn,
+}: Partial<GetTestMCPServerClientParams>): Promise<Client> {
+  const client = await TestMCPServer((server) => {
+    addConfigurationCapabilities(server, {
+      async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
+        return defaultTestParams.getConfigurationRevisionsMockFn(projectId)
+      },
+
+      async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+        return isAiFeaturesEnabledForTenantFn
+          ? isAiFeaturesEnabledForTenantFn(tenantId)
+          : defaultTestParams.isAiFeaturesEnabledForTenantMockFn(tenantId)
+      },
+
+      async getConfiguration (projectId: string, refId: string): Promise<Record<string, unknown>> {
+        return defaultTestParams.getConfigurationMockFn(projectId, refId)
+      },
+
+      async saveConfiguration (
+        projectId: string,
+        _refId: string,
+        _resourcesToCreate: ResourcesToCreate,
+        _options?: SaveConfigurationOptions,
+      ): Promise<SaveResponse> {
+        return defaultTestParams.saveConfigurationMockFn(projectId)
+      },
+    } as APIClient)
+  })
+
+  return client
 }
 
 suite('list configuration revisions tool', () => {
-  let client: Client
-
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addConfigurationCapabilities(server, {
-        async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
-          if (projectId === 'error-project') {
-            throw new Error('error message')
-          }
-
-          return {
-            revisions,
-            versions: tags,
-          }
-        },
-
-        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-          return isAiFeaturesEnabledForTenantMock(tenantId)
-        },
-      } as APIClient)
-    })
-  })
-
   test('should return error empty tenant is passed', async (t) => {
     const tenantId = ''
     const projectId = 'project123'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -139,6 +186,7 @@ suite('list configuration revisions tool', () => {
     const tenantId = 'not-enabled-tenant'
     const projectId = 'project123'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -162,6 +210,7 @@ suite('list configuration revisions tool', () => {
     const tenantId = 'tenant123'
     const projectId = 'project123'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -188,6 +237,7 @@ suite('list configuration revisions tool', () => {
     const tenantId = 'tenant123'
     const projectId = 'error-project'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -209,30 +259,12 @@ suite('list configuration revisions tool', () => {
 })
 
 suite('get configuration tool', () => {
-  let client: Client
-
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addConfigurationCapabilities(server, {
-        async getConfiguration (projectId: string, _refId: string): Promise<Record<string, unknown>> {
-          if (projectId === 'error-project') {
-            throw new Error('some error')
-          }
-          return mockConfiguration
-        },
-
-        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-          return isAiFeaturesEnabledForTenantMock(tenantId)
-        },
-      } as APIClient)
-    })
-  })
-
   test('should return error empty tenant is passed', async (t) => {
     const tenantId = ''
     const projectId = 'project123'
     const refId = 'main'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -258,6 +290,7 @@ suite('get configuration tool', () => {
     const projectId = 'project123'
     const refId = 'main'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -283,6 +316,7 @@ suite('get configuration tool', () => {
     const projectId = 'project123'
     const refId = 'main'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -308,6 +342,7 @@ suite('get configuration tool', () => {
     const projectId = 'error-project'
     const refId = 'main'
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -330,31 +365,6 @@ suite('get configuration tool', () => {
 })
 
 suite('configuration save tool', () => {
-  let client: Client
-
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addConfigurationCapabilities(server, {
-        async saveConfiguration (
-          projectID: string,
-          _refID: string,
-          _resourcesToCreate: ResourcesToCreate,
-          _options?: SaveConfigurationOptions,
-        ): Promise<SaveResponse> {
-          if (projectID === 'error-project') {
-            throw new Error('some error')
-          }
-
-          return mockSaveResponse
-        },
-
-        async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-          return isAiFeaturesEnabledForTenantMock(tenantId)
-        },
-      } as APIClient)
-    })
-  })
-
   test('should return error empty tenant is passed', async (t) => {
     const tenantId = ''
     const projectId = 'project123'
@@ -375,6 +385,7 @@ suite('configuration save tool', () => {
       },
     }
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -416,6 +427,7 @@ suite('configuration save tool', () => {
       },
     }
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -492,6 +504,7 @@ suite('configuration save tool', () => {
       },
     }
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -536,6 +549,7 @@ suite('configuration save tool', () => {
       },
     }
 
+    const client = await getTestMCPServerClient({})
     const result = await client.request({
       method: 'tools/call',
       params: {

@@ -26,8 +26,6 @@ export const ERR_NO_TENANT_ID = 'No tenantId specified'
 export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
 
 async function assertAiFeaturesEnabledForTenant (client: APIClient, tenantId: string): Promise<void> {
-  // Placeholder for actual feature check logic
-  // This function should throw an error if AI features are not enabled for the given tenant
   if (!tenantId) {
     throw new Error(ERR_NO_TENANT_ID)
   }
