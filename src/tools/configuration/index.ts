@@ -13,33 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { Collections, ConfigMaps, Endpoints, IProject, ServiceAccounts, Services } from '@mia-platform/console-types'
+import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject } from '../utils/validations'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
-
-async function assertAiFeaturesEnabledForTenant (client: APIClient, tenantId: string): Promise<void> {
-  if (!tenantId) {
-    throw new Error('No tenantId provided')
-  }
-
-  const isEnabled = await client.isAiFeaturesEnabledForTenant(tenantId)
-  if (!isEnabled) {
-    throw new Error(`${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`)
-  }
-}
-
-async function assertAiFeaturesEnabledForProject (client: APIClient, project: IProject): Promise<void> {
-  assert(project.tenantId, 'Project must have a tenantId')
-  await assertAiFeaturesEnabledForTenant(client, project.tenantId)
-}
 
 export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(

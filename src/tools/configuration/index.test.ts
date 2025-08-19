@@ -24,12 +24,10 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { IProject } from '@mia-platform/console-types'
 
+import { addConfigurationCapabilities } from '.'
 import { APIClient } from '../../apis/client'
+import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
-import {
-  addConfigurationCapabilities,
-  ERR_AI_FEATURES_NOT_ENABLED,
-} from '.'
 import {
   ResourcesToCreate,
   SaveConfigurationOptions,
