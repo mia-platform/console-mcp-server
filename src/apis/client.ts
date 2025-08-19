@@ -54,6 +54,14 @@ export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
 const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes } = constants
 
+interface AISettings {
+  enableAgenticFeatures?: boolean
+}
+
+interface TenantRules {
+  aiSettings?: AISettings
+}
+
 export class APIClient {
   #backendClient: BackendClient
   #deployClient: DeployClient
@@ -88,12 +96,8 @@ export class APIClient {
   }
 
   async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-    const tenantRules = await this.#backendClient.getCompanyRules(tenantId)
-    if (!tenantRules || !tenantRules['aiFeaturesEnabled']) {
-      return false
-    }
-
-    return Boolean(tenantRules['aiFeaturesEnabled'])
+    const tenantRules: TenantRules = await this.#backendClient.getCompanyRules(tenantId)
+    return tenantRules?.aiSettings?.enableAgenticFeatures || false
   }
 
   async listCompanies (): Promise<Record<string, unknown>[]> {
