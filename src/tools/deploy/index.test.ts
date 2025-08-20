@@ -245,7 +245,7 @@ suite('deploy project tool', () => {
     ])
   })
 
-  it('returns error - if depoloy request fails', async (t) => {
+  it('returns error - if deploy request fails', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const revision = 'main'
