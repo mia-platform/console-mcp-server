@@ -93,6 +93,15 @@ export interface IAPIClient {
     resourcesToCreate: ResourcesToCreate,
     options?: SaveConfigurationOptions,
   ): Promise<SaveResponse>
+  createServiceFromMarketplaceItem(
+    projectID: string,
+    name: string,
+    refID: string,
+    marketplaceItemID: string,
+    marketplaceItemTenantID: string,
+    marketplaceItemVersion?: string,
+    description?: string,
+  ): Promise<SaveResponse>
   // #endregion
 
   // #region Deploy Methods
@@ -489,6 +498,7 @@ export interface APIClientMockFunctions {
   getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
   getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
+  createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
   // #endregion
 
   // #region Deploy Methods
@@ -633,6 +643,22 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.saveConfigurationMockFn(projectId)
+  }
+
+  async createServiceFromMarketplaceItem (
+    projectID: string,
+    _name: string,
+    _refID: string,
+    _marketplaceItemID: string,
+    _marketplaceItemTenantID: string,
+    _marketplaceItemVersion?: string,
+    _description?: string,
+  ): Promise<SaveResponse> {
+    if (!this.mocks.createServiceFromMarketplaceItemMockFn) {
+      throw new Error('createServiceFromMarketplaceItemMockFn not mocked')
+    }
+
+    return this.mocks.createServiceFromMarketplaceItemMockFn(projectID)
   }
 
   // #endregion

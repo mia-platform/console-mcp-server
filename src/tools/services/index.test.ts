@@ -12,18 +12,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import test, { beforeEach, suite } from 'node:test'
+
+import assert from 'node:assert'
+import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { IProject } from '@mia-platform/console-types'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addServicesCapabilities } from '.'
-import { APIClient } from '../../apis/client'
-import { SaveResponse } from '../../apis/types/configuration'
+import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
 import { toolNames } from '../descriptions'
+import {
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
-const projectId = 'project-id'
 const name = 'name'
 const description = 'description'
 const refId = 'reference-id'
@@ -35,10 +40,18 @@ const saveResponse = {
   id: 'save-id',
 }
 
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
+  const client = await TestMCPServer((server) => {
+    addServicesCapabilities(server, new APIClientMock(mocks))
+  })
+
+  return client
+}
+
 suite('setup services tools', () => {
   test('should setup services tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      addServicesCapabilities(server, {} as APIClient)
+      addServicesCapabilities(server, new APIClientMock({}))
     })
 
     const result = await client.request(
@@ -53,36 +66,118 @@ suite('setup services tools', () => {
 })
 
 suite('create service from marketplace tool', () => {
-  let client: Client
-
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addServicesCapabilities(server, {
-        async createServiceFromMarketplaceItem (
-          projectID: string,
-          _name: string,
-          _refID: string,
-          _marketplaceItemID: string,
-          _marketplaceItemTenantID: string,
-          _marketplaceItemVersion?: string,
-          _description?: string,
-        ): Promise<SaveResponse> {
-          if (projectID === 'error') {
-            throw new Error('error message')
-          }
-          return saveResponse
-        },
-      } as APIClient)
-    })
+  const createServiceFromMarketplaceItemMockFn = mock.fn(async (projectID: string) => {
+    if (projectID === 'error-project') {
+      throw new Error('error message')
+    }
+    return saveResponse
   })
 
-  test('should create a service from marketplace item', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
+
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
         arguments: {
-          projectId,
+          projectId: testProjectId,
+          name,
+          description,
+          refId,
+          marketplaceItemId,
+          marketplaceItemTenantId,
+          marketplaceItemVersion,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating ${name} service: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
+        arguments: {
+          projectId: testProjectId,
+          name,
+          description,
+          refId,
+          marketplaceItemId,
+          marketplaceItemTenantId,
+          marketplaceItemVersion,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating ${name} service: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should create a service from marketplace item', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      createServiceFromMarketplaceItemMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
+        arguments: {
+          projectId: testProjectId,
           name,
           description,
           refId,
@@ -101,13 +196,30 @@ suite('create service from marketplace tool', () => {
     ])
   })
 
-  test('should return error when pods are not found', async (t) => {
+  test('should return error when service creation fails', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      createServiceFromMarketplaceItemMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
         arguments: {
-          projectId: 'error',
+          projectId: testProjectId,
           name,
           description,
           refId,

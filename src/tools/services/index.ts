@@ -17,10 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject } from '../utils/validations'
+import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addServicesCapabilities (server: McpServer, client: APIClient) {
+export function addServicesCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.CREATE_SERVICE_FROM_MARKETPLACE,
     toolsDescriptions.CREATE_SERVICE_FROM_MARKETPLACE,
@@ -35,6 +36,9 @@ export function addServicesCapabilities (server: McpServer, client: APIClient) {
     },
     async (args): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(args.projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const response = await client.createServiceFromMarketplaceItem(
           args.projectId,
           args.name,
