@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
 import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 export function addDeployCapabilities (server: McpServer, client: APIClient) {
@@ -32,6 +33,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const data = await client.deployProjectEnvironmentFromRevision(projectId, environment, revision, refType)
         return {
           content: [
