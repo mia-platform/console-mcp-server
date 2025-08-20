@@ -135,6 +135,12 @@ export interface IAPIClient {
     lines?: number,
   ): Promise<string>
   // #endregion
+
+  // #region Marketplace Methods
+  listMarketplaceItems(tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]>
+  marketplaceItemVersions(tenantID: string, itemID: string): Promise<CatalogItemRelease[]>
+  marketplaceItemInfo(tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem>
+  // #endregion
 }
 
 export class APIClient implements IAPIClient {
@@ -532,6 +538,12 @@ export interface APIClientMockFunctions {
     lines?: number,
   ) => Promise<string>
   // #endregion
+
+  // #region Marketplace Methods
+  listMarketplaceItemsMockFn?: (tenantID?: string, type?: string, search?: string) => Promise<Record<string, unknown>[]>
+  marketplaceItemVersionsMockFn?: (tenantID: string, itemID: string) => Promise<CatalogItemRelease[]>
+  marketplaceItemInfoMockFn?: (tenantID: string, itemID: string, version?: string) => Promise<CatalogVersionedItem>
+  // #endregion
 }
 
 export class APIClientMock implements IAPIClient {
@@ -728,6 +740,34 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.podLogsMockFn(projectID, environmentID, podName, containerName, lines)
+  }
+
+  // #endregion
+
+  // #region Marketplace Methods
+
+  async listMarketplaceItems (tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listMarketplaceItemsMockFn) {
+      throw new Error('listMarketplaceItemsMockFn not mocked')
+    }
+
+    return this.mocks.listMarketplaceItemsMockFn(tenantID, type, search)
+  }
+
+  async marketplaceItemVersions (tenantID: string, itemID: string): Promise<CatalogItemRelease[]> {
+    if (!this.mocks.marketplaceItemVersionsMockFn) {
+      throw new Error('marketplaceItemVersionsMockFn not mocked')
+    }
+
+    return this.mocks.marketplaceItemVersionsMockFn(tenantID, itemID)
+  }
+
+  async marketplaceItemInfo (tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem> {
+    if (!this.mocks.marketplaceItemInfoMockFn) {
+      throw new Error('marketplaceItemInfoMockFn not mocked')
+    }
+
+    return this.mocks.marketplaceItemInfoMockFn(tenantID, itemID, version)
   }
 
   // #endregion

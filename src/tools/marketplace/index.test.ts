@@ -13,14 +13,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { beforeEach, suite, test } from 'node:test'
+import assert from 'node:assert'
+import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
+import { CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
 
 import { addMarketplaceCapabilities } from '.'
-import { APIClient } from '../../apis/client'
+import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
+import {
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
 const elements = [
   { _id: 1, name: 'item1', tenantId: 'public', itemId: 'item-id-1' },
@@ -37,8 +43,18 @@ const expectedElements = [
 ]
 
 const itemVersions = [
-  { _id: 1, name: 'item1', tenantId: 'public', version: '1.0.0' },
-  { _id: 1, name: 'item1', tenantId: 'public', version: '1.1.0' },
+  {
+    _id: 1,
+    name: 'item1',
+    tenantId: 'public',
+    version: '1.0.0',
+  },
+  {
+    _id: 1,
+    name: 'item1',
+    tenantId: 'public',
+    version: '1.1.0',
+  },
 ]
 
 const itemInfo = {
@@ -48,10 +64,18 @@ const itemInfo = {
   version: '1.0.0',
 }
 
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
+  const client = await TestMCPServer((server) => {
+    addMarketplaceCapabilities(server, new APIClientMock(mocks))
+  })
+
+  return client
+}
+
 suite('setup marketplace tools', () => {
   test('should setup marketplace tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      addMarketplaceCapabilities(server, {} as APIClient)
+      addMarketplaceCapabilities(server, new APIClientMock({}))
     })
 
     const result = await client.request(
@@ -66,22 +90,18 @@ suite('setup marketplace tools', () => {
 })
 
 suite('marketplace list tool', () => {
-  let client: Client
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addMarketplaceCapabilities(server, {
-        async listMarketplaceItems (tenantId, _type, _search): Promise<Record<string, unknown>[]> {
-          if (tenantId === 'error') {
-            throw new Error('error message')
-          }
-
-          return elements
-        },
-      } as APIClient)
-    })
+  const listMarketplaceItemsMockFn = mock.fn(async (tenantId?: string) => {
+    if (tenantId === 'error') {
+      throw new Error('error message')
+    }
+    return elements
   })
 
   test('should return public elements', async (t) => {
+    const client = await getTestMCPServerClient({
+      listMarketplaceItemsMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -98,7 +118,43 @@ suite('marketplace list tool', () => {
     ])
   })
 
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace',
+        arguments: {
+          tenantId: testTenantId,
+          type: 'example',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching marketplace items for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
   test('should return error message if request return error', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      listMarketplaceItemsMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -120,29 +176,58 @@ suite('marketplace list tool', () => {
 })
 
 suite('marketplace item versions tool', () => {
-  let client: Client
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addMarketplaceCapabilities(server, {
-        async marketplaceItemVersions (tenantID, _itemID): Promise<Record<string, unknown>[]> {
-          if (tenantID === 'error') {
-            throw new Error('error message')
-          }
+  const marketplaceItemVersionsMockFn = mock.fn(async (tenantID: string, _itemID: string): Promise<CatalogItemRelease[]> => {
+    if (tenantID === 'error') throw new Error('error message')
 
-          return itemVersions
-        },
-      } as APIClient)
-    })
+    return itemVersions as unknown as CatalogItemRelease[]
   })
 
-  test('should return item versions', async (t) => {
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'list_marketplace_item_versions',
         arguments: {
           marketplaceItemId: 'item-id',
-          marketplaceItemTenantId: 'tenantID',
+          marketplaceItemTenantId: testTenantId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching marketplace item versions for item-id: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return item versions', async (t) => {
+    const testTenantId = 'tenantID'
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemVersionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_versions',
+        arguments: {
+          marketplaceItemId: 'item-id',
+          marketplaceItemTenantId: testTenantId,
         },
       },
     }, CallToolResultSchema)
@@ -156,6 +241,11 @@ suite('marketplace item versions tool', () => {
   })
 
   test('should return error message if request return error', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemVersionsMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
@@ -177,29 +267,60 @@ suite('marketplace item versions tool', () => {
 })
 
 suite('marketplace item version info tool', () => {
-  let client: Client
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addMarketplaceCapabilities(server, {
-        async marketplaceItemInfo (tenantID, _itemID, _version): Promise<Record<string, unknown>> {
-          if (tenantID === 'error') {
-            throw new Error('error message')
-          }
-
-          return itemInfo
-        },
-      } as APIClient)
-    })
+  const marketplaceItemInfoMockFn = mock.fn(async (tenantID: string, _itemID: string, _version?: string): Promise<CatalogVersionedItem> => {
+    if (tenantID === 'error') {
+      throw new Error('error message')
+    }
+    return itemInfo as unknown as CatalogVersionedItem
   })
 
-  test('should return item versions', async (t) => {
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'marketplace_item_version_info',
         arguments: {
           marketplaceItemId: 'item-id',
-          marketplaceItemTenantId: 'tenantID',
+          marketplaceItemTenantId: testTenantId,
+          marketplaceItemVersion: '1.0.0',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching marketplace item info for version 1.0.0: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return item version info', async (t) => {
+    const testTenantId = 'tenantID'
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemInfoMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'marketplace_item_version_info',
+        arguments: {
+          marketplaceItemId: 'item-id',
+          marketplaceItemTenantId: testTenantId,
           marketplaceItemVersion: '1.0.0',
         },
       },
@@ -214,6 +335,11 @@ suite('marketplace item version info tool', () => {
   })
 
   test('should return error message if request return error', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemInfoMockFn,
+    })
+
     const result = await client.request({
       method: 'tools/call',
       params: {
