@@ -21,9 +21,12 @@ import { IProject } from '@mia-platform/console-types'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addDeployCapabilities } from '.'
-import { APIClient } from '../../apis/client'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
+import {
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
 const triggerDeployResponse = {
   id: 123,
@@ -39,60 +42,9 @@ const compareUpdateResponse = {
   ],
 }
 
-interface CapabilitiesMocks {
-  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
-  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
-
-  deployProjectEnvironmentFromRevision?: (projectId: string, environment: string, revision: string, refType: string) => Promise<{ id: number, url: string }>
-  compareProjectEnvironmentFromRevisionForDeploy?: (projectId: string, environment: string, revision: string, refType: string) => Promise<typeof compareUpdateResponse>
-  waitProjectDeployForCompletion?: (projectId: string, pipelineId: string) => Promise<{ status: string }>
-}
-
-async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise<Client> {
-  const apiClient: APIClient = {
-    async projectInfo (projectId: string): Promise<IProject> {
-      if (!capabilities.getProjectInfoMockFn) {
-        throw new Error('getProjectInfoMockFn not mocked')
-      }
-
-      return capabilities.getProjectInfoMockFn(projectId)
-    },
-
-    async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-      if (!capabilities.isAiFeaturesEnabledForTenantMockFn) {
-        throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
-      }
-
-      return capabilities.isAiFeaturesEnabledForTenantMockFn(tenantId)
-    },
-
-    async deployProjectEnvironmentFromRevision (projectId, environment, revision, refType: string) {
-      if (!capabilities.deployProjectEnvironmentFromRevision) {
-        throw new Error('deployProjectEnvironmentFromRevision not mocked')
-      }
-
-      return capabilities.deployProjectEnvironmentFromRevision(projectId, environment, revision, refType)
-    },
-
-    async compareProjectEnvironmentFromRevisionForDeploy (projectId, environment, revision, refType) {
-      if (!capabilities.compareProjectEnvironmentFromRevisionForDeploy) {
-        throw new Error('compareProjectEnvironmentFromRevisionForDeploy not mocked')
-      }
-
-      return capabilities.compareProjectEnvironmentFromRevisionForDeploy(projectId, environment, revision, refType)
-    },
-
-    async waitProjectDeployForCompletion (projectId, pipelineId) {
-      if (!capabilities.waitProjectDeployForCompletion) {
-        throw new Error('waitProjectDeployForCompletion not mocked')
-      }
-
-      return capabilities.waitProjectDeployForCompletion(projectId, pipelineId)
-    },
-  } as APIClient
-
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
   const client = await TestMCPServer((server) => {
-    addDeployCapabilities(server, apiClient)
+    addDeployCapabilities(server, new APIClientMock(mocks))
   })
 
   return client
@@ -101,7 +53,7 @@ async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise
 suite('setup deploy tools', () => {
   test('should setup deploy tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      addDeployCapabilities(server, {} as APIClient)
+      addDeployCapabilities(server, new APIClientMock({}))
     })
 
     const result = await client.request(
@@ -222,7 +174,7 @@ suite('deploy project tool', () => {
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
 
-      deployProjectEnvironmentFromRevision: deployProjectEnvironmentFromRevisionMockFn,
+      deployProjectEnvironmentFromRevisionMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -264,7 +216,7 @@ suite('deploy project tool', () => {
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
 
-      deployProjectEnvironmentFromRevision: deployProjectEnvironmentFromRevisionMockFn,
+      deployProjectEnvironmentFromRevisionMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -394,7 +346,7 @@ suite('compare_update_for_deploy tool', () => {
     const client = await getTestMCPServerClient({
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
-      compareProjectEnvironmentFromRevisionForDeploy: compareProjectEnvironmentFromRevisionForDeployMockFn,
+      compareProjectEnvironmentFromRevisionForDeployMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -435,7 +387,7 @@ suite('compare_update_for_deploy tool', () => {
     const client = await getTestMCPServerClient({
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
-      compareProjectEnvironmentFromRevisionForDeploy: compareProjectEnvironmentFromRevisionForDeployMockFn,
+      compareProjectEnvironmentFromRevisionForDeployMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -460,7 +412,7 @@ suite('compare_update_for_deploy tool', () => {
 })
 
 suite('deploy_pipeline_status tool', () => {
-  const successStatus = { status: 'success' }
+  const successStatus = { id: 123, status: 'success' }
 
   const waitProjectDeployForCompletionMockFn = mock.fn(async (projectId: string, _pipelineId: string) => {
     if (projectId === 'error-project') {
@@ -557,7 +509,7 @@ suite('deploy_pipeline_status tool', () => {
     const client = await getTestMCPServerClient({
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
-      waitProjectDeployForCompletion: waitProjectDeployForCompletionMockFn,
+      waitProjectDeployForCompletionMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -594,7 +546,7 @@ suite('deploy_pipeline_status tool', () => {
     const client = await getTestMCPServerClient({
       getProjectInfoMockFn,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
-      waitProjectDeployForCompletion: waitProjectDeployForCompletionMockFn,
+      waitProjectDeployForCompletionMockFn,
     })
     const result = await client.request({
       method: 'tools/call',

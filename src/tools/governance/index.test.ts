@@ -21,12 +21,13 @@ import { IProject } from '@mia-platform/console-types'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addGovernanceCapabilities } from '.'
-import { APIClient } from '../../apis/client'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { Template } from '../../apis/types/governance'
 import { TestMCPServer } from '../../server/utils.test'
-
-// Project tools tests
+import {
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
 const projects = [
   { _id: 1, name: 'name', tenantId: 'tenantID' },
@@ -43,86 +44,9 @@ const project = {
   description: 'description',
 }
 
-interface CapabilitiesMocks {
-  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
-  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
-  listProjectsMockFn?: (tenantIds: string[], search?: string) => Promise<Record<string, unknown>[]>
-  createProjectFromTemplateMockFn?: (tenantId: string, projectName: string, templateId: string, description?: string) => Promise<Record<string, unknown>>
-  listCompaniesMockFn?: () => Promise<Record<string, unknown>[]>
-  companyTemplatesMockFn?: (tenantId: string) => Promise<Template[]>
-  companyIAMIdentitiesMockFn?: (tenantId: string, type?: string) => Promise<Record<string, unknown>[]>
-  companyAuditLogsMockFn?: (tenantId: string, from?: string, to?: string) => Promise<Record<string, unknown>[]>
-}
-
-async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise<Client> {
-  const apiClient: APIClient = {
-    async projectInfo (projectId: string): Promise<IProject> {
-      if (!capabilities.getProjectInfoMockFn) {
-        throw new Error('getProjectInfoMockFn not mocked')
-      }
-
-      return capabilities.getProjectInfoMockFn(projectId)
-    },
-
-    async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-      if (!capabilities.isAiFeaturesEnabledForTenantMockFn) {
-        throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
-      }
-
-      return capabilities.isAiFeaturesEnabledForTenantMockFn(tenantId)
-    },
-
-    async listProjects (tenantIds: string[], search?: string): Promise<Record<string, unknown>[]> {
-      if (!capabilities.listProjectsMockFn) {
-        throw new Error('listProjectsMockFn not mocked')
-      }
-
-      return capabilities.listProjectsMockFn(tenantIds, search)
-    },
-
-    async createProjectFromTemplate (tenantId: string, projectName: string, templateId: string, description?: string): Promise<Record<string, unknown>> {
-      if (!capabilities.createProjectFromTemplateMockFn) {
-        throw new Error('createProjectFromTemplateMockFn not mocked')
-      }
-
-      return capabilities.createProjectFromTemplateMockFn(tenantId, projectName, templateId, description)
-    },
-
-    async listCompanies (): Promise<Record<string, unknown>[]> {
-      if (!capabilities.listCompaniesMockFn) {
-        throw new Error('listCompaniesMockFn not mocked')
-      }
-
-      return capabilities.listCompaniesMockFn()
-    },
-
-    async companyTemplates (tenantId: string): Promise<Template[]> {
-      if (!capabilities.companyTemplatesMockFn) {
-        throw new Error('companyTemplatesMockFn not mocked')
-      }
-
-      return capabilities.companyTemplatesMockFn(tenantId)
-    },
-
-    async companyIAMIdentities (tenantId: string, type?: string): Promise<Record<string, unknown>[]> {
-      if (!capabilities.companyIAMIdentitiesMockFn) {
-        throw new Error('companyIAMIdentitiesMockFn not mocked')
-      }
-
-      return capabilities.companyIAMIdentitiesMockFn(tenantId, type)
-    },
-
-    async companyAuditLogs (tenantId: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
-      if (!capabilities.companyAuditLogsMockFn) {
-        throw new Error('companyAuditLogsMockFn not mocked')
-      }
-
-      return capabilities.companyAuditLogsMockFn(tenantId, from, to)
-    },
-  } as APIClient
-
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
   const client = await TestMCPServer((server) => {
-    addGovernanceCapabilities(server, apiClient)
+    addGovernanceCapabilities(server, new APIClientMock(mocks))
   })
 
   return client
@@ -131,7 +55,7 @@ async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise
 suite('setup governance tools', () => {
   test('should setup tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      addGovernanceCapabilities(server, {} as APIClient)
+      addGovernanceCapabilities(server, new APIClientMock({}))
     })
 
     const result = await client.request(
@@ -475,11 +399,12 @@ const auditLogs = [
 suite('companies list tool', () => {
   test('should return companies', async (t) => {
     const client = await TestMCPServer((server) => {
-      addGovernanceCapabilities(server, {
-        async listCompanies (): Promise<Record<string, unknown>[]> {
-          return companies
-        },
-      } as APIClient)
+      addGovernanceCapabilities(
+        server,
+        new APIClientMock({
+          listCompaniesMockFn: async () => companies,
+        }),
+      )
     })
 
     const result = await client.request({
@@ -500,11 +425,14 @@ suite('companies list tool', () => {
 
   test('should return error message if request return error', async (t) => {
     const client = await TestMCPServer((server) => {
-      addGovernanceCapabilities(server, {
-        async listCompanies (): Promise<Record<string, unknown>[]> {
-          throw new Error('error message')
-        },
-      } as APIClient)
+      addGovernanceCapabilities(
+        server,
+        new APIClientMock({
+          listCompaniesMockFn: async () => {
+            throw new Error('error message')
+          },
+        }),
+      )
     })
 
     const result = await client.request({

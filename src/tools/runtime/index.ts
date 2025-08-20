@@ -17,11 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
 import { assertAiFeaturesEnabledForProject } from '../utils/validations'
+import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addRuntimeCapabilities (server: McpServer, client: APIClient) {
+export function addRuntimeCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.LIST_PODS,
     toolsDescriptions.LIST_PODS,

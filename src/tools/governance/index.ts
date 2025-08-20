@@ -17,11 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
+import { IAPIClient } from '../../apis/client'
 import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addGovernanceCapabilities (server: McpServer, client: APIClient) {
+export function addGovernanceCapabilities (server: McpServer, client: IAPIClient) {
   // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,

@@ -21,10 +21,13 @@ import { IProject } from '@mia-platform/console-types'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addRuntimeCapabilities } from '.'
-import { APIClient } from '../../apis/client'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
 import { toolNames } from '../descriptions'
+import {
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
 const pods = [
   { name: 'test-pod', status: 'running' },
@@ -34,50 +37,9 @@ const pods = [
 const logs = `{"level":"info","time":"2025-05-09T08:41:36.530819Z","scope":"upstream","message":"lds: add/update listener 'frontend'"}
 {"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
 
-interface CapabilitiesMocks {
-  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
-  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
-  listPodsMockFn?: (projectId: string, environmentId: string) => Promise<Record<string, unknown>[]>
-  podLogsMockFn?: (projectId: string, environmentId: string, podName: string, containerName: string, lines?: number) => Promise<string>
-}
-
-async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise<Client> {
-  const apiClient: APIClient = {
-    async projectInfo (projectId: string): Promise<IProject> {
-      if (!capabilities.getProjectInfoMockFn) {
-        throw new Error('getProjectInfoMockFn not mocked')
-      }
-
-      return capabilities.getProjectInfoMockFn(projectId)
-    },
-
-    async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-      if (!capabilities.isAiFeaturesEnabledForTenantMockFn) {
-        throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
-      }
-
-      return capabilities.isAiFeaturesEnabledForTenantMockFn(tenantId)
-    },
-
-    async listPods (projectId: string, environmentId: string): Promise<Record<string, unknown>[]> {
-      if (!capabilities.listPodsMockFn) {
-        throw new Error('listPodsMockFn not mocked')
-      }
-
-      return capabilities.listPodsMockFn(projectId, environmentId)
-    },
-
-    async podLogs (projectId: string, environmentId: string, podName: string, containerName: string, lines?: number): Promise<string> {
-      if (!capabilities.podLogsMockFn) {
-        throw new Error('podLogsMockFn not mocked')
-      }
-
-      return capabilities.podLogsMockFn(projectId, environmentId, podName, containerName, lines)
-    },
-  } as APIClient
-
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
   const client = await TestMCPServer((server) => {
-    addRuntimeCapabilities(server, apiClient)
+    addRuntimeCapabilities(server, new APIClientMock(mocks))
   })
 
   return client
@@ -86,7 +48,7 @@ async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise
 suite('setup runtime tools', () => {
   test('should setup runtime tools to a server', async (t) => {
     const client = await TestMCPServer((server) => {
-      addRuntimeCapabilities(server, {} as APIClient)
+      addRuntimeCapabilities(server, new APIClientMock({}))
     })
 
     const result = await client.request(

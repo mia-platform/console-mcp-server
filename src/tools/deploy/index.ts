@@ -17,11 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
 import { assertAiFeaturesEnabledForProject } from '../utils/validations'
+import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addDeployCapabilities (server: McpServer, client: APIClient) {
+export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.DEPLOY_PROJECT,
     toolsDescriptions.DEPLOY_PROJECT,

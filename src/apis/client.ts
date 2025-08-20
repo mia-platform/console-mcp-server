@@ -62,7 +62,72 @@ interface TenantRules {
   aiSettings?: AISettings
 }
 
-export class APIClient {
+export interface IAPIClient {
+  // #region Utility Methods
+  isAiFeaturesEnabledForTenant(tenantId: string): Promise<boolean>
+  // #endregion
+
+  // #region Governance Methods
+  listCompanies(): Promise<Record<string, unknown>[]>
+  companyTemplates(tenantID: string): Promise<Template[]>
+  companyIAMIdentities(tenantID: string, type?: string): Promise<Record<string, unknown>[]>
+  companyAuditLogs(tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]>
+
+  listProjects(tenantIDs: string[], search?: string): Promise<Record<string, unknown>[]>
+  projectInfo(projectID: string): Promise<IProject>
+  createProjectFromTemplate(
+    tenantID: string,
+    projectName: string,
+    templateID: string,
+    description?: string,
+  ): Promise<Record<string, unknown>>
+  // #endregion
+
+  // #region Configuration Methods
+  getConfigurationRevisions(projectId: string): Promise<Record<string, unknown>>
+  getConfiguration(projectId: string, refId: string): Promise<RetrievedConfiguration>
+  saveConfiguration(
+    projectId: string,
+    refId: string,
+    resourcesToCreate: ResourcesToCreate,
+    options?: SaveConfigurationOptions,
+  ): Promise<SaveResponse>
+  // #endregion
+
+  // #region Deploy Methods
+  deployProjectEnvironmentFromRevision(
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<TriggerDeployResponse>
+  compareProjectEnvironmentFromRevisionForDeploy(
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<CompareForDeployResponse>
+  waitProjectDeployForCompletion(
+    projectID: string,
+    pipelineID: string,
+    timeout?: number,
+    interval?: number,
+  ): Promise<PipelineStatus>
+  // #endregion
+
+  // #region Runtime Methods
+  listPods(projectID: string, environmentID: string): Promise<Record<string, unknown>[]>
+  podLogs(
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ): Promise<string>
+  // #endregion
+}
+
+export class APIClient implements IAPIClient {
   #backendClient: BackendClient
   #deployClient: DeployClient
   #featureFlagsClient: FeatureToggleClient
@@ -396,6 +461,244 @@ export class APIClient {
       description,
     )
   }
+}
+
+export interface APIClientMockFunctions {
+  // utility methods
+  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
+
+  // governance methods
+  listCompaniesMockFn?: () => Promise<Record<string, unknown>[]>
+  companyTemplatesMockFn?: (tenantID: string) => Promise<Template[]>
+  companyIAMIdentitiesMockFn?: (tenantID: string, type?: string) => Promise<Record<string, unknown>[]>
+  companyAuditLogsMockFn?: (tenantID: string, from?: string, to?: string) => Promise<Record<string, unknown>[]>
+
+  listProjectsMockFn?: (tenantIDs: string[], search?: string) => Promise<Record<string, unknown>[]>
+  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
+  createProjectFromTemplateMockFn?: (
+    tenantID: string,
+    projectName: string,
+    templateID: string,
+    description?: string,
+  ) => Promise<Record<string, unknown>>
+
+  // configuration methods
+  getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
+  getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
+  saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
+
+  // deploy methods
+  deployProjectEnvironmentFromRevisionMockFn?: (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ) => Promise<TriggerDeployResponse>
+  compareProjectEnvironmentFromRevisionForDeployMockFn?: (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ) => Promise<CompareForDeployResponse>
+  waitProjectDeployForCompletionMockFn?: (
+    projectID: string,
+    pipelineID: string,
+    timeout?: number,
+    interval?: number,
+  ) => Promise<PipelineStatus>
+
+  // runtime methods
+  listPodsMockFn?: (projectID: string, environmentID: string) => Promise<Record<string, unknown>[]>
+  podLogsMockFn?: (
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ) => Promise<string>
+}
+
+export class APIClientMock implements IAPIClient {
+  private mocks: APIClientMockFunctions
+
+  constructor (mocks: APIClientMockFunctions) {
+    this.mocks = mocks
+  }
+
+  // #region Utility Methods
+
+  async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+    if (!this.mocks.isAiFeaturesEnabledForTenantMockFn) {
+      throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
+    }
+
+    return this.mocks.isAiFeaturesEnabledForTenantMockFn(tenantId)
+  }
+
+  // #endregion
+
+  // #region Governance Methods
+
+  async listCompanies (): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listCompaniesMockFn) {
+      throw new Error('listCompaniesMockFn not mocked')
+    }
+
+    return this.mocks.listCompaniesMockFn()
+  }
+
+  async companyTemplates (tenantId: string): Promise<Template[]> {
+    if (!this.mocks.companyTemplatesMockFn) {
+      throw new Error('companyTemplatesMockFn not mocked')
+    }
+
+    return this.mocks.companyTemplatesMockFn(tenantId)
+  }
+
+  async companyIAMIdentities (tenantId: string, type?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.companyIAMIdentitiesMockFn) {
+      throw new Error('companyIAMIdentitiesMockFn not mocked')
+    }
+
+    return this.mocks.companyIAMIdentitiesMockFn(tenantId, type)
+  }
+
+  async companyAuditLogs (tenantId: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.companyAuditLogsMockFn) {
+      throw new Error('companyAuditLogsMockFn not mocked')
+    }
+
+    return this.mocks.companyAuditLogsMockFn(tenantId, from, to)
+  }
+
+  async listProjects (tenantIds: string[], search?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listProjectsMockFn) {
+      throw new Error('listProjectsMockFn not mocked')
+    }
+
+    return this.mocks.listProjectsMockFn(tenantIds, search)
+  }
+
+  async projectInfo (projectId: string): Promise<IProject> {
+    if (!this.mocks.getProjectInfoMockFn) {
+      throw new Error('getProjectInfoMockFn not mocked')
+    }
+
+    return this.mocks.getProjectInfoMockFn(projectId)
+  }
+
+  async createProjectFromTemplate (tenantId: string, projectName: string, templateId: string, description?: string): Promise<Record<string, unknown>> {
+    if (!this.mocks.createProjectFromTemplateMockFn) {
+      throw new Error('createProjectFromTemplateMockFn not mocked')
+    }
+
+    return this.mocks.createProjectFromTemplateMockFn(tenantId, projectName, templateId, description)
+  }
+
+  // #endregion
+
+  // #region Configuration Methods
+
+  async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
+    if (!this.mocks.getConfigurationRevisionsMockFn) {
+      throw new Error('getConfigurationRevisionsMockFn not mocked')
+    }
+
+    return this.mocks.getConfigurationRevisionsMockFn(projectId)
+  }
+
+
+  async getConfiguration (projectId: string, refId: string): Promise<RetrievedConfiguration> {
+    if (!this.mocks.getConfigurationMockFn) {
+      throw new Error('getConfigurationMockFn not mocked')
+    }
+
+    return this.mocks.getConfigurationMockFn(projectId, refId)
+  }
+
+  async saveConfiguration (
+    projectId: string,
+    _refId: string,
+    _resourcesToCreate: ResourcesToCreate,
+    _options?: SaveConfigurationOptions,
+  ): Promise<SaveResponse> {
+    if (!this.mocks.saveConfigurationMockFn) {
+      throw new Error('saveConfigurationMockFn not mocked')
+    }
+
+    return this.mocks.saveConfigurationMockFn(projectId)
+  }
+
+  // #endregion
+
+  // #region Deploy Methods
+
+  async deployProjectEnvironmentFromRevision (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<TriggerDeployResponse> {
+    if (!this.mocks.deployProjectEnvironmentFromRevisionMockFn) {
+      throw new Error('deployProjectEnvironmentFromRevisionMockFn not mocked')
+    }
+
+    return this.mocks.deployProjectEnvironmentFromRevisionMockFn(projectID, environment, revision, revisionType)
+  }
+
+  async compareProjectEnvironmentFromRevisionForDeploy (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<CompareForDeployResponse> {
+    if (!this.mocks.compareProjectEnvironmentFromRevisionForDeployMockFn) {
+      throw new Error('compareProjectEnvironmentFromRevisionForDeployMockFn not mocked')
+    }
+
+    return this.mocks.compareProjectEnvironmentFromRevisionForDeployMockFn(projectID, environment, revision, revisionType)
+  }
+
+  async waitProjectDeployForCompletion (
+    projectID: string,
+    pipelineID: string,
+    timeout = 5 * 60 * 1000,
+    interval = 5000,
+  ): Promise<PipelineStatus> {
+    if (!this.mocks.waitProjectDeployForCompletionMockFn) {
+      throw new Error('waitProjectDeployForCompletionMockFn not mocked')
+    }
+
+    return this.mocks.waitProjectDeployForCompletionMockFn(projectID, pipelineID, timeout, interval)
+  }
+
+  // #endregion
+
+  // #region Runtime Methods
+
+  async listPods (projectID: string, environmentID: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listPodsMockFn) {
+      throw new Error('listPodsMockFn not mocked')
+    }
+
+    return this.mocks.listPodsMockFn(projectID, environmentID)
+  }
+
+  async podLogs (
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ): Promise<string> {
+    if (!this.mocks.podLogsMockFn) {
+      throw new Error('podLogsMockFn not mocked')
+    }
+
+    return this.mocks.podLogsMockFn(projectID, environmentID, podName, containerName, lines)
+  }
+
+  // #endregion
 }
 
 function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate, options?: SaveConfigurationOptions): Config {
