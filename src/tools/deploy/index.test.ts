@@ -111,7 +111,7 @@ suite('deploy project tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -284,7 +284,7 @@ suite('compare_update_for_deploy tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -453,7 +453,7 @@ suite('deploy_pipeline_status tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const pipelineId = '456'

@@ -118,7 +118,7 @@ suite('marketplace list tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -182,7 +182,7 @@ suite('marketplace item versions tool', () => {
     return itemVersions as unknown as CatalogItemRelease[]
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -274,7 +274,7 @@ suite('marketplace item version info tool', () => {
     return itemInfo as unknown as CatalogVersionedItem
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {

@@ -102,7 +102,7 @@ suite('list pods tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
@@ -261,7 +261,7 @@ suite('get pod logs tool', () => {
     ])
   })
 
-  it('returns error - if ai features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
