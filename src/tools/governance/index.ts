@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 export function addGovernanceCapabilities (server: McpServer, client: APIClient) {
@@ -31,6 +32,11 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantIds, search }): Promise<CallToolResult> => {
       try {
+        // Validate AI features for all tenant IDs
+        for (const tenantId of tenantIds) {
+          await assertAiFeaturesEnabledForTenant(client, tenantId)
+        }
+
         const data = await client.listProjects(tenantIds, search)
         const mappedData = data.map((item) => {
           const { _id, name, tenantId, tenantName, description, flavor, info } = item
@@ -74,12 +80,14 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
-        const data = await client.projectInfo(projectId)
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(data),
+              text: JSON.stringify(project),
             },
           ],
         }
@@ -108,6 +116,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, projectName, projectDescription, templateId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const project = await client.createProjectFromTemplate(tenantId, projectName, templateId, projectDescription)
         return {
           content: [
@@ -176,6 +186,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const templates = await client.companyTemplates(tenantId)
         const mappedBlueprint = (templates || []).map((item) => {
           const { templateId, name, tenantId, deploy } = item
@@ -217,6 +229,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, identityType }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const data = await client.companyIAMIdentities(tenantId, identityType)
         return {
           content: [
@@ -250,6 +264,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, from, to }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const data = await client.companyAuditLogs(tenantId, from, to)
         return {
           content: [
