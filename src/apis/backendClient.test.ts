@@ -357,6 +357,26 @@ suite('Backend Internal Client', () => {
     const environmentResult = await client.saveEnvironmentBasedConfiguration(projectId, refId, data)
     t.assert.deepStrictEqual(environmentResult, mockedResult)
   })
+
+  test('get company rules', async (t: TestContext) => {
+    const tenantId = 'test-tenant-id'
+    const mockedResult = {
+      aiSettings: {
+        enableAgenticFeatures: true,
+      },
+      anotherRule: {
+        arrayValue: [ 'value1', 'value2' ],
+      },
+    }
+
+    agent.get(internalEndpoint).intercept({
+      path: `/api/backend/tenants/${tenantId}/rules`,
+      method: 'GET',
+    }).reply(200, mockedResult)
+
+    const result = await client.getCompanyRules(tenantId)
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
 })
 
 suite('Backend Client', () => {
@@ -663,5 +683,25 @@ suite('Backend Client', () => {
       ),
       { name: 'Error' },
     )
+  })
+
+  test('get company rules', async (t: TestContext) => {
+    const tenantId = 'test-tenant-id'
+    const mockedResult = {
+      aiSettings: {
+        enableAgenticFeatures: true,
+      },
+      anotherRule: {
+        arrayValue: [ 'value1', 'value2' ],
+      },
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/tenants/${tenantId}/rules`,
+      method: 'GET',
+    }).reply(200, mockedResult)
+
+    const result = await client.getCompanyRules(tenantId)
+    t.assert.deepStrictEqual(result, mockedResult)
   })
 })

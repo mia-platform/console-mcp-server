@@ -19,8 +19,10 @@ import { z } from 'zod'
 import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject } from '../utils/validations'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
+
 
 export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
   server.tool(
@@ -31,6 +33,9 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const revisions = await client.getConfigurationRevisions(projectId)
         return {
           content: [
@@ -63,6 +68,9 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     },
     async ({ projectId, refId }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const config = await client.getConfiguration(projectId, refId)
         return {
           content: [
@@ -100,6 +108,9 @@ export function addConfigurationCapabilities (server: McpServer, client: APIClie
     },
     async ({ projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
           collections: collections as Collections,

@@ -143,6 +143,10 @@ export class BackendClient {
     return this.#client.post<Record<string, unknown>>(this.#createRepositoryPath(projectID), createServiceRepositoryBody)
   }
 
+  getCompanyRules (tenantID: string): Promise<Record<string, unknown>> {
+    return this.#client.get<Record<string, unknown>>(this.#companyRulesPath(tenantID), new URLSearchParams({}))
+  }
+
   #revisionConfigurationPath (prjID: string, refID: string): string {
     return `/api/backend/projects/${prjID}/revisions/${encodeURIComponent(refID)}/configuration`
   }
@@ -185,5 +189,9 @@ export class BackendClient {
 
   #createRepositoryPath (projectID: string): string {
     return `/api/backend/projects/${projectID}/service`
+  }
+
+  #companyRulesPath (tenantID: string): string {
+    return `api/backend/tenants/${encodeURIComponent(tenantID)}/rules`
   }
 }

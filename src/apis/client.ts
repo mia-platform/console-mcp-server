@@ -54,6 +54,14 @@ export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
 const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes } = constants
 
+interface AISettings {
+  enableAgenticFeatures?: boolean
+}
+
+interface TenantRules {
+  aiSettings?: AISettings
+}
+
 export class APIClient {
   #backendClient: BackendClient
   #deployClient: DeployClient
@@ -87,6 +95,11 @@ export class APIClient {
     this.#marketplaceClient = MarketplaceClientInternal(clientID, clientSecret, additionalHeaders)
   }
 
+  async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+    const tenantRules: TenantRules = await this.#backendClient.getCompanyRules(tenantId)
+    return tenantRules?.aiSettings?.enableAgenticFeatures || false
+  }
+
   async listCompanies (): Promise<Record<string, unknown>[]> {
     return await this.#backendClient.listCompanies()
   }
@@ -107,7 +120,7 @@ export class APIClient {
     return await this.#backendClient.listProjects(tenantIDs, search)
   }
 
-  async projectInfo (projectID: string): Promise<Record<string, unknown>> {
+  async projectInfo (projectID: string): Promise<IProject> {
     return await this.#backendClient.projectInfo(projectID)
   }
 
