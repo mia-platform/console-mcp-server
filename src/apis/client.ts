@@ -28,6 +28,7 @@ import {
   ICatalogPlugin,
   ICatalogTemplate,
   IProject,
+  ITenant,
   Listeners,
 } from '@mia-platform/console-types'
 
@@ -68,7 +69,7 @@ export interface IAPIClient {
   // #endregion
 
   // #region Governance Methods
-  listCompanies(): Promise<Record<string, unknown>[]>
+  listCompanies(): Promise<ITenant[]>
   companyTemplates(tenantID: string): Promise<Template[]>
   companyIAMIdentities(tenantID: string, type?: string): Promise<Record<string, unknown>[]>
   companyAuditLogs(tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]>
@@ -165,7 +166,7 @@ export class APIClient implements IAPIClient {
     return tenantRules?.aiSettings?.enableAgenticFeatures || false
   }
 
-  async listCompanies (): Promise<Record<string, unknown>[]> {
+  async listCompanies (): Promise<ITenant[]> {
     return await this.#backendClient.listCompanies()
   }
 
@@ -464,11 +465,12 @@ export class APIClient implements IAPIClient {
 }
 
 export interface APIClientMockFunctions {
-  // utility methods
+  // #region Utility Methods
   isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
+  // #endregion
 
-  // governance methods
-  listCompaniesMockFn?: () => Promise<Record<string, unknown>[]>
+  // #region Governance Methods
+  listCompaniesMockFn?: () => Promise<ITenant[]>
   companyTemplatesMockFn?: (tenantID: string) => Promise<Template[]>
   companyIAMIdentitiesMockFn?: (tenantID: string, type?: string) => Promise<Record<string, unknown>[]>
   companyAuditLogsMockFn?: (tenantID: string, from?: string, to?: string) => Promise<Record<string, unknown>[]>
@@ -481,13 +483,15 @@ export interface APIClientMockFunctions {
     templateID: string,
     description?: string,
   ) => Promise<Record<string, unknown>>
+  // #endregion
 
-  // configuration methods
+  // #region Configuration Methods
   getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
   getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
+  // #endregion
 
-  // deploy methods
+  // #region Deploy Methods
   deployProjectEnvironmentFromRevisionMockFn?: (
     projectID: string,
     environment: string,
@@ -506,8 +510,9 @@ export interface APIClientMockFunctions {
     timeout?: number,
     interval?: number,
   ) => Promise<PipelineStatus>
+  // #endregion
 
-  // runtime methods
+  // #region Runtime Methods
   listPodsMockFn?: (projectID: string, environmentID: string) => Promise<Record<string, unknown>[]>
   podLogsMockFn?: (
     projectID: string,
@@ -516,6 +521,7 @@ export interface APIClientMockFunctions {
     containerName: string,
     lines?: number,
   ) => Promise<string>
+  // #endregion
 }
 
 export class APIClientMock implements IAPIClient {
@@ -539,7 +545,7 @@ export class APIClientMock implements IAPIClient {
 
   // #region Governance Methods
 
-  async listCompanies (): Promise<Record<string, unknown>[]> {
+  async listCompanies (): Promise<ITenant[]> {
     if (!this.mocks.listCompaniesMockFn) {
       throw new Error('listCompaniesMockFn not mocked')
     }

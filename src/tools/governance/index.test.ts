@@ -14,25 +14,36 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { mock, suite, test } from 'node:test'
+import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
-import { IProject } from '@mia-platform/console-types'
-import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
+import {
+  CallToolResultSchema,
+  ListToolsResultSchema,
+} from '@modelcontextprotocol/sdk/types.js'
+import {
+  IProject,
+  ITenant,
+} from '@mia-platform/console-types'
 
 import { addGovernanceCapabilities } from '.'
-import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { Template } from '../../apis/types/governance'
 import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
 } from '../../apis/client'
+import {
+  ERR_AI_FEATURES_NOT_ENABLED,
+  ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS,
+} from '../utils/validations'
 
 const projects = [
-  { _id: 1, name: 'name', tenantId: 'tenantID' },
-  { _id: 2, name: 'name', tenantId: 'tenantID' },
-  { _id: 1, name: 'name', tenantId: 'tenantID2' },
+  { _id: 10, name: 'name', tenantId: 'tenant1' },
+  { _id: 11, name: 'name', tenantId: 'tenant1' },
+  { _id: 20, name: 'name', tenantId: 'tenant2' },
+  { _id: 21, name: 'name', tenantId: 'tenant2' },
+  { _id: 30, name: 'name', tenantId: 'tenant3' },
 ]
 
 const project = {
@@ -70,23 +81,43 @@ suite('setup governance tools', () => {
 })
 
 suite('projects list tool', () => {
-  const listProjectsMockFn = mock.fn(async (tenantIds: string[], search?: string) => {
-    if (search === 'error' || tenantIds.includes('error')) {
-      throw new Error('error message')
+  const aiFeaturesRulesForTenant = {
+    tenant1: true,
+    tenant2: false,
+    tenant3: true,
+  }
+  const aiFeaturesMockFn = mock.fn(async (tenantId: string): Promise<boolean> => {
+    if (!(tenantId in aiFeaturesRulesForTenant)) {
+      throw new Error(`Tenant ${tenantId} not found`)
     }
-    return projects
+
+    return aiFeaturesRulesForTenant[tenantId]
   })
 
-  test('returns error - if AI features are not enabled for tenant', async (t) => {
-    const testTenantIds = [ 'tenant123' ]
+  const listProjectsMockFn = mock.fn(async (tenantIds: string[], _search?: string) => {
+    // Assert all tenantIds have AI features enabled
+    const enabledTenants = tenantIds.filter((tenantId) => aiFeaturesRulesForTenant[tenantId])
+    assert.equal(
+      tenantIds.every((tenantIds) => {
+        assert.equal(enabledTenants.includes(tenantIds), true)
+        return true
+      }),
+      true,
+    )
 
-    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
-      assert.strictEqual(tenantId, testTenantIds[0])
-      return false
+    // Return filtered projects
+    return projects.filter((project) => {
+      return tenantIds.includes(project.tenantId)
     })
+  })
+
+
+  it('returns only projects from tenants with AI features enabled', async (t) => {
+    const testTenantIds = [ 'tenant1', 'tenant2' ]
 
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      listProjectsMockFn,
     })
     const result = await client.request({
       method: 'tools/call',
@@ -98,21 +129,19 @@ suite('projects list tool', () => {
       },
     }, CallToolResultSchema)
 
+    const expectedProjects = projects.filter((project) => {
+      return testTenantIds.includes(project.tenantId) && aiFeaturesRulesForTenant[project.tenantId]
+    })
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching projects for ${testTenantIds.join(', ')}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantIds[0]}'`,
+        text: JSON.stringify(expectedProjects),
         type: 'text',
       },
     ])
   })
 
-  test('should return projects', async (t) => {
-    const testTenantIds = [ 'tenantID' ]
-
-    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
-      assert.strictEqual(tenantId, testTenantIds[0])
-      return true
-    })
+  it('returns error - if no specified tenant has AI features enabled', async (t) => {
+    const testTenantIds = [ 'tenant2' ]
 
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
@@ -130,19 +159,14 @@ suite('projects list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(projects),
+        text: `Error fetching projects for ${testTenantIds.join(', ')}: ${ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS}`,
         type: 'text',
       },
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
-    const testTenantIds = [ 'error' ]
-
-    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
-      assert.strictEqual(tenantId, testTenantIds[0])
-      return true
-    })
+  it('filters errors when retrieving company AI settings', async (t) => {
+    const testTenantIds = [ 'error', 'tenant3' ]
 
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
@@ -159,9 +183,39 @@ suite('projects list tool', () => {
       },
     }, CallToolResultSchema)
 
+    const expectedProjects = projects.filter((project) => {
+      return testTenantIds.includes(project.tenantId) && aiFeaturesRulesForTenant[project.tenantId]
+    })
     t.assert.deepEqual(result.content, [
       {
-        text: 'Error fetching projects for error: error message',
+        text: JSON.stringify(expectedProjects),
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error message if request return error', async (t) => {
+    const testTenantIds = [ 'tenant1' ]
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      listProjectsMockFn: async () => {
+        throw new Error('error message')
+      },
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_projects',
+        arguments: {
+          tenantIds: testTenantIds,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching projects for ${testTenantIds.join(', ')}: error message`,
         type: 'text',
       },
     ])
@@ -207,7 +261,7 @@ suite('get project info', () => {
     ])
   })
 
-  test('should return project info', async (t) => {
+  it('returns project info', async (t) => {
     const testTenantId = 'tenantID'
     const testProjectId = 'projectID'
 
@@ -244,7 +298,7 @@ suite('get project info', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error message if request return error', async (t) => {
     const testTenantId = 'tenantID'
     const testProjectId = 'error'
 
@@ -341,7 +395,7 @@ suite('create project from template', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error message if request return error', async (t) => {
     const client = await getTestMCPServerClient({
       createProjectFromTemplateMockFn: async () => {
         throw new Error('error message')
@@ -373,9 +427,10 @@ suite('create project from template', () => {
 // Tenant tools tests
 
 const companies = [
-  { tenantId: 1, name: 'name', defaultTemplateId: 'template-id-1' },
-  { tenantId: 2, name: 'name2', defaultTemplateId: 'template-id-2' },
-]
+  { tenantId: 'tenant1', name: 'name', defaultTemplateId: 'template-id-1' },
+  { tenantId: 'tenant2', name: 'name2', defaultTemplateId: 'template-id-2' },
+  { tenantId: 'tenant3', name: 'name3', defaultTemplateId: 'template-id-3' },
+] as ITenant[]
 
 const templates: Template[] = [
   {
@@ -397,14 +452,23 @@ const auditLogs = [
 ]
 
 suite('companies list tool', () => {
-  test('should return companies', async (t) => {
-    const client = await TestMCPServer((server) => {
-      addGovernanceCapabilities(
-        server,
-        new APIClientMock({
-          listCompaniesMockFn: async () => companies,
-        }),
-      )
+  const aiFeaturesRulesForTenant = {
+    tenant1: true,
+    tenant2: false,
+    tenant3: true,
+  }
+  const aiFeaturesMockFn = mock.fn(async (tenantId: string): Promise<boolean> => {
+    if (!(tenantId in aiFeaturesRulesForTenant)) {
+      throw new Error(`Tenant ${tenantId} not found`)
+    }
+
+    return aiFeaturesRulesForTenant[tenantId]
+  })
+
+  test('returns only companies with AI features enabled', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      listCompaniesMockFn: async () => companies,
     })
 
     const result = await client.request({
@@ -415,15 +479,78 @@ suite('companies list tool', () => {
       },
     }, CallToolResultSchema)
 
+    const expectedCompanies = companies.filter((company) => aiFeaturesRulesForTenant[company.tenantId])
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(companies),
+        text: JSON.stringify(expectedCompanies),
         type: 'text',
       },
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error - if no specified tenant has AI features enabled', async (t) => {
+    const notEnabledCompanies = companies.filter((company) => !aiFeaturesRulesForTenant[company.tenantId])
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      listCompaniesMockFn: async () => notEnabledCompanies,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenants',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching companies: ${ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('filters companies for which retrieving company AI settings resulted in error', async (t) => {
+    const testCompanies = [
+      {
+        tenantId: 'tenant1',
+        name: 'name',
+        defaultTemplateId: 'template-id-1',
+      },
+
+      // NOTE: this one triggers the error in the mock function
+      {
+        tenantId: 'error',
+        name: 'error',
+        defaultTemplateId: 'template-id-error',
+      },
+    ] as ITenant[]
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      listCompaniesMockFn: async () => testCompanies,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenants',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    const expectedCompanies = testCompanies.filter((company) => {
+      return aiFeaturesRulesForTenant[company.tenantId]
+    })
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedCompanies),
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error message if request return error', async (t) => {
     const client = await TestMCPServer((server) => {
       addGovernanceCapabilities(
         server,
@@ -505,7 +632,7 @@ suite('company list template', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error message if request return error', async (t) => {
     const client = await getTestMCPServerClient({
       companyTemplatesMockFn: async () => {
         throw new Error('error message')
@@ -561,7 +688,7 @@ suite('iam list tool', () => {
     ])
   })
 
-  test('should return complete iam list', async (t) => {
+  it('returns complete iam list', async (t) => {
     const client = await getTestMCPServerClient({
       companyIAMIdentitiesMockFn: async () => iamList,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
@@ -584,7 +711,7 @@ suite('iam list tool', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error message if request return error', async (t) => {
     const client = await getTestMCPServerClient({
       companyIAMIdentitiesMockFn: async () => {
         throw new Error('error message')
@@ -640,7 +767,7 @@ suite('audit log', () => {
     ])
   })
 
-  test('should return audit logs', async (t) => {
+  it('returns audit logs', async (t) => {
     const client = await getTestMCPServerClient({
       companyAuditLogsMockFn: async () => auditLogs,
       isAiFeaturesEnabledForTenantMockFn: async () => true,
@@ -665,7 +792,7 @@ suite('audit log', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  it('returns error message if request return error', async (t) => {
     const client = await getTestMCPServerClient({
       companyAuditLogsMockFn: async () => {
         throw new Error('error message')

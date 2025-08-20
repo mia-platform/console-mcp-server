@@ -18,8 +18,21 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { IAPIClient } from '../../apis/client'
-import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant } from '../utils/validations'
+import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant, ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
+
+async function filterTenantsWithAiFeaturesEnabled (client: IAPIClient, tenantIds: string[]) {
+  const results = await Promise.all(tenantIds.map(async (tenantId) => {
+    try {
+      await assertAiFeaturesEnabledForTenant(client, tenantId)
+      return tenantId
+    } catch {
+      return null
+    }
+  }))
+
+  return results.filter((tenantId) => tenantId !== null) as string[]
+}
 
 export function addGovernanceCapabilities (server: McpServer, client: IAPIClient) {
   // Project tools
@@ -32,13 +45,13 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
     },
     async ({ tenantIds, search }): Promise<CallToolResult> => {
       try {
-        // Validate AI features for all tenant IDs
-        for (const tenantId of tenantIds) {
-          await assertAiFeaturesEnabledForTenant(client, tenantId)
+        const filteredTenantIds = await filterTenantsWithAiFeaturesEnabled(client, tenantIds)
+        if (filteredTenantIds.length === 0) {
+          throw new Error(ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS)
         }
 
-        const data = await client.listProjects(tenantIds, search)
-        const mappedData = data.map((item) => {
+        const projects = await client.listProjects(filteredTenantIds, search)
+        const mappedData = projects.map((item) => {
           const { _id, name, tenantId, tenantName, description, flavor, info } = item
           return {
             _id,
@@ -148,19 +161,27 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
     {},
     async (): Promise<CallToolResult> => {
       try {
-        const data = await client.listCompanies()
-        const tenants = data.map((tenant) => {
-          return {
-            tenantId: tenant.tenantId,
-            name: tenant.name,
-            defaultTemplateId: tenant.defaultTemplateId,
-          }
-        })
+        const allTenants = await client.listCompanies()
+        const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.tenantId))
+        if (enabledTenantIds.length === 0) {
+          throw new Error(ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS)
+        }
+
+        const filteredTenants = allTenants.
+          filter((c) => enabledTenantIds.includes(c.tenantId)).
+          map((tenant) => {
+            return {
+              tenantId: tenant.tenantId,
+              name: tenant.name,
+              defaultTemplateId: tenant.defaultTemplateId,
+            }
+          })
+
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(tenants),
+              text: JSON.stringify(filteredTenants),
             },
           ],
         }
