@@ -21,6 +21,7 @@ import { IAPIClient } from '../../apis/client'
 
 export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
 export const ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS = 'None of specified tenants has AI features enabled'
+export const ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED = 'No tenants found with AI features enabled'
 
 export async function assertAiFeaturesEnabledForTenant (client: IAPIClient, tenantId: string): Promise<void> {
   if (!tenantId) {

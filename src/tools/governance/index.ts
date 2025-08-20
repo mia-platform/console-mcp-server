@@ -18,7 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { IAPIClient } from '../../apis/client'
-import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant, ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS } from '../utils/validations'
+import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant, ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS, ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 async function filterTenantsWithAiFeaturesEnabled (client: IAPIClient, tenantIds: string[]) {
@@ -164,7 +164,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
         const allTenants = await client.listCompanies()
         const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.tenantId))
         if (enabledTenantIds.length === 0) {
-          throw new Error(ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS)
+          throw new Error(ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED)
         }
 
         const filteredTenants = allTenants.

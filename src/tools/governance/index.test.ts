@@ -36,6 +36,7 @@ import {
 import {
   ERR_AI_FEATURES_NOT_ENABLED,
   ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS,
+  ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED,
 } from '../utils/validations'
 
 const projects = [
@@ -488,7 +489,7 @@ suite('companies list tool', () => {
     ])
   })
 
-  it('returns error - if no specified tenant has AI features enabled', async (t) => {
+  it('returns error - if no tenant has AI features enabled', async (t) => {
     const notEnabledCompanies = companies.filter((company) => !aiFeaturesRulesForTenant[company.tenantId])
 
     const client = await getTestMCPServerClient({
@@ -505,7 +506,7 @@ suite('companies list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching companies: ${ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS}`,
+        text: `Error fetching companies: ${ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED}`,
         type: 'text',
       },
     ])
