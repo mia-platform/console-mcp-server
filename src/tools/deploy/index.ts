@@ -70,6 +70,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const data = await client.compareProjectEnvironmentFromRevisionForDeploy(projectId, environment, revision, refType)
         return {
           content: [
@@ -102,6 +105,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, pipelineId }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const status = await client.waitProjectDeployForCompletion(projectId, pipelineId)
 
         return {

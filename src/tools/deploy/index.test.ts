@@ -14,7 +14,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { beforeEach, it, mock, suite, test } from 'node:test'
+import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { IProject } from '@mia-platform/console-types'
@@ -289,8 +289,6 @@ suite('deploy project tool', () => {
 })
 
 suite('compare_update_for_deploy tool', () => {
-  let client: Client
-
   const compareProjectEnvironmentFromRevisionForDeployMockFn = mock.fn(async (projectId: string, _environment: string, _revision: string, _refType: string) => {
     if (projectId === 'error-project') {
       throw new Error('error message')
@@ -299,25 +297,111 @@ suite('compare_update_for_deploy tool', () => {
     return compareUpdateResponse
   })
 
-  beforeEach(async () => {
-    client = await getTestMCPServerClient({
-      compareProjectEnvironmentFromRevisionForDeploy: compareProjectEnvironmentFromRevisionForDeployMockFn,
-      isAiFeaturesEnabledForTenantMockFn: async () => true,
-    })
-  })
-
-  test('should retrieve configuration updates for deploy', async (t) => {
-    const projectId = 'project123'
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
     const revision = 'main'
     const environment = 'development'
     const refType = 'revision'
 
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'compare_update_for_deploy',
         arguments: {
-          projectId,
+          projectId: testProjectId,
+          revision,
+          refType,
+          environment,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error retrieving configuration updates: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const revision = 'main'
+    const environment = 'development'
+    const refType = 'revision'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'compare_update_for_deploy',
+        arguments: {
+          projectId: testProjectId,
+          revision,
+          refType,
+          environment,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error retrieving configuration updates: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should retrieve configuration updates for deploy', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const revision = 'main'
+    const environment = 'development'
+    const refType = 'revision'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      compareProjectEnvironmentFromRevisionForDeploy: compareProjectEnvironmentFromRevisionForDeployMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'compare_update_for_deploy',
+        arguments: {
+          projectId: testProjectId,
           revision,
           refType,
           environment,
@@ -334,17 +418,31 @@ suite('compare_update_for_deploy tool', () => {
   })
 
   test('should return error message if compare update request returns error', async (t) => {
-    const projectId = 'error-project'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
     const revision = 'main'
     const environment = 'development'
     const refType = 'revision'
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      compareProjectEnvironmentFromRevisionForDeploy: compareProjectEnvironmentFromRevisionForDeployMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'compare_update_for_deploy',
         arguments: {
-          projectId,
+          projectId: testProjectId,
           revision,
           refType,
           environment,
@@ -362,7 +460,6 @@ suite('compare_update_for_deploy tool', () => {
 })
 
 suite('deploy_pipeline_status tool', () => {
-  let client: Client
   const successStatus = { status: 'success' }
 
   const waitProjectDeployForCompletionMockFn = mock.fn(async (projectId: string, _pipelineId: string) => {
@@ -373,23 +470,101 @@ suite('deploy_pipeline_status tool', () => {
     return successStatus
   })
 
-  beforeEach(async () => {
-    client = await getTestMCPServerClient({
-      waitProjectDeployForCompletion: waitProjectDeployForCompletionMockFn,
-      isAiFeaturesEnabledForTenantMockFn: async () => true,
-    })
-  })
-
-  test('should get pipeline status successfully', async (t) => {
-    const projectId = 'project123'
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
     const pipelineId = '456'
 
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'deploy_pipeline_status',
         arguments: {
-          projectId,
+          projectId: testProjectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error deploying project: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const pipelineId = '456'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId: testProjectId,
+          pipelineId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should get pipeline status successfully', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const pipelineId = '456'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      waitProjectDeployForCompletion: waitProjectDeployForCompletionMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'deploy_pipeline_status',
+        arguments: {
+          projectId: testProjectId,
           pipelineId,
         },
       },
@@ -404,15 +579,29 @@ suite('deploy_pipeline_status tool', () => {
   })
 
   test('should return error message if pipeline status request returns error', async (t) => {
-    const projectId = 'error-project'
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
     const pipelineId = '456'
 
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      waitProjectDeployForCompletion: waitProjectDeployForCompletionMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'deploy_pipeline_status',
         arguments: {
-          projectId,
+          projectId: testProjectId,
           pipelineId,
         },
       },
