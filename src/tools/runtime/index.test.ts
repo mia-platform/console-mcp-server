@@ -13,13 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import test, { beforeEach, suite } from 'node:test'
+import assert from 'node:assert'
+import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
+import { IProject } from '@mia-platform/console-types'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { addRuntimeCapabilities } from '.'
 import { APIClient } from '../../apis/client'
+import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
 import { TestMCPServer } from '../../server/utils.test'
 import { toolNames } from '../descriptions'
 
@@ -30,6 +33,55 @@ const pods = [
 
 const logs = `{"level":"info","time":"2025-05-09T08:41:36.530819Z","scope":"upstream","message":"lds: add/update listener 'frontend'"}
 {"level":"info","time":"2025-05-09T08:41:36.530839Z","scope":"config","message":"all dependencies initialized. starting workers"}`
+
+interface CapabilitiesMocks {
+  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
+  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
+  listPodsMockFn?: (projectId: string, environmentId: string) => Promise<Record<string, unknown>[]>
+  podLogsMockFn?: (projectId: string, environmentId: string, podName: string, containerName: string, lines?: number) => Promise<string>
+}
+
+async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise<Client> {
+  const apiClient: APIClient = {
+    async projectInfo (projectId: string): Promise<IProject> {
+      if (!capabilities.getProjectInfoMockFn) {
+        throw new Error('getProjectInfoMockFn not mocked')
+      }
+
+      return capabilities.getProjectInfoMockFn(projectId)
+    },
+
+    async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+      if (!capabilities.isAiFeaturesEnabledForTenantMockFn) {
+        throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
+      }
+
+      return capabilities.isAiFeaturesEnabledForTenantMockFn(tenantId)
+    },
+
+    async listPods (projectId: string, environmentId: string): Promise<Record<string, unknown>[]> {
+      if (!capabilities.listPodsMockFn) {
+        throw new Error('listPodsMockFn not mocked')
+      }
+
+      return capabilities.listPodsMockFn(projectId, environmentId)
+    },
+
+    async podLogs (projectId: string, environmentId: string, podName: string, containerName: string, lines?: number): Promise<string> {
+      if (!capabilities.podLogsMockFn) {
+        throw new Error('podLogsMockFn not mocked')
+      }
+
+      return capabilities.podLogsMockFn(projectId, environmentId, podName, containerName, lines)
+    },
+  } as APIClient
+
+  const client = await TestMCPServer((server) => {
+    addRuntimeCapabilities(server, apiClient)
+  })
+
+  return client
+}
 
 suite('setup runtime tools', () => {
   test('should setup runtime tools to a server', async (t) => {
@@ -49,50 +101,110 @@ suite('setup runtime tools', () => {
 })
 
 suite('list pods tool', () => {
-  let client: Client
+  const listPodsMockFn = mock.fn(async (projectId: string, _environmentId: string) => {
+    if (projectId === 'error-project') {
+      throw new Error('error message')
+    }
 
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addRuntimeCapabilities(server, {
-        async listPods (projectId, _environmentId): Promise<Record<string, unknown>[]> {
-          if (projectId === 'error-project') {
-            throw new Error('error message')
-          }
-
-          return pods
-        },
-      } as APIClient)
-    })
+    return pods
   })
 
-  test('should return error when pods are not found', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
+    const environmentId = 'test-environment'
+
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: 'list_pods',
         arguments: {
-          projectId: 'error-project',
-          environmentId: 'test-environment',
+          projectId: testProjectId,
+          environmentId,
         },
       },
     }, CallToolResultSchema)
 
     t.assert.deepEqual(result.content, [
       {
-        text: 'Error fetching pods: error message',
+        text: `Error fetching pods: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const environmentId = 'test-environment'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_pods',
+        arguments: {
+          projectId: testProjectId,
+          environmentId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching pods: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
         type: 'text',
       },
     ])
   })
 
   test('should list pods', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'test-project'
+    const environmentId = 'test-environment'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      listPodsMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: toolNames.LIST_PODS,
         arguments: {
-          projectId: 'test-project',
-          environmentId: 'test-environment',
+          projectId: testProjectId,
+          environmentId,
         },
       },
     }, CallToolResultSchema)
@@ -104,62 +216,207 @@ suite('list pods tool', () => {
       },
     ])
   })
-})
 
-suite('get pod logs tool', () => {
-  let client: Client
+  test('should return error when pods are not found', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
+    const environmentId = 'test-environment'
 
-  beforeEach(async () => {
-    client = await TestMCPServer((server) => {
-      addRuntimeCapabilities(server, {
-        async podLogs (projectId, _environmentId, _podName, _containerName, _lines): Promise<string> {
-          if (projectId === 'error-project') {
-            throw new Error('error message')
-          }
-
-          return logs
-        },
-      } as APIClient)
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
     })
-  })
 
-  test('should return error when logs are not found', async (t) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      listPodsMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
-        name: toolNames.GET_POD_LOGS,
+        name: 'list_pods',
         arguments: {
-          projectId: 'error-project',
-          environmentId: 'test-environment',
-          podName: 'test-pod',
-          containerName: 'test-container',
+          projectId: testProjectId,
+          environmentId,
         },
       },
     }, CallToolResultSchema)
 
     t.assert.deepEqual(result.content, [
       {
-        text: 'Error fetching logs for container test-container in pod test-pod: error message',
+        text: 'Error fetching pods: error message',
         type: 'text',
       },
     ])
   })
+})
 
+suite('get pod logs tool', () => {
+  const podLogsMockFn = mock.fn(async (projectId: string, _environmentId: string, _podName: string, _containerName: string, _lines?: number) => {
+    if (projectId === 'error-project') {
+      throw new Error('error message')
+    }
 
-  test('should return logs', async (t) => {
+    return logs
+  })
+
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
+    const environmentId = 'test-environment'
+    const podName = 'test-pod'
+    const containerName = 'test-container'
+
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
     const result = await client.request({
       method: 'tools/call',
       params: {
         name: toolNames.GET_POD_LOGS,
         arguments: {
-          projectId: 'test-project',
-          environmentId: 'test-environment',
-          podName: 'test-pod',
-          containerName: 'test-container',
+          projectId: testProjectId,
+          environmentId,
+          podName,
+          containerName,
         },
       },
     }, CallToolResultSchema)
 
-    t.assert.deepEqual(result.content[0].text, `Logs for container test-container in pod test-pod: ${logs}`)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching logs for container ${containerName} in pod ${podName}: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if ai features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const environmentId = 'test-environment'
+    const podName = 'test-pod'
+    const containerName = 'test-container'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.GET_POD_LOGS,
+        arguments: {
+          projectId: testProjectId,
+          environmentId,
+          podName,
+          containerName,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching logs for container ${containerName} in pod ${podName}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return logs', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'test-project'
+    const environmentId = 'test-environment'
+    const podName = 'test-pod'
+    const containerName = 'test-container'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      podLogsMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.GET_POD_LOGS,
+        arguments: {
+          projectId: testProjectId,
+          environmentId,
+          podName,
+          containerName,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content[0].text, `Logs for container ${containerName} in pod ${podName}: ${logs}`)
+  })
+
+  test('should return error when logs are not found', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
+    const environmentId = 'test-environment'
+    const podName = 'test-pod'
+    const containerName = 'test-container'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      podLogsMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.GET_POD_LOGS,
+        arguments: {
+          projectId: testProjectId,
+          environmentId,
+          podName,
+          containerName,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching logs for container ${containerName} in pod ${podName}: error message`,
+        type: 'text',
+      },
+    ])
   })
 })
