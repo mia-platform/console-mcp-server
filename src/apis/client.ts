@@ -28,6 +28,7 @@ import {
   ICatalogPlugin,
   ICatalogTemplate,
   IProject,
+  ITenant,
   Listeners,
 } from '@mia-platform/console-types'
 
@@ -62,7 +63,87 @@ interface TenantRules {
   aiSettings?: AISettings
 }
 
-export class APIClient {
+export interface IAPIClient {
+  // #region Utility Methods
+  isAiFeaturesEnabledForTenant(tenantId: string): Promise<boolean>
+  // #endregion
+
+  // #region Governance Methods
+  listCompanies(): Promise<ITenant[]>
+  companyTemplates(tenantID: string): Promise<Template[]>
+  companyIAMIdentities(tenantID: string, type?: string): Promise<Record<string, unknown>[]>
+  companyAuditLogs(tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]>
+
+  listProjects(tenantIDs: string[], search?: string): Promise<Record<string, unknown>[]>
+  projectInfo(projectID: string): Promise<IProject>
+  createProjectFromTemplate(
+    tenantID: string,
+    projectName: string,
+    templateID: string,
+    description?: string,
+  ): Promise<Record<string, unknown>>
+  // #endregion
+
+  // #region Configuration Methods
+  getConfigurationRevisions(projectId: string): Promise<Record<string, unknown>>
+  getConfiguration(projectId: string, refId: string): Promise<RetrievedConfiguration>
+  saveConfiguration(
+    projectId: string,
+    refId: string,
+    resourcesToCreate: ResourcesToCreate,
+    options?: SaveConfigurationOptions,
+  ): Promise<SaveResponse>
+  createServiceFromMarketplaceItem(
+    projectID: string,
+    name: string,
+    refID: string,
+    marketplaceItemID: string,
+    marketplaceItemTenantID: string,
+    marketplaceItemVersion?: string,
+    description?: string,
+  ): Promise<SaveResponse>
+  // #endregion
+
+  // #region Deploy Methods
+  deployProjectEnvironmentFromRevision(
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<TriggerDeployResponse>
+  compareProjectEnvironmentFromRevisionForDeploy(
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<CompareForDeployResponse>
+  waitProjectDeployForCompletion(
+    projectID: string,
+    pipelineID: string,
+    timeout?: number,
+    interval?: number,
+  ): Promise<PipelineStatus>
+  // #endregion
+
+  // #region Runtime Methods
+  listPods(projectID: string, environmentID: string): Promise<Record<string, unknown>[]>
+  podLogs(
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ): Promise<string>
+  // #endregion
+
+  // #region Marketplace Methods
+  listMarketplaceItems(tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]>
+  marketplaceItemVersions(tenantID: string, itemID: string): Promise<CatalogItemRelease[]>
+  marketplaceItemInfo(tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem>
+  // #endregion
+}
+
+export class APIClient implements IAPIClient {
   #backendClient: BackendClient
   #deployClient: DeployClient
   #featureFlagsClient: FeatureToggleClient
@@ -100,7 +181,7 @@ export class APIClient {
     return tenantRules?.aiSettings?.enableAgenticFeatures || false
   }
 
-  async listCompanies (): Promise<Record<string, unknown>[]> {
+  async listCompanies (): Promise<ITenant[]> {
     return await this.#backendClient.listCompanies()
   }
 
@@ -396,6 +477,300 @@ export class APIClient {
       description,
     )
   }
+}
+
+export interface APIClientMockFunctions {
+  // #region Utility Methods
+  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
+  // #endregion
+
+  // #region Governance Methods
+  listCompaniesMockFn?: () => Promise<ITenant[]>
+  companyTemplatesMockFn?: (tenantID: string) => Promise<Template[]>
+  companyIAMIdentitiesMockFn?: (tenantID: string, type?: string) => Promise<Record<string, unknown>[]>
+  companyAuditLogsMockFn?: (tenantID: string, from?: string, to?: string) => Promise<Record<string, unknown>[]>
+
+  listProjectsMockFn?: (tenantIDs: string[], search?: string) => Promise<Record<string, unknown>[]>
+  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
+  createProjectFromTemplateMockFn?: (
+    tenantID: string,
+    projectName: string,
+    templateID: string,
+    description?: string,
+  ) => Promise<Record<string, unknown>>
+  // #endregion
+
+  // #region Configuration Methods
+  getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
+  getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
+  saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
+  createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
+  // #endregion
+
+  // #region Deploy Methods
+  deployProjectEnvironmentFromRevisionMockFn?: (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ) => Promise<TriggerDeployResponse>
+  compareProjectEnvironmentFromRevisionForDeployMockFn?: (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ) => Promise<CompareForDeployResponse>
+  waitProjectDeployForCompletionMockFn?: (
+    projectID: string,
+    pipelineID: string,
+    timeout?: number,
+    interval?: number,
+  ) => Promise<PipelineStatus>
+  // #endregion
+
+  // #region Runtime Methods
+  listPodsMockFn?: (projectID: string, environmentID: string) => Promise<Record<string, unknown>[]>
+  podLogsMockFn?: (
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ) => Promise<string>
+  // #endregion
+
+  // #region Marketplace Methods
+  listMarketplaceItemsMockFn?: (tenantID?: string, type?: string, search?: string) => Promise<Record<string, unknown>[]>
+  marketplaceItemVersionsMockFn?: (tenantID: string, itemID: string) => Promise<CatalogItemRelease[]>
+  marketplaceItemInfoMockFn?: (tenantID: string, itemID: string, version?: string) => Promise<CatalogVersionedItem>
+  // #endregion
+}
+
+export class APIClientMock implements IAPIClient {
+  private mocks: APIClientMockFunctions
+
+  constructor (mocks: APIClientMockFunctions) {
+    this.mocks = mocks
+  }
+
+  // #region Utility Methods
+
+  async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
+    if (!this.mocks.isAiFeaturesEnabledForTenantMockFn) {
+      throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
+    }
+
+    return this.mocks.isAiFeaturesEnabledForTenantMockFn(tenantId)
+  }
+
+  // #endregion
+
+  // #region Governance Methods
+
+  async listCompanies (): Promise<ITenant[]> {
+    if (!this.mocks.listCompaniesMockFn) {
+      throw new Error('listCompaniesMockFn not mocked')
+    }
+
+    return this.mocks.listCompaniesMockFn()
+  }
+
+  async companyTemplates (tenantId: string): Promise<Template[]> {
+    if (!this.mocks.companyTemplatesMockFn) {
+      throw new Error('companyTemplatesMockFn not mocked')
+    }
+
+    return this.mocks.companyTemplatesMockFn(tenantId)
+  }
+
+  async companyIAMIdentities (tenantId: string, type?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.companyIAMIdentitiesMockFn) {
+      throw new Error('companyIAMIdentitiesMockFn not mocked')
+    }
+
+    return this.mocks.companyIAMIdentitiesMockFn(tenantId, type)
+  }
+
+  async companyAuditLogs (tenantId: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.companyAuditLogsMockFn) {
+      throw new Error('companyAuditLogsMockFn not mocked')
+    }
+
+    return this.mocks.companyAuditLogsMockFn(tenantId, from, to)
+  }
+
+  async listProjects (tenantIds: string[], search?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listProjectsMockFn) {
+      throw new Error('listProjectsMockFn not mocked')
+    }
+
+    return this.mocks.listProjectsMockFn(tenantIds, search)
+  }
+
+  async projectInfo (projectId: string): Promise<IProject> {
+    if (!this.mocks.getProjectInfoMockFn) {
+      throw new Error('getProjectInfoMockFn not mocked')
+    }
+
+    return this.mocks.getProjectInfoMockFn(projectId)
+  }
+
+  async createProjectFromTemplate (tenantId: string, projectName: string, templateId: string, description?: string): Promise<Record<string, unknown>> {
+    if (!this.mocks.createProjectFromTemplateMockFn) {
+      throw new Error('createProjectFromTemplateMockFn not mocked')
+    }
+
+    return this.mocks.createProjectFromTemplateMockFn(tenantId, projectName, templateId, description)
+  }
+
+  // #endregion
+
+  // #region Configuration Methods
+
+  async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
+    if (!this.mocks.getConfigurationRevisionsMockFn) {
+      throw new Error('getConfigurationRevisionsMockFn not mocked')
+    }
+
+    return this.mocks.getConfigurationRevisionsMockFn(projectId)
+  }
+
+
+  async getConfiguration (projectId: string, refId: string): Promise<RetrievedConfiguration> {
+    if (!this.mocks.getConfigurationMockFn) {
+      throw new Error('getConfigurationMockFn not mocked')
+    }
+
+    return this.mocks.getConfigurationMockFn(projectId, refId)
+  }
+
+  async saveConfiguration (
+    projectId: string,
+    _refId: string,
+    _resourcesToCreate: ResourcesToCreate,
+    _options?: SaveConfigurationOptions,
+  ): Promise<SaveResponse> {
+    if (!this.mocks.saveConfigurationMockFn) {
+      throw new Error('saveConfigurationMockFn not mocked')
+    }
+
+    return this.mocks.saveConfigurationMockFn(projectId)
+  }
+
+  async createServiceFromMarketplaceItem (
+    projectID: string,
+    _name: string,
+    _refID: string,
+    _marketplaceItemID: string,
+    _marketplaceItemTenantID: string,
+    _marketplaceItemVersion?: string,
+    _description?: string,
+  ): Promise<SaveResponse> {
+    if (!this.mocks.createServiceFromMarketplaceItemMockFn) {
+      throw new Error('createServiceFromMarketplaceItemMockFn not mocked')
+    }
+
+    return this.mocks.createServiceFromMarketplaceItemMockFn(projectID)
+  }
+
+  // #endregion
+
+  // #region Deploy Methods
+
+  async deployProjectEnvironmentFromRevision (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<TriggerDeployResponse> {
+    if (!this.mocks.deployProjectEnvironmentFromRevisionMockFn) {
+      throw new Error('deployProjectEnvironmentFromRevisionMockFn not mocked')
+    }
+
+    return this.mocks.deployProjectEnvironmentFromRevisionMockFn(projectID, environment, revision, revisionType)
+  }
+
+  async compareProjectEnvironmentFromRevisionForDeploy (
+    projectID: string,
+    environment: string,
+    revision: string,
+    revisionType: string,
+  ): Promise<CompareForDeployResponse> {
+    if (!this.mocks.compareProjectEnvironmentFromRevisionForDeployMockFn) {
+      throw new Error('compareProjectEnvironmentFromRevisionForDeployMockFn not mocked')
+    }
+
+    return this.mocks.compareProjectEnvironmentFromRevisionForDeployMockFn(projectID, environment, revision, revisionType)
+  }
+
+  async waitProjectDeployForCompletion (
+    projectID: string,
+    pipelineID: string,
+    timeout = 5 * 60 * 1000,
+    interval = 5000,
+  ): Promise<PipelineStatus> {
+    if (!this.mocks.waitProjectDeployForCompletionMockFn) {
+      throw new Error('waitProjectDeployForCompletionMockFn not mocked')
+    }
+
+    return this.mocks.waitProjectDeployForCompletionMockFn(projectID, pipelineID, timeout, interval)
+  }
+
+  // #endregion
+
+  // #region Runtime Methods
+
+  async listPods (projectID: string, environmentID: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listPodsMockFn) {
+      throw new Error('listPodsMockFn not mocked')
+    }
+
+    return this.mocks.listPodsMockFn(projectID, environmentID)
+  }
+
+  async podLogs (
+    projectID: string,
+    environmentID: string,
+    podName: string,
+    containerName: string,
+    lines?: number,
+  ): Promise<string> {
+    if (!this.mocks.podLogsMockFn) {
+      throw new Error('podLogsMockFn not mocked')
+    }
+
+    return this.mocks.podLogsMockFn(projectID, environmentID, podName, containerName, lines)
+  }
+
+  // #endregion
+
+  // #region Marketplace Methods
+
+  async listMarketplaceItems (tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
+    if (!this.mocks.listMarketplaceItemsMockFn) {
+      throw new Error('listMarketplaceItemsMockFn not mocked')
+    }
+
+    return this.mocks.listMarketplaceItemsMockFn(tenantID, type, search)
+  }
+
+  async marketplaceItemVersions (tenantID: string, itemID: string): Promise<CatalogItemRelease[]> {
+    if (!this.mocks.marketplaceItemVersionsMockFn) {
+      throw new Error('marketplaceItemVersionsMockFn not mocked')
+    }
+
+    return this.mocks.marketplaceItemVersionsMockFn(tenantID, itemID)
+  }
+
+  async marketplaceItemInfo (tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem> {
+    if (!this.mocks.marketplaceItemInfoMockFn) {
+      throw new Error('marketplaceItemInfoMockFn not mocked')
+    }
+
+    return this.mocks.marketplaceItemInfoMockFn(tenantID, itemID, version)
+  }
+
+  // #endregion
 }
 
 function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: ResourcesToCreate, options?: SaveConfigurationOptions): Config {

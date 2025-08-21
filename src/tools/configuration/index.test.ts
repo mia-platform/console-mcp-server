@@ -25,14 +25,13 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { IProject } from '@mia-platform/console-types'
 
 import { addConfigurationCapabilities } from '.'
-import { APIClient } from '../../apis/client'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
+import { RetrievedConfiguration } from '../../apis/types/configuration'
 import { TestMCPServer } from '../../server/utils.test'
 import {
-  ResourcesToCreate,
-  SaveConfigurationOptions,
-  SaveResponse,
-} from '../../apis/types/configuration'
+  APIClientMock,
+  APIClientMockFunctions,
+} from '../../apis/client'
 
 const revisions = [
   { name: 'main' },
@@ -83,64 +82,9 @@ const mockSaveResponse = {
   id: 'new-commit-id',
 }
 
-interface CapabilitiesMocks {
-  getProjectInfoMockFn?: (projectId: string) => Promise<IProject>
-  getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
-  getConfigurationMockFn?: (projectId: string, refId: string) => Promise<Record<string, unknown>>
-  saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
-  isAiFeaturesEnabledForTenantMockFn?: (tenantId: string) => Promise<boolean>
-}
-
-async function getTestMCPServerClient (capabilities: CapabilitiesMocks): Promise<Client> {
-  const apiClient: APIClient = {
-    async projectInfo (projectId: string): Promise<IProject> {
-      if (!capabilities.getProjectInfoMockFn) {
-        throw new Error('getProjectInfoMockFn not mocked')
-      }
-
-      return capabilities.getProjectInfoMockFn(projectId)
-    },
-
-    async getConfigurationRevisions (projectId: string): Promise<Record<string, unknown>> {
-      if (!capabilities.getConfigurationRevisionsMockFn) {
-        throw new Error('getConfigurationRevisionsMockFn not mocked')
-      }
-
-      return capabilities.getConfigurationRevisionsMockFn(projectId)
-    },
-
-    async isAiFeaturesEnabledForTenant (tenantId: string): Promise<boolean> {
-      if (!capabilities.isAiFeaturesEnabledForTenantMockFn) {
-        throw new Error('isAiFeaturesEnabledForTenantMockFn not mocked')
-      }
-
-      return capabilities.isAiFeaturesEnabledForTenantMockFn(tenantId)
-    },
-
-    async getConfiguration (projectId: string, refId: string): Promise<Record<string, unknown>> {
-      if (!capabilities.getConfigurationMockFn) {
-        throw new Error('getConfigurationMockFn not mocked')
-      }
-
-      return capabilities.getConfigurationMockFn(projectId, refId)
-    },
-
-    async saveConfiguration (
-      projectId: string,
-      _refId: string,
-      _resourcesToCreate: ResourcesToCreate,
-      _options?: SaveConfigurationOptions,
-    ): Promise<SaveResponse> {
-      if (!capabilities.saveConfigurationMockFn) {
-        throw new Error('saveConfigurationMockFn not mocked')
-      }
-
-      return capabilities.saveConfigurationMockFn(projectId)
-    },
-  } as APIClient
-
+async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
   const client = await TestMCPServer((server) => {
-    addConfigurationCapabilities(server, apiClient)
+    addConfigurationCapabilities(server, new APIClientMock(mocks))
   })
 
   return client
@@ -316,12 +260,12 @@ suite('list configuration revisions tool', () => {
 
 suite('get configuration tool', () => {
   const getConfigurationMockFn =
-    mock.fn(async (projectId: string, _refId: string) => {
+    mock.fn(async (projectId: string, _refId: string): Promise<RetrievedConfiguration> => {
       if (projectId === 'error-project') {
         throw new Error('some error')
       }
 
-      return mockConfiguration
+      return mockConfiguration as unknown as RetrievedConfiguration
     })
 
   it('returns error - if getProjectInfo fails', async (t) => {
