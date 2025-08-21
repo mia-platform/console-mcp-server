@@ -80,6 +80,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
               text: `Error fetching projects for ${tenantIds.join(', ')}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -113,6 +114,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
               text: `Error fetching project ${projectId}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -149,6 +151,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
               text: `Error creating project from template ${templateId}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },

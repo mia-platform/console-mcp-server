@@ -54,6 +54,7 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
               text: `Error deploying project: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -91,6 +92,7 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
               text: `Error retrieving configuration updates: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -127,6 +129,7 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
               text: `Error deploying project: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
