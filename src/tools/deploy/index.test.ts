@@ -103,6 +103,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${expectedError}`,
@@ -147,6 +148,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -231,6 +233,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',
@@ -276,6 +279,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error retrieving configuration updates: ${expectedError}`,
@@ -320,6 +324,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error retrieving configuration updates: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -402,6 +407,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error retrieving configuration updates: error message',
@@ -445,6 +451,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${expectedError}`,
@@ -485,6 +492,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -559,6 +567,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',

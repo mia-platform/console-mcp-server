@@ -158,6 +158,7 @@ suite('projects list tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching projects for ${testTenantIds.join(', ')}: ${ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS}`,
@@ -214,6 +215,7 @@ suite('projects list tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching projects for ${testTenantIds.join(', ')}: error message`,
@@ -254,6 +256,7 @@ suite('get project info', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching project ${testProjectId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -328,6 +331,7 @@ suite('get project info', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching project error: error message',
@@ -362,6 +366,7 @@ suite('create project from template', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating project from template templateID: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -416,6 +421,7 @@ suite('create project from template', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.equal(result.isError, true)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error creating project from template templateID: error message',
