@@ -1,4 +1,4 @@
-FROM node:22.17.1-alpine@sha256:5539840ce9d013fa13e3b9814c9353024be7ac75aca5db6d039504a56c04ea59 AS builder
+FROM node:22.19.0-alpine@sha256:67bb653363ee5f3aa8b132cb3f800f202bb5fb244f7cf0669225737ee84d30cd AS builder
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run build
 RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --ignore-scripts
 RUN rm -fr src tsconfig.* package-lock.json
 
-FROM node:22.17.1-alpine@sha256:5539840ce9d013fa13e3b9814c9353024be7ac75aca5db6d039504a56c04ea59
+FROM node:22.19.0-alpine@sha256:67bb653363ee5f3aa8b132cb3f800f202bb5fb244f7cf0669225737ee84d30cd
 
 WORKDIR /app
 
