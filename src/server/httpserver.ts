@@ -16,12 +16,12 @@
 import { env } from 'node:process'
 
 import { FastifyInstance } from 'fastify'
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
-
 import { getMcpServer } from './server'
 import { IncomingHttpHeaders } from 'undici/types/header'
+import { oauthRouter } from './oauthRouter'
 import { statusRoutes } from './statusRoutes'
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
 
 export interface HTTPServerOptions {
   host: string
@@ -33,25 +33,42 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   const { host, clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
+  // Register OAuth2 router
+  fastify.register(oauthRouter, { prefix: '/' })
+
   fastify.post('/mcp', async (request, reply) => {
+    // --- Token check (placeholder: check for Bearer token in Authorization header) ---
+    const authHeader = request.headers['authorization'] || request.headers['Authorization']
+    const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : undefined
+    if (!token) {
+      reply.code(401).send({
+        jsonrpc: JSONRPC_VERSION,
+        error: {
+          code: ErrorCode.InternalError, // fallback to InternalError if Unauthorized is not defined
+          message: 'Missing or invalid access token',
+        },
+        id: null,
+      })
+      return
+    }
+
     const additionalHeaders: IncomingHttpHeaders = {}
     for (const key of additionalHeadersKeys) {
       if (key in request.headers) {
         additionalHeaders[key] = request.headers[key]
       }
     }
-
     try {
       const server = getMcpServer(host, clientID, clientSecret, additionalHeaders)
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
       })
-
       reply.raw.on('close', () => {
         transport.close()
         server.close()
       })
-
       await server.connect(transport)
       await transport.handleRequest(request.raw, reply.raw, request.body)
     } catch (error) {
