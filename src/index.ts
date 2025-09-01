@@ -47,7 +47,7 @@ program.
     }
 
     const fastify = Fastify({
-      logger: true,
+      logger: { level: process.env.LOG_LEVEL || 'info' },
     })
     fastify.register(httpServer, {
       host,
