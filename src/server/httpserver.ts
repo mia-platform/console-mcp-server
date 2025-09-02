@@ -34,14 +34,16 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
   // Register OAuth2 router
+  // TODO: This might be temporary, since we should use resource in the Console environment
   fastify.register(oauthRouter, { prefix: '/' })
 
   fastify.post('/mcp', async (request, reply) => {
-    // --- Token check (placeholder: check for Bearer token in Authorization header) ---
+    // TODO: We do need tests on this part
     const authHeader = request.headers['authorization'] || request.headers['Authorization']
     const token = typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
       ? authHeader.slice(7)
       : undefined
+
     if (!token) {
       reply.code(401).send({
         jsonrpc: JSONRPC_VERSION,
