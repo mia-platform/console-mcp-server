@@ -10,7 +10,7 @@
 1. Login to Mia-Platform. You have two options:
     - (a) *User Authentication* - Use miactl authentication: if you have [`miactl`][miactl] installed you can login and
       the same session will then be used by the mcp server to authenticate. To login just type `miactl company list`,
-      or any other miactl command, the browser will be opened and you can use your credentatials to login. You will be
+      or any other miactl command, the browser will be opened and you can use your credentials to login. You will be
       able to access to all companies and projects that have been granted to your user.
     - (b) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode
       (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one
@@ -37,7 +37,7 @@ The `mcp` key is not needed in the `.vscode/mcp.json` file.
 Also note that you can change the host of the Console instance to your custom installation
 :::
 
-This is the configuration if you are using mictl (a)
+This is the configuration if you are using miactl (a)
 
 ```json
 {
