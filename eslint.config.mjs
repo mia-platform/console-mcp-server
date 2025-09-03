@@ -64,7 +64,7 @@ export default tseslint.config(
         'error',
         'single',
         {
-          allowTemplateLiterals: true,
+          allowTemplateLiterals: "always",
         },
       ],
       '@stylistic/quote-props': [
