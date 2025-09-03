@@ -5,13 +5,24 @@
 ### Prerequisites
 
 1. To run the server in a container, you will need to have [Docker] installed.
-2. Once Docker is installed, you will also need to ensure Docker is running.
-3. Pull the docker image `docker pull ghcr.io/mia-platform/console-mcp-server`
-4. Login to Mia-Platform. You have two options:
-  - (a) *User Authentication* - Use miactl authentication: if you have [`miactl`][miactl] installed you can login and
-     the same session will then be used by the mcp server to authenticate. To login just type `miactl company list`, or any other miactl command, the browser will be opened and you can use your credentatials to login. You will be able to access to all companies and projects that have been granted to your user.
-  - (b) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one company at a time.
-    
+1. Once Docker is installed, you will also need to ensure Docker is running.
+1. Pull the docker image `docker pull ghcr.io/mia-platform/console-mcp-server`
+1. Login to Mia-Platform. You have two options:
+    - (a) *User Authentication* - Use miactl authentication: if you have [`miactl`][miactl] installed you can login and
+      the same session will then be used by the mcp server to authenticate. To login just type `miactl company list`,
+      or any other miactl command, the browser will be opened and you can use your credentatials to login. You will be
+      able to access to all companies and projects that have been granted to your user.
+    - (b) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode
+      (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one
+      company at a time.
+
+> [!WARNING]
+> When using miactl session, auto-refresh by the MCP Server is not currently supported,
+> once the session created with miactl expires you have to refresh it with miactl again.
+---
+> [!IMPORTANT]
+> When using miactl session, the host you provide to the MCP Server **MUST** be the exact same as the one
+> you have logged in with miactl, including scheme and any possible trailing slash.
 
 ### VS Code
 
@@ -51,7 +62,6 @@ This is the configuration if you are using mictl (a)
     "inputs": []
 }
 ```
-
 
 This is the configuration if you are using Service Account (b)
 
@@ -140,7 +150,9 @@ More about using MCP server tools in [VS Code's agent mode documentation].
 ```
 
 ### Gemini CLI
+
 Add `mia-platform-console` in `mcpServers` in file `~/.gemini/settings.json`.
+
 ```json
 {
   "mcpServers": {
@@ -174,3 +186,4 @@ Add `mia-platform-console` in `mcpServers` in file `~/.gemini/settings.json`.
 [Docker]: https://www.docker.com/
 [miactl]: https://github.com/mia-platform/miactl
 [VS Code's agent mode documentation]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
+[Create a Mia-Platform Service Account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
