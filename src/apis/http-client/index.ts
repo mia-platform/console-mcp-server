@@ -30,10 +30,11 @@ export interface Options {
 
 export class HTTPClient {
   private baseURL: string
-  private token: AccessToken | undefined
   private clientID: string
   private clientSecret: string
   private additionalHeaders: UndiciHeaders
+
+  private token: AccessToken | undefined
 
   constructor (baseURL: string, clientID?: string, clientSecret?: string, additionalHeaders: UndiciHeaders = {}) {
     this.baseURL = baseURL
@@ -115,9 +116,18 @@ export class HTTPClient {
     body?: Record<string, unknown>,
     accept = 'application/json',
   ): Promise<Dispatcher.ResponseData> {
-    await this.validateToken()
+    const hasToken = this.additionalHeadersIncludeToken()
+    if (!hasToken) {
+      await this.validateToken()
+    }
 
     const hdr = headers(this.token, accept, this.additionalHeaders, !!body)
+    console.log({
+      url,
+      method,
+      headers: hdr,
+      body,
+    })
     const response = await request(url, {
       method: method,
       headers: hdr,
@@ -126,6 +136,7 @@ export class HTTPClient {
 
     if (response.statusCode != 200) {
       const data = await response.body.json() as Record<string, string>
+      console.error({ statusCode: response.statusCode, data: response.body.json() })
       const message = data.message || `Unknown error with status ${response.statusCode}`
       throw new Error(message)
     }
@@ -133,11 +144,17 @@ export class HTTPClient {
     return response
   }
 
+  private additionalHeadersIncludeToken (): boolean {
+    return !!this.additionalHeaders &&
+      typeof this.additionalHeaders === 'object' &&
+      !Array.isArray(this.additionalHeaders) &&
+      !!('Authorization' in this.additionalHeaders)
+  }
+
   private async validateToken (): Promise<void> {
-    if (this.token && !this.token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
+    if (this.additionalHeadersIncludeToken() || this.token && !this.token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
       return
     }
-
     this.token = await doAuthentication(this.baseURL, {
       clientId: this.clientID,
       clientSecret: this.clientSecret,
