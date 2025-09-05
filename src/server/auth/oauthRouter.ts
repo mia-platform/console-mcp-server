@@ -3,14 +3,15 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import 'dotenv/config'
 
 const OKTA_CLIENT_ID = process.env.OKTA_CLIENT_ID
-const CONSOLE_URL = process.env.CONSOLE_URL
 
 const getBaseUrlFromRequest = (req: FastifyRequest) => {
   const { hostname = 'localhost', port = process.env.PORT, protocol = 'http' } = req
   return `${protocol}://${hostname}:${port}`
 }
 
-export async function oauthRouter (fastify: FastifyInstance) {
+export async function oauthRouter (fastify: FastifyInstance, options: { host?: string }) {
+  const { host = '' } = options
+
   fastify.get('/.well-known/oauth-protected-resource', async (request: FastifyRequest, reply: FastifyReply) => {
     const { body, headers } = request
     const baseUrl = getBaseUrlFromRequest(request)
@@ -55,9 +56,9 @@ export async function oauthRouter (fastify: FastifyInstance) {
     })
 
     reply.send({
-      issuer: CONSOLE_URL,
-      authorization_endpoint: `${CONSOLE_URL}/api/authorize?appId=console-mcp-server&providerId=okta`,
-      token_endpoint: `${CONSOLE_URL}/api/oauth/token?appId=console-mcp-server&providerId=okta`,
+      issuer: host,
+      authorization_endpoint: `${host}/api/authorize?appId=console-mcp-server&providerId=okta`,
+      token_endpoint: `${host}/api/oauth/token?appId=console-mcp-server&providerId=okta`,
       scopes_supported: [ 'profile', 'email', 'openid', 'offline-access' ],
       registration_endpoint: `${baseUrl}/register`,
       response_types_supported: [

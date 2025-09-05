@@ -122,12 +122,6 @@ export class HTTPClient {
     }
 
     const hdr = headers(this.token, accept, this.additionalHeaders, !!body)
-    console.log({
-      url,
-      method,
-      headers: hdr,
-      body,
-    })
     const response = await request(url, {
       method: method,
       headers: hdr,
