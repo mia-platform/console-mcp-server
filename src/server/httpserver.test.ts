@@ -116,7 +116,7 @@ suite('test http streaming server', () => {
     })
 
     t.assert.equal(firstInit.statusCode, 401)
-    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost:3023/.well-known/oauth-protected-resource"')
+    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost:80/.well-known/oauth-protected-resource"')
   })
 
   test('get request is not allowed for stateless server', async (t) => {

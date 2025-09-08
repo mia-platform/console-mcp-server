@@ -1,13 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 import 'dotenv/config'
+import { getBaseUrlFromRequest } from '../utils'
 
 const OKTA_CLIENT_ID = process.env.OKTA_CLIENT_ID
-
-const getBaseUrlFromRequest = (req: FastifyRequest) => {
-  const { hostname = 'localhost', port = process.env.PORT, protocol = 'http' } = req
-  return `${protocol}://${hostname}:${port}`
-}
 
 export async function oauthRouter (fastify: FastifyInstance, options: { host?: string }) {
   const { host = '' } = options

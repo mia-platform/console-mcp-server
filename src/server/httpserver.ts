@@ -19,6 +19,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
+import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
 import { oauthRouter } from './auth/oauthRouter'
 import { statusRoutes } from './statusRoutes'
@@ -28,8 +29,6 @@ export interface HTTPServerOptions {
   clientID: string
   clientSecret: string
 }
-const resourceMetadata = 'http://localhost:3023/.well-known/oauth-protected-resource'
-const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadata}"`
 
 const connectToMcpServer = async (
   request: FastifyRequest,
@@ -90,6 +89,10 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     const authenticateViaBearerToken = !!request.headers['Authorization'] || !!request.headers['authorization']
 
     if (!authenticateViaClientCredentials && !authenticateViaBearerToken) {
+      const baseUrl = getBaseUrlFromRequest(request)
+      const resourceMetadata = `${baseUrl}/.well-known/oauth-protected-resource`
+      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadata}"`
+
       reply.
         header(
           'WWW-Authenticate',
