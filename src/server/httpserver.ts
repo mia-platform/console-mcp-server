@@ -66,7 +66,7 @@ const connectToMcpServer = async (
 }
 
 export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
-  const { clientID, clientSecret } = opts
+  const { host, clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
   const authenticateViaClientCredentials = clientID && clientSecret
@@ -86,7 +86,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
   fastify.post('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /mcp request', body: request.body })
-    fastify.log.debug({ message: 'Logging headers', headers: request.headers })
 
     const authenticateViaBearerToken = !!request.headers['Authorization'] || !!request.headers['authorization']
 
@@ -141,5 +140,5 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   })
 
   fastify.register(statusRoutes, { prefix: '/-/' })
-  fastify.register(oauthRouter, { prefix: '/' })
+  fastify.register(oauthRouter, { prefix: '/', host })
 }
