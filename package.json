@@ -1,6 +1,6 @@
 {
   "name": "@mia-platform/console-mcp-server",
-  "version": "1.1.0-exp.5",
+  "version": "1.1.0-exp.6",
   "description": "Mia-Platform Console MCP Server",
   "main": "mcp-server/index.js",
   "bin": {

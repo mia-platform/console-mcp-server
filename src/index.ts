@@ -50,6 +50,7 @@ program.
 
     const fastify = Fastify({
       logger: { level: process.env.LOG_LEVEL || 'info' },
+      trustProxy: true,
     })
     fastify.register(httpServer, {
       host,
