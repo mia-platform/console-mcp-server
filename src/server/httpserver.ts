@@ -110,9 +110,16 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
+    const proxiedHeaders: IncomingHttpHeaders = {}
+    for (const key of additionalHeadersKeys) {
+      if (key in request.headers) {
+        proxiedHeaders[key] = request.headers[key]
+      }
+    }
+
     const headers = authenticateViaBearerToken
-      ? request.headers
-      : {}
+      ? { ...proxiedHeaders, ...request.headers }
+      : proxiedHeaders
 
 
     await connectToMcpServer(request, reply, opts, headers)
