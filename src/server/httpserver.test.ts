@@ -40,7 +40,60 @@ suite('test http streaming server', () => {
     await fastify.close()
   })
 
-  test('run http streaming server', async (t) => {
+  test('run http streaming server calling internal mcp endpoint', async (t) => {
+    const firstInit = await fastify.inject({
+      method: 'POST',
+      path: '/internal/mcp',
+      headers: {
+        Accept: 'application/json, text/event-stream',
+      },
+      payload: {
+        jsonrpc: JSONRPC_VERSION,
+        method: 'initialize',
+        params: {
+          clientInfo: {
+            name: 'test-client',
+            version: '1.0',
+          },
+          protocolVersion: '2025-03-26',
+          capabilities: {},
+        },
+        id: 'init-1',
+      },
+    })
+
+    t.assert.equal(firstInit.statusCode, 200)
+    t.assert.equal(firstInit.headers['content-type'], 'text/event-stream')
+  })
+
+  test('run http streaming server calling mcp endpoint (with auth endpoint)', async (t) => {
+    const firstInit = await fastify.inject({
+      method: 'POST',
+      path: '/mcp',
+      headers: {
+        Accept: 'application/json, text/event-stream',
+        Authorization: 'Bearer test-token',
+      },
+      payload: {
+        jsonrpc: JSONRPC_VERSION,
+        method: 'initialize',
+        params: {
+          clientInfo: {
+            name: 'test-client',
+            version: '1.0',
+          },
+          protocolVersion: '2025-03-26',
+          capabilities: {},
+        },
+        id: 'init-1',
+      },
+    })
+
+    t.assert.equal(firstInit.statusCode, 200)
+    t.assert.equal(firstInit.headers['content-type'], 'text/event-stream')
+  })
+
+  test('run http streaming server calling mcp endpoint (without auth endpoint)', async (t) => {
     const firstInit = await fastify.inject({
       method: 'POST',
       path: '/mcp',
@@ -62,8 +115,8 @@ suite('test http streaming server', () => {
       },
     })
 
-    t.assert.equal(firstInit.statusCode, 200)
-    t.assert.equal(firstInit.headers['content-type'], 'text/event-stream')
+    t.assert.equal(firstInit.statusCode, 401)
+    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost:3023/.well-known/oauth-protected-resource"')
   })
 
   test('get request is not allowed for stateless server', async (t) => {

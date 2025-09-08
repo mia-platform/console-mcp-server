@@ -199,6 +199,7 @@ suite('http client test suite with authentication', () => {
   let agent: MockAgent
   beforeEach(() => {
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
     agent.get(mockedEndpoint).intercept({
       path: '/api/m2m/oauth/token',
@@ -342,7 +343,7 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       headers: {
         'custom-header': 'customValue',
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: 'custom authorization',
         Accept: 'custom accept value',
         'User-Agent': `${name}/${version}`,
       },

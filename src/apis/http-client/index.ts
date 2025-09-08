@@ -130,7 +130,7 @@ export class HTTPClient {
 
     if (response.statusCode != 200) {
       const data = await response.body.json() as Record<string, string>
-      console.error({ statusCode: response.statusCode, data: response.body.json() })
+      console.error({ statusCode: response.statusCode, data })
       const message = data.message || `Unknown error with status ${response.statusCode}`
       throw new Error(message)
     }
