@@ -101,19 +101,17 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
       endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
-      collections: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.COLLECTIONS),
       services: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICES),
       configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
       serviceAccounts: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICE_ACCOUNTS),
     },
-    async ({ projectId, endpoints, collections, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
+    async ({ projectId, endpoints, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
         const project = await client.projectInfo(projectId)
         await assertAiFeaturesEnabledForProject(client, project)
 
         const resourcesToCreate: ResourcesToCreate = {
           endpoints: endpoints as Endpoints,
-          collections: collections as Collections,
           services: services as Services,
           configMaps: configMaps as ConfigMaps,
           serviceAccounts: serviceAccounts as ServiceAccounts,
@@ -134,6 +132,157 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
             {
               type: 'text',
               text: `Error saving configuration: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.CREATE_COLLECTION,
+    toolsDescriptions.CREATE_COLLECTION,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      refId: z.string().describe(paramsDescriptions.REF_ID),
+      collectionName: z.string().describe(paramsDescriptions.COLLECTION_NAME),
+      fields: z.array(z.object({
+        name: z.string(),
+        type: z.string(),
+        description: z.string(),
+      })).describe(paramsDescriptions.COLLECTION_FIELDS),
+    },
+    async ({ projectId, refId, collectionName, fields }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        // Build the complete collection structure
+        const collectionStructure = {
+          [collectionName]: {
+            id: collectionName,
+            name: collectionName,
+            fields: [
+              // Mandatory fields
+              {
+                name: "_id",
+                type: "ObjectId",
+                required: true,
+                nullable: false,
+                description: "_id"
+              },
+              {
+                name: "creatorId",
+                type: "string",
+                required: true,
+                nullable: false,
+                description: "creatorId"
+              },
+              {
+                name: "createdAt",
+                type: "Date",
+                required: true,
+                nullable: false,
+                description: "createdAt"
+              },
+              {
+                name: "updaterId",
+                type: "string",
+                required: true,
+                nullable: false,
+                description: "updaterId"
+              },
+              {
+                name: "updatedAt",
+                type: "Date",
+                required: true,
+                nullable: false,
+                description: "updatedAt"
+              },
+              {
+                name: "__STATE__",
+                type: "string",
+                required: true,
+                nullable: false,
+                description: "__STATE__"
+              },
+              // User-defined fields
+              ...fields.map(field => ({
+                name: field.name,
+                type: field.type,
+                required: false,
+                nullable: true,
+                sensitivityValue: 0,
+                description: field.description
+              }))
+            ],
+            internalEndpoints: [
+              {
+                basePath: `/${collectionName}`,
+                defaultState: "PUBLIC"
+              }
+            ],
+            type: "collection",
+            indexes: [
+              {
+                name: "_id",
+                type: "normal",
+                unique: true,
+                fields: [
+                  {
+                    name: "_id",
+                    order: 1
+                  }
+                ]
+              },
+              {
+                name: "createdAt",
+                type: "normal",
+                unique: false,
+                fields: [
+                  {
+                    name: "createdAt",
+                    order: -1
+                  }
+                ]
+              },
+              {
+                name: "stateIndex",
+                type: "normal",
+                unique: false,
+                fields: [
+                  {
+                    name: "__STATE__",
+                    order: 1
+                  }
+                ]
+              }
+            ],
+            description: `Collection of ${collectionName}`,
+            tags: ["collection"]
+          }
+        }
+
+        const resourcesToCreate: ResourcesToCreate = {
+          collections: collectionStructure as Collections,
+        }
+        
+        await client.saveConfiguration(projectId, refId, resourcesToCreate)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Collection "${collectionName}" created successfully with ${fields.length} user-defined fields.`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error creating collection: ${err.message}`,
             },
           ],
         }

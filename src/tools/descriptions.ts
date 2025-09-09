@@ -43,6 +43,7 @@ export const toolNames = {
   LIST_CONFIGURATION_REVISIONS: 'list_configuration_revisions',
   CONFIGURATION_TO_SAVE: 'configuration_save',
   GET_CONFIGURATION: 'configuration_get',
+  CREATE_COLLECTION: 'create_collection',
 
   // runtime tools
   LIST_PODS: 'list_pods',
@@ -96,8 +97,9 @@ export const toolsDescriptions = {
 
   // configuration management tools
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
-  CONFIGURATION_TO_SAVE: 'Save the configuration for a project',
+  CONFIGURATION_TO_SAVE: 'Save the configuration for a project.',
   GET_CONFIGURATION: 'Get the actual configuration for a project for a specific revision or tag',
+  CREATE_COLLECTION: 'Create a new CRUD collection in a project. This tool accepts the collection name and user-defined fields, then automatically generates the complete collection structure including all mandatory fields (_id, creatorId, createdAt, updaterId, updatedAt, __STATE__), indexes, internal endpoints, and tags. If the crud-service does not exist in the project, it should be created first using the create_service_from_marketplace tool.',
 }
 
 export const paramsDescriptions = {
@@ -151,6 +153,8 @@ export const paramsDescriptions = {
   // Configuration
   REF_TYPE: `The type of the reference to use, can be revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
   REF_ID: `The id of the reference to use, can be the revision or version. Can be found in the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
+  COLLECTION_NAME: `The name of the collection to create. Must be a valid identifier (letters, numbers, underscores).`,
+  COLLECTION_FIELDS: `The user-defined fields for the collection. Each field should be an object with: name (string), type (string), description (string). Supported types: "string", "number", "boolean", "Date", "ObjectId", "Array_string", "Array_number", "Array_RawObject", "RawObject". Example: [{"name": "firstName", "type": "string", "description": "User first name"}, {"name": "age", "type": "number", "description": "User age"}]`,
   ENDPOINTS: `
   The endpoints to create or update. If a service with componentId of api-gateway or api-gateway-envoy not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool. The key is the path of the endpoint, the value is the endpoint object.
   Always set the tags to the endpoint, if not specified it can be set to empty array.
@@ -645,139 +649,7 @@ export const paramsDescriptions = {
     }
   }
 `,
-  COLLECTIONS: `The crud-service collection to create or update. The key is the name of the collection, the value is the collection object. If crud-service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
-  An example of a crud-service collection is:
-  {
-    "id": "users",
-    "name": "users",
-    "fields": [
-      {
-        "name": "_id",
-        "type": "ObjectId",
-        "required": true,
-        "nullable": false,
-        "description": "_id"
-      },
-      {
-        "name": "creatorId",
-        "type": "string",
-        "required": true,
-        "nullable": false,
-        "description": "creatorId"
-      },
-      {
-        "name": "createdAt",
-        "type": "Date",
-        "required": true,
-        "nullable": false,
-        "description": "createdAt"
-      },
-      {
-        "name": "updaterId",
-        "type": "string",
-        "required": true,
-        "nullable": false,
-        "description": "updaterId"
-      },
-      {
-        "name": "updatedAt",
-        "type": "Date",
-        "required": true,
-        "nullable": false,
-        "description": "updatedAt"
-      },
-      {
-        "name": "__STATE__",
-        "type": "string",
-        "required": true,
-        "nullable": false,
-        "description": "__STATE__"
-      },
-      {
-        "name": "name",
-        "type": "string",
-        "required": false,
-        "nullable": false,
-        "sensitivityValue": 0
-      },
-      {
-        "name": "items",
-        "type": "Array_RawObject",
-        "required": false,
-        "nullable": false,
-        "sensitivityValue": 0
-      },
-      {
-        "name": "tags",
-        "type": "Array_string",
-        "required": false,
-        "nullable": false,
-        "sensitivityValue": 0
-      },
-      {
-        "name": "rates",
-        "type": "Array_number",
-        "required": false,
-        "nullable": false,
-        "sensitivityValue": 0
-      },
-      {
-        "name": "preferences",
-        "type": "RawObject",
-        "required": false,
-        "nullable": false,
-        "sensitivityValue": 0
-      }
-    ],
-    "internalEndpoints": [
-      {
-        "basePath": "/users",
-        "defaultState": "PUBLIC"
-      }
-    ],
-    "type": "collection",
-    "indexes": [
-      {
-        "name": "_id",
-        "type": "normal",
-        "unique": true,
-        "fields": [
-          {
-            "name": "_id",
-            "order": 1
-          }
-        ]
-      },
-      {
-        "name": "createdAt",
-        "type": "normal",
-        "unique": false,
-        "fields": [
-          {
-            "name": "createdAt",
-            "order": -1
-          }
-        ]
-      },
-      {
-        "name": "stateIndex",
-        "type": "normal",
-        "unique": false,
-        "fields": [
-          {
-            "name": "__STATE__",
-            "order": 1
-          }
-        ]
-      }
-    ],
-    "description": "Collection of users",
-    "tags": [
-      "collection"
-    ]
-  }
-`,
-  SERVICES: `The services to create or update. The key is the name of the service, the value is the service object. If the service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
+SERVICES: `The services to create or update. The key is the name of the service, the value is the service object. If the service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
   An example of a service is:
   {
     "type": "custom",
