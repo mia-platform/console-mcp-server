@@ -15,6 +15,7 @@
 
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
+import { formatQueryParamToUnixTimestamp } from './utils'
 import { HTTPClient } from './http-client'
 
 export const internalEndpoint = process.env.IAM_INTERNAL_ENDPOINT || 'http://internal.local:3000'
@@ -47,8 +48,8 @@ export class IAMClient {
 
   companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
     const params = new URLSearchParams({
-      ...from && { from },
-      ...to && { to },
+      ...from && { from: formatQueryParamToUnixTimestamp(from) },
+      ...to && { to: formatQueryParamToUnixTimestamp(to) },
     })
 
     return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params, 0)
