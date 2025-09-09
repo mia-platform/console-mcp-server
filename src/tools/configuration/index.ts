@@ -100,18 +100,16 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
-      endpoints: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.ENDPOINTS),
       services: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICES),
       configMaps: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.CONFIG_MAPS),
       serviceAccounts: z.record(z.string(), z.unknown()).optional().describe(paramsDescriptions.SERVICE_ACCOUNTS),
     },
-    async ({ projectId, endpoints, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
+    async ({ projectId, refId, services, configMaps, serviceAccounts }): Promise<CallToolResult> => {
       try {
         const project = await client.projectInfo(projectId)
         await assertAiFeaturesEnabledForProject(client, project)
 
         const resourcesToCreate: ResourcesToCreate = {
-          endpoints: endpoints as Endpoints,
           services: services as Services,
           configMaps: configMaps as ConfigMaps,
           serviceAccounts: serviceAccounts as ServiceAccounts,
@@ -283,6 +281,51 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
             {
               type: 'text',
               text: `Error creating collection: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.CREATE_ENDPOINTS,
+    toolsDescriptions.CREATE_ENDPOINTS,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      refId: z.string().describe(paramsDescriptions.REF_ID),
+      endpointType: z.enum(['custom', 'crud']).describe(paramsDescriptions.ENDPOINT_TYPE),
+      endpointName: z.string().describe(paramsDescriptions.ENDPOINT_NAME),
+      endpointTarget: z.string().describe(paramsDescriptions.ENDPOINT_TARGET),
+    },
+    async ({ projectId, refId, endpointType, endpointName, endpointTarget }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        const response = await client.createEndpoints(
+          projectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        )
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Endpoint "${endpointName}" created successfully. Response: ${JSON.stringify(response)}`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error creating endpoint "${endpointName}": ${err.message}`,
             },
           ],
         }

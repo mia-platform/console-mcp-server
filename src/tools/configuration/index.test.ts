@@ -896,3 +896,241 @@ suite('create collection tool', () => {
     ])
   })
 })
+
+suite('create endpoints tool', () => {
+  const createEndpointsMockFn = mock.fn(async (projectID: string) => {
+    if (projectID === 'error-project') {
+      throw new Error('some error')
+    }
+    return mockSaveResponse
+  })
+
+  it('returns error - if getProjectInfo fails', async (t) => {
+    const testProjectId = 'project123'
+    const refId = 'main'
+    const endpointType = 'custom' as const
+    const endpointName = 'customer'
+    const endpointTarget = 'customer-service'
+
+    const expectedError = 'error fetching project info'
+    const getProjectInfoMockFn = mock.fn(async (_projectId: string) => {
+      throw new Error(expectedError)
+    })
+
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_endpoints',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating endpoint "${endpointName}": ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - when AI features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const refId = 'main'
+    const endpointType = 'crud' as const
+    const endpointName = 'customer'
+    const endpointTarget = 'customer'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      createEndpointsMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_endpoints',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating endpoint "${endpointName}": ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('creates custom endpoint successfully', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const refId = 'main'
+    const endpointType = 'custom' as const
+    const endpointName = 'customer'
+    const endpointTarget = 'customer-service'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      createEndpointsMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_endpoints',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Endpoint "${endpointName}" created successfully. Response: ${JSON.stringify(mockSaveResponse)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('creates crud endpoint successfully', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const refId = 'main'
+    const endpointType = 'crud' as const
+    const endpointName = 'customer'
+    const endpointTarget = 'customer'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      createEndpointsMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_endpoints',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Endpoint "${endpointName}" created successfully. Response: ${JSON.stringify(mockSaveResponse)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('should return error message if POST request fails', async (t) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'error-project'
+    const refId = 'main'
+    const endpointType = 'custom' as const
+    const endpointName = 'customer'
+    const endpointTarget = 'customer-service'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      assert.equal(projectId, testProjectId)
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      createEndpointsMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_endpoints',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          endpointType,
+          endpointName,
+          endpointTarget,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating endpoint "${endpointName}": some error`,
+        type: 'text',
+      },
+    ])
+  })
+})
