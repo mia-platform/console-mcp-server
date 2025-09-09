@@ -17,10 +17,24 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
+import { IAPIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant, ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS, ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addGovernanceCapabilities (server: McpServer, client: APIClient) {
+async function filterTenantsWithAiFeaturesEnabled (client: IAPIClient, tenantIds: string[]) {
+  const results = await Promise.all(tenantIds.map(async (tenantId) => {
+    try {
+      await assertAiFeaturesEnabledForTenant(client, tenantId)
+      return tenantId
+    } catch {
+      return null
+    }
+  }))
+
+  return results.filter((tenantId) => tenantId !== null) as string[]
+}
+
+export function addGovernanceCapabilities (server: McpServer, client: IAPIClient) {
   // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,
@@ -31,8 +45,13 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantIds, search }): Promise<CallToolResult> => {
       try {
-        const data = await client.listProjects(tenantIds, search)
-        const mappedData = data.map((item) => {
+        const filteredTenantIds = await filterTenantsWithAiFeaturesEnabled(client, tenantIds)
+        if (filteredTenantIds.length === 0) {
+          throw new Error(ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS)
+        }
+
+        const projects = await client.listProjects(filteredTenantIds, search)
+        const mappedData = projects.map((item) => {
           const { _id, name, tenantId, tenantName, description, flavor, info } = item
           return {
             _id,
@@ -61,6 +80,7 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
               text: `Error fetching projects for ${tenantIds.join(', ')}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -74,12 +94,14 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ projectId }): Promise<CallToolResult> => {
       try {
-        const data = await client.projectInfo(projectId)
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(data),
+              text: JSON.stringify(project),
             },
           ],
         }
@@ -92,6 +114,7 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
               text: `Error fetching project ${projectId}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -108,6 +131,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, projectName, projectDescription, templateId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const project = await client.createProjectFromTemplate(tenantId, projectName, templateId, projectDescription)
         return {
           content: [
@@ -126,6 +151,7 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
               text: `Error creating project from template ${templateId}: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -138,19 +164,27 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     {},
     async (): Promise<CallToolResult> => {
       try {
-        const data = await client.listCompanies()
-        const tenants = data.map((tenant) => {
-          return {
-            tenantId: tenant.tenantId,
-            name: tenant.name,
-            defaultTemplateId: tenant.defaultTemplateId,
-          }
-        })
+        const allTenants = await client.listCompanies()
+        const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.tenantId))
+        if (enabledTenantIds.length === 0) {
+          throw new Error(ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED)
+        }
+
+        const filteredTenants = allTenants.
+          filter((c) => enabledTenantIds.includes(c.tenantId)).
+          map((tenant) => {
+            return {
+              tenantId: tenant.tenantId,
+              name: tenant.name,
+              defaultTemplateId: tenant.defaultTemplateId,
+            }
+          })
+
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(tenants),
+              text: JSON.stringify(filteredTenants),
             },
           ],
         }
@@ -176,6 +210,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const templates = await client.companyTemplates(tenantId)
         const mappedBlueprint = (templates || []).map((item) => {
           const { templateId, name, tenantId, deploy } = item
@@ -217,6 +253,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, identityType }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const data = await client.companyIAMIdentities(tenantId, identityType)
         return {
           content: [
@@ -250,6 +288,8 @@ export function addGovernanceCapabilities (server: McpServer, client: APIClient)
     },
     async ({ tenantId, from, to }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
         const data = await client.companyAuditLogs(tenantId, from, to)
         return {
           content: [

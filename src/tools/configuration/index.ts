@@ -18,13 +18,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
 
-import { APIClient } from '../../apis/client'
 import { assertAiFeaturesEnabledForProject } from '../utils/validations'
+import { IAPIClient } from '../../apis/client'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 
-export function addConfigurationCapabilities (server: McpServer, client: APIClient) {
+export function addConfigurationCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.LIST_CONFIGURATION_REVISIONS,
     toolsDescriptions.LIST_CONFIGURATION_REVISIONS,

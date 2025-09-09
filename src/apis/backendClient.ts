@@ -13,8 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IProject } from '@mia-platform/console-types'
 import { UndiciHeaders } from 'undici/types/dispatcher'
+import {
+  IProject,
+  ITenant,
+} from '@mia-platform/console-types'
 
 import { HTTPClient } from './http-client'
 import { ConfigToSave, RetrievedConfiguration, SaveResponse } from './types/configuration'
@@ -40,8 +43,8 @@ export class BackendClient {
     // this.#internal = internal
   }
 
-  listCompanies (): Promise<Record<string, unknown>[]> {
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companiesPath())
+  listCompanies (): Promise<ITenant[]> {
+    return this.#client.getPaginated<ITenant>(this.#companiesPath())
   }
 
   companyTemplates (tenantID: string): Promise<Template[]> {

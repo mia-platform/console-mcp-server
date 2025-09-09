@@ -17,11 +17,12 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
 import { CatalogItemTypes } from '../../apis/types/marketplace'
+import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addMarketplaceCapabilities (server: McpServer, client: APIClient) {
+export function addMarketplaceCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.LIST_MARKETPLACE,
     toolsDescriptions.LIST_MARKETPLACE,
@@ -32,6 +33,11 @@ export function addMarketplaceCapabilities (server: McpServer, client: APIClient
     },
     async ({ tenantId, type, search }): Promise<CallToolResult> => {
       try {
+        // Only validate AI features if a specific tenantId is provided (not for public marketplace)
+        if (tenantId) {
+          await assertAiFeaturesEnabledForTenant(client, tenantId)
+        }
+
         const data = await client.listMarketplaceItems(tenantId, type, search)
         const mappedData = data.map((item) => {
           const { itemId, name, tenantId, type, description, supportedBy, isLatest, version } = item
@@ -78,6 +84,8 @@ export function addMarketplaceCapabilities (server: McpServer, client: APIClient
     },
     async ({ marketplaceItemId, marketplaceItemTenantId }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, marketplaceItemTenantId)
+
         const data = await client.marketplaceItemVersions(marketplaceItemTenantId, marketplaceItemId)
         return {
           content: [
@@ -111,6 +119,8 @@ export function addMarketplaceCapabilities (server: McpServer, client: APIClient
     },
     async ({ marketplaceItemId, marketplaceItemTenantId, marketplaceItemVersion }): Promise<CallToolResult> => {
       try {
+        await assertAiFeaturesEnabledForTenant(client, marketplaceItemTenantId)
+
         const data = await client.marketplaceItemInfo(
           marketplaceItemTenantId,
           marketplaceItemId,

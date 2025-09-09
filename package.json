@@ -13,8 +13,8 @@
     "build": "rimraf mcp-server && tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
-    "local:test-client-credentials": "npm run build && npx @modelcontextprotocol/inspector@0.16.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLAT00FORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio --server-host 127.0.0.1",
-    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.16.0 -- node mcp-server start --stdio --server-host 127.0.0.1",
+    "local:test-client-credentials": "npm run build && npx @modelcontextprotocol/inspector@0.16.0 -e MIA_PLATFORM_CLIENT_ID=\"${MIA_PLATFORM_CLIENT_ID}\" -e MIA_PLATFORM_CLIENT_SECRET=\"${MIA_PLATFORM_CLIENT_SECRET}\" -- node mcp-server start --stdio --server-host 127.0.0.1",
+    "local:test": "npm run build && npx @modelcontextprotocol/inspector@0.16.5 -- node mcp-server start --stdio --server-host 127.0.0.1",
     "start": "npm run build && node mcp-server start",
     "start:stdio": "npm run start -- --stdio",
     "test": "npm run test-base 'src/**/*.test.ts'",
@@ -30,23 +30,23 @@
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
-    "@mia-platform/console-types": "^0.38.8",
-    "@modelcontextprotocol/sdk": "^1.15.0",
+    "@mia-platform/console-types": "^0.38.11",
+    "@modelcontextprotocol/sdk": "^1.17.5",
     "commander": "^14.0.0",
+    "fastify": "^5.5.0",
+    "undici": "^7.15.0",
     "dotenv": "^17.2.2",
-    "fastify": "^5.4.0",
-    "undici": "^7.11.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
-    "@stylistic/eslint-plugin": "^4.4.1",
-    "@types/node": "^22.16.2",
+    "@stylistic/eslint-plugin": "^5.3.1",
+    "@types/node": "^22.18.0",
     "c8": "^10.1.3",
-    "eslint": "^9.30.1",
+    "eslint": "^9.34.0",
     "rimraf": "^6.0.1",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.36.0"
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.42.0"
   }
 }

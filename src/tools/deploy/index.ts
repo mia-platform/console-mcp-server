@@ -17,10 +17,11 @@ import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
 
-import { APIClient } from '../../apis/client'
+import { assertAiFeaturesEnabledForProject } from '../utils/validations'
+import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
-export function addDeployCapabilities (server: McpServer, client: APIClient) {
+export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
     toolNames.DEPLOY_PROJECT,
     toolsDescriptions.DEPLOY_PROJECT,
@@ -32,6 +33,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const data = await client.deployProjectEnvironmentFromRevision(projectId, environment, revision, refType)
         return {
           content: [
@@ -50,6 +54,7 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
               text: `Error deploying project: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -66,6 +71,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const data = await client.compareProjectEnvironmentFromRevisionForDeploy(projectId, environment, revision, refType)
         return {
           content: [
@@ -84,6 +92,7 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
               text: `Error retrieving configuration updates: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
@@ -98,6 +107,9 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
     },
     async ({ projectId, pipelineId }): Promise<CallToolResult> => {
       try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
         const status = await client.waitProjectDeployForCompletion(projectId, pipelineId)
 
         return {
@@ -117,6 +129,7 @@ export function addDeployCapabilities (server: McpServer, client: APIClient) {
               text: `Error deploying project: ${err.message}`,
             },
           ],
+          isError: true,
         }
       }
     },
