@@ -21,6 +21,8 @@ import { IAMClient, IAMClientInternal, internalEndpoint } from './iamClient'
 
 const tenantId = 'test-tenant-id'
 
+process.env.TZ = 'UTC'
+
 suite('IAM Internal Client', () => {
   const client = IAMClientInternal('', '')
   let agent: MockAgent
@@ -99,7 +101,7 @@ suite('IAM Internal Client', () => {
       },
     }).reply(200, mockedResult)
 
-    const result = await client.companyAuditLogs(tenantId, '2024-03-11T12:00:00', '2024-03-11T12:30:00')
+    const result = await client.companyAuditLogs(tenantId, '2024-03-11T11:00:00', '2024-03-11T11:30:00')
     t.assert.deepStrictEqual(result, mockedResult)
   })
 
@@ -183,7 +185,7 @@ suite('IAM Client', () => {
       },
     }).reply(200, mockedResult)
 
-    const result = await client.companyAuditLogs(tenantId, '2024-03-11T12:00:00', '2024-03-11T12:30:00')
+    const result = await client.companyAuditLogs(tenantId, '2024-03-11T11:00:00', '2024-03-11T11:30:00')
     t.assert.deepStrictEqual(result, mockedResult)
   })
 })
