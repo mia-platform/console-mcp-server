@@ -41,7 +41,12 @@ npm ci
 npm run build
 ```
 
-These commands will install all the dependencies and then transpile the typescript code in the `build` folder.  
+These commands will install all the dependencies and then transpile the typescript code in the `build` folder.
+
+> [!NOTE]
+> The server automatically loads environment variables from a `.env` file if present in the project root. 
+> You can create one by copying `default.env` to `.env` and updating the values as needed.
+
 Once these steps are completed you can setup the MCP server using the `node` command like the following:
 
 ```json
@@ -66,6 +71,9 @@ Once these steps are completed you can setup the MCP server using the `node` com
 }
 ```
 
+> [!TIP]
+> If you have a `.env` file configured with your credentials, you can omit the `env` section from the configuration above as the server will automatically load the environment variables.
+
 ## Local Development
 
 To help with the development of the server you need Node.js installed on your machine.  
@@ -78,7 +86,7 @@ following command:
 npm ci
 ```
 
-Once has finished you will have all the dependencies installed on the project, then you have to prepare an environent
+Once has finished you will have all the dependencies installed on the project, then you have to prepare an environment
 file by copying the default.env file and edit it accordingly.
 
 ```sh
@@ -88,7 +96,6 @@ cp default.env .env
 Finally to verify everything works, run:
 
 ```sh
-set -a && source .env
 npm run local:test
 ```
 
