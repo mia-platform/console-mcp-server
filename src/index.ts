@@ -23,6 +23,8 @@ import { description, version } from '../package.json'
 
 const program = new Command()
 
+const AVAILABLE_LOG_LEVELS = [ 'fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent' ]
+
 program.
   name('console-mcp-server').
   description(description).
@@ -35,6 +37,7 @@ program.
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
   addOption(new Option('-p, --port <port>', 'port to run the server on').default('3000').env('HTTP_PORT')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
+  addOption(new Option('--log-level <logLevel>', 'set the log level').choices(AVAILABLE_LOG_LEVELS).default('info').env('LOG_LEVEL')).
   action(({ host, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''

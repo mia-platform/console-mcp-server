@@ -34,6 +34,8 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
   fastify.post('/mcp', async (request, reply) => {
+    fastify.log.debug({ url: request.url, method: request.method }, 'Received MCP request')
+
     const additionalHeaders: IncomingHttpHeaders = {}
     for (const key of additionalHeadersKeys) {
       if (key in request.headers) {
