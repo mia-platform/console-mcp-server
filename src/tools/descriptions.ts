@@ -111,8 +111,8 @@ export const paramsDescriptions = {
   IAM_IDENTITY_TYPE: 'Filter the IAM entities by type',
 
   // Audit Logs
-  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in unix timestamp format',
-  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in unix timestamp format',
+  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T10:30:00"',
+  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T23:59:59"',
 
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
