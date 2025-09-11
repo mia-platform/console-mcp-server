@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
+    "@fastify/formbody": "^8.0.2",
     "@mia-platform/console-types": "^0.38.8",
     "@modelcontextprotocol/sdk": "^1.15.0",
     "commander": "^14.0.0",
