@@ -21,7 +21,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
-import { oauthRouter } from './auth/oauthRouter'
+import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
 import { statusRoutes } from './statusRoutes'
 
 export interface HTTPServerOptions {
@@ -65,13 +65,13 @@ const connectToMcpServer = async (
 }
 
 export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
-  const { host, clientID, clientSecret } = opts
+  const { clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
   const authenticateViaClientCredentials = clientID && clientSecret
 
-  fastify.post('/internal/mcp', async (request, reply) => {
-    fastify.log.debug({ message: 'Received POST /internal/mcp request', body: request.body })
+  fastify.post('/mcp-internal', async (request, reply) => {
+    fastify.log.debug({ message: 'Received POST /mcp-internal request', body: request.body })
 
     const additionalHeaders: IncomingHttpHeaders = {}
     for (const key of additionalHeadersKeys) {
@@ -90,8 +90,8 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
     if (!authenticateViaClientCredentials && !authenticateViaBearerToken) {
       const baseUrl = getBaseUrlFromRequest(request)
-      const resourceMetadata = `${baseUrl}/.well-known/oauth-protected-resource`
-      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadata}"`
+      const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
+      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
 
       reply.
         header(
@@ -110,16 +110,9 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    const proxiedHeaders: IncomingHttpHeaders = {}
-    for (const key of additionalHeadersKeys) {
-      if (key in request.headers) {
-        proxiedHeaders[key] = request.headers[key]
-      }
-    }
-
     const headers = authenticateViaBearerToken
-      ? { ...proxiedHeaders, ...request.headers }
-      : proxiedHeaders
+      ? request.headers
+      : {}
 
 
     await connectToMcpServer(request, reply, opts, headers)
@@ -150,5 +143,4 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   })
 
   fastify.register(statusRoutes, { prefix: '/-/' })
-  fastify.register(oauthRouter, { prefix: '/', host })
 }

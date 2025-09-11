@@ -16,12 +16,15 @@
 
 import { Command, Option } from 'commander'
 
-import Fastify from 'fastify'
-import { httpServer } from './server/httpserver'
-import { runStdioServer } from './server/stdio'
-import { description, version } from '../package.json'
-
 import 'dotenv/config'
+import Fastify from 'fastify'
+import formbody from '@fastify/formbody'
+
+import { httpServer } from './server/httpserver'
+import { oauthRouter } from './server/auth/oauthRouter'
+import { runStdioServer } from './server/stdio'
+import { wellKnownRouter } from './server/auth/wellKnownRouter'
+import { description, version } from '../package.json'
 
 const program = new Command()
 
@@ -37,7 +40,7 @@ program.
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
   addOption(new Option('-p, --port <port>', 'port to run the server on').env('PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
-  action(({ host, stdio, port, serverHost }) => {
+  action(async ({ host, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
 
@@ -52,11 +55,14 @@ program.
       logger: { level: process.env.LOG_LEVEL || 'info' },
       trustProxy: true,
     })
-    fastify.register(httpServer, {
-      host,
-      clientID,
-      clientSecret,
-    })
+
+    // Register form body parser for OAuth2 endpoints
+    await fastify.register(formbody)
+
+    // Registering routes
+    fastify.register(wellKnownRouter, { prefix: '/', host })
+    fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
+    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {
