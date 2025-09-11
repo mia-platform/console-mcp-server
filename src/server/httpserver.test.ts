@@ -43,7 +43,7 @@ suite('test http streaming server', () => {
   test('run http streaming server calling internal mcp endpoint', async (t) => {
     const firstInit = await fastify.inject({
       method: 'POST',
-      path: '/internal/mcp',
+      path: '/mcp-internal',
       headers: {
         Accept: 'application/json, text/event-stream',
       },
@@ -116,7 +116,7 @@ suite('test http streaming server', () => {
     })
 
     t.assert.equal(firstInit.statusCode, 401)
-    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost:80/.well-known/oauth-protected-resource"')
+    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost/.well-known/oauth-protected-resource/console-mcp-server"')
   })
 
   test('get request is not allowed for stateless server', async (t) => {
