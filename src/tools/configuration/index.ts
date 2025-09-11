@@ -16,7 +16,7 @@
 import { CallToolResult } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { z } from 'zod'
-import { Collections, ConfigMaps, Endpoints, ServiceAccounts, Services } from '@mia-platform/console-types'
+import { Collections, ConfigMaps, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { assertAiFeaturesEnabledForProject } from '../utils/validations'
 import { IAPIClient } from '../../apis/client'
@@ -163,108 +163,108 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
             fields: [
               // Mandatory fields
               {
-                name: "_id",
-                type: "ObjectId",
+                name: '_id',
+                type: 'ObjectId',
                 required: true,
                 nullable: false,
-                description: "_id"
+                description: '_id',
               },
               {
-                name: "creatorId",
-                type: "string",
+                name: 'creatorId',
+                type: 'string',
                 required: true,
                 nullable: false,
-                description: "creatorId"
+                description: 'creatorId',
               },
               {
-                name: "createdAt",
-                type: "Date",
+                name: 'createdAt',
+                type: 'Date',
                 required: true,
                 nullable: false,
-                description: "createdAt"
+                description: 'createdAt',
               },
               {
-                name: "updaterId",
-                type: "string",
+                name: 'updaterId',
+                type: 'string',
                 required: true,
                 nullable: false,
-                description: "updaterId"
+                description: 'updaterId',
               },
               {
-                name: "updatedAt",
-                type: "Date",
+                name: 'updatedAt',
+                type: 'Date',
                 required: true,
                 nullable: false,
-                description: "updatedAt"
+                description: 'updatedAt',
               },
               {
-                name: "__STATE__",
-                type: "string",
+                name: '__STATE__',
+                type: 'string',
                 required: true,
                 nullable: false,
-                description: "__STATE__"
+                description: '__STATE__',
               },
               // User-defined fields
-              ...fields.map(field => ({
+              ...fields.map((field) => ({
                 name: field.name,
                 type: field.type,
                 required: false,
                 nullable: true,
                 sensitivityValue: 0,
-                description: field.description
-              }))
+                description: field.description,
+              })),
             ],
             internalEndpoints: [
               {
                 basePath: `/${collectionName}`,
-                defaultState: "PUBLIC"
-              }
+                defaultState: 'PUBLIC',
+              },
             ],
-            type: "collection",
+            type: 'collection',
             indexes: [
               {
-                name: "_id",
-                type: "normal",
+                name: '_id',
+                type: 'normal',
                 unique: true,
                 fields: [
                   {
-                    name: "_id",
-                    order: 1
-                  }
-                ]
+                    name: '_id',
+                    order: 1,
+                  },
+                ],
               },
               {
-                name: "createdAt",
-                type: "normal",
+                name: 'createdAt',
+                type: 'normal',
                 unique: false,
                 fields: [
                   {
-                    name: "createdAt",
-                    order: -1
-                  }
-                ]
+                    name: 'createdAt',
+                    order: -1,
+                  },
+                ],
               },
               {
-                name: "stateIndex",
-                type: "normal",
+                name: 'stateIndex',
+                type: 'normal',
                 unique: false,
                 fields: [
                   {
-                    name: "__STATE__",
-                    order: 1
-                  }
-                ]
-              }
+                    name: '__STATE__',
+                    order: 1,
+                  },
+                ],
+              },
             ],
             description: `Collection of ${collectionName}`,
-            tags: ["collection"]
-          }
+            tags: [ 'collection' ],
+          },
         }
 
         const resourcesToCreate: ResourcesToCreate = {
           collections: collectionStructure as Collections,
         }
-        
+
         await client.saveConfiguration(projectId, refId, resourcesToCreate)
         return {
           content: [
@@ -294,7 +294,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
-      endpointType: z.enum(['custom', 'crud']).describe(paramsDescriptions.ENDPOINT_TYPE),
+      endpointType: z.enum([ 'custom', 'crud' ]).describe(paramsDescriptions.ENDPOINT_TYPE),
       endpointName: z.string().describe(paramsDescriptions.ENDPOINT_NAME),
       endpointTarget: z.string().describe(paramsDescriptions.ENDPOINT_TARGET),
     },

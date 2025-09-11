@@ -712,7 +712,7 @@ suite('create collection tool', () => {
     const collectionName = 'users'
     const fields = [
       { name: 'firstName', type: 'string', description: 'User first name' },
-      { name: 'lastName', type: 'string', description: 'User last name' }
+      { name: 'lastName', type: 'string', description: 'User last name' },
     ]
 
     const expectedError = 'error fetching project info'
@@ -751,7 +751,7 @@ suite('create collection tool', () => {
     const collectionName = 'users'
     const fields = [
       { name: 'firstName', type: 'string', description: 'User first name' },
-      { name: 'lastName', type: 'string', description: 'User last name' }
+      { name: 'lastName', type: 'string', description: 'User last name' },
     ]
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
@@ -805,7 +805,7 @@ suite('create collection tool', () => {
       { name: 'channel', type: 'string', description: 'Channel' },
       { name: 'policyCode', type: 'string', description: 'Policy code' },
       { name: 'policyType', type: 'string', description: 'Policy type' },
-      { name: 'subscriptionDate', type: 'Date', description: 'Subscription date' }
+      { name: 'subscriptionDate', type: 'Date', description: 'Subscription date' },
     ]
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
@@ -854,7 +854,7 @@ suite('create collection tool', () => {
     const collectionName = 'users'
     const fields = [
       { name: 'firstName', type: 'string', description: 'User first name' },
-      { name: 'lastName', type: 'string', description: 'User last name' }
+      { name: 'lastName', type: 'string', description: 'User last name' },
     ]
 
     const getProjectInfoMockFn = mock.fn(async (projectId: string) => {

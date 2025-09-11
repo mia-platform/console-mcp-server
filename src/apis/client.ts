@@ -279,7 +279,7 @@ export class APIClient implements IAPIClient {
     endpointTarget: string,
   ): Promise<SaveResponse> {
     const endpointStructure = this.#buildEndpointStructure(endpointType, endpointName, endpointTarget)
-    
+
     const resourcesToCreate: ResourcesToCreate = {
       endpoints: {
         [endpointName]: endpointStructure,
@@ -438,7 +438,7 @@ export class APIClient implements IAPIClient {
     endpointType: 'custom' | 'crud',
     endpointName: string,
     endpointTarget: string,
-  ): any {
+  ): Record<string, unknown> {
     if (endpointType === 'custom') {
       return {
         basePath: `/${endpointName}`,
@@ -451,7 +451,7 @@ export class APIClient implements IAPIClient {
         port: '80',
         pathRewrite: '/',
         description: `Endpoint /${endpointName}`,
-        tags: [endpointTarget],
+        tags: [ endpointTarget ],
         backofficeAcl: {
           inherited: true,
         },
@@ -470,7 +470,7 @@ export class APIClient implements IAPIClient {
         pathName: '/',
         pathRewrite: `/${endpointName}`,
         type: 'crud',
-        tags: ['crud'],
+        tags: [ 'crud' ],
         description: `Endpoint /${endpointTarget}`,
         collectionId: endpointTarget,
         public: true,
