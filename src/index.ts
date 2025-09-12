@@ -23,9 +23,9 @@ import formbody from '@fastify/formbody'
 import { httpServer } from './server/httpserver'
 import { oauthRouter } from './server/auth/oauthRouter'
 import { runStdioServer } from './server/stdio'
+import { statusRoutes } from './server/statusRoutes'
 import { wellKnownRouter } from './server/auth/wellKnownRouter'
 import { description, version } from '../package.json'
-import { statusRoutes } from './server/statusRoutes'
 
 const program = new Command()
 
