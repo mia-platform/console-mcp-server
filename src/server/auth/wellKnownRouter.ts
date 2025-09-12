@@ -15,14 +15,16 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
-import 'dotenv/config'
-
 import { getBaseUrlFromRequest } from '../utils'
 
-export const OAUTH_PROTECTED_RESOURCE_PATH = '/.well-known/oauth-protected-resource/console-mcp-server'
-const OAUTH_AUTHORIZATION_SERVER_PATH = '/.well-known/oauth-authorization-server/console-mcp-server'
-const OAUTH_SCOPES = [ 'profile', 'email', 'openid', 'offline-access' ]
+const BASE_PATH = 'console-mcp-server'
+const AUTHORIZE_PATH = `${BASE_PATH}/oauth/authorize`
+const TOKEN_PATH = `${BASE_PATH}/oauth/token`
+const REGISTER_PATH = `${BASE_PATH}/oauth/register`
 
+export const OAUTH_PROTECTED_RESOURCE_PATH = `/.well-known/oauth-protected-resource/${BASE_PATH}`
+const OAUTH_AUTHORIZATION_SERVER_PATH = `/.well-known/oauth-authorization-server/${BASE_PATH}`
+const OAUTH_SCOPES = [ 'profile', 'email', 'openid', 'offline-access' ]
 
 export async function wellKnownRouter (fastify: FastifyInstance, options: { host?: string }) {
   const { host = '' } = options
@@ -40,8 +42,8 @@ export async function wellKnownRouter (fastify: FastifyInstance, options: { host
 
     reply.send({
       resource_name: 'Console MCP Server',
-      resource: `${baseUrl}/console-mcp-server/mcp`,
-      authorization_servers: [ `${baseUrl}/console-mcp-server` ],
+      resource: `${baseUrl}/${BASE_PATH}/mcp`,
+      authorization_servers: [ `${baseUrl}/${BASE_PATH}` ],
       scopes_supported: OAUTH_SCOPES,
       bearer_methods_supported: [ 'header' ],
     })
@@ -59,9 +61,9 @@ export async function wellKnownRouter (fastify: FastifyInstance, options: { host
 
     reply.send({
       issuer: host,
-      authorization_endpoint: `${baseUrl}/console-mcp-server/oauth/authorize`,
-      token_endpoint: `${baseUrl}/console-mcp-server/oauth/token`,
-      registration_endpoint: `${baseUrl}/console-mcp-server/oauth/register`,
+      authorization_endpoint: `${baseUrl}/${AUTHORIZE_PATH}`,
+      token_endpoint: `${baseUrl}/${TOKEN_PATH}`,
+      registration_endpoint: `${baseUrl}/${REGISTER_PATH}`,
       scopes_supported: OAUTH_SCOPES,
       response_types_supported: [ 'code' ],
       code_challenge_methods_supported: [ 'S256' ],

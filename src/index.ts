@@ -57,7 +57,7 @@ program.
       trustProxy: true,
     })
 
-    // Register form body parser for OAuth2 endpoints
+    // Register plugins
     await fastify.register(formbody)
 
     // Registering routes

@@ -15,12 +15,8 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
-import 'dotenv/config'
-
 import { ClientCredentialsManager } from './clientCredentialsManager'
 import { type AuthorizeRequest, type RefreshTokenRequest, type RegisterRequest, type TokenRequest } from './types'
-
-const OKTA_CLIENT_ID = process.env.OKTA_CLIENT_ID
 
 const OAUTH_AUTHORIZE_PATH = '/api/authorize'
 const OAUTH_TOKEN_PATH = '/api/oauth/token'
@@ -73,15 +69,9 @@ export async function oauthRouter (fastify: FastifyInstance, options: { host?: s
       })
     }
 
-    if (!OKTA_CLIENT_ID) {
-      return reply.code(500).send({
-        error: 'server_error',
-        error_description: 'OKTA_CLIENT_ID not configured',
-      })
-    }
-
     const credentials = clientManager.getCredentials(query.client_id)
     if (!credentials) {
+      fastify.log.debug({ clientId: query.client_id }, 'Invalid or expired client_id')
       return reply.code(400).send({
         error: 'invalid_client',
         error_description: 'Invalid or expired client_id',
