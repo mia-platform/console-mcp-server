@@ -48,13 +48,13 @@ describe('ClientCredentialsManager', () => {
     assert.strictEqual(typeof credentials.expiresAt, 'number')
   })
 
-  test('should set expiration time to 60 seconds from creation', () => {
+  test('should set expiration time to 300 seconds from creation', () => {
     const credentials = manager.generateCredentials()
     const currentTime = Date.now()
 
     // Ensure createdAt is recent
     assert.ok(currentTime - credentials.createdAt <= 100)
-    assert.strictEqual(credentials.expiresAt - credentials.createdAt, 60 * 1000)
+    assert.strictEqual(credentials.expiresAt - credentials.createdAt, 300 * 1000)
   })
 
   test('should create credentials object from a provided client ID', () => {
@@ -90,8 +90,8 @@ describe('ClientCredentialsManager', () => {
   test('should return null for expired credentials', () => {
     const generated = manager.generateCredentials()
 
-    // Token should be expired 61 seconds later
-    Date.now = () => fixedTime + 61 * 1000
+    // Token should be expired 301 seconds later
+    Date.now = () => fixedTime + 301 * 1000
 
     const retrieved = manager.getCredentials(generated.clientId)
     assert.strictEqual(retrieved, null)
@@ -115,8 +115,8 @@ describe('ClientCredentialsManager', () => {
   test('should return false for expired credentials', () => {
     const credentials = manager.generateCredentials()
 
-    // Token should be expired 61 seconds later
-    Date.now = () => fixedTime + 61 * 1000
+    // Token should be expired 301 seconds later
+    Date.now = () => fixedTime + 301 * 1000
 
     const success = manager.addState(credentials.clientId, 'test-state')
     assert.strictEqual(success, false)
@@ -163,8 +163,8 @@ describe('ClientCredentialsManager', () => {
     const credentials = manager.generateCredentials()
     manager.addState(credentials.clientId, 'test-state')
 
-    // Token should be expired 61 seconds later
-    Date.now = () => fixedTime + 61 * 1000
+    // Token should be expired 301 seconds later
+    Date.now = () => fixedTime + 301 * 1000
 
     const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
 
@@ -179,8 +179,8 @@ describe('ClientCredentialsManager', () => {
 
     const credentials2 = manager.generateCredentials()
 
-    // 65 seonds later the first token will be expired, the second still valid
-    Date.now = () => fixedTime + 65 * 1000
+    // 301 seconds later the first token will be expired, the second still valid
+    Date.now = () => fixedTime + 301 * 1000
 
     const result1 = manager.getCredentials(credentials1.clientId)
     assert.strictEqual(result1, null)

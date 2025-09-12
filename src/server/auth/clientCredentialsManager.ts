@@ -17,9 +17,15 @@ import { randomBytes, randomUUID } from 'crypto'
 
 import { ClientCredentials } from './types'
 
+/**
+ * This is a class to handle the client credentials generated during the Dynamic Client Registration flow
+ * of the OAuth2 authentication process to the Mia-Platform MCP Server. The credentials are stored in memory
+ * and have a short expiration time (5 minute) to enhance security. The manager caches the credentials
+ * that are going to be used to authenticate using Mia-Platform authentication server.
+ */
 export class ClientCredentialsManager {
   private credentials: Map<string, ClientCredentials> = new Map<string, ClientCredentials>()
-  private readonly EXPIRY_DURATION = 60 * 1000
+  private readonly EXPIRY_DURATION = 300 * 1000
 
   generateCredentials (providedClientId?: string): ClientCredentials {
     const clientId = providedClientId ?? this.generateClientId()
@@ -51,6 +57,14 @@ export class ClientCredentialsManager {
     return { clientId: credentials.clientId, clientSecret: credentials.clientSecret }
   }
 
+  /**
+   * Add the state to a cached clientId. This is required since Mia-Platform authentication server requires
+   * the state to perform the `/token` request.
+   *
+   * @param clientId the client id to which the state is associated
+   * @param state the state to be associated with the client id
+   * @returns `true` if the state was added, `false` otherwise (e.g. if the client id does not exist, is expired or already has a state)
+   */
   addState (clientId: string, state: string): boolean {
     const credential = this.credentials.get(clientId)
     if (!credential || this.isExpired(credential)) {
@@ -66,6 +80,12 @@ export class ClientCredentialsManager {
     return true
   }
 
+  /**
+   * Given a clientId, returns the same clientId and the associated state if present.
+   *
+   * @param clientId the client id for which to retrieve the stored state
+   * @returns the client id and the associated state, or `null` if the client id does not exist, is expired or has no state
+   */
   getStoredClientIdAndState (clientId: string): Pick<ClientCredentials, 'clientId' | 'state'> | null {
     const credential = this.credentials.get(clientId)
     if (!credential || this.isExpired(credential) || !credential.state) {
