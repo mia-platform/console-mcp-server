@@ -21,6 +21,8 @@ import { IAMClient, IAMClientInternal, internalEndpoint } from './iamClient'
 
 const tenantId = 'test-tenant-id'
 
+process.env.TZ = 'UTC'
+
 suite('IAM Internal Client', () => {
   const client = IAMClientInternal('', '')
   let agent: MockAgent
@@ -74,12 +76,32 @@ suite('IAM Internal Client', () => {
       query: {
         per_page: '200',
         page: '0',
-        from: '0000000000000000',
-        to: '9999999999999999',
+        from: '1710154800000',
+        to: '1710156600000',
       },
     }).reply(200, mockedResult)
 
-    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
+    const result = await client.companyAuditLogs(tenantId, '1710154800000', '1710156600000')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('list company audit logs with dates as a filter', async (t: TestContext) => {
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
+
+    agent.get(internalEndpoint).intercept({
+      path: `/tenants/${tenantId}/audit-logs`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '0',
+        from: '1710154800000',
+        to: '1710156600000',
+      },
+    }).reply(200, mockedResult)
+
+    const result = await client.companyAuditLogs(tenantId, '2024-03-11T11:00:00', '2024-03-11T11:30:00')
     t.assert.deepStrictEqual(result, mockedResult)
   })
 
@@ -127,7 +149,7 @@ suite('IAM Client', () => {
     t.assert.deepStrictEqual(result, mockedResult)
   })
 
-  test('list company audit logs', async (t: TestContext) => {
+  test('list company audit logs with unix timestamps as a filter', async (t: TestContext) => {
     const mockedResult = [
       { id: 'identity1', type: 'user', name: 'User 1' },
     ]
@@ -138,12 +160,32 @@ suite('IAM Client', () => {
       query: {
         per_page: '200',
         page: '0',
-        from: '0000000000000000',
-        to: '9999999999999999',
+        from: '1710154800000',
+        to: '1710156600000',
       },
     }).reply(200, mockedResult)
 
-    const result = await client.companyAuditLogs(tenantId, '0000000000000000', '9999999999999999')
+    const result = await client.companyAuditLogs(tenantId, '1710154800000', '1710156600000')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('list company audit logs with dates as a filter', async (t: TestContext) => {
+    const mockedResult = [
+      { id: 'identity1', type: 'user', name: 'User 1' },
+    ]
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantId}/audit-logs`,
+      method: 'GET',
+      query: {
+        per_page: '200',
+        page: '0',
+        from: '1710154800000',
+        to: '1710156600000',
+      },
+    }).reply(200, mockedResult)
+
+    const result = await client.companyAuditLogs(tenantId, '2024-03-11T11:00:00', '2024-03-11T11:30:00')
     t.assert.deepStrictEqual(result, mockedResult)
   })
 })

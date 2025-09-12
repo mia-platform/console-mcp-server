@@ -51,7 +51,7 @@ export const toolNames = {
 
 export const toolsDescriptions = {
   // tenants tools
-  LIST_TENANTS: 'List Mia-Platform Console companies or tenants that the user can access',
+  LIST_TENANTS: 'List Mia-Platform Console companies or tenants that the user can access. Only companies or tenants with AI features enabled will be returned.',
   LIST_TENANTS_TEMPLATES: 'List Mia-Platform project templates for a given company or tenant',
   LIST_TENANTS_IAM: 'List IAM user, groups and or service account for a company or tenant',
   VIEW_TENANTS_AUDIT_LOGS: 'View audit logs for a company or tenant to see who did what and when',
@@ -65,7 +65,11 @@ export const toolsDescriptions = {
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
 
   // project tools
-  LIST_PROJECTS: `List Mia Projects that the user can access in the given companies or tenants. To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}, if you don't specify the tenantId, the tool will list all the projects in the current company or tenant`,
+  LIST_PROJECTS: `
+  List Mia-Platform Projects that the user can access in the given companies or tenants.
+  To do that before you need to know the tenantId with the tool ${toolNames.LIST_TENANTS}.
+  Only Projects for companies or tenants that enabled AI features will be returned.
+  `,
   GET_PROJECT_INFO: 'Get information about a Mia-Platform Console project',
   CREATE_PROJECT_FROM_TEMPLATE: `
   Create a new Mia-Platform Console project from a template in the given company or tenant.
@@ -107,8 +111,8 @@ export const paramsDescriptions = {
   IAM_IDENTITY_TYPE: 'Filter the IAM entities by type',
 
   // Audit Logs
-  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in unix timestamp format',
-  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in unix timestamp format',
+  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T10:30:00"',
+  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T23:59:59"',
 
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
