@@ -32,15 +32,16 @@ export class HTTPClient {
   private baseURL: string
   private clientID: string
   private clientSecret: string
-  private additionalHeaders: UndiciHeaders
+  private requestHeaders: UndiciHeaders
 
-  private token: AccessToken | undefined
+  /** Cached token, if received from M2M authentication or extracted from miactl instance installed in local machine */
+  private cachedToken: AccessToken | undefined
 
   constructor (baseURL: string, clientID?: string, clientSecret?: string, additionalHeaders: UndiciHeaders = {}) {
     this.baseURL = baseURL
     this.clientID = clientID || ''
     this.clientSecret = clientSecret || ''
-    this.additionalHeaders = additionalHeaders
+    this.requestHeaders = additionalHeaders
   }
 
   async getPlain<T> (path: string, params?: URLSearchParams): Promise<T> {
@@ -116,15 +117,22 @@ export class HTTPClient {
     body?: Record<string, unknown>,
     accept = 'application/json',
   ): Promise<Dispatcher.ResponseData> {
-    const hasToken = this.additionalHeadersIncludeToken()
-    if (!hasToken) {
-      await this.validateToken()
+    const requestHasToken = this.additionalHeadersIncludeToken()
+    if (!requestHasToken) {
+      await this.validateCachedToken()
     }
 
-    const hdr = headers(this.token, accept, this.additionalHeaders, !!body)
+    const headers = {
+      Accept: accept,
+      ...this.requestHeaders,
+      ...!!body && { 'Content-Type': 'application/json' },
+      'User-Agent': UserAgent,
+      ...this.cachedToken && { Authorization: `${this.cachedToken.token_type} ${this.cachedToken.access_token}` },
+    }
+
     const response = await request(url, {
-      method: method,
-      headers: hdr,
+      method,
+      headers,
       ...body && { body: JSON.stringify(body) },
     })
 
@@ -139,29 +147,20 @@ export class HTTPClient {
   }
 
   private additionalHeadersIncludeToken (): boolean {
-    return !!this.additionalHeaders &&
-      typeof this.additionalHeaders === 'object' &&
-      !Array.isArray(this.additionalHeaders) &&
-      !!('Authorization' in this.additionalHeaders)
+    return !!this.requestHeaders &&
+      typeof this.requestHeaders === 'object' &&
+      !Array.isArray(this.requestHeaders) &&
+      ('Authorization' in this.requestHeaders || 'authorization' in this.requestHeaders)
   }
 
-  private async validateToken (): Promise<void> {
-    if (this.additionalHeadersIncludeToken() || this.token && !this.token.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
+  private async validateCachedToken (): Promise<void> {
+    if (this.cachedToken && !this.cachedToken.expired(EXPIRATION_WINDOW_IN_SECONDS)) {
       return
     }
-    this.token = await doAuthentication(this.baseURL, {
+
+    this.cachedToken = await doAuthentication(this.baseURL, {
       clientId: this.clientID,
       clientSecret: this.clientSecret,
     })
-  }
-}
-
-function headers (token: AccessToken | undefined, accept: string, headers: UndiciHeaders = {}, hasBody: boolean): UndiciHeaders {
-  return {
-    Accept: accept,
-    ...headers,
-    ...hasBody && { 'Content-Type': 'application/json' },
-    'User-Agent': UserAgent,
-    ...token && { Authorization: `${token.token_type} ${token.access_token}` },
   }
 }

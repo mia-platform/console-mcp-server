@@ -67,7 +67,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   const { clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
-  const authenticateViaClientCredentials = clientID && clientSecret
 
   fastify.post('/mcp-internal', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /mcp-internal request', body: request.body })
@@ -79,15 +78,28 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       }
     }
 
-    await connectToMcpServer(request, reply, opts, additionalHeaders)
+    // This is a workaround to allow internal services to connect to the MCP server
+    await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
   })
 
   fastify.post('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /mcp request', body: request.body })
 
-    const authenticateViaBearerToken = !!request.headers['Authorization'] || !!request.headers['authorization']
+    const additionalHeaders: IncomingHttpHeaders = {}
+    for (const key of additionalHeadersKeys) {
+      if (key in request.headers) {
+        additionalHeaders[key] = request.headers[key]
+      }
+    }
 
-    if (!authenticateViaClientCredentials && !authenticateViaBearerToken) {
+    const authenticateViaClientCredentials = clientID && clientSecret
+    if (authenticateViaClientCredentials) {
+      await connectToMcpServer(request, reply, opts, additionalHeaders)
+    }
+
+    const hasBearerToken = !!request.headers['Authorization'] || !!request.headers['authorization']
+
+    if (!hasBearerToken) {
       const baseUrl = getBaseUrlFromRequest(request)
       const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
       const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
@@ -109,10 +121,10 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    const headers = authenticateViaBearerToken
-      ? request.headers
-      : {}
-
+    const headers = {
+      ...additionalHeaders,
+      ...request.headers,
+    }
 
     await connectToMcpServer(request, reply, opts, headers)
   })
