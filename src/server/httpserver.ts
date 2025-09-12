@@ -85,21 +85,14 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   fastify.post('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /mcp request', body: request.body })
 
-    const additionalHeaders: IncomingHttpHeaders = {}
-    for (const key of additionalHeadersKeys) {
-      if (key in request.headers) {
-        additionalHeaders[key] = request.headers[key]
-      }
-    }
-
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
-      await connectToMcpServer(request, reply, opts, additionalHeaders)
+      await connectToMcpServer(request, reply, opts, {})
     }
 
-    const hasBearerToken = !!request.headers['Authorization'] || !!request.headers['authorization']
+    const token = request.headers['Authorization'] ?? request.headers['authorization']
 
-    if (!hasBearerToken) {
+    if (!token) {
       const baseUrl = getBaseUrlFromRequest(request)
       const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
       const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
@@ -121,12 +114,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    const headers = {
-      ...additionalHeaders,
-      ...request.headers,
-    }
-
-    await connectToMcpServer(request, reply, opts, headers)
+    await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
   fastify.get('/mcp', async (_, reply) => {
