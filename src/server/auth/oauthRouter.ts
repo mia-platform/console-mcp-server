@@ -164,7 +164,7 @@ export async function oauthRouter (fastify: FastifyInstance, options: { host?: s
     }
 
     const storedClientData = clientManager.getStoredClientIdAndState(body.client_id)
-    if (!storedClientData) {
+    if (!storedClientData || !storedClientData.state) {
       return reply.code(400).send({
         error: 'invalid_request',
         error_description: 'No state found for client_id',

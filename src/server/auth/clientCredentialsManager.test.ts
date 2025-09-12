@@ -14,15 +14,25 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { beforeEach, describe, test } from 'node:test'
+import { afterEach, beforeEach, describe, test } from 'node:test'
 
 import { ClientCredentialsManager } from './clientCredentialsManager'
 
 describe('ClientCredentialsManager', () => {
   let manager: ClientCredentialsManager
 
+  /** Default implementation of the Date.now, which is going to be mocked at every test */
+  const originalDateNow: () => number = Date.now
+  const fixedTime = 1000000000000
+
   beforeEach(() => {
     manager = new ClientCredentialsManager()
+
+    Date.now = () => fixedTime
+  })
+
+  afterEach(() => {
+    Date.now = originalDateNow
   })
 
   test('should generate valid credentials', () => {
@@ -78,45 +88,13 @@ describe('ClientCredentialsManager', () => {
   })
 
   test('should return null for expired credentials', () => {
-    // Create credentials with a past expiration time by mocking Date.now
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000 // Fixed timestamp
-    Date.now = () => fixedTime
-
     const generated = manager.generateCredentials()
 
-    // Restore Date.now and advance time
-    Date.now = () => fixedTime + 61 * 1000 // 61 seconds later
-
-    const retrieved = manager.getCredentials(generated.clientId)
-
-    // Restore original Date.now
-    Date.now = originalDateNow
-
-    assert.strictEqual(retrieved, null)
-  })
-
-  test('should clean up expired credentials when accessing them', () => {
-    // Create credentials with a past expiration time
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000
-    Date.now = () => fixedTime
-
-    const generated = manager.generateCredentials()
-
-    // Advance time to expire credentials
+    // Token should be expired 61 seconds later
     Date.now = () => fixedTime + 61 * 1000
 
-    // First call should return null and clean up
-    const retrieved1 = manager.getCredentials(generated.clientId)
-    assert.strictEqual(retrieved1, null)
-
-    // Second call should also return null (confirming cleanup)
-    const retrieved2 = manager.getCredentials(generated.clientId)
-    assert.strictEqual(retrieved2, null)
-
-    // Restore original Date.now
-    Date.now = originalDateNow
+    const retrieved = manager.getCredentials(generated.clientId)
+    assert.strictEqual(retrieved, null)
   })
 
   test('should add state to existing credentials', () => {
@@ -135,55 +113,26 @@ describe('ClientCredentialsManager', () => {
   })
 
   test('should return false for expired credentials', () => {
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000
-    Date.now = () => fixedTime
-
     const credentials = manager.generateCredentials()
 
-    // Advance time to expire credentials
+    // Token should be expired 61 seconds later
     Date.now = () => fixedTime + 61 * 1000
 
     const success = manager.addState(credentials.clientId, 'test-state')
-
-    Date.now = originalDateNow
-
     assert.strictEqual(success, false)
   })
 
-  test('should clean up expired credentials when adding state', () => {
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000
-    Date.now = () => fixedTime
-
-    const credentials = manager.generateCredentials()
-
-    // Advance time to expire credentials
-    Date.now = () => fixedTime + 61 * 1000
-
-    // Adding state should fail and clean up expired credentials
-    const success = manager.addState(credentials.clientId, 'test-state')
-    assert.strictEqual(success, false)
-
-    // Subsequent access should also return null
-    const retrieved = manager.getCredentials(credentials.clientId)
-    assert.strictEqual(retrieved, null)
-
-    Date.now = originalDateNow
-  })
-
-  test('should not update state if called multiple times', () => {
+  test('should not update state if called a second time', () => {
     const credentials = manager.generateCredentials()
 
     const success1 = manager.addState(credentials.clientId, 'state-1')
     assert.strictEqual(success1, true)
 
     const success2 = manager.addState(credentials.clientId, 'state-2')
-    assert.strictEqual(success2, true)
+    assert.strictEqual(success2, false)
 
     const storedData = manager.getStoredClientIdAndState(credentials.clientId)
-    assert.ok(storedData)
-    assert.strictEqual(storedData.state, 'state-2')
+    assert.strictEqual(storedData?.state, 'state-1')
   })
 
   test('should return client ID and state when both exist', () => {
@@ -193,9 +142,8 @@ describe('ClientCredentialsManager', () => {
     manager.addState(credentials.clientId, state)
     const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
 
-    assert.ok(retrieved)
-    assert.strictEqual(retrieved.clientId, credentials.clientId)
-    assert.strictEqual(retrieved.state, state)
+    assert.strictEqual(retrieved?.clientId, credentials.clientId)
+    assert.strictEqual(retrieved?.state, state)
   })
 
   test('should return null for non-existent client ID', () => {
@@ -212,68 +160,49 @@ describe('ClientCredentialsManager', () => {
   })
 
   test('should return null for expired credentials', () => {
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000
-    Date.now = () => fixedTime
-
     const credentials = manager.generateCredentials()
     manager.addState(credentials.clientId, 'test-state')
 
-    // Advance time to expire credentials
+    // Token should be expired 61 seconds later
     Date.now = () => fixedTime + 61 * 1000
 
     const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
-
-    Date.now = originalDateNow
 
     assert.strictEqual(retrieved, null)
   })
 
   test('should handle mixed expired and valid credentials', () => {
-    const originalDateNow = Date.now
-    const fixedTime = 1000000000000
-    Date.now = () => fixedTime
-
-    // Generate first credential
     const credentials1 = manager.generateCredentials()
 
-    // Advance time slightly (not enough to expire)
+    // Token should be still valid 30 seconds later
     Date.now = () => fixedTime + 30 * 1000
 
-    // Generate second credential (first should still be valid)
     const credentials2 = manager.generateCredentials()
 
-    // Advance time to expire only the first credential
+    // 65 seonds later the first token will be expired, the second still valid
     Date.now = () => fixedTime + 65 * 1000
 
-    // Access credentials (should clean up expired ones)
     const result1 = manager.getCredentials(credentials1.clientId)
+    assert.strictEqual(result1, null)
+
     const result2 = manager.getCredentials(credentials2.clientId)
-
-    assert.strictEqual(result1, null) // First should be expired and cleaned up
-    assert.ok(result2) // Second should still be valid
-
-    Date.now = originalDateNow
+    assert.ok(result2)
   })
 
   test('should clear all stored credentials', () => {
     const credentials1 = manager.generateCredentials()
     const credentials2 = manager.generateCredentials()
 
-    // Verify credentials exist
     assert.ok(manager.getCredentials(credentials1.clientId))
     assert.ok(manager.getCredentials(credentials2.clientId))
 
-    // Destroy all credentials
     manager.destroy()
 
-    // Verify all credentials are gone
     assert.strictEqual(manager.getCredentials(credentials1.clientId), null)
     assert.strictEqual(manager.getCredentials(credentials2.clientId), null)
   })
 
   test('should work with empty credentials store', () => {
-    // Should not throw when no credentials exist
     assert.doesNotThrow(() => {
       manager.destroy()
     })

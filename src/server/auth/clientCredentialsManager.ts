@@ -58,6 +58,10 @@ export class ClientCredentialsManager {
       return false
     }
 
+    if (credential.state) {
+      return false
+    }
+
     credential.state = state
     return true
   }
