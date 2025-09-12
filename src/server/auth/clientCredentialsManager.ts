@@ -15,13 +15,7 @@
 
 import { randomBytes, randomUUID } from 'crypto'
 
-interface ClientCredentials {
-  clientId: string
-  clientSecret: string
-  createdAt: number
-  expiresAt: number
-  state?: string
-}
+import { ClientCredentials } from './types'
 
 export class ClientCredentialsManager {
   private credentials: Map<string, ClientCredentials> = new Map<string, ClientCredentials>()
@@ -47,13 +41,14 @@ export class ClientCredentialsManager {
     return clientCredential
   }
 
-  getCredentials (clientId: string): { clientId: string, clientSecret: string } | null {
-    const credential = this.credentials.get(clientId)
-    if (!credential || this.isExpired(credential)) {
+  getCredentials (clientId: string): Pick<ClientCredentials, 'clientId' | 'clientSecret'> | null {
+    const credentials = this.credentials.get(clientId)
+    if (!credentials || this.isExpired(credentials)) {
       this.credentials.delete(clientId)
       return null
     }
-    return { clientId: credential.clientId, clientSecret: credential.clientSecret }
+
+    return { clientId: credentials.clientId, clientSecret: credentials.clientSecret }
   }
 
   addState (clientId: string, state: string): boolean {
@@ -62,16 +57,18 @@ export class ClientCredentialsManager {
       this.credentials.delete(clientId)
       return false
     }
+
     credential.state = state
     return true
   }
 
-  getStoredClientIdAndState (clientId: string): { clientId: string, state: string } | null {
+  getStoredClientIdAndState (clientId: string): Pick<ClientCredentials, 'clientId' | 'state'> | null {
     const credential = this.credentials.get(clientId)
     if (!credential || this.isExpired(credential) || !credential.state) {
       this.credentials.delete(clientId)
       return null
     }
+
     return { clientId: credential.clientId, state: credential.state }
   }
 

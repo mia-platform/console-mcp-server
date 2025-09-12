@@ -18,7 +18,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import 'dotenv/config'
 
 import { ClientCredentialsManager } from './clientCredentialsManager'
-import { type AuthorizeQuery, type RefreshTokenRequest, type RegisterRequest, type TokenRequest } from './types'
+import { type AuthorizeRequest, type RefreshTokenRequest, type RegisterRequest, type TokenRequest } from './types'
 
 const OKTA_CLIENT_ID = process.env.OKTA_CLIENT_ID
 
@@ -62,7 +62,7 @@ export async function oauthRouter (fastify: FastifyInstance, options: { host?: s
   })
 
   fastify.get('/authorize', async (request: FastifyRequest, reply: FastifyReply) => {
-    const query = request.query as AuthorizeQuery
+    const query = request.query as AuthorizeRequest
 
     fastify.log.debug({ message: 'GET /authorize called', requestQuery: query })
 

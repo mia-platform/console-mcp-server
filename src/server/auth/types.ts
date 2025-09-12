@@ -13,6 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export interface ClientCredentials {
+  clientId: string
+  clientSecret: string
+  createdAt: number
+  expiresAt: number
+  state?: string
+}
 export interface RegisterRequest {
   client_id: string
   client_secret?: string
@@ -26,7 +33,7 @@ export interface RegisterRequest {
   scope?: string
 }
 
-export interface AuthorizeQuery {
+export interface AuthorizeRequest {
   client_id: string
   response_type?: string
   redirect_uri?: string
