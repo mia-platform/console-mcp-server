@@ -20,18 +20,24 @@ import { ClientCredentials } from './types'
 /**
  * This is a class to handle the client credentials generated during the Dynamic Client Registration flow
  * of the OAuth2 authentication process to the Mia-Platform MCP Server. The credentials are stored in memory
- * and have a short expiration time (5 minute) to enhance security. The manager caches the credentials
+ * and have a short expiration time (configurable via env var; default: 5 minutes) to enhance security. The manager caches the credentials
  * that are going to be used to authenticate using Mia-Platform authentication server.
  */
 export class ClientCredentialsManager {
   private credentials: Map<string, ClientCredentials> = new Map<string, ClientCredentials>()
-  private readonly EXPIRY_DURATION = 300 * 1000
+  expiryDuration: number = 300 * 1000
+
+  constructor (expiryDuration?: number) {
+    if (expiryDuration) {
+      this.expiryDuration = expiryDuration * 1000
+    }
+  }
 
   generateCredentials (providedClientId?: string): ClientCredentials {
     const clientId = providedClientId ?? this.generateClientId()
     const clientSecret = this.generateClientSecret()
     const createdAt = Date.now()
-    const expiresAt = createdAt + this.EXPIRY_DURATION
+    const expiresAt = createdAt + this.expiryDuration
 
     const clientCredential: ClientCredentials = {
       clientId,

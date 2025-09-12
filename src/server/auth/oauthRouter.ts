@@ -22,10 +22,22 @@ const OAUTH_AUTHORIZE_PATH = '/api/authorize'
 const OAUTH_TOKEN_PATH = '/api/oauth/token'
 const OAUTH_REFRESH_TOKEN_PATH = '/api/refreshToken'
 
+export interface OAuthRouterOptions {
 
-export async function oauthRouter (fastify: FastifyInstance, options: { host?: string }) {
-  const { host = '' } = options
-  const clientManager = new ClientCredentialsManager()
+  /** Used by fastify. Defines the prefix where the endpoint defined in oauthRouter will be placed. */
+  prefix?: string
+
+  /** The base URL of the Mia-Platform installation to contact for the Authentication. */
+  host?: string
+
+  /** Duration, in seconds, after which the client credentials created via `/register` route are deleted. */
+  clientExpiryDuration?: number
+}
+
+
+export async function oauthRouter (fastify: FastifyInstance, options: OAuthRouterOptions) {
+  const { host = '', clientExpiryDuration } = options
+  const clientManager = new ClientCredentialsManager(clientExpiryDuration)
 
   fastify.post('/register', async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as RegisterRequest

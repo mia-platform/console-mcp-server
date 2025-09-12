@@ -333,7 +333,7 @@ suite('http client test suite with authentication', () => {
   test('set custom headers, don\'t override fixed ones', async (t) => {
     const client = new HTTPClient(mockedEndpoint, clientID, clientSecret, {
       'custom-header': 'customValue',
-      Authorization: 'custom authorization',
+      Authorization: 'Bearer token-coming-from-original-request',
       Accept: 'custom accept value',
       'User-Agent': 'custom user agent',
     })
@@ -342,7 +342,7 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       headers: {
         'custom-header': 'customValue',
-        Authorization: 'custom authorization',
+        Authorization: 'Bearer token-coming-from-original-request',
         Accept: 'custom accept value',
         'User-Agent': `${name}/${version}`,
       },

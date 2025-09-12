@@ -48,7 +48,7 @@ describe('ClientCredentialsManager', () => {
     assert.strictEqual(typeof credentials.expiresAt, 'number')
   })
 
-  test('should set expiration time to 300 seconds from creation', () => {
+  test('should set expiration time to default value (300 seconds) from creation', () => {
     const credentials = manager.generateCredentials()
     const currentTime = Date.now()
 
@@ -94,6 +94,18 @@ describe('ClientCredentialsManager', () => {
     Date.now = () => fixedTime + 301 * 1000
 
     const retrieved = manager.getCredentials(generated.clientId)
+    assert.strictEqual(retrieved, null)
+  })
+
+  test('should return null for expired client ID if the manager has custom expiry duration', () => {
+    // Create a manager with 10 seconds expiry duration
+    const shortLivedManager = new ClientCredentialsManager(10)
+    const generated = shortLivedManager.generateCredentials()
+
+    // Token should be expired 11 seconds later
+    Date.now = () => fixedTime + 11 * 1000
+
+    const retrieved = shortLivedManager.getCredentials(generated.clientId)
     assert.strictEqual(retrieved, null)
   })
 

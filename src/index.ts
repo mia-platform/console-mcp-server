@@ -42,8 +42,13 @@ program.
   addOption(new Option('-p, --port <port>', 'port to run the server on').env('PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   action(async ({ host, stdio, port, serverHost }) => {
+    // Environment variables extraction
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
+    const logLevel = process.env.LOG_LEVEL || 'info'
+    const clientExpiryDuration = process.env.CLIENT_EXPIRY_DURATION
+      ? parseInt(process.env.CLIENT_EXPIRY_DURATION, 10)
+      : undefined
 
     if (stdio) {
       return runStdioServer(host, clientID, clientSecret).catch((error) => {
@@ -53,7 +58,7 @@ program.
     }
 
     const fastify = Fastify({
-      logger: { level: process.env.LOG_LEVEL || 'info' },
+      logger: { level: logLevel },
       trustProxy: true,
     })
 
@@ -64,7 +69,7 @@ program.
     fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
-    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host })
+    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {
