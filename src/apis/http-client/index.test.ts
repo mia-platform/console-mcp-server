@@ -165,7 +165,6 @@ suite('http client test suite without authentication', () => {
     t.assert.deepEqual(result, { message: 'test' })
   })
 
-
   test('set custom headers, custom accept', async (t) => {
     const customHeadersClient = new HTTPClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',

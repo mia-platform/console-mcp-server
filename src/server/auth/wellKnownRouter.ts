@@ -63,12 +63,9 @@ export async function wellKnownRouter (fastify: FastifyInstance, options: { host
       token_endpoint: `${baseUrl}/console-mcp-server/oauth/token`,
       registration_endpoint: `${baseUrl}/console-mcp-server/oauth/register`,
       scopes_supported: OAUTH_SCOPES,
-      response_types_supported: [
-        'code',
-      ],
-      response_modes_supported: [
-        'query',
-      ],
+      response_types_supported: [ 'code' ],
+      code_challenge_methods_supported: [ 'S256' ],
+      response_modes_supported: [ 'query' ],
       grant_types_supported: [
         'authorization_code',
         'refresh_token',
