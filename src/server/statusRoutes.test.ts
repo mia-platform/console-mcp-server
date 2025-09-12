@@ -16,11 +16,11 @@
 import { afterEach, beforeEach, suite, test } from 'node:test'
 import Fastify, { FastifyInstance } from 'fastify'
 
-import { httpServer } from './httpserver.js'
+import { statusRoutes } from './statusRoutes.js'
 import { name, version } from '../../package.json'
 
 suite('test http streaming server', () => {
-  const testHost = 'http://localhost:3000'
+  // const testHost = 'http://localhost:3000'
 
   let fastify: FastifyInstance
   beforeEach(async () => {
@@ -28,11 +28,7 @@ suite('test http streaming server', () => {
       logger: false,
     })
 
-    fastify.register(httpServer, {
-      host: testHost,
-      clientID: '',
-      clientSecret: '',
-    })
+    fastify.register(statusRoutes)
   })
 
   afterEach(async () => {
@@ -42,7 +38,7 @@ suite('test http streaming server', () => {
   test('invoke ready API', async (t) => {
     const response = await fastify.inject({
       method: 'GET',
-      path: '/-/ready',
+      path: '/ready',
     })
 
     t.assert.equal(response.statusCode, 200)
@@ -57,7 +53,7 @@ suite('test http streaming server', () => {
   test('invoke healthz API', async (t) => {
     const response = await fastify.inject({
       method: 'GET',
-      path: '/-/healthz',
+      path: '/healthz',
     })
 
     t.assert.equal(response.statusCode, 200)

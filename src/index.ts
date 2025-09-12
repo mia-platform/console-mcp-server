@@ -61,8 +61,8 @@ program.
     await fastify.register(formbody)
 
     // Registering routes
-    fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(wellKnownRouter, { prefix: '/', host })
+    fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
     fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host })
 
