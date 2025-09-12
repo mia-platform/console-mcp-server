@@ -22,7 +22,6 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
 import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
-import { statusRoutes } from './statusRoutes'
 
 export interface HTTPServerOptions {
   host: string
@@ -141,6 +140,4 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       id: null,
     })
   })
-
-  fastify.register(statusRoutes, { prefix: '/-/' })
 }

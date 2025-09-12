@@ -25,6 +25,7 @@ import { oauthRouter } from './server/auth/oauthRouter'
 import { runStdioServer } from './server/stdio'
 import { wellKnownRouter } from './server/auth/wellKnownRouter'
 import { description, version } from '../package.json'
+import { statusRoutes } from './server/statusRoutes'
 
 const program = new Command()
 
@@ -60,6 +61,7 @@ program.
     await fastify.register(formbody)
 
     // Registering routes
+    fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
     fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host })
