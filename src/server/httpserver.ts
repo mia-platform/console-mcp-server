@@ -69,6 +69,13 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
 
   fastify.post('/mcp-internal', async (request, reply) => {
+    // This is an internal endpoint for the MCP Server. It is intended to be used ONLY in case the MCP
+    // Server is running in the same trusted network as the services connecting to it (e.g., internal backend,
+    // internal marketplace, etc.).
+    //
+    // It does not require authentication and proxies some headers as expected in the Mia-Platform Console architecture.
+    //
+    // Please use the endpoint /mcp for all other use cases.
     fastify.log.debug({ message: 'Received POST /mcp-internal request', body: request.body })
 
     const additionalHeaders: IncomingHttpHeaders = {}
@@ -78,7 +85,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       }
     }
 
-    // This is a workaround to allow internal services to connect to the MCP server
+    // We include an empty host to avoid any authentication mechanism to be triggered.
     await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
   })
 

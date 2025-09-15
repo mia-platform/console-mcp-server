@@ -93,7 +93,7 @@ suite('test http streaming server', () => {
     t.assert.equal(firstInit.headers['content-type'], 'text/event-stream')
   })
 
-  test('run http streaming server calling mcp endpoint (without auth endpoint)', async (t) => {
+  test('call mcp endpoint is not allowed without token', async (t) => {
     const firstInit = await fastify.inject({
       method: 'POST',
       path: '/mcp',
