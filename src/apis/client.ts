@@ -469,7 +469,7 @@ export class APIClient implements IAPIClient {
         basePath: `/${endpointName}`,
         pathName: '/',
         pathRewrite: `/${endpointName}`,
-        type: 'crud',
+        type: EndpointTypes.CRUD,
         tags: [ 'crud' ],
         description: `Endpoint /${endpointTarget}`,
         collectionId: endpointTarget,
