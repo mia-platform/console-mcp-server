@@ -100,7 +100,7 @@ export const toolsDescriptions = {
   LIST_CONFIGURATION_REVISIONS: 'List all the available revisions and tags for a project configuration',
   CONFIGURATION_TO_SAVE: 'Save the configuration for a project.',
   GET_CONFIGURATION: 'Get the actual configuration for a project for a specific revision or tag',
-  CREATE_COLLECTION: 'Create a new CRUD collection in a project. This tool accepts the collection name and user-defined fields, then automatically generates the complete collection structure including all mandatory fields (_id, creatorId, createdAt, updaterId, updatedAt, __STATE__), indexes, internal endpoints, and tags. If the crud-service does not exist in the project, it should be created first using the create_service_from_marketplace tool.',
+  CREATE_COLLECTION: `Create a new CRUD collection in a project. This tool accepts the collection name and user-defined fields, then automatically generates the complete collection structure including all mandatory fields (_id, creatorId, createdAt, updaterId, updatedAt, __STATE__), indexes, internal endpoints, and tags. If the crud-service does not exist in the project, it should be created first using the ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.`,
   CREATE_ENDPOINTS: 'Create endpoints in a Mia-Platform Console project. This tool accepts endpoint type (custom or crud), name, and target (service name for custom endpoints or collection name for crud endpoints), then automatically generates the complete endpoint structure with all required fields, routes, and configurations.',
 }
 
