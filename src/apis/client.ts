@@ -442,7 +442,7 @@ export class APIClient implements IAPIClient {
     if (endpointType === 'custom') {
       return {
         basePath: `/${endpointName}`,
-        type: 'custom',
+        type: EndpointTypes.CUSTOM,
         public: false,
         showInDocumentation: true,
         secreted: false,
