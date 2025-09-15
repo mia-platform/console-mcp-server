@@ -438,7 +438,7 @@ export class APIClient implements IAPIClient {
     endpointType: 'custom' | 'crud',
     endpointName: string,
     endpointTarget: string,
-  ): Record<string, unknown> {
+  ): CrudEndpoint | CustomEndpoint {
     if (endpointType === 'custom') {
       return {
         basePath: `/${endpointName}`,
