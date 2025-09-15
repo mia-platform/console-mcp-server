@@ -22,6 +22,8 @@ import {
   ConfigMaps,
   ConfigServiceSecrets,
   constants,
+  CrudEndpoint,
+  CustomEndpoint,
   CustomService,
   EnvironmentVariablesTypes,
   ICatalogExample,
@@ -53,7 +55,7 @@ import { PostProject, Template } from './types/governance'
 
 export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
-const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes } = constants
+const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes, EndpointTypes, Verbs } = constants
 
 interface AISettings {
   enableAgenticFeatures?: boolean
@@ -486,7 +488,7 @@ export class APIClient implements IAPIClient {
         routes: {
           'GET/': {
             id: 'GET/',
-            verb: 'GET',
+            verb: Verbs.METHOD_GET,
             path: '/',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -501,7 +503,7 @@ export class APIClient implements IAPIClient {
           },
           'POST/': {
             id: 'POST/',
-            verb: 'POST',
+            verb: Verbs.METHOD_POST,
             path: '/',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -516,7 +518,7 @@ export class APIClient implements IAPIClient {
           },
           'GET/export': {
             id: 'GET/export',
-            verb: 'GET',
+            verb: Verbs.METHOD_GET,
             path: '/export',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -531,7 +533,7 @@ export class APIClient implements IAPIClient {
           },
           'GET/:id': {
             id: 'GET/:id',
-            verb: 'GET',
+            verb: Verbs.METHOD_GET,
             path: '/:id',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -546,7 +548,7 @@ export class APIClient implements IAPIClient {
           },
           'DELETE/:id': {
             id: 'DELETE/:id',
-            verb: 'DELETE',
+            verb: Verbs.METHOD_DELETE,
             path: '/:id',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -561,7 +563,7 @@ export class APIClient implements IAPIClient {
           },
           'DELETE/': {
             id: 'DELETE/',
-            verb: 'DELETE',
+            verb: Verbs.METHOD_DELETE,
             path: '/',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -576,7 +578,7 @@ export class APIClient implements IAPIClient {
           },
           'PATCH/:id': {
             id: 'PATCH/:id',
-            verb: 'PATCH',
+            verb: Verbs.METHOD_PATCH,
             path: '/:id',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -591,7 +593,7 @@ export class APIClient implements IAPIClient {
           },
           'PATCH/': {
             id: 'PATCH/',
-            verb: 'PATCH',
+            verb: Verbs.METHOD_PATCH,
             path: '/',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -606,7 +608,7 @@ export class APIClient implements IAPIClient {
           },
           'GET/count': {
             id: 'GET/count',
-            verb: 'GET',
+            verb: Verbs.METHOD_GET,
             path: '/count',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -621,7 +623,7 @@ export class APIClient implements IAPIClient {
           },
           'POST/bulk': {
             id: 'POST/bulk',
-            verb: 'POST',
+            verb: Verbs.METHOD_POST,
             path: '/bulk',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -636,7 +638,7 @@ export class APIClient implements IAPIClient {
           },
           'POST/upsert-one': {
             id: 'POST/upsert-one',
-            verb: 'POST',
+            verb: Verbs.METHOD_POST,
             path: '/upsert-one',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -651,7 +653,7 @@ export class APIClient implements IAPIClient {
           },
           'PATCH/bulk': {
             id: 'PATCH/bulk',
-            verb: 'PATCH',
+            verb: Verbs.METHOD_PATCH,
             path: '/bulk',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -666,7 +668,7 @@ export class APIClient implements IAPIClient {
           },
           'POST/:id/state': {
             id: 'POST/:id/state',
-            verb: 'POST',
+            verb: Verbs.METHOD_POST,
             path: '/:id/state',
             public: { inherited: true },
             secreted: { inherited: true },
@@ -681,7 +683,7 @@ export class APIClient implements IAPIClient {
           },
           'POST/state': {
             id: 'POST/state',
-            verb: 'POST',
+            verb: Verbs.METHOD_POST,
             path: '/state',
             public: { inherited: true },
             secreted: { inherited: true },
