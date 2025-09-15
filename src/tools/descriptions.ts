@@ -54,7 +54,11 @@ export const toolsDescriptions = {
   LIST_TENANTS: 'List Mia-Platform Console companies or tenants that the user can access. Only companies or tenants with AI features enabled will be returned.',
   LIST_TENANTS_TEMPLATES: 'List Mia-Platform project templates for a given company or tenant',
   LIST_TENANTS_IAM: 'List IAM user, groups and or service account for a company or tenant',
-  VIEW_TENANTS_AUDIT_LOGS: 'View audit logs for a company or tenant to see who did what and when',
+  VIEW_TENANTS_AUDIT_LOGS: `\
+View audit logs for a company or tenant, to receive a detailed list of operations performed in the tenant by every user. \
+You can filter the logs by date range. If no date range is specified by the user, please add a timestamp of the last 7 days. \
+Do never attemp to fetch all the logs without a date range filter, as it could lead to performance issues.\
+`,
 
   // marketplace tools
   LIST_MARKETPLACE: `
@@ -111,8 +115,8 @@ export const paramsDescriptions = {
   IAM_IDENTITY_TYPE: 'Filter the IAM entities by type',
 
   // Audit Logs
-  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T10:30:00"',
-  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss), e.g., "2024-01-15T23:59:59"',
+  AUDIT_LOG_FROM: 'The start date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss, e.g., "2024-01-15T10:30:00"). Include this parameter to limit the logs if the parameter "to" is included as well.',
+  AUDIT_LOG_TO: 'The end date of the audit logs to fetch, in ISO 8601 format (YYYY-MM-DDTHH:mm:ss, e.g., "2024-01-15T23:59:59"). Include this parameter to limit the logs if the parameter "from" is included as well.',
 
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
