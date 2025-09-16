@@ -29,7 +29,12 @@ npm ci
 npm run build
 ```
 
-These commands will install all the dependencies and then transpile the typescript code in the `build` folder.  
+These commands will install all the dependencies and then transpile the typescript code in the `build` folder.
+
+> [!NOTE]
+> The server automatically loads environment variables from a `.env` file if present in the project root. 
+> You can create one by copying `default.env` to `.env` and updating the values as needed.
+
 Once these steps are completed you can setup the MCP server using the `node` command like the following:
 
 ```json
@@ -79,6 +84,7 @@ Instead of `3000`, please include the port defined in the environment variable `
 
 ### Environment Variables
 
+Environment variables located inside a file named `.env` are automatically included at service startup.
 
 | Variable Name | Description | Required | Default Value |
 |---------------|-------------|----------|---------------|
@@ -102,7 +108,7 @@ following command:
 npm ci
 ```
 
-Once has finished you will have all the dependencies installed on the project, then you have to prepare an environent
+Once has finished you will have all the dependencies installed on the project, then you have to prepare an environment
 file by copying the default.env file and edit it accordingly.
 
 ```sh

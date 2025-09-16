@@ -22,6 +22,8 @@ import {
   ConfigMaps,
   ConfigServiceSecrets,
   constants,
+  CrudEndpoint,
+  CustomEndpoint,
   CustomService,
   EnvironmentVariablesTypes,
   ICatalogExample,
@@ -53,7 +55,7 @@ import { PostProject, Template } from './types/governance'
 
 export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
-const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes } = constants
+const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes, EndpointTypes, Verbs } = constants
 
 interface AISettings {
   enableAgenticFeatures?: boolean
@@ -101,6 +103,13 @@ export interface IAPIClient {
     marketplaceItemTenantID: string,
     marketplaceItemVersion?: string,
     description?: string,
+  ): Promise<SaveResponse>
+  createEndpoints(
+    projectID: string,
+    refID: string,
+    endpointType: 'custom' | 'crud',
+    endpointName: string,
+    endpointTarget: string,
   ): Promise<SaveResponse>
   // #endregion
 
@@ -264,6 +273,24 @@ export class APIClient implements IAPIClient {
     })
   }
 
+  async createEndpoints (
+    projectID: string,
+    refID: string,
+    endpointType: 'custom' | 'crud',
+    endpointName: string,
+    endpointTarget: string,
+  ): Promise<SaveResponse> {
+    const endpointStructure = this.#buildEndpointStructure(endpointType, endpointName, endpointTarget)
+
+    const resourcesToCreate: ResourcesToCreate = {
+      endpoints: {
+        [endpointName]: endpointStructure,
+      },
+    }
+
+    return await this.saveConfiguration(projectID, refID, resourcesToCreate)
+  }
+
   async getConfiguration (prjID: string, refID: string): Promise<RetrievedConfiguration> {
     const ft = await this.#featureFlagsClient.getToggles(prjID, [ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT ])
     if (ft[ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT] || false) {
@@ -409,6 +436,274 @@ export class APIClient implements IAPIClient {
     return resourcesToCreate
   }
 
+  #buildEndpointStructure (
+    endpointType: 'custom' | 'crud',
+    endpointName: string,
+    endpointTarget: string,
+  ): CrudEndpoint | CustomEndpoint {
+    if (endpointType === 'custom') {
+      return {
+        basePath: `/${endpointName}`,
+        type: EndpointTypes.CUSTOM,
+        public: false,
+        showInDocumentation: true,
+        secreted: false,
+        acl: 'true',
+        service: endpointTarget,
+        port: '80',
+        pathRewrite: '/',
+        description: `Endpoint /${endpointName}`,
+        tags: [ endpointTarget ],
+        backofficeAcl: {
+          inherited: true,
+        },
+        allowUnknownRequestContentType: false,
+        allowUnknownResponseContentType: false,
+        forceMicroserviceGatewayProxy: false,
+        listeners: {
+          frontend: true,
+        },
+        useDownstreamProtocol: true,
+      }
+    } else {
+      // CRUD endpoint
+      return {
+        basePath: `/${endpointName}`,
+        pathName: '/',
+        pathRewrite: `/${endpointName}`,
+        type: EndpointTypes.CRUD,
+        tags: [ 'crud' ],
+        description: `Endpoint /${endpointTarget}`,
+        collectionId: endpointTarget,
+        public: true,
+        secreted: false,
+        showInDocumentation: true,
+        acl: 'true',
+        backofficeAcl: {
+          inherited: true,
+        },
+        allowUnknownRequestContentType: false,
+        allowUnknownResponseContentType: false,
+        forceMicroserviceGatewayProxy: false,
+        routes: {
+          'GET/': {
+            id: 'GET/',
+            verb: Verbs.METHOD_GET,
+            path: '/',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'POST/': {
+            id: 'POST/',
+            verb: Verbs.METHOD_POST,
+            path: '/',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'GET/export': {
+            id: 'GET/export',
+            verb: Verbs.METHOD_GET,
+            path: '/export',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: false, value: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'GET/:id': {
+            id: 'GET/:id',
+            verb: Verbs.METHOD_GET,
+            path: '/:id',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'DELETE/:id': {
+            id: 'DELETE/:id',
+            verb: Verbs.METHOD_DELETE,
+            path: '/:id',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'DELETE/': {
+            id: 'DELETE/',
+            verb: Verbs.METHOD_DELETE,
+            path: '/',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'PATCH/:id': {
+            id: 'PATCH/:id',
+            verb: Verbs.METHOD_PATCH,
+            path: '/:id',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'PATCH/': {
+            id: 'PATCH/',
+            verb: Verbs.METHOD_PATCH,
+            path: '/',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'GET/count': {
+            id: 'GET/count',
+            verb: Verbs.METHOD_GET,
+            path: '/count',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'POST/bulk': {
+            id: 'POST/bulk',
+            verb: Verbs.METHOD_POST,
+            path: '/bulk',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'POST/upsert-one': {
+            id: 'POST/upsert-one',
+            verb: Verbs.METHOD_POST,
+            path: '/upsert-one',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'PATCH/bulk': {
+            id: 'PATCH/bulk',
+            verb: Verbs.METHOD_PATCH,
+            path: '/bulk',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'POST/:id/state': {
+            id: 'POST/:id/state',
+            verb: Verbs.METHOD_POST,
+            path: '/:id/state',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+          'POST/state': {
+            id: 'POST/state',
+            verb: Verbs.METHOD_POST,
+            path: '/state',
+            public: { inherited: true },
+            secreted: { inherited: true },
+            showInDocumentation: { inherited: true },
+            acl: { inherited: true },
+            backofficeAcl: { inherited: true },
+            rateLimit: { inherited: true },
+            allowUnknownRequestContentType: { inherited: true },
+            allowUnknownResponseContentType: { inherited: true },
+            preDecorators: [],
+            postDecorators: [],
+          },
+        },
+        listeners: {
+          frontend: true,
+        },
+      }
+    }
+  }
+
   async #serviceGitGroupPath (projectID: string, projectGitPath: string): Promise<string> {
     const projectGroups = await this.#backendClient.projectGitProviderGroups(projectID, path.dirname(projectGitPath))
     let groupName: string | undefined
@@ -505,6 +800,7 @@ export interface APIClientMockFunctions {
   getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
   createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
+  createEndpointsMockFn?: (projectID: string) => Promise<SaveResponse>
   // #endregion
 
   // #region Deploy Methods
@@ -671,6 +967,20 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.createServiceFromMarketplaceItemMockFn(projectID)
+  }
+
+  async createEndpoints (
+    projectID: string,
+    _refID: string,
+    _endpointType: 'custom' | 'crud',
+    _endpointName: string,
+    _endpointTarget: string,
+  ): Promise<SaveResponse> {
+    if (!this.mocks.createEndpointsMockFn) {
+      throw new Error('createEndpointsMockFn not mocked')
+    }
+
+    return this.mocks.createEndpointsMockFn(projectID)
   }
 
   // #endregion

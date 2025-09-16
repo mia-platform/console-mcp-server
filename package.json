@@ -1,6 +1,6 @@
 {
   "name": "@mia-platform/console-mcp-server",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Mia-Platform Console MCP Server",
   "main": "mcp-server/index.js",
   "bin": {
@@ -36,6 +36,7 @@
     "commander": "^14.0.0",
     "fastify": "^5.5.0",
     "undici": "^7.15.0",
+    "dotenv": "^17.2.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
