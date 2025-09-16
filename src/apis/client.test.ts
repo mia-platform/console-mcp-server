@@ -124,6 +124,7 @@ suite('create service from marketplace plugin', () => {
           'simple-service': inputResources,
         },
       },
+      itemTypeDefinitionRef: { namespace: 'mia-platform', name: 'plugin' },
     }
 
     const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
@@ -193,6 +194,7 @@ suite('create service from marketplace plugin', () => {
           'simple-service': inputResources,
         },
       },
+      itemTypeDefinitionRef: { namespace: 'mia-platform', name: 'plugin' },
     }
 
     const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
@@ -330,6 +332,7 @@ suite('create service from marketplace plugin', () => {
           'simple-service': inputResources,
         },
       },
+      itemTypeDefinitionRef: { namespace: 'mia-platform', name: 'plugin' },
     }
 
     const output = await servicePayloadFromMarketplaceItem(marketplaceItem, 'simple-service', 'some-description')
@@ -435,6 +438,7 @@ suite('create service from marketplace template', () => {
           'simple-template': inputResources,
         },
       },
+      itemTypeDefinitionRef: { namespace: 'mia-platform', name: 'template' },
     }
 
     const output = await servicePayloadFromMarketplaceItem(
@@ -527,6 +531,7 @@ suite('create service from marketplace template', () => {
           'simple-template': inputResources,
         },
       },
+      itemTypeDefinitionRef: { namespace: 'mia-platform', name: 'template' },
     }
 
     const output = await servicePayloadFromMarketplaceItem(

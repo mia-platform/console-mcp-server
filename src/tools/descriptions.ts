@@ -24,6 +24,8 @@ export const toolNames = {
   LIST_MARKETPLACE: 'list_marketplace',
   LIST_MARKETPLACE_ITEM_VERSIONS: 'list_marketplace_item_versions',
   MARKETPLACE_ITEM_VERSION_INFO: 'marketplace_item_version_info',
+  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'list_marketplace_item_type_definitions',
+  MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'marketplace_item_type_definition_info',
 
   // project tools
   LIST_PROJECTS: 'list_projects',
@@ -69,6 +71,8 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   `,
   LIST_MARKETPLACE_ITEMS_VERSIONS: 'List all the available versions of a marketplace item',
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
+  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'List all the marketplace Item Type Definitions the caller has permission to see (i.e., the ones available to all tenants and the private ones of tenants the user has permission to see)',
+  MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'Get information about a specific Item Type Definition identified by its compound primary key as path parameters (i.e., id of the tenant namespace, and name of the definition)',
 
   // project tools
   LIST_PROJECTS: `
@@ -144,6 +148,11 @@ export const paramsDescriptions = {
   The Mia-Platform Console company or tenant for which to return both the public and private marketplace resources.
   Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool.
   `,
+  MARKETPLACE_ITD_LIST_NAMESPACE: `A comma-separated list of tenant ids to filter Item Type Definitions by (it will be matched against metadata.namespace.id). Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
+  MARKETPLACE_ITD_LIST_NAME: `A comma-separated list of names to filter Item Type Definitions by (it will be matched against metadata.name)`,
+  MARKETPLACE_ITD_LIST_DISPLAY_NAME: `A comma-separated list of display names to filter Item Type Definitions by (it will be matched against metadata.displayName)`,
+  MARKETPLACE_ITD_TENANT_ID: `The tenant id of the marketplace Item Type Definition (it will be matched against metadata.namespace.id). Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
+  MARKETPLACE_ITD_NAME: `The name of the marketplace Item Type Definition (it will be matched against metadata.name). Can be found in the metadata.name field of the ${toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS} tool`,
 
   // Project
   PROJECT_ID: `The project to use. Can be found in the _id field of the ${toolNames.LIST_PROJECTS} tool`,

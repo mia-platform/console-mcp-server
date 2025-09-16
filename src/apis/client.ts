@@ -18,6 +18,7 @@ import path from 'node:path'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 import {
   CatalogItemRelease,
+  CatalogItemTypeDefinition,
   CatalogVersionedItem,
   ConfigMaps,
   ConfigServiceSecrets,
@@ -149,6 +150,8 @@ export interface IAPIClient {
   listMarketplaceItems(tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]>
   marketplaceItemVersions(tenantID: string, itemID: string): Promise<CatalogItemRelease[]>
   marketplaceItemInfo(tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem>
+  listMarketplaceItemTypeDefinitions(namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]>
+  marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition>
   // #endregion
 }
 
@@ -392,6 +395,14 @@ export class APIClient implements IAPIClient {
 
   async marketplaceItemInfo (tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem> {
     return this.#marketplaceClient.marketplaceItemInfo(tenantID, itemID, version)
+  }
+
+  async listMarketplaceItemTypeDefinitions (namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]> {
+    return this.#marketplaceClient.listMarketplaceItemTypeDefinitions(namespace, name, displayName)
+  }
+
+  async marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition> {
+    return this.#marketplaceClient.marketplaceItemTypeDefinitionInfo(tenantID, name)
   }
 
   async #resourceToCreateFromMarketplaceItem (
@@ -839,6 +850,8 @@ export interface APIClientMockFunctions {
   listMarketplaceItemsMockFn?: (tenantID?: string, type?: string, search?: string) => Promise<Record<string, unknown>[]>
   marketplaceItemVersionsMockFn?: (tenantID: string, itemID: string) => Promise<CatalogItemRelease[]>
   marketplaceItemInfoMockFn?: (tenantID: string, itemID: string, version?: string) => Promise<CatalogVersionedItem>
+  listMarketplaceItemTypeDefinitionsMockFn?: (namespace?: string, name?: string, displayName?: string) => Promise<CatalogItemTypeDefinition[]>
+  marketplaceItemTypeDefinitionInfoMockFn?: (tenantID: string, name: string) => Promise<CatalogItemTypeDefinition>
   // #endregion
 }
 
@@ -1078,6 +1091,22 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.marketplaceItemInfoMockFn(tenantID, itemID, version)
+  }
+
+  async listMarketplaceItemTypeDefinitions (namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]> {
+    if (!this.mocks.listMarketplaceItemTypeDefinitionsMockFn) {
+      throw new Error('listMarketplaceItemTypeDefinitionsMockFn not mocked')
+    }
+
+    return this.mocks.listMarketplaceItemTypeDefinitionsMockFn(namespace, name, displayName)
+  }
+
+  async marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition> {
+    if (!this.mocks.marketplaceItemTypeDefinitionInfoMockFn) {
+      throw new Error('marketplaceItemTypeDefinitionInfoMockFn not mocked')
+    }
+
+    return this.mocks.marketplaceItemTypeDefinitionInfoMockFn(tenantID, name)
   }
 
   // #endregion

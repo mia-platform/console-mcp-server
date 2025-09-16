@@ -16,7 +16,7 @@
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { HTTPClient } from './http-client'
-import { CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
+import { CatalogItemRelease, CatalogItemTypeDefinition, CatalogVersionedItem } from '@mia-platform/console-types'
 
 export const internalEndpoint = process.env.MARKETPLACE_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
@@ -73,6 +73,21 @@ export class MarketplaceClient {
     return this.#client.get<CatalogVersionedItem>(this.#itemInfoPath(tenantID, itemID, itemVersion))
   }
 
+  async listMarketplaceItemTypeDefinitions (namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]> {
+    const params = new URLSearchParams({
+      perPage: '200',
+      ...namespace && { namespace },
+      ...name && { name },
+      ...displayName && { displayName },
+    })
+
+    return this.#client.getPaginated<CatalogItemTypeDefinition>(this.#itemTypeDefinitionsPath(), params)
+  }
+
+  async marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition> {
+    return this.#client.get<CatalogItemTypeDefinition>(this.#itemTypeDefinitionInfoPath(tenantID, name))
+  }
+
   #marketplacePath (): string {
     return '/api/marketplace/'
   }
@@ -83,5 +98,13 @@ export class MarketplaceClient {
 
   #itemInfoPath (tenantID: string, itemID: string, version: string): string {
     return `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`
+  }
+
+  #itemTypeDefinitionsPath (): string {
+    return '/api/marketplace/item-type-definitions'
+  }
+
+  #itemTypeDefinitionInfoPath (tenantID: string, name: string): string {
+    return `/api/tenants/${tenantID}/marketplace/item-type-definitions/${name}`
   }
 }

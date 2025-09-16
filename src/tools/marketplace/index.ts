@@ -147,4 +147,76 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       }
     },
   )
+
+  server.tool(
+    toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS,
+    toolsDescriptions.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS,
+    {
+      namespace: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_NAMESPACE),
+      name: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_NAME),
+      displayName: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_DISPLAY_NAME),
+    },
+    async ({ namespace, name, displayName }): Promise<CallToolResult> => {
+      try {
+        // TODO: check namespace AI validity
+
+        // TODO: should I map the data to take only a subset of fields
+        const data = await client.listMarketplaceItemTypeDefinitions(namespace, name, displayName)
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace item type definitions: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.MARKETPLACE_ITEM_TYPE_DEFINITION_INFO,
+    toolsDescriptions.MARKETPLACE_ITEM_TYPE_DEFINITION_INFO,
+    {
+      marketplaceITDTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITD_TENANT_ID),
+      marketplaceITDName: z.string().describe(paramsDescriptions.MARKETPLACE_ITD_NAME),
+    },
+    async ({ marketplaceITDName, marketplaceITDTenantId }): Promise<CallToolResult> => {
+      try {
+        await assertAiFeaturesEnabledForTenant(client, marketplaceITDTenantId)
+
+        const data = await client.marketplaceItemTypeDefinitionInfo(marketplaceITDTenantId, marketplaceITDName)
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace Item Type Definition info for namespace ${marketplaceITDTenantId} and name ${marketplaceITDName}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
 }

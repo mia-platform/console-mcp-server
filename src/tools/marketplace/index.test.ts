@@ -18,7 +18,7 @@ import { it, mock, suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
-import { CatalogItemRelease, CatalogVersionedItem } from '@mia-platform/console-types'
+import { CatalogItemRelease, CatalogItemTypeDefinition, CatalogVersionedItem } from '@mia-platform/console-types'
 
 import { addMarketplaceCapabilities } from '.'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
@@ -64,6 +64,48 @@ const itemInfo = {
   version: '1.0.0',
 }
 
+const itemTypeDefinitions: CatalogItemTypeDefinition[] = [
+  {
+    apiVersion: 'software-catalog.mia-platform.eu/v1',
+    kind: 'item-type-definition',
+    metadata: {
+      namespace: { scope: 'tenant', id: 'mia-platform' },
+      displayName: 'Plugin ITD',
+      name: 'plugin',
+      visibility: { scope: 'console' },
+    },
+    spec: {
+      isVersioningSupported: true,
+      type: 'plugin',
+      scope: 'tenant',
+      validation: {
+        mechanism: 'json-schema',
+        schema: { type: 'object' },
+      },
+    },
+    __v: 1,
+  },
+  {
+    apiVersion: 'software-catalog.mia-platform.eu/v1',
+    kind: 'item-type-definition',
+    metadata: {
+      namespace: { scope: 'tenant', id: 'my-company' },
+      displayName: 'Custom Workload ITD',
+      name: 'custom-workload',
+      visibility: { scope: 'tenant', ids: [ 'my-company' ] },
+    },
+    spec: {
+      type: 'custom-workload',
+      scope: 'tenant',
+      validation: {
+        mechanism: 'json-schema',
+        schema: { type: 'object' },
+      },
+    },
+    __v: 1,
+  },
+]
+
 async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<Client> {
   const client = await TestMCPServer((server) => {
     addMarketplaceCapabilities(server, new APIClientMock(mocks))
@@ -85,7 +127,7 @@ suite('setup marketplace tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 3)
+    t.assert.equal(result.tools.length, 5)
   })
 })
 
@@ -355,6 +397,149 @@ suite('marketplace item version info tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace item info for version 1.0.0: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('marketplace Item Type Definitions list tool', async () => {
+  const listMarketplaceItemTypeDefinitionsMockFn = mock.fn(async (namespace?: string) => {
+    if (namespace === 'error') {
+      throw new Error('error message')
+    }
+
+    return itemTypeDefinitions
+  })
+
+  test('should return ITDs', async (t) => {
+    const client = await getTestMCPServerClient({
+      listMarketplaceItemTypeDefinitionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_type_definitions',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(itemTypeDefinitions),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const client = await getTestMCPServerClient({
+      listMarketplaceItemTypeDefinitionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_type_definitions',
+        arguments: { namespace: 'error' },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching marketplace item type definitions: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('marketplace Item Type Definition info tool', async () => {
+  const marketplaceItemTypeDefinitionInfoMockFn = mock.fn(async (tenantID?: string) => {
+    if (tenantID === 'error') {
+      throw new Error('error message')
+    }
+
+    return itemTypeDefinitions.at(0) as CatalogItemTypeDefinition
+  })
+
+  test('should return the ITD', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemTypeDefinitionInfoMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'marketplace_item_type_definition_info',
+        arguments: {
+          marketplaceITDTenantId: 'tenantID',
+          marketplaceITDName: 'itdName',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(itemTypeDefinitions.at(0)),
+        type: 'text',
+      },
+    ])
+  })
+
+  it('should return an error if AI features are not enabled for tenant', async (t) => {
+    const testTenantId = 'tenant123'
+
+    const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
+      assert.strictEqual(tenantId, testTenantId)
+      return false
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'marketplace_item_type_definition_info',
+        arguments: {
+          marketplaceITDTenantId: testTenantId,
+          marketplaceITDName: 'itdName',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching marketplace Item Type Definition info for namespace ${testTenantId} and name itdName: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error message if request return error', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      marketplaceItemTypeDefinitionInfoMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'marketplace_item_type_definition_info',
+        arguments: {
+          marketplaceITDTenantId: 'error',
+          marketplaceITDName: 'itdName',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching marketplace Item Type Definition info for namespace error and name itdName: error message',
         type: 'text',
       },
     ])
