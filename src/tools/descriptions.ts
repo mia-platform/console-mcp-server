@@ -71,7 +71,7 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   `,
   LIST_MARKETPLACE_ITEMS_VERSIONS: 'List all the available versions of a marketplace item',
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
-  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'List all the marketplace Item Type Definitions the caller has permission to see (i.e., the ones available to all tenants and the private ones of tenants the user has permission to see)',
+  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'List the metadata of all the marketplace Item Type Definitions the caller has permission to see (i.e., the ones available to all tenants and the private ones of tenants the user has permission to see)',
   MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'Get information about a specific Item Type Definition identified by its compound primary key as path parameters (i.e., id of the tenant namespace, and name of the definition)',
 
   // project tools

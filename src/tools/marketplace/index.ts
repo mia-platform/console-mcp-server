@@ -18,6 +18,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
+import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { CatalogItemTypes } from '../../apis/types/marketplace'
 import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
@@ -158,16 +159,67 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
     },
     async ({ namespace, name, displayName }): Promise<CallToolResult> => {
       try {
-        // TODO: check namespace AI validity
+        if (namespace) {
+          const tenantIds = namespace.split(',')
+          await Promise.all(tenantIds.map((tenantId) => assertAiFeaturesEnabledForTenant(client, tenantId)))
+        }
 
-        // TODO: should I map the data to take only a subset of fields
         const data = await client.listMarketplaceItemTypeDefinitions(namespace, name, displayName)
+
+        let tenantIdAiFeaturesEnabledMap: Map<string, boolean> | null = null
+
+        // We don't need to check the returned data if the argument is used, since we already checked that all
+        // passed namespaces have AI features enabled
+        if (!namespace) {
+          tenantIdAiFeaturesEnabledMap = new Map()
+
+          const dataTenantIds = new Set(data.map((itd) => itd.metadata.namespace.id))
+
+          const assertAiFeaturesEnabledForTenantPromises: Promise<void>[] = []
+          dataTenantIds.forEach((tenantId) => {
+            assertAiFeaturesEnabledForTenantPromises.push(assertAiFeaturesEnabledForTenant(client, tenantId).
+              then(() => {
+                tenantIdAiFeaturesEnabledMap?.set(tenantId, true)
+              }).
+              catch(() => {
+                tenantIdAiFeaturesEnabledMap?.set(tenantId, false)
+              }))
+          })
+
+          await Promise.all(assertAiFeaturesEnabledForTenantPromises)
+        }
+
+        const mappedData = data.reduce<CatalogItemTypeDefinition['metadata'][]>((acc, itd) => {
+          if (tenantIdAiFeaturesEnabledMap?.get(itd.metadata.namespace.id) === false) {
+            return acc
+          }
+
+          return [
+            ...acc,
+            {
+              annotations: itd.metadata.annotations,
+              description: itd.metadata.description,
+              displayName: itd.metadata.displayName,
+              documentation: itd.metadata.documentation,
+              labels: itd.metadata.labels,
+              links: itd.metadata.links,
+              maintainers: itd.metadata.maintainers,
+              name: itd.metadata.name,
+              namespace: itd.metadata.namespace,
+              publisher: itd.metadata.publisher
+                ? { name: itd.metadata.publisher.name, url: itd.metadata.publisher.url }
+                : undefined,
+              tags: itd.metadata.tags,
+              visibility: itd.metadata.visibility,
+            },
+          ]
+        }, [])
 
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(data),
+              text: JSON.stringify(mappedData),
             },
           ],
         }

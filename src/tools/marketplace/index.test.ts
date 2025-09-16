@@ -73,6 +73,19 @@ const itemTypeDefinitions: CatalogItemTypeDefinition[] = [
       displayName: 'Plugin ITD',
       name: 'plugin',
       visibility: { scope: 'console' },
+      annotations: { foo: 'bar' },
+      description: 'Description...',
+      documentation: { url: 'http://example.com', type: 'external' },
+      icon: { base64Data: 'abc', mediaType: 'image/png' },
+      labels: { foo: 'bar' },
+      links: [ { url: 'example.com', displayName: 'Example' } ],
+      maintainers: [ { email: 'test@test.com', name: 'John Doe' } ],
+      publisher: {
+        name: 'John Doe',
+        url: 'http://example.com',
+        image: { base64Data: 'abc', mediaType: 'image/png' },
+      },
+      tags: [ 'foo', 'bar' ],
     },
     spec: {
       isVersioningSupported: true,
@@ -413,7 +426,10 @@ suite('marketplace Item Type Definitions list tool', async () => {
   })
 
   test('should return ITDs', async (t) => {
+    const isAiFeaturesEnabledForTenantMockFn = mock.fn(async () => true)
+
     const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn,
       listMarketplaceItemTypeDefinitionsMockFn,
     })
 
@@ -425,16 +441,194 @@ suite('marketplace Item Type Definitions list tool', async () => {
       },
     }, CallToolResultSchema)
 
+    const expectedITDs = [
+      {
+        annotations: { foo: 'bar' },
+        description: 'Description...',
+        displayName: 'Plugin ITD',
+        documentation: { url: 'http://example.com', type: 'external' },
+        labels: { foo: 'bar' },
+        links: [ { url: 'example.com', displayName: 'Example' } ],
+        maintainers: [ { email: 'test@test.com', name: 'John Doe' } ],
+        name: 'plugin',
+        namespace: { scope: 'tenant', id: 'mia-platform' },
+        publisher: {
+          name: 'John Doe',
+          url: 'http://example.com',
+        },
+        tags: [ 'foo', 'bar' ],
+        visibility: { scope: 'console' },
+      },
+      {
+        displayName: 'Custom Workload ITD',
+        name: 'custom-workload',
+        namespace: { scope: 'tenant', id: 'my-company' },
+        visibility: { scope: 'tenant', ids: [ 'my-company' ] },
+      },
+    ]
+
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(itemTypeDefinitions),
+        text: JSON.stringify(expectedITDs),
         type: 'text',
       },
     ])
+
+    t.assert.equal(isAiFeaturesEnabledForTenantMockFn.mock.callCount(), 2)
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(0)!.arguments, [ 'mia-platform' ])
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'my-company' ])
+  })
+
+  test('should return ITDs with namespace param if all namespaces have AI features enabled', async (t) => {
+    const isAiFeaturesEnabledForTenantMockFn = mock.fn(async () => true)
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn,
+      listMarketplaceItemTypeDefinitionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_type_definitions',
+        arguments: {
+          namespace: 'mia-platform,my-company,other-company',
+        },
+      },
+    }, CallToolResultSchema)
+
+    const expectedITDs = [
+      {
+        annotations: { foo: 'bar' },
+        description: 'Description...',
+        displayName: 'Plugin ITD',
+        documentation: { url: 'http://example.com', type: 'external' },
+        labels: { foo: 'bar' },
+        links: [ { url: 'example.com', displayName: 'Example' } ],
+        maintainers: [ { email: 'test@test.com', name: 'John Doe' } ],
+        name: 'plugin',
+        namespace: { scope: 'tenant', id: 'mia-platform' },
+        publisher: {
+          name: 'John Doe',
+          url: 'http://example.com',
+        },
+        tags: [ 'foo', 'bar' ],
+        visibility: { scope: 'console' },
+      },
+      {
+        displayName: 'Custom Workload ITD',
+        name: 'custom-workload',
+        namespace: { scope: 'tenant', id: 'my-company' },
+        visibility: { scope: 'tenant', ids: [ 'my-company' ] },
+      },
+    ]
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedITDs),
+        type: 'text',
+      },
+    ])
+
+    t.assert.equal(isAiFeaturesEnabledForTenantMockFn.mock.callCount(), 3)
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(0)!.arguments, [ 'mia-platform' ])
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'my-company' ])
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(2)!.arguments, [ 'other-company' ])
+  })
+
+  test('should return error message if namespace param is used and not all namespaces have AI features enabled', async (t) => {
+    const isAiFeaturesEnabledForTenantMockFn = mock.fn(async (tenantId: string) => {
+      if (tenantId === 'other-company') {
+        throw new Error('error message')
+      }
+
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn,
+      listMarketplaceItemTypeDefinitionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_type_definitions',
+        arguments: {
+          namespace: 'mia-platform,other-company',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching marketplace item type definitions: error message',
+        type: 'text',
+      },
+    ])
+
+    t.assert.equal(isAiFeaturesEnabledForTenantMockFn.mock.callCount(), 2)
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(0)!.arguments, [ 'mia-platform' ])
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'other-company' ])
+  })
+
+  test('should return ITDs filtering out namespaces without AI features enabled', async (t) => {
+    const isAiFeaturesEnabledForTenantMockFn = mock.fn(async (tenantId: string) => {
+      if (tenantId === 'my-company') {
+        throw new Error('error message')
+      }
+
+      return true
+    })
+
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn,
+      listMarketplaceItemTypeDefinitionsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_marketplace_item_type_definitions',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    const expectedITDs = [
+      {
+        annotations: { foo: 'bar' },
+        description: 'Description...',
+        displayName: 'Plugin ITD',
+        documentation: { url: 'http://example.com', type: 'external' },
+        labels: { foo: 'bar' },
+        links: [ { url: 'example.com', displayName: 'Example' } ],
+        maintainers: [ { email: 'test@test.com', name: 'John Doe' } ],
+        name: 'plugin',
+        namespace: { scope: 'tenant', id: 'mia-platform' },
+        publisher: {
+          name: 'John Doe',
+          url: 'http://example.com',
+        },
+        tags: [ 'foo', 'bar' ],
+        visibility: { scope: 'console' },
+      },
+    ]
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedITDs),
+        type: 'text',
+      },
+    ])
+
+    t.assert.equal(isAiFeaturesEnabledForTenantMockFn.mock.callCount(), 2)
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(0)!.arguments, [ 'mia-platform' ])
+    t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'my-company' ])
   })
 
   test('should return error message if request return error', async (t) => {
     const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
       listMarketplaceItemTypeDefinitionsMockFn,
     })
 
