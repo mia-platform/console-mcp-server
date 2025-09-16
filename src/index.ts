@@ -21,6 +21,8 @@ import { httpServer } from './server/httpserver'
 import { runStdioServer } from './server/stdio'
 import { description, version } from '../package.json'
 
+import 'dotenv/config'
+
 const program = new Command()
 
 program.
@@ -33,7 +35,7 @@ program.
   description('start the Mia-Platform Console MCP Server').
   option('--stdio', 'run the server in stdio mode (default when using npx)', false).
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
-  addOption(new Option('-p, --port <port>', 'port to run the server on').default('3000').env('HTTP_PORT')).
+  addOption(new Option('-p, --port <port>', 'port to run the server on').env('HTTP_PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   action(({ host, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
