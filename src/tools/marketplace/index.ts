@@ -15,6 +15,7 @@
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { unset } from 'lodash-es'
 import { z } from 'zod'
 
 import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
@@ -249,6 +250,9 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
         await assertAiFeaturesEnabledForTenant(client, marketplaceITDTenantId)
 
         const data = await client.marketplaceItemTypeDefinitionInfo(marketplaceITDTenantId, marketplaceITDName)
+
+        unset(data, 'metadata.icon')
+        unset(data, 'metadata.publisher.image')
 
         return {
           content: [

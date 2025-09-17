@@ -675,9 +675,41 @@ suite('marketplace Item Type Definition info tool', async () => {
       },
     }, CallToolResultSchema)
 
+    const expectedITD = {
+      apiVersion: 'software-catalog.mia-platform.eu/v1',
+      kind: 'item-type-definition',
+      metadata: {
+        namespace: { scope: 'tenant', id: 'mia-platform' },
+        displayName: 'Plugin ITD',
+        name: 'plugin',
+        visibility: { scope: 'console' },
+        annotations: { foo: 'bar' },
+        description: 'Description...',
+        documentation: { url: 'http://example.com', type: 'external' },
+        labels: { foo: 'bar' },
+        links: [ { url: 'example.com', displayName: 'Example' } ],
+        maintainers: [ { email: 'test@test.com', name: 'John Doe' } ],
+        publisher: {
+          name: 'John Doe',
+          url: 'http://example.com',
+        },
+        tags: [ 'foo', 'bar' ],
+      },
+      spec: {
+        isVersioningSupported: true,
+        type: 'plugin',
+        scope: 'tenant',
+        validation: {
+          mechanism: 'json-schema',
+          schema: { type: 'object' },
+        },
+      },
+      __v: 1,
+    }
+
     t.assert.deepEqual(result.content, [
       {
-        text: JSON.stringify(itemTypeDefinitions.at(0)),
+        text: JSON.stringify(expectedITD),
         type: 'text',
       },
     ])
