@@ -20,7 +20,6 @@ import { statusRoutes } from './statusRoutes.js'
 import { name, version } from '../../package.json'
 
 suite('test http streaming server', () => {
-
   let fastify: FastifyInstance
   beforeEach(async () => {
     fastify = Fastify({
