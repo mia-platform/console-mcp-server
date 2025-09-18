@@ -13,7 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Implementation } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { ServerOptions } from '@modelcontextprotocol/sdk/server/index'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'
@@ -31,17 +33,22 @@ export function getMcpServer (
   clientSecret: string,
   additionalHeaders: UndiciHeaders = {},
 ): McpServer {
-  const server = new McpServer({
+  const implementation: Implementation = {
     name,
     description,
     version,
+  }
+
+  const options: ServerOptions = {
     capabilities: {
       logging: {},
       resources: {},
       prompts: {},
       tools: {},
     },
-  })
+  }
+
+  const server = new McpServer(implementation, options)
 
   const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
 

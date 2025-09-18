@@ -165,7 +165,6 @@ suite('http client test suite without authentication', () => {
     t.assert.deepEqual(result, { message: 'test' })
   })
 
-
   test('set custom headers, custom accept', async (t) => {
     const customHeadersClient = new HTTPClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',
@@ -199,6 +198,7 @@ suite('http client test suite with authentication', () => {
   let agent: MockAgent
   beforeEach(() => {
     agent = new MockAgent()
+    agent.disableNetConnect()
     setGlobalDispatcher(agent)
     agent.get(mockedEndpoint).intercept({
       path: '/api/m2m/oauth/token',
@@ -333,7 +333,7 @@ suite('http client test suite with authentication', () => {
   test('set custom headers, don\'t override fixed ones', async (t) => {
     const client = new HTTPClient(mockedEndpoint, clientID, clientSecret, {
       'custom-header': 'customValue',
-      Authorization: 'custom authorization',
+      Authorization: 'Bearer token-coming-from-original-request',
       Accept: 'custom accept value',
       'User-Agent': 'custom user agent',
     })
@@ -342,7 +342,7 @@ suite('http client test suite with authentication', () => {
       path: testPath,
       headers: {
         'custom-header': 'customValue',
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: 'Bearer token-coming-from-original-request',
         Accept: 'custom accept value',
         'User-Agent': `${name}/${version}`,
       },

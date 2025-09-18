@@ -14,14 +14,14 @@
 // limitations under the License.
 
 import { env } from 'node:process'
-
-import { FastifyInstance } from 'fastify'
+import { IncomingHttpHeaders } from 'undici/types/header'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
+import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
-import { IncomingHttpHeaders } from 'undici/types/header'
-import { statusRoutes } from './statusRoutes'
+import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
 
 export interface HTTPServerOptions {
   host: string
@@ -29,11 +29,55 @@ export interface HTTPServerOptions {
   clientSecret: string
 }
 
+const connectToMcpServer = async (
+  request: FastifyRequest,
+  reply: FastifyReply,
+  options: HTTPServerOptions,
+  headers: IncomingHttpHeaders = {},
+) => {
+  const { host, clientID, clientSecret } = options
+  try {
+    const server = getMcpServer(host, clientID, clientSecret, headers)
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    })
+
+    reply.raw.on('close', () => {
+      transport.close()
+      server.close()
+    })
+
+    await server.connect(transport)
+    await transport.handleRequest(request.raw, reply.raw, request.body)
+  } catch (error) {
+    console.error('Error handling MCP request:', error)
+    reply.code(500)
+    reply.send({
+      jsonrpc: JSONRPC_VERSION,
+      error: {
+        code: ErrorCode.InternalError,
+        message: 'Internal server error',
+      },
+      id: null,
+    })
+  }
+}
+
 export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
-  const { host, clientID, clientSecret } = opts
+  const { clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
 
-  fastify.post('/mcp', async (request, reply) => {
+
+  fastify.post('/mcp-internal', async (request, reply) => {
+    // This is an internal endpoint for the MCP Server. It is intended to be used ONLY in case the MCP
+    // Server is running in the same trusted network as the services connecting to it (e.g., internal backend,
+    // internal marketplace, etc.).
+    //
+    // It does not require authentication and proxies some headers as expected in the Mia-Platform Console architecture.
+    //
+    // Please use the endpoint /mcp for all other use cases.
+    fastify.log.debug({ message: 'Received POST /mcp-internal request', body: request.body })
+
     const additionalHeaders: IncomingHttpHeaders = {}
     for (const key of additionalHeadersKeys) {
       if (key in request.headers) {
@@ -41,31 +85,43 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       }
     }
 
-    try {
-      const server = getMcpServer(host, clientID, clientSecret, additionalHeaders)
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: undefined,
-      })
+    // We include an empty host to avoid any authentication mechanism to be triggered.
+    await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
+  })
 
-      reply.raw.on('close', () => {
-        transport.close()
-        server.close()
-      })
+  fastify.post('/mcp', async (request, reply) => {
+    fastify.log.debug({ message: 'Received POST /mcp request', body: request.body })
 
-      await server.connect(transport)
-      await transport.handleRequest(request.raw, reply.raw, request.body)
-    } catch (error) {
-      console.error('Error handling MCP request:', error)
-      reply.code(500)
-      reply.send({
-        jsonrpc: JSONRPC_VERSION,
-        error: {
-          code: ErrorCode.InternalError,
-          message: 'Internal server error',
-        },
-        id: null,
-      })
+    const authenticateViaClientCredentials = clientID && clientSecret
+    if (authenticateViaClientCredentials) {
+      await connectToMcpServer(request, reply, opts, {})
     }
+
+    const token = request.headers['Authorization'] ?? request.headers['authorization']
+
+    if (!token) {
+      const baseUrl = getBaseUrlFromRequest(request)
+      const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
+      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
+
+      reply.
+        header(
+          'WWW-Authenticate',
+          headerContent,
+        ).
+        code(401).
+        send({
+          jsonrpc: JSONRPC_VERSION,
+          error: {
+            code: ErrorCode.InternalError,
+            message: 'Missing or invalid access token',
+          },
+          id: null,
+        })
+      return
+    }
+
+    await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
   fastify.get('/mcp', async (_, reply) => {
@@ -91,6 +147,4 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       id: null,
     })
   })
-
-  fastify.register(statusRoutes, { prefix: '/-/' })
 }
