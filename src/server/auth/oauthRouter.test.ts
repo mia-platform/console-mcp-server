@@ -281,7 +281,7 @@ suite('OAuth Router', () => {
         agent.get(testHost).intercept({
           path: '/oauth2/v1/token',
           method: 'POST',
-          body: `grant_type=authorization_code&client_id=${mockOktaCredentials.clientId}&client_secret=${mockOktaCredentials.clientSecret}&refresh_token=refresh-token-123`,
+          body: `grant_type=refresh_token&client_id=${mockOktaCredentials.clientId}&client_secret=${mockOktaCredentials.clientSecret}&refresh_token=refresh-token-123`,
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
