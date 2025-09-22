@@ -39,11 +39,9 @@ describe('ClientCredentialsManager', () => {
     const credentials = manager.generateCredentials()
 
     assert.ok(credentials.clientId)
-    assert.ok(credentials.clientSecret)
     assert.ok(credentials.createdAt)
     assert.ok(credentials.expiresAt)
     assert.strictEqual(typeof credentials.clientId, 'string')
-    assert.strictEqual(typeof credentials.clientSecret, 'string')
     assert.strictEqual(typeof credentials.createdAt, 'number')
     assert.strictEqual(typeof credentials.expiresAt, 'number')
   })
@@ -69,7 +67,6 @@ describe('ClientCredentialsManager', () => {
     const credentials2 = manager.generateCredentials()
 
     assert.notStrictEqual(credentials1.clientId, credentials2.clientId)
-    assert.notStrictEqual(credentials1.clientSecret, credentials2.clientSecret)
   })
 
   test('should return credentials for valid client ID', () => {
@@ -78,7 +75,6 @@ describe('ClientCredentialsManager', () => {
 
     assert.ok(retrieved)
     assert.strictEqual(retrieved.clientId, generated.clientId)
-    assert.strictEqual(retrieved.clientSecret, generated.clientSecret)
   })
 
   test('should return null for non-existent client ID', () => {
@@ -106,80 +102,6 @@ describe('ClientCredentialsManager', () => {
     Date.now = () => fixedTime + 11 * 1000
 
     const retrieved = shortLivedManager.getCredentials(generated.clientId)
-    assert.strictEqual(retrieved, null)
-  })
-
-  test('should add state to existing credentials', () => {
-    const credentials = manager.generateCredentials()
-    const state = 'test-state-value'
-
-    const success = manager.addState(credentials.clientId, state)
-
-    assert.strictEqual(success, true)
-  })
-
-  test('should return false for non-existent client ID', () => {
-    const success = manager.addState('non-existent-id', 'test-state')
-
-    assert.strictEqual(success, false)
-  })
-
-  test('should return false for expired credentials', () => {
-    const credentials = manager.generateCredentials()
-
-    // Token should be expired 301 seconds later
-    Date.now = () => fixedTime + 301 * 1000
-
-    const success = manager.addState(credentials.clientId, 'test-state')
-    assert.strictEqual(success, false)
-  })
-
-  test('should not update state if called a second time', () => {
-    const credentials = manager.generateCredentials()
-
-    const success1 = manager.addState(credentials.clientId, 'state-1')
-    assert.strictEqual(success1, true)
-
-    const success2 = manager.addState(credentials.clientId, 'state-2')
-    assert.strictEqual(success2, false)
-
-    const storedData = manager.getStoredClientIdAndState(credentials.clientId)
-    assert.strictEqual(storedData?.state, 'state-1')
-  })
-
-  test('should return client ID and state when both exist', () => {
-    const credentials = manager.generateCredentials()
-    const state = 'test-state-value'
-
-    manager.addState(credentials.clientId, state)
-    const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
-
-    assert.strictEqual(retrieved?.clientId, credentials.clientId)
-    assert.strictEqual(retrieved?.state, state)
-  })
-
-  test('should return null for non-existent client ID', () => {
-    const retrieved = manager.getStoredClientIdAndState('non-existent-id')
-
-    assert.strictEqual(retrieved, null)
-  })
-
-  test('should return null when credentials exist but no state', () => {
-    const credentials = manager.generateCredentials()
-    const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
-
-    assert.strictEqual(retrieved, null)
-  })
-
-  test('should return null for expired credentials', () => {
-    const credentials = manager.generateCredentials()
-    manager.addState(credentials.clientId, 'test-state')
-
-    // Token should be expired 301 seconds later
-    Date.now = () => fixedTime + 301 * 1000
-
-    const retrieved = manager.getStoredClientIdAndState(credentials.clientId)
-
     assert.strictEqual(retrieved, null)
   })
 

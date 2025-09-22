@@ -24,7 +24,7 @@ const REGISTER_PATH = `${BASE_PATH}/oauth/register`
 
 export const OAUTH_PROTECTED_RESOURCE_PATH = `/.well-known/oauth-protected-resource/${BASE_PATH}`
 const OAUTH_AUTHORIZATION_SERVER_PATH = `/.well-known/oauth-authorization-server/${BASE_PATH}`
-const OAUTH_SCOPES = [ 'profile', 'email', 'openid', 'offline-access' ]
+const OAUTH_SCOPES = [ 'profile', 'email', 'openid', 'offline_access' ]
 
 export async function wellKnownRouter (fastify: FastifyInstance, options: { host?: string }) {
   const { host = '' } = options
@@ -72,11 +72,7 @@ export async function wellKnownRouter (fastify: FastifyInstance, options: { host
         'authorization_code',
         'refresh_token',
       ],
-      token_endpoint_auth_methods_supported: [
-        'client_secret_basic',
-        'client_secret_post',
-        'none',
-      ],
+      token_endpoint_auth_methods_supported: [ 'none' ],
     })
   })
 }

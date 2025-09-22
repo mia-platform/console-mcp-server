@@ -26,7 +26,7 @@ suite('./well-known routes', () => {
     t.assert.equal(body.resource_name, 'Console MCP Server')
     t.assert.equal(body.resource, `http://localhost:80/console-mcp-server/mcp`)
     t.assert.equal(body.authorization_servers[0], `http://localhost:80/console-mcp-server`)
-    t.assert.deepEqual(body.scopes_supported, [ 'profile', 'email', 'openid', 'offline-access' ])
+    t.assert.deepEqual(body.scopes_supported, [ 'profile', 'email', 'openid', 'offline_access' ])
     t.assert.deepEqual(body.bearer_methods_supported, [ 'header' ])
   })
 
@@ -43,7 +43,7 @@ suite('./well-known routes', () => {
     t.assert.equal(body.authorization_endpoint, `http://localhost:80/console-mcp-server/oauth/authorize`)
     t.assert.equal(body.token_endpoint, `http://localhost:80/console-mcp-server/oauth/token`)
     t.assert.equal(body.registration_endpoint, `http://localhost:80/console-mcp-server/oauth/register`)
-    t.assert.deepEqual(body.scopes_supported, [ 'profile', 'email', 'openid', 'offline-access' ])
+    t.assert.deepEqual(body.scopes_supported, [ 'profile', 'email', 'openid', 'offline_access' ])
     t.assert.deepEqual(body.response_types_supported, [ 'code' ])
     t.assert.deepEqual(body.code_challenge_methods_supported, [ 'S256' ])
     t.assert.deepEqual(body.response_modes_supported, [ 'query' ])

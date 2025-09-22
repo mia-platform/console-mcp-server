@@ -21,11 +21,11 @@ import Fastify from 'fastify'
 import formbody from '@fastify/formbody'
 
 import { httpServer } from './server/httpserver'
-import { oauthRouter } from './server/auth/oauthRouter'
 import { runStdioServer } from './server/stdio'
 import { statusRoutes } from './server/statusRoutes'
 import { wellKnownRouter } from './server/auth/wellKnownRouter'
 import { description, version } from '../package.json'
+import { oauthRouter, OktaCredentials } from './server/auth/oauthRouter'
 
 const program = new Command()
 
@@ -43,9 +43,22 @@ program.
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   action(async ({ host, stdio, port, serverHost }) => {
     // Environment variables extraction
+    const logLevel = process.env.LOG_LEVEL || 'info'
+
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
-    const logLevel = process.env.LOG_LEVEL || 'info'
+
+    const oktaHost = process.env.OKTA_HOST || ''
+    const oktaClientID = process.env.OKTA_CLIENT_ID || ''
+    const oktaClientSecret = process.env.OKTA_CLIENT_SECRET || ''
+    const oktaClientCredentials: OktaCredentials | undefined = oktaHost
+      ? {
+        host: oktaHost,
+        clientId: oktaClientID,
+        clientSecret: oktaClientSecret,
+      }
+      : undefined
+
     const clientExpiryDuration = process.env.CLIENT_EXPIRY_DURATION
       ? parseInt(process.env.CLIENT_EXPIRY_DURATION, 10)
       : undefined
@@ -69,7 +82,7 @@ program.
     fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
-    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host, clientExpiryDuration })
+    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', oktaClientCredentials, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {

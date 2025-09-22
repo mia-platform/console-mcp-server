@@ -29,68 +29,89 @@ This is the configuration if you are using User Authentication with OAuth2 and D
 
 ```json
 {
-    "servers": {
-        "mia-platform-mcp": {
-            "command": "docker",
-            "args": [
-                "run",
-                "-i",
-                "--rm",
-                "-v",
-                "~/.cache/miactl:/home/node/.cache/miactl",
-                "ghcr.io/mia-platform/console-mcp-server",
-                "mcp-server",
-                "start",
-                "--stdio",
-                "--host=https://demo.console.gcp.mia-platform.eu/"
-            ],
-            "type": "stdio"
-        }
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "okta_host",
+      "description": "Okta Host",
+      "password": false
     },
-    "inputs": []
+    {
+      "type": "promptString",
+      "id": "okta_client_id",
+      "description": "Okta Client ID",
+      "password": false
+    },
+    {
+      "type": "promptString",
+      "id": "okta_client_secret",
+      "description": "Okta Client Secret",
+      "password": true
+    }
+  ],
+  "servers": {
+    "mia-platform-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-v",
+        "~/.cache/miactl:/home/node/.cache/miactl",
+        "ghcr.io/mia-platform/console-mcp-server",
+        "mcp-server",
+        "start",
+        "--stdio",
+        "--host=https://demo.console.gcp.mia-platform.eu/"
+      ],
+      "env": {
+      "OKTA_HOST": "${input:okta_host}",
+      "OKTA_CLIENT_ID": "${input:okta_client_secret}",
+      "OKTA_CLIENT_SECRET": "${input:okta_client_secret}"
+      }
+    }
+  }
 }
 ```
 
-This is the configuration if you are using a predefined Service Account.
+The following is the configuration if you are using a predefined Service Account.
 
 ```json
 {
-  "mcp": {
-    "inputs": [
-      {
-        "type": "promptString",
-        "id": "mia_client_id",
-        "description": "Mia-Platform Client ID",
-        "password": false
-      },
-      {
-        "type": "promptString",
-        "id": "mia_client_secret",
-        "description": "Mia-Platform Client Secret",
-        "password": true
-      }
-    ],
-    "servers": {
-      "mia-platform-console": {
-        "command": "docker",
-        "args": [
-          "run",
-          "-i",
-          "--rm",
-          "-e",
-          "MIA_PLATFORM_CLIENT_ID",
-          "-e",
-          "MIA_PLATFORM_CLIENT_SECRET",
-          "ghcr.io/mia-platform/console-mcp-server",
-          "mcp-server",
-          "start",
-          "--stdio",
-          "--host=https://console.cloud.mia-platform.eu"
-        ],
-        "env": {
-          "MIA_PLATFORM_CLIENT_ID": "${input:mia_client_id}",
-          "MIA_PLATFORM_CLIENT_SECRET": "${input:mia_client_secret}"
-        }
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "mia_client_id",
+      "description": "Mia-Platform Client ID",
+      "password": false
+    },
+    {
+      "type": "promptString",
+      "id": "mia_client_secret",
+      "description": "Mia-Platform Client Secret",
+      "password": true
+    }
+  ],
+  "servers": {
+    "mia-platform-console": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "MIA_PLATFORM_CLIENT_ID",
+        "-e",
+        "MIA_PLATFORM_CLIENT_SECRET",
+        "ghcr.io/mia-platform/console-mcp-server",
+        "mcp-server",
+        "start",
+        "--stdio",
+        "--host=https://console.cloud.mia-platform.eu"
+      ],
+      "env": {
+        "MIA_PLATFORM_CLIENT_ID": "${input:mia_client_id}",
+        "MIA_PLATFORM_CLIENT_SECRET": "${input:mia_client_secret}"
       }
     }
   }
@@ -98,7 +119,7 @@ This is the configuration if you are using a predefined Service Account.
 ```
 
 :::tip
-If both the environment variables `MIA_PLATFORM_CLIENT_ID` and `MIA_PLATFORM_CLIENT_SECRET` are included, you will be asked to authenticate with your credentials. In this case, make sure you open the web page that Visual Studio Code will prompt you to open.
+When using the OAuth2 flow by including the Mia-Platform configuration, you will be asked to authenticate with your credentials. In this case, make sure you open the web page that Visual Studio Code will prompt you to open.
 
 If you have issues to authenticate because of an `invalid_client` error, please try to remove the DCR clients registrated using the `Authentication: Remove Dynamic Authentication Providers` option from the application menu.
 :::
