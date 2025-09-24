@@ -13,11 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Implementation } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
+import { addDeployPrompt } from '../prompts'
 import { addGovernanceCapabilities } from '../tools/governance'
 import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
@@ -31,26 +34,35 @@ export function getMcpServer (
   clientSecret: string,
   additionalHeaders: UndiciHeaders = {},
 ): McpServer {
-  const server = new McpServer({
+  const implementation: Implementation = {
     name,
     description,
     version,
+  }
+
+  const options: ServerOptions = {
     capabilities: {
       logging: {},
       resources: {},
       prompts: {},
       tools: {},
     },
-  })
+  }
+
+  const server = new McpServer(implementation, options)
 
   const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
 
+  // Tools
   addMarketplaceCapabilities(server, apiClient)
   addGovernanceCapabilities(server, apiClient)
   addServicesCapabilities(server, apiClient)
   addConfigurationCapabilities(server, apiClient)
   addDeployCapabilities(server, apiClient)
   addRuntimeCapabilities(server, apiClient)
+
+  // Prompts
+  addDeployPrompt(server)
 
   return server
 }
