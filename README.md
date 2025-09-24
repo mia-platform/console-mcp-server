@@ -106,7 +106,7 @@ npm run local:test  -- --host https://CONSOLE_HOST
 ```
 
 This command will download and launch the MCP inspector on `http://localhost:6274` where you can test if the
-implementation will work correctly testing the tools discovery and calls without the needs of a working llm environment.
+implementation will work correctly testing the discovery of tools and prompts without the needs of a working llm environment.
 
 To run tests for new implementations you can use:
 
