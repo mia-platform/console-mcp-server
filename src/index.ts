@@ -42,7 +42,6 @@ program.
   addOption(new Option('-p, --port <port>', 'port to run the server on').env('PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   action(async ({ host, stdio, port, serverHost }) => {
-    // Environment variables extraction
     const logLevel = process.env.LOG_LEVEL || 'info'
 
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
