@@ -14,7 +14,7 @@
 // limitations under the License.
 
 import { Implementation } from '@modelcontextprotocol/sdk/types'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
