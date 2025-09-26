@@ -17,7 +17,7 @@ import { suite, test } from 'node:test'
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
-import { ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
+import { ListPromptsResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import { getMcpServer } from './server'
 import { toolsDescriptions } from '../tools/descriptions'
@@ -45,6 +45,15 @@ suite('initialize server', () => {
       ListToolsResultSchema,
     )
     t.assert.equal(toolsResult.tools.length, Object.keys(toolsDescriptions).length, 'should return all the registred tools')
+
+    const promptsResult = await testClient.request(
+      {
+        method: 'prompts/list',
+      },
+      ListPromptsResultSchema,
+    )
+
+    t.assert.equal(promptsResult.prompts.length, 1, 'should return all the registred prompts')
 
     await clientTransport.close()
     await serverTransport.close()
