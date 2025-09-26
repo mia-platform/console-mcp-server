@@ -16,11 +16,13 @@
 import { beforeEach, suite, test, TestContext } from 'node:test'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
+import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { HTTPClient } from './http-client'
 import { internalEndpoint, MarketplaceClient, MarketplaceClientInternal } from './marketplaceClient'
 
 const tenantID = 'tenantID'
 const itemID = 'itemid'
+const itdName = 'itdName'
 const search = 'item1'
 const type = 'example'
 const version = '1.0.1'
@@ -32,6 +34,48 @@ const tenantItems = [
 const publicItems = [
   { itemId: 'item-id-1', name: 'item1', tenantId: 'public' },
   { itemId: 'item-id-2', name: 'item2', tenantId: 'public' },
+]
+
+const itemTypeDefinitions: CatalogItemTypeDefinition[] = [
+  {
+    apiVersion: 'software-catalog.mia-platform.eu/v1',
+    kind: 'item-type-definition',
+    metadata: {
+      namespace: { scope: 'tenant', id: 'mia-platform' },
+      displayName: 'Plugin ITD',
+      name: 'plugin',
+      visibility: { scope: 'console' },
+    },
+    spec: {
+      isVersioningSupported: true,
+      type: 'plugin',
+      scope: 'tenant',
+      validation: {
+        mechanism: 'json-schema',
+        schema: { type: 'object' },
+      },
+    },
+    __v: 1,
+  },
+  {
+    apiVersion: 'software-catalog.mia-platform.eu/v1',
+    kind: 'item-type-definition',
+    metadata: {
+      namespace: { scope: 'tenant', id: 'my-company' },
+      displayName: 'Custom Workload ITD',
+      name: 'custom-workload',
+      visibility: { scope: 'tenant', ids: [ 'my-company' ] },
+    },
+    spec: {
+      type: 'custom-workload',
+      scope: 'tenant',
+      validation: {
+        mechanism: 'json-schema',
+        schema: { type: 'object' },
+      },
+    },
+    __v: 1,
+  },
 ]
 
 suite('Marketplace Internal Client', () => {
@@ -167,6 +211,62 @@ suite('Marketplace Internal Client', () => {
     }).reply(500, { error: 'Internal Server Error' })
     await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })
   })
+
+  test('list marketplace Item Type Definitions', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+      },
+    }).reply(200, itemTypeDefinitions)
+    t.assert.deepEqual(await client.listMarketplaceItemTypeDefinitions(), itemTypeDefinitions)
+
+    agent.get(internalEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+        namespace: 'mia-platform,my-company',
+        name: 'plugin,custom-workload',
+        displayName: 'Plugin,Custom Workload',
+      },
+    }).reply(200, itemTypeDefinitions)
+    t.assert.deepEqual(await client.listMarketplaceItemTypeDefinitions('mia-platform,my-company', 'plugin,custom-workload', 'Plugin,Custom Workload'), itemTypeDefinitions)
+  })
+
+  test('list marketplace Item Type Definitions must throw if the API call fails', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+      },
+    }).reply(500, { error: 'Internal Server Error' })
+    await t.assert.rejects(async () => await client.listMarketplaceItemTypeDefinitions(), { name: 'Error' })
+  })
+
+  test('marketplace Item Type Definition info', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      method: 'GET',
+    }).reply(200, itemTypeDefinitions.at(0))
+    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), itemTypeDefinitions.at(0))
+  })
+
+  test('marketplace Item Type Definitions info must throw if the API call fails', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      method: 'GET',
+    }).reply(500, { error: 'Internal Server Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), { name: 'Error' })
+  })
 })
 
 suite('Marketplace Client', () => {
@@ -278,5 +378,61 @@ suite('Marketplace Client', () => {
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
     await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })
+  })
+
+  test('list marketplace Item Type Definitions', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+      },
+    }).reply(200, itemTypeDefinitions)
+    t.assert.deepEqual(await client.listMarketplaceItemTypeDefinitions(), itemTypeDefinitions)
+
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+        namespace: 'mia-platform,my-company',
+        name: 'plugin,custom-workload',
+        displayName: 'Plugin,Custom Workload',
+      },
+    }).reply(200, itemTypeDefinitions)
+    t.assert.deepEqual(await client.listMarketplaceItemTypeDefinitions('mia-platform,my-company', 'plugin,custom-workload', 'Plugin,Custom Workload'), itemTypeDefinitions)
+  })
+
+  test('list marketplace Item Type Definitions must throw if the API call fails', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/marketplace/item-type-definitions',
+      method: 'GET',
+      query: {
+        perPage: 200,
+        per_page: 200,
+        page: 1,
+      },
+    }).reply(500, { error: 'Internal Server Error' })
+    await t.assert.rejects(async () => await client.listMarketplaceItemTypeDefinitions(), { name: 'Error' })
+  })
+
+  test('marketplace Item Type Definition info', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      method: 'GET',
+    }).reply(200, itemTypeDefinitions.at(0))
+    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), itemTypeDefinitions.at(0))
+  })
+
+  test('marketplace Item Type Definitions info must throw if the API call fails', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      method: 'GET',
+    }).reply(500, { error: 'Internal Server Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), { name: 'Error' })
   })
 })

@@ -24,6 +24,8 @@ export const toolNames = {
   LIST_MARKETPLACE: 'list_marketplace',
   LIST_MARKETPLACE_ITEM_VERSIONS: 'list_marketplace_item_versions',
   MARKETPLACE_ITEM_VERSION_INFO: 'marketplace_item_version_info',
+  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'list_marketplace_item_type_definitions',
+  MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'marketplace_item_type_definition_info',
 
   // project tools
   LIST_PROJECTS: 'list_projects',
@@ -69,6 +71,8 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   `,
   LIST_MARKETPLACE_ITEMS_VERSIONS: 'List all the available versions of a marketplace item',
   MARKETPLACE_ITEM_VERSION_INFO: 'Get information about a specific version of a marketplace item',
+  LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'List the metadata of all the marketplace Item Type Definitions the caller has permission to see (i.e., the ones available to all tenants and the private ones of tenants the user has permission to see)',
+  MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'Get information about a specific Item Type Definition identified by its compound primary key as path parameters (i.e., id of the tenant namespace, and name of the definition)',
 
   // project tools
   LIST_PROJECTS: `
@@ -126,7 +130,8 @@ export const paramsDescriptions = {
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
   MARKETPLACE_ITEM_TYPE: `
   Type of marketplace item to filter, empty string means no filter.
-  Possible values are:
+  It can be a full Item Type Definition URN (following the pattern \`urn:<itd.metadata.namespace.id>:mktp:itd:<itd.metadata.name>\`), or a just an Item Type Definition name (i.e., \`itd.metadata.name\`) which will be considered belonging to the Mia-Platform default namespace. The relevant Item Type Definition fields can be found in the metadata.namespace.id and metadata.name fields of the ${toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS} tool.
+  The following values are built-in types belonging to the default Mia-Platform namespace:
   - application: Applications are bundles of resources that brings together services (i.e., plugins, templates, and examples), endpoints, CRUD collections, and public variables to ease the setup of large-scale artifacts.
   - example: Examples works no differently than templates, in the sense that they too provide an archive with base configurations. Unlike templates, examples should come with some features already implemented and tailored to help the user better familiarize with the development environment.
   - extension: Extensions are custom pages that enhances Console capabilities by integrating it into the sidebar navigation. Since extensions have their own dedicated section, they are left out by the Software Catalog UI. Extensions can still be managed with miactl, and API calls.
@@ -134,7 +139,7 @@ export const paramsDescriptions = {
   - plugin: Plugins are services that can be instantiated from the microservices section of the Console Design area. Practically speaking, plugins are Docker images that comes with some predefined configurations to make them work in Console projects (e.g., environment variables, config maps, probes...).
   - proxy: Proxies are specific configurations used to invoke APIs that are not part of the current project but may be exposed by an external provider or another project. Proxies can be instantiated from the dedicated section of the Console Design area.
   - sidecar: Sidecars are secondary utility containers running side by side with the main container in the same host. They are Docker images that can be instantiated from the dedicated section of the Console Design area.
-  - template: Teamplates can be instantiated in Console the same as plugins. The difference is that they provide an archive that is cloned in the Project scope, instead of a Docker image, giving developers direct access to the codebase to evolve it at will. Templates are meant to be starting points with the bear minimum needed to start a service. Just like plugins, templates may also come with some predefined configurations.
+  - template: Templates can be instantiated in Console the same as plugins. The difference is that they provide an archive that is cloned in the Project scope, instead of a Docker image, giving developers direct access to the codebase to evolve it at will. Templates are meant to be starting points with the bear minimum needed to start a service. Just like plugins, templates may also come with some predefined configurations.
   - infrastructure-component-runtime: Infrastructure Component runtime items are custom objects that are not part of the standard Console supported resources. They can be managed in the context of Infrastructure Project to be able to collect runtime data for visualization within Console.
   `,
   MARKETPLACE_ITEM_TENANT_ID: `The tenant of the marketplace item. Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
@@ -144,6 +149,11 @@ export const paramsDescriptions = {
   The Mia-Platform Console company or tenant for which to return both the public and private marketplace resources.
   Can be found in the tenantId field of the ${toolNames.LIST_TENANTS} tool.
   `,
+  MARKETPLACE_ITD_LIST_NAMESPACE: `A comma-separated list of tenant ids to filter Item Type Definitions by (it will be matched against metadata.namespace.id). Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
+  MARKETPLACE_ITD_LIST_NAME: `A comma-separated list of names to filter Item Type Definitions by (it will be matched against metadata.name)`,
+  MARKETPLACE_ITD_LIST_DISPLAY_NAME: `A comma-separated list of display names to filter Item Type Definitions by (it will be matched against metadata.displayName)`,
+  MARKETPLACE_ITD_TENANT_ID: `The tenant id of the marketplace Item Type Definition (it will be matched against metadata.namespace.id). Can be found in the tenantId field of the ${toolNames.LIST_MARKETPLACE} tool`,
+  MARKETPLACE_ITD_NAME: `The name of the marketplace Item Type Definition (it will be matched against metadata.name). Can be found in the metadata.name field of the ${toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS} tool`,
 
   // Project
   PROJECT_ID: `The project to use. Can be found in the _id field of the ${toolNames.LIST_PROJECTS} tool`,

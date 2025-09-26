@@ -15,9 +15,11 @@
 
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { unset } from 'lodash-es'
 import { z } from 'zod'
 
 import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
+import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { CatalogItemTypes } from '../../apis/types/marketplace'
 import { IAPIClient } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
@@ -141,6 +143,132 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
             {
               type: 'text',
               text: `Error fetching marketplace item info for version ${marketplaceItemVersion}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS,
+    toolsDescriptions.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS,
+    {
+      namespace: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_NAMESPACE),
+      name: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_NAME),
+      displayName: z.string().optional().describe(paramsDescriptions.MARKETPLACE_ITD_LIST_DISPLAY_NAME),
+    },
+    async ({ namespace, name, displayName }): Promise<CallToolResult> => {
+      try {
+        if (namespace) {
+          const tenantIds = namespace.split(',')
+          await Promise.all(tenantIds.map((tenantId) => assertAiFeaturesEnabledForTenant(client, tenantId)))
+        }
+
+        const data = await client.listMarketplaceItemTypeDefinitions(namespace, name, displayName)
+
+        let tenantIdAiFeaturesEnabledMap: Map<string, boolean> | null = null
+
+        // We don't need to check the returned data if the argument is used, since we already checked that all
+        // passed namespaces have AI features enabled
+        if (!namespace) {
+          tenantIdAiFeaturesEnabledMap = new Map()
+
+          const dataTenantIds = new Set(data.map((itd) => itd.metadata.namespace.id))
+
+          const assertAiFeaturesEnabledForTenantPromises: Promise<void>[] = []
+          dataTenantIds.forEach((tenantId) => {
+            assertAiFeaturesEnabledForTenantPromises.push(assertAiFeaturesEnabledForTenant(client, tenantId).
+              then(() => {
+                tenantIdAiFeaturesEnabledMap?.set(tenantId, true)
+              }).
+              catch(() => {
+                tenantIdAiFeaturesEnabledMap?.set(tenantId, false)
+              }))
+          })
+
+          await Promise.all(assertAiFeaturesEnabledForTenantPromises)
+        }
+
+        const mappedData = data.reduce<CatalogItemTypeDefinition['metadata'][]>((acc, itd) => {
+          if (tenantIdAiFeaturesEnabledMap?.get(itd.metadata.namespace.id) === false) {
+            return acc
+          }
+
+          return [
+            ...acc,
+            {
+              annotations: itd.metadata.annotations,
+              description: itd.metadata.description,
+              displayName: itd.metadata.displayName,
+              documentation: itd.metadata.documentation,
+              labels: itd.metadata.labels,
+              links: itd.metadata.links,
+              maintainers: itd.metadata.maintainers,
+              name: itd.metadata.name,
+              namespace: itd.metadata.namespace,
+              publisher: itd.metadata.publisher
+                ? { name: itd.metadata.publisher.name, url: itd.metadata.publisher.url }
+                : undefined,
+              tags: itd.metadata.tags,
+              visibility: itd.metadata.visibility,
+            },
+          ]
+        }, [])
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(mappedData),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace item type definitions: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.MARKETPLACE_ITEM_TYPE_DEFINITION_INFO,
+    toolsDescriptions.MARKETPLACE_ITEM_TYPE_DEFINITION_INFO,
+    {
+      marketplaceITDTenantId: z.string().describe(paramsDescriptions.MARKETPLACE_ITD_TENANT_ID),
+      marketplaceITDName: z.string().describe(paramsDescriptions.MARKETPLACE_ITD_NAME),
+    },
+    async ({ marketplaceITDName, marketplaceITDTenantId }): Promise<CallToolResult> => {
+      try {
+        await assertAiFeaturesEnabledForTenant(client, marketplaceITDTenantId)
+
+        const data = await client.marketplaceItemTypeDefinitionInfo(marketplaceITDTenantId, marketplaceITDName)
+
+        unset(data, 'metadata.icon')
+        unset(data, 'metadata.publisher.image')
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace Item Type Definition info for namespace ${marketplaceITDTenantId} and name ${marketplaceITDName}: ${err.message}`,
             },
           ],
         }

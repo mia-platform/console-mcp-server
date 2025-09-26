@@ -14,12 +14,13 @@
 // limitations under the License.
 
 import { Implementation } from '@modelcontextprotocol/sdk/types'
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp'
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
+import { addDeployPrompt } from '../prompts'
 import { addGovernanceCapabilities } from '../tools/governance'
 import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
@@ -52,12 +53,16 @@ export function getMcpServer (
 
   const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
 
+  // Tools
   addMarketplaceCapabilities(server, apiClient)
   addGovernanceCapabilities(server, apiClient)
   addServicesCapabilities(server, apiClient)
   addConfigurationCapabilities(server, apiClient)
   addDeployCapabilities(server, apiClient)
   addRuntimeCapabilities(server, apiClient)
+
+  // Prompts
+  addDeployPrompt(server)
 
   return server
 }
