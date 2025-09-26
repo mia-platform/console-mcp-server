@@ -16,12 +16,16 @@
 
 import { Command, Option } from 'commander'
 
+import 'dotenv/config'
 import Fastify from 'fastify'
+import formbody from '@fastify/formbody'
+
 import { httpServer } from './server/httpserver'
 import { runStdioServer } from './server/stdio'
+import { statusRoutes } from './server/statusRoutes'
+import { wellKnownRouter } from './server/auth/wellKnownRouter'
 import { description, version } from '../package.json'
-
-import 'dotenv/config'
+import { oauthRouter, OktaCredentials } from './server/auth/oauthRouter'
 
 const program = new Command()
 
@@ -35,11 +39,28 @@ program.
   description('start the Mia-Platform Console MCP Server').
   option('--stdio', 'run the server in stdio mode (default when using npx)', false).
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
-  addOption(new Option('-p, --port <port>', 'port to run the server on').env('HTTP_PORT').default('3000')).
+  addOption(new Option('-p, --port <port>', 'port to run the server on').env('PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
-  action(({ host, stdio, port, serverHost }) => {
+  action(async ({ host, stdio, port, serverHost }) => {
+    const logLevel = process.env.LOG_LEVEL || 'info'
+
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
+
+    const oktaHost = process.env.OKTA_HOST || ''
+    const oktaClientID = process.env.OKTA_CLIENT_ID || ''
+    const oktaClientSecret = process.env.OKTA_CLIENT_SECRET || ''
+    const oktaClientCredentials: OktaCredentials | undefined = oktaHost
+      ? {
+        host: oktaHost,
+        clientId: oktaClientID,
+        clientSecret: oktaClientSecret,
+      }
+      : undefined
+
+    const clientExpiryDuration = process.env.CLIENT_EXPIRY_DURATION
+      ? parseInt(process.env.CLIENT_EXPIRY_DURATION, 10)
+      : undefined
 
     if (stdio) {
       return runStdioServer(host, clientID, clientSecret).catch((error) => {
@@ -49,13 +70,18 @@ program.
     }
 
     const fastify = Fastify({
-      logger: true,
+      logger: { level: logLevel },
+      trustProxy: true,
     })
-    fastify.register(httpServer, {
-      host,
-      clientID,
-      clientSecret,
-    })
+
+    // Register plugins
+    await fastify.register(formbody)
+
+    // Registering routes
+    fastify.register(wellKnownRouter, { prefix: '/', host })
+    fastify.register(statusRoutes, { prefix: '/-/' })
+    fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
+    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', oktaClientCredentials, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {

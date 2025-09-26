@@ -1,6 +1,6 @@
 {
   "name": "@mia-platform/console-mcp-server",
-  "version": "1.0.6",
+  "version": "1.1.0-exp.15",
   "description": "Mia-Platform Console MCP Server",
   "main": "mcp-server/index.js",
   "bin": {
@@ -31,6 +31,7 @@
   },
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
+    "@fastify/formbody": "^8.0.2",
     "@mia-platform/console-types": "^0.39.0",
     "@modelcontextprotocol/sdk": "^1.17.5",
     "commander": "^14.0.0",

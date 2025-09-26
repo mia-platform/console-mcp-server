@@ -5,49 +5,32 @@
 
 ## Introduction
 
-The Mia-Platform Console MCP Server is a [Model Context Protocol (MCP)] server that provides seamless integration
+The Mia-Platform Console MCP Server is a [Model Context Protocol (MCP)](mcp-intro) server that provides seamless integration
 with Mia-Platform Console APIs, enabling advanced automation and interaction capabilities for developers and tools.
 
 ## Prerequisites
 
-1. To run the server in a container, you will need to have [Docker] installed.
-1. Once Docker is installed, you will also need to ensure Docker is running.
-1. Lastly you will need to a way ot authenticate to your Mia-Platform Console installation, you either have to:
-    - [Create a Mia-Platform Service Account] with `Client Secret Basic`
-    authorization mode (the only one supported at this time)
-  the `Client Secret Basic` one.
-    - Use miactl authentication: if you have [`miactl`][miactl] installed you can run any command to login,
-     the same session will then be used by the mcp server to authenticate.
+To use the Mia-Platform Console MCP Server in your client (such as Visual Studio Code, Claude Desktop, Cursor, Gemini CLI or others), you first need to have a valid account on the Mia-Platform Console instance you want to communicate with.
 
-> [!WARNING]
-> When using miactl session, auto-refresh by the MCP Server is not currently supported,
-> once the session created with miactl expires you have to refresh it with miactl again.
----
-> [!IMPORTANT]
-> When using miactl session, the host you provide to the MCP Server **MUST** be the exact same as the one
-> you have logged in with miactl, including scheme and any possible trailing slash.
+You may decide to access via:
+
+- Using your own credentials: Mia-Platform Console MCP Server follows the [Model Context Protocol specifications on authentication](mcp-specs-auth) using OAuth2.1 and Dynamic Client Registration: clients that follow that specifications will be able to discover the authentication endpoints of the selected Mia-Platform instance you want to access to and guide you to perform the log in.
+- Service Account to perform machine-to-machine authentication and have full access to the MCP capabilities to perform operations on the Company where the Service Account has been created (for more information, visit [our official documentation on how to create a Mia-Platform Service Account](docs-create-service-account)). If you choose this option, you need to include the environment variables `MIA_PLATFORM_CLIENT_ID`, `MIA_PLATFORM_CLIENT_SECRET` and the `CONSOLE_HOST`.
+- Run the MCP Server on your local machine using the instructions in the following paragraph.
 
 ### How to Run
+You can run stable versions of the Mia-Platform Console MCP Server using [Docker](Docker) or by simply including the path of the MCP Server active in the Mia-Platform Console. You can get a detailed guide using the [following guide](20-setup).
 
-To run the MCP server on your machine you can follow the instructions in the [Setup Documentation]
+If you don't have Docker installed, or you simply wish to run it locally, you can use NPM and Node.js. In this case, you can authenticate either via Service Account or by including the credentials to connect to the authentication APIs of [Okta](https://www.okta.com/). More details are in the examples below.
 
-### Run from sources
-
-If you don't have Docker installed, you can use NPM and Node.js for running it locally. Once you have cloned the
-project you can run the commands:
+Once you have cloned the project, you can run the following commands:
 
 ```sh
 npm ci
 npm run build
 ```
 
-These commands will install all the dependencies and then transpile the typescript code in the `build` folder.
-
-> [!NOTE]
-> The server automatically loads environment variables from a `.env` file if present in the project root. 
-> You can create one by copying `default.env` to `.env` and updating the values as needed.
-
-Once these steps are completed you can setup the MCP server using the `node` command like the following:
+These commands will install all the dependencies and then transpile the typescript code in the `build` folder. Once these steps are completed you can setup the MCP server using the `node` command like the following:
 
 ```json
 {
@@ -62,17 +45,62 @@ Once these steps are completed you can setup the MCP server using the `node` com
           "--host=https://console.cloud.mia-platform.eu"
         ],
         "env": {
-          "MIA_PLATFORM_CLIENT_ID": "<YOUR_CLIENT_ID>",
-          "MIA_PLATFORM_CLIENT_SECRET": "<YOUR_CLIEND_SECRET>"
+          "MIA_PLATFORM_CLIENT_ID": "my-service-account-client-id",
+          "MIA_PLATFORM_CLIENT_SECRET": "my-service-account-client-secret"
         }
-      }
+      },
     }
   }
 }
 ```
 
-> [!TIP]
-> If you have a `.env` file configured with your credentials, you can omit the `env` section from the configuration above as the server will automatically load the environment variables.
+> [!NOTE]
+> The server automatically loads environment variables from a `.env` file if present in the project root. 
+> You can create one by copying `default.env` to `.env` and updating the values as needed.
+> You can also include the credentials of the service account (or the Okta account) here. Read more [in the related paragraph](#environment-variables).
+
+> [!NOTE]
+> If you have the client credentials to communicate with an Okta account, you can start the service after the build with the following command:
+>
+> ```sh
+> node mcp-server start
+> ```
+>
+> Then add the MCP server to your client by simply including the URL. As an example for VS Code:
+>
+> ```json
+> {
+>   "mcp": {
+>     "servers": {
+>       "mia-platform-console": {
+>         "type": "http",
+>         "url": "http://localhost:3000/console-mcp-server/mcp"
+>       }
+>     }
+>   }
+> }
+> ```
+>
+> Instead of `3000`, please include the port defined in `PORT` inside the environment variables file. Also, the file should include `OKTA_HOST`, `OKTA_CLIENT_ID` and `OKTA_CLIENT_SECRET`. More details in the [Environment Variables](#environment-variables) section.
+>
+> If the authentication service includes both the service account credentials and the Okta credentials, the service account will have priority.
+
+### Environment Variables
+
+Environment variables located inside a file named `.env` are automatically included at service startup.
+
+| Variable Name | Description | Required | Default Value |
+|---------------|-------------|----------|---------------|
+| `CONSOLE_HOST` | The host address of the Mia-Platform Console instance | Yes | - |
+| `LOG_LEVEL` | Log level of the application | No | `info` |
+| `PORT` | Port number for the HTTP server | No | `3000` |
+| `MIA_PLATFORM_CLIENT_ID` | Client ID for Service Account authentication, needed to run the MCP Server locally if Okta env vars are absent | No | - |
+| `MIA_PLATFORM_CLIENT_SECRET` | Client secret for Service Account authentication, needed to run the MCP Server locally if Okta env vars are absent | No | - |
+| `OKTA_HOST` | Host of the Okta instance to communicate with to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
+| `OKTA_CLIENT_ID` | Client identifier required in the auth flow to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
+| `OKTA_CLIENT_SECRET` | Client secret required in the auth flow to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
+| `CLIENT_EXPIRY_DURATION` | Duration in seconds of clients internally generated with the DCR authentication flow. After this time, the client will be expired and cannot be used any longer. | No | `300` |
+
 
 ## Local Development
 
@@ -123,10 +151,10 @@ node --test --import tsx <FILE_PATH>
 [pipeline-link]: https://github.com/mia-platform/console-mcp-server/actions
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
-[Model Context Protocol (MCP)]: https://modelcontextprotocol.io/introduction
+[mcp-intro]: https://modelcontextprotocol.io/introduction
+[mcp-specs-auth]: https://modelcontextprotocol.io/specification/2025-06-18
 [Docker]: https://www.docker.com/
-[Setup Documentation]: /docs/20_setup.md
-[Create a Mia-Platform Service Account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
+[20-setup]: /docs/20_setup.md
+[docs-create-service-account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
 [nvm]: https://github.com/nvm-sh/nvm
 [mise]: https://mise.jdx.dev
-[miactl]: https://github.com/mia-platform/miactl
