@@ -152,7 +152,7 @@ export async function oauthRouter (fastify: FastifyInstance, options: OAuthRoute
     }
 
     const tokenRequestBody = new URLSearchParams()
-    tokenRequestBody.set('grant_type', body.grant_type)
+    tokenRequestBody.set('grant_type', 'authorization_code')
     tokenRequestBody.set('client_id', clientId)
     tokenRequestBody.set('client_secret', clientSecret)
 
