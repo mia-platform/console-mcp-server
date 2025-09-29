@@ -31,6 +31,7 @@ export function formatQueryParamToUnixTimestamp (param: string | undefined): str
   }
 
   if (isNaN(date.getTime())) {
+    console.log({ param, date, time: date.getTime() })
     throw new Error(`Invalid date format: ${param}`)
   }
 

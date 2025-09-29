@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { randomUUID } from 'crypto'
+import { randomBytes, randomUUID } from 'crypto'
 
 import { ClientCredentials } from './types'
 
@@ -35,11 +35,13 @@ export class ClientCredentialsManager {
 
   generateCredentials (providedClientId?: string): ClientCredentials {
     const clientId = providedClientId ?? this.generateClientId()
+    const clientSecret = this.generateClientSecret()
     const createdAt = Date.now()
     const expiresAt = createdAt + this.expiryDuration
 
     const clientCredential: ClientCredentials = {
       clientId,
+      clientSecret,
       createdAt,
       expiresAt,
     }
@@ -51,18 +53,61 @@ export class ClientCredentialsManager {
     return clientCredential
   }
 
-  getCredentials (clientId: string): Pick<ClientCredentials, 'clientId'> | null {
+  getCredentials (clientId: string): Pick<ClientCredentials, 'clientId' | 'clientSecret'> | null {
     const credentials = this.credentials.get(clientId)
     if (!credentials || this.isExpired(credentials)) {
       this.credentials.delete(clientId)
       return null
     }
 
-    return { clientId: credentials.clientId }
+    return { clientId: credentials.clientId, clientSecret: credentials.clientSecret }
+  }
+
+  /**
+   * Add the state to a cached clientId. This is required since Mia-Platform authentication server requires
+   * the state to perform the `/token` request.
+   *
+   * @param clientId the client id to which the state is associated
+   * @param state the state to be associated with the client id
+   * @returns `true` if the state was added, `false` otherwise (e.g. if the client id does not exist, is expired or already has a state)
+   */
+  addState (clientId: string, state: string): boolean {
+    const credential = this.credentials.get(clientId)
+    if (!credential || this.isExpired(credential)) {
+      this.credentials.delete(clientId)
+      return false
+    }
+
+    if (credential.state) {
+      return false
+    }
+
+    credential.state = state
+    return true
+  }
+
+  /**
+   * Given a clientId, returns the same clientId and the associated state if present.
+   *
+   * @param clientId the client id for which to retrieve the stored state
+   * @returns the client id and the associated state, or `null` if the client id does not exist, is expired or has no state
+   */
+  getStoredClientIdAndState (clientId: string): Pick<ClientCredentials, 'clientId' | 'state'> | null {
+    const credential = this.credentials.get(clientId)
+    if (!credential || this.isExpired(credential) || !credential.state) {
+      this.credentials.delete(clientId)
+      return null
+    }
+
+    return { clientId: credential.clientId, state: credential.state }
   }
 
   private generateClientId (): string {
     return randomUUID().replace(/-/g, '')
+  }
+
+  private generateClientSecret (): string {
+    return randomBytes(32).toString('base64url')
   }
 
   private isExpired (credential: ClientCredentials): boolean {

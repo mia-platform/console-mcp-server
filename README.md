@@ -10,27 +10,32 @@ with Mia-Platform Console APIs, enabling advanced automation and interaction cap
 
 ## Prerequisites
 
-To use the Mia-Platform Console MCP Server in your client (such as Visual Studio Code, Claude Desktop, Cursor, Gemini CLI or others), you first need to have a valid account on the Mia-Platform Console instance you want to communicate with.
+To use the Mia-Platform Console MCP Server in your client (such as Visual Studio Code, Claude Desktop, Cursor, Gemini CLI or others), you first need to have a valid account on the Mia-Platform Console instance you want to communicate with. You will be required also to include the instance host address you in the environment variable named `CONSOLE_HOST`.
 
 You may decide to access via:
 
+- Service Account to perform machine-2-machine authentication and have full access to the MCP capabilities to perform operations on the Company where the S.A. has been created (for more information, visit [our official documentation on how to create a Mia-Platform Service Account](docs-create-service-account)). If you do so, you need to include the environment variables `MIA_PLATFORM_CLIENT_ID` and `MIA_PLATFORM_CLIENT_SECRET`.
 - Using your own credentials: Mia-Platform Console MCP Server follows the [Model Context Protocol specifications on authentication](mcp-specs-auth) using OAuth2.1 and Dynamic Client Registration: clients that follow that specifications will be able to discover the authentication endpoints of the selected Mia-Platform instance you want to access to and guide you to perform the log in.
-- Service Account to perform machine-to-machine authentication and have full access to the MCP capabilities to perform operations on the Company where the Service Account has been created (for more information, visit [our official documentation on how to create a Mia-Platform Service Account](docs-create-service-account)). If you choose this option, you need to include the environment variables `MIA_PLATFORM_CLIENT_ID`, `MIA_PLATFORM_CLIENT_SECRET` and the `CONSOLE_HOST`.
-- Run the MCP Server on your local machine using the instructions in the following paragraph.
 
 ### How to Run
-You can run stable versions of the Mia-Platform Console MCP Server using [Docker](Docker) or by simply including the path of the MCP Server active in the Mia-Platform Console. You can get a detailed guide using the [following guide](20-setup).
 
-If you don't have Docker installed, or you simply wish to run it locally, you can use NPM and Node.js. In this case, you can authenticate either via Service Account or by including the credentials to connect to the authentication APIs of [Okta](https://www.okta.com/). More details are in the examples below.
+You can run stable versions of the Mia-Platform Console MCP Server using [Docker](Docker). You can get detailed guide using the [following guide](20-setup).
 
-Once you have cloned the project, you can run the following commands:
+If you don't have Docker installed, or you simply wish to run it locally, you can use NPM and Node.js. Once you have cloned the
+project you can run the commands:
 
 ```sh
 npm ci
 npm run build
 ```
 
-These commands will install all the dependencies and then transpile the typescript code in the `build` folder. Once these steps are completed you can setup the MCP server using the `node` command like the following:
+These commands will install all the dependencies and then transpile the typescript code in the `build` folder.
+
+> [!NOTE]
+> The server automatically loads environment variables from a `.env` file if present in the project root. 
+> You can create one by copying `default.env` to `.env` and updating the values as needed.
+
+Once these steps are completed you can setup the MCP server using the `node` command like the following:
 
 ```json
 {
@@ -43,47 +48,39 @@ These commands will install all the dependencies and then transpile the typescri
           "start",
           "--stdio",
           "--host=https://console.cloud.mia-platform.eu"
-        ],
-        "env": {
-          "MIA_PLATFORM_CLIENT_ID": "my-service-account-client-id",
-          "MIA_PLATFORM_CLIENT_SECRET": "my-service-account-client-secret"
-        }
-      },
+        ]
+      }
     }
   }
 }
 ```
 
-> [!NOTE]
-> The server automatically loads environment variables from a `.env` file if present in the project root. 
-> You can create one by copying `default.env` to `.env` and updating the values as needed.
-> You can also include the credentials of the service account (or the Okta account) here. Read more [in the related paragraph](#environment-variables).
+:::tip
 
-> [!NOTE]
-> If you have the client credentials to communicate with an Okta account, you can start the service after the build with the following command:
->
-> ```sh
-> node mcp-server start
-> ```
->
-> Then add the MCP server to your client by simply including the URL. As an example for VS Code:
->
-> ```json
-> {
->   "mcp": {
->     "servers": {
->       "mia-platform-console": {
->         "type": "http",
->         "url": "http://localhost:3000/console-mcp-server/mcp"
->       }
->     }
->   }
-> }
-> ```
->
-> Instead of `3000`, please include the port defined in `PORT` inside the environment variables file. Also, the file should include `OKTA_HOST`, `OKTA_CLIENT_ID` and `OKTA_CLIENT_SECRET`. More details in the [Environment Variables](#environment-variables) section.
->
-> If the authentication service includes both the service account credentials and the Okta credentials, the service account will have priority.
+Alternatively, you start the service after the build with the following command:
+
+```sh
+node mcp-server start
+```
+
+Then add the mcp server to your client simply including the url. As example for VS Code:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "mia-platform-console": {
+        "type": "http",
+        "url": "http://localhost:3000/console-mcp-server/mcp"
+      }
+    }
+  }
+}
+```
+
+Instead of `3000`, please include the port defined in the environment variable `PORT`. More detail in the [Environment Variables](#environment-variables) section.
+
+:::
 
 ### Environment Variables
 
@@ -91,15 +88,12 @@ Environment variables located inside a file named `.env` are automatically inclu
 
 | Variable Name | Description | Required | Default Value |
 |---------------|-------------|----------|---------------|
-| `CONSOLE_HOST` | The host address of the Mia-Platform Console instance | Yes | - |
 | `LOG_LEVEL` | Log level of the application | No | `info` |
 | `PORT` | Port number for the HTTP server | No | `3000` |
-| `MIA_PLATFORM_CLIENT_ID` | Client ID for Service Account authentication, needed to run the MCP Server locally if Okta env vars are absent | No | - |
-| `MIA_PLATFORM_CLIENT_SECRET` | Client secret for Service Account authentication, needed to run the MCP Server locally if Okta env vars are absent | No | - |
-| `OKTA_HOST` | Host of the Okta instance to communicate with to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
-| `OKTA_CLIENT_ID` | Client identifier required in the auth flow to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
-| `OKTA_CLIENT_SECRET` | Client secret required in the auth flow to get a valid token to use with Mia-Platform, needed to run the MCP Server locally without a Mia-Platform Service Account | No | - |
-| `CLIENT_EXPIRY_DURATION` | Duration in seconds of clients internally generated with the DCR authentication flow. After this time, the client will be expired and cannot be used any longer. | No | `300` |
+| `CONSOLE_HOST` | The host address of the Mia-Platform Console instance | Yes | - |
+| `MIA_PLATFORM_CLIENT_ID` | Client ID for Service Account authentication | No | - |
+| `MIA_PLATFORM_CLIENT_SECRET` | Client secret for Service Account authentication | No | - |
+| `CLIENT_EXPIRY_DURATION` | Duration in seconds of clients generated with the DCR authentication flow. After this time, the client will be expired and cannot be used anylonger. | No | `300` |
 
 
 ## Local Development

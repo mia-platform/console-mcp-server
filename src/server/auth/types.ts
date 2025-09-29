@@ -15,8 +15,10 @@
 
 export interface ClientCredentials {
   clientId: string
+  clientSecret: string
   createdAt: number
   expiresAt: number
+  state?: string
 }
 export interface RegisterRequest {
   client_id: string
@@ -35,15 +37,14 @@ export interface AuthorizeRequest {
   client_id: string
   response_type?: string
   redirect_uri?: string
-  resource?: string
   scope?: string
   state?: string
   code_challenge?: string
   code_challenge_method?: string
 }
 
-export interface CodeForTokenRequest {
-  grant_type: 'authorization_code'
+export interface TokenRequest {
+  grant_type: string
   code: string
   client_id: string
   client_secret: string
@@ -52,10 +53,8 @@ export interface CodeForTokenRequest {
 }
 
 export interface RefreshTokenRequest {
-  grant_type: 'refresh_token'
+  grant_type: string
   refresh_token: string
-  client_id: string
-  scope?: string
+  client_id?: string
+  client_secret?: string
 }
-
-export type TokenRequest = CodeForTokenRequest | RefreshTokenRequest
