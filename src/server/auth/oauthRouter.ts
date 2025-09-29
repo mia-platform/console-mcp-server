@@ -139,7 +139,7 @@ export async function oauthRouter (fastify: FastifyInstance, options: OAuthRoute
     if (body.grant_type !== 'authorization_code' && body.grant_type !== 'refresh_token') {
       return reply.code(400).send({
         error: 'unsupported_grant_type',
-        error_description: 'Only "authorization_code" and "refresh_token" grant types are supported.',
+        error_description: 'Only "authorization_code" and "refresh_token" grant types are supported',
       })
     }
 
