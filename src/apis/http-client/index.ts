@@ -130,8 +130,6 @@ export class HTTPClient {
       ...this.cachedToken && { Authorization: `${this.cachedToken.token_type} ${this.cachedToken.access_token}` },
     }
 
-    console.log({ url, method, headers, body })
-
     const response = await request(url, {
       method,
       headers,
