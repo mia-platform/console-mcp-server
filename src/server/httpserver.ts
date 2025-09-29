@@ -60,8 +60,6 @@ const connectToMcpServer = async (
       },
       id: null,
     })
-
-    return reply
   }
 }
 
@@ -88,7 +86,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     }
 
     // We include an empty host to avoid any authentication mechanism to be triggered.
-    return await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
+    await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
   })
 
   fastify.post('/mcp', async (request, reply) => {
@@ -96,7 +94,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
-      return await connectToMcpServer(request, reply, opts, {})
+      await connectToMcpServer(request, reply, opts, {})
     }
 
     const token = request.headers['Authorization'] ?? request.headers['authorization']
@@ -123,7 +121,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    return await connectToMcpServer(request, reply, opts, { Authorization: token })
+    await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
   fastify.get('/mcp', async (_, reply) => {
