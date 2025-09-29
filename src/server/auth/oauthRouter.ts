@@ -16,7 +16,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
 import { ClientCredentialsManager } from './clientCredentialsManager'
-import { type AuthorizeRequest, type RefreshTokenRequest, type RegisterRequest, type TokenRequest } from './types'
+import { type AuthorizeRequest, type RegisterRequest, type TokenRequest } from './types'
 
 const OAUTH_AUTHORIZE_PATH = '/api/authorize'
 const OAUTH_TOKEN_PATH = '/api/oauth/token'
@@ -139,124 +139,84 @@ export async function oauthRouter (fastify: FastifyInstance, options: OAuthRoute
 
   fastify.post('/token', async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as TokenRequest
-
     fastify.log.debug({ message: 'POST /token called', requestBody: body })
 
-    if (!body.code) {
-      return reply.code(400).send({
-        error: 'invalid_request',
-        error_description: 'code is required',
-      })
-    }
-
-    if (!body.client_id || !body.client_secret) {
-      return reply.code(400).send({
-        error: 'invalid_request',
-        error_description: 'client_id and client_secret are required',
-      })
-    }
-
-    const credentials = clientManager.getCredentials(body.client_id)
-    console.log({ credentials, body })
-    if (!credentials || credentials.clientSecret !== body.client_secret) {
-      return reply.code(401).send({
-        error: 'invalid_client',
-        error_description: 'Invalid client credentials',
-      })
-    }
-
-    const storedClientData = clientManager.getStoredClientIdAndState(body.client_id)
-    if (!storedClientData || !storedClientData.state) {
-      return reply.code(400).send({
-        error: 'invalid_request',
-        error_description: 'No state found for client_id',
-      })
-    }
-
-    const tokenRequestBody = new URLSearchParams()
-    tokenRequestBody.set('code', body.code)
-    tokenRequestBody.set('state', storedClientData.state)
-
-    const oktaTokenUrl = `${host}${OAUTH_TOKEN_PATH}`
-
-    try {
-      const response = await fetch(oktaTokenUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: tokenRequestBody.toString(),
-      })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-        fastify.log.error({ status: response.status, error: errorText }, 'Okta token request failed')
-        return reply.code(response.status).send({
-          error: 'invalid_request',
-          error_description: 'Failed to exchange authorization code',
-        })
-      }
-
-      const tokenData = await response.json()
-
-      return reply.code(200).send({
-        access_token: tokenData.accessToken,
-        refresh_token: tokenData.refreshToken,
-        expires_at: tokenData.expiresAt,
-        token_type: 'Bearer',
-      })
-    } catch (error) {
-      fastify.log.error({ error }, 'Failed to call Authentication Server')
-      return reply.code(500).send({
-        error: 'server_error',
-        error_description: 'Failed to process token request',
-      })
-    }
-  })
-
-  fastify.post('/refreshToken', async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as RefreshTokenRequest
-
-    fastify.log.debug({ message: 'POST /refreshToken called', requestBody: body })
-
-    if (!body.grant_type || body.grant_type !== 'refresh_token') {
+    if (body.grant_type !== 'authorization_code' && body.grant_type !== 'refresh_token') {
       return reply.code(400).send({
         error: 'unsupported_grant_type',
-        error_description: 'Only refresh_token grant type is supported',
+        error_description: 'Only "authorization_code" and "refresh_token" grant types are supported',
       })
     }
 
-    if (!body.refresh_token) {
-      return reply.code(400).send({
-        error: 'invalid_request',
-        error_description: 'refresh_token is required',
-      })
+    let url = ''
+    const requestBody = new URLSearchParams()
+
+    if (body.grant_type === 'authorization_code') {
+      if (!body.client_id || !body.client_secret) {
+        return reply.code(400).send({
+          error: 'invalid_request',
+          error_description: 'client_id and client_secret are required',
+        })
+      }
+
+      const credentials = clientManager.getCredentials(body.client_id)
+      if (!credentials || credentials.clientSecret !== body.client_secret) {
+        return reply.code(401).send({
+          error: 'invalid_client',
+          error_description: 'Invalid client credentials',
+        })
+      }
+
+      if (!body.code) {
+        return reply.code(400).send({
+          error: 'invalid_request',
+          error_description: 'code is required',
+        })
+      }
+
+      const storedClientData = clientManager.getStoredClientIdAndState(body.client_id)
+      if (!storedClientData || !storedClientData.state) {
+        return reply.code(400).send({
+          error: 'invalid_request',
+          error_description: 'No state found for client_id',
+        })
+      }
+
+      requestBody.set('code', body.code)
+      requestBody.set('state', storedClientData.state)
+      url = `${host}${OAUTH_TOKEN_PATH}`
+    } else {
+      if (!body.refresh_token) {
+        return reply.code(400).send({
+          error: 'invalid_request',
+          error_description: 'refresh_token is required',
+        })
+      }
+
+      requestBody.set('grant_type', 'refresh_token')
+      requestBody.set('refresh_token', body.refresh_token)
+      if (body.client_id) requestBody.set('client_id', body.client_id)
+      if (body.client_secret) requestBody.set('client_secret', body.client_secret)
+      url = `${host}${OAUTH_REFRESH_TOKEN_PATH}`
     }
-
-    const refreshTokenRequestBody = new URLSearchParams()
-    refreshTokenRequestBody.set('grant_type', 'refresh_token')
-    refreshTokenRequestBody.set('refresh_token', body.refresh_token)
-    if (body.client_id) refreshTokenRequestBody.set('client_id', body.client_id)
-    if (body.client_secret) refreshTokenRequestBody.set('client_secret', body.client_secret)
-
-    const refreshTokenUrl = `${host}${OAUTH_REFRESH_TOKEN_PATH}`
 
     try {
-      const response = await fetch(refreshTokenUrl, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: refreshTokenRequestBody.toString(),
+        body: requestBody.toString(),
       })
 
       if (!response.ok) {
         const errorText = await response.text()
-        fastify.log.error({ status: response.status, error: errorText }, 'Okta refresh token request failed')
+        fastify.log.error({ grantType: body.grant_type, status: response.status, error: errorText }, 'Okta token request failed')
         return reply.code(response.status).send({
           error: 'invalid_request',
-          error_description: 'Failed to refresh token',
+          error_description: 'Failed to receive token from Authentication Server',
         })
       }
 
       const tokenData = await response.json()
-      console.log({ tokenData })
 
       return reply.code(200).send({
         access_token: tokenData.accessToken,
@@ -265,10 +225,10 @@ export async function oauthRouter (fastify: FastifyInstance, options: OAuthRoute
         token_type: 'Bearer',
       })
     } catch (error) {
-      fastify.log.error({ error }, 'Failed to call Authentication Server for refresh token')
+      fastify.log.error({ error, grantType: body.grant_type }, 'Failed to receive token from Authentication Server')
       return reply.code(500).send({
         error: 'server_error',
-        error_description: 'Failed to process refresh token request',
+        error_description: `Failed to process token request (grant type: ${body.grant_type})`,
       })
     }
   })

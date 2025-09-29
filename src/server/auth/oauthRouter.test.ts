@@ -199,7 +199,7 @@ suite('OAuth Router', () => {
   })
 
   suite('POST /token', () => {
-    test('should exchange authorization code for tokens', async (t) => {
+    test('should exchange authorization code for a new token', async (t) => {
       agent.get(testHost).intercept({
         path: '/api/oauth/token',
         method: 'POST',
@@ -232,20 +232,35 @@ suite('OAuth Router', () => {
       t.assert.equal(body.token_type, 'Bearer')
     })
 
-    test('should return 400 when client_secret is missing', async (t) => {
+    test('should refresh tokens successfully', async (t) => {
+      agent.get(testHost).intercept({
+        path: '/api/refreshToken',
+        method: 'POST',
+        body: 'grant_type=refresh_token&refresh_token=old-refresh-token',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }).reply(200, {
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
+        expiresAt: 1760900101000,
+      })
+
       const response = await fastify.inject({
         method: 'POST',
         path: '/token',
         payload: {
-          code: 'auth-code',
-          client_id: 'test-client-id',
+          grant_type: 'refresh_token',
+          refresh_token: 'old-refresh-token',
         },
       })
 
-      t.assert.equal(response.statusCode, 400)
+      t.assert.equal(response.statusCode, 200)
       const body = response.json()
-      t.assert.equal(body.error, 'invalid_request')
-      t.assert.equal(body.error_description, 'client_id and client_secret are required')
+      t.assert.equal(body.access_token, 'new-access-token')
+      t.assert.equal(body.refresh_token, 'new-refresh-token')
+      t.assert.equal(body.expires_at, 1760900101000)
+      t.assert.equal(body.token_type, 'Bearer')
     })
 
     test('should return 401 when client credentials are invalid', async (t) => {
@@ -255,6 +270,7 @@ suite('OAuth Router', () => {
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'auth-code',
           client_id: 'invalid-client-id',
           client_secret: 'invalid-secret',
@@ -267,11 +283,46 @@ suite('OAuth Router', () => {
       t.assert.equal(body.error_description, 'Invalid client credentials')
     })
 
+    test('should return 400 if the grant_type is invalid', async (t) => {
+      const response = await fastify.inject({
+        method: 'POST',
+        path: '/token',
+        payload: {
+          code: 'auth-code',
+          client_id: 'test-client-id',
+          client_secret: 'test-client-secret',
+        },
+      })
+
+      t.assert.equal(response.statusCode, 400)
+      const body = response.json()
+      t.assert.equal(body.error, 'unsupported_grant_type')
+      t.assert.equal(body.error_description, 'Only "authorization_code" and "refresh_token" grant types are supported')
+    })
+
+    test('should return 400 when client_secret is missing when requesting a new token', async (t) => {
+      const response = await fastify.inject({
+        method: 'POST',
+        path: '/token',
+        payload: {
+          grant_type: 'authorization_code',
+          code: 'auth-code',
+          client_id: 'test-client-id',
+        },
+      })
+
+      t.assert.equal(response.statusCode, 400)
+      const body = response.json()
+      t.assert.equal(body.error, 'invalid_request')
+      t.assert.equal(body.error_description, 'client_id and client_secret are required')
+    })
+
     test('should return 401 when client_secret does not match', async (t) => {
       const response = await fastify.inject({
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'auth-code',
           client_id: 'test-client-id',
           client_secret: 'wrong-secret',
@@ -291,6 +342,7 @@ suite('OAuth Router', () => {
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'auth-code',
           client_id: 'test-client-id',
           client_secret: 'test-client-secret',
@@ -313,6 +365,7 @@ suite('OAuth Router', () => {
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'auth-code',
           client_id: 'test-client-id',
           client_secret: 'test-client-secret',
@@ -325,7 +378,7 @@ suite('OAuth Router', () => {
       t.assert.equal(body.error_description, 'No state found for client_id')
     })
 
-    test('should handle token exchange failure from auth server', async (t) => {
+    test('should return 400 in case of token exchange failure from auth server side', async (t) => {
       agent.get(testHost).intercept({
         path: '/api/oauth/token',
         method: 'POST',
@@ -335,6 +388,7 @@ suite('OAuth Router', () => {
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'invalid-code',
           client_id: 'test-client-id',
           client_secret: 'test-client-secret',
@@ -344,10 +398,10 @@ suite('OAuth Router', () => {
       t.assert.equal(response.statusCode, 400)
       const body = response.json()
       t.assert.equal(body.error, 'invalid_request')
-      t.assert.equal(body.error_description, 'Failed to exchange authorization code')
+      t.assert.equal(body.error_description, 'Failed to receive token from Authentication Server')
     })
 
-    test('should return 500 when auth server request fails', async (t) => {
+    test('should return 500 when auth server request fails to get a new token', async (t) => {
       agent.get(testHost).intercept({
         path: '/api/oauth/token',
         method: 'POST',
@@ -357,6 +411,7 @@ suite('OAuth Router', () => {
         method: 'POST',
         path: '/token',
         payload: {
+          grant_type: 'authorization_code',
           code: 'auth-code',
           client_id: 'test-client-id',
           client_secret: 'test-client-secret',
@@ -366,73 +421,10 @@ suite('OAuth Router', () => {
       t.assert.equal(response.statusCode, 500)
       const body = response.json()
       t.assert.equal(body.error, 'server_error')
-      t.assert.equal(body.error_description, 'Failed to process token request')
-    })
-  })
-
-  suite('POST /refreshToken', () => {
-    test('should refresh tokens successfully', async (t) => {
-      agent.get(testHost).intercept({
-        path: '/api/refreshToken',
-        method: 'POST',
-        body: 'grant_type=refresh_token&refresh_token=old-refresh-token',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }).reply(200, {
-        accessToken: 'new-access-token',
-        refreshToken: 'new-refresh-token',
-        expiresAt: 1760900101000,
-      })
-
-      const response = await fastify.inject({
-        method: 'POST',
-        path: '/refreshToken',
-        payload: {
-          grant_type: 'refresh_token',
-          refresh_token: 'old-refresh-token',
-        },
-      })
-
-      t.assert.equal(response.statusCode, 200)
-      const body = response.json()
-      t.assert.equal(body.access_token, 'new-access-token')
-      t.assert.equal(body.refresh_token, 'new-refresh-token')
-      t.assert.equal(body.expires_at, 1760900101000)
-      t.assert.equal(body.token_type, 'Bearer')
+      t.assert.equal(body.error_description, 'Failed to process token request (grant type: authorization_code)')
     })
 
-    test('should refresh tokens with client credentials', async (t) => {
-      agent.get(testHost).intercept({
-        path: '/api/refreshToken',
-        method: 'POST',
-        body: 'grant_type=refresh_token&refresh_token=old-refresh-token&client_id=test-client-id&client_secret=test-client-secret',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }).reply(200, {
-        accessToken: 'new-access-token',
-        refreshToken: 'new-refresh-token',
-        expiresAt: 1234567890,
-      })
-
-      const response = await fastify.inject({
-        method: 'POST',
-        path: '/refreshToken',
-        payload: {
-          grant_type: 'refresh_token',
-          refresh_token: 'old-refresh-token',
-          client_id: 'test-client-id',
-          client_secret: 'test-client-secret',
-        },
-      })
-
-      t.assert.equal(response.statusCode, 200)
-      const body = response.json()
-      t.assert.equal(body.access_token, 'new-access-token')
-    })
-
-    test('should return 500 when auth server request fails', async (t) => {
+    test('should return 500 when auth server request fails to refresh an token', async (t) => {
       agent.get(testHost).intercept({
         path: '/api/refreshToken',
         method: 'POST',
@@ -440,7 +432,7 @@ suite('OAuth Router', () => {
 
       const response = await fastify.inject({
         method: 'POST',
-        path: '/refreshToken',
+        path: '/token',
         payload: {
           grant_type: 'refresh_token',
           refresh_token: 'old-refresh-token',
@@ -450,7 +442,7 @@ suite('OAuth Router', () => {
       t.assert.equal(response.statusCode, 500)
       const body = response.json()
       t.assert.equal(body.error, 'server_error')
-      t.assert.equal(body.error_description, 'Failed to process refresh token request')
+      t.assert.equal(body.error_description, 'Failed to process token request (grant type: refresh_token)')
     })
   })
 })
