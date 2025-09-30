@@ -11,6 +11,8 @@ on:
     paths-ignore:
     - "**/*.md"
 
+permissions: {}
+
 jobs:
   lint:
     name: Lint Code
@@ -19,11 +21,11 @@ jobs:
       contents: read
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         show-progress: false
     - name: Set up Node.js
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version-file: .nvmrc
         check-latest: false
@@ -47,11 +49,11 @@ jobs:
       contents: read
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         show-progress: false
     - name: Set up Node.js
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version-file: .nvmrc
         check-latest: false
@@ -74,22 +76,22 @@ jobs:
       id-token: write
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       with:
         show-progress: false
     - name: Docker Login to GitHub Repository
-      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Docker Login to DockerHub
-      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         username: ${{ secrets.BOT_DOCKER_USERNAME }}
         password: ${{ secrets.BOT_DOCKER_TOKEN }}
     - name: Docker Login to Mia registry
-      uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
       with:
         registry: nexus.mia-platform.eu
         username: ${{ secrets.NEXUS_USER }}
@@ -139,17 +141,17 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: Install Cosign
-      uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
+      uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
       if: github.ref_type == 'tag'
     - name: GCP Auth
-      uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+      uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
       if: github.ref_type == 'tag'
       with:
         project_id: ${{ secrets.MIA_PLATFORM_KMS_GCP_PROJECT }}
         workload_identity_provider: ${{ secrets.MIA_PLATFORM_WIF }}
         create_credentials_file: true
     - name: Generate SBOM
-      uses: anchore/sbom-action@da167eac915b4e86f08b264dbdbc867b61be6f0c # v0.20.5
+      uses: anchore/sbom-action@f8bdd1d8ac5e901a77a92f111440fdb1b593736b # v0.20.6
       if: github.ref_type == 'tag'
       with:
         artifact-name: mcp-server-sbom.spdx.json
@@ -177,16 +179,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test]
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
-          node-version-file: .nvmrc
-          check-latest: false
+          node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npm run build
       - run: npm publish --access=public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
