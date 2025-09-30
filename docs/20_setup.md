@@ -8,9 +8,8 @@
 2. Once Docker is installed, you will also need to ensure Docker is running.
 3. Pull the docker image `docker pull ghcr.io/mia-platform/console-mcp-server` at your own preferred version (or `latest` if you want to try the nightly build)
 4. Login to Mia-Platform. You have two options:
-  - (a) *User Authentication* - Use miactl authentication: if you have [`miactl`][miactl] installed you can login and
-     the same session will then be used by the mcp server to authenticate. To login just type `miactl company list`, or any other miactl command, the browser will be opened and you can use your credentatials to login. You will be able to access to all companies and projects that have been granted to your user.
-  - (b) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one company at a time.
+  - (a) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one company at a time.
+  - (b) *User Authentication* - Assuming you have a valid Mia Platform account, you can simply omit the information about the service account and - at the MCP startup - your client will ask you to open for you a webpage where you can execute the login.
     
 
 ### VS Code
