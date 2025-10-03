@@ -95,6 +95,11 @@ async function doM2MAuthentication (baseURL: string, clientId: string, clientCre
   return new AccessToken(data.access_token, data.token_type, data.expires_in)
 }
 
+/**
+ * @deprecated We are going to remove the support of the miactl token soon. Either use M2M authentication or OAuth2 authentication.
+ * @param baseURL the base URL of the MCP server
+ * @returns an access token
+ */
 async function doUserAuthentication (baseURL: string): Promise<AccessToken | undefined> {
   const miactlToken = await loadMiactlToken(baseURL)
   if (!miactlToken) {

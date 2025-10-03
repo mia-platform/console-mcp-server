@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Implementation } from '@modelcontextprotocol/sdk/types.js'
+import { Implementation } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
-import { ServerOptions } from '@modelcontextprotocol/sdk/server/index.js'
+import { ServerOptions } from '@modelcontextprotocol/sdk/server/index'
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'

@@ -5,39 +5,26 @@
 ### Prerequisites
 
 1. To run the server in a container, you will need to have [Docker] installed.
-1. Once Docker is installed, you will also need to ensure Docker is running.
-1. Pull the docker image `docker pull ghcr.io/mia-platform/console-mcp-server`
-1. Login to Mia-Platform. You have two options:
-    - (a) *User Authentication* - Use miactl authentication: if you have [`miactl`][miactl] installed you can login and
-      the same session will then be used by the mcp server to authenticate. To login just type `miactl company list`,
-      or any other miactl command, the browser will be opened and you can use your credentials to login. You will be
-      able to access to all companies and projects that have been granted to your user.
-    - (b) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode
-      (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one
-      company at a time.
-
-> [!WARNING]
-> When using miactl session, auto-refresh by the MCP Server is not currently supported,
-> once the session created with miactl expires you have to refresh it with miactl again.
----
-> [!IMPORTANT]
-> When using miactl session, the host you provide to the MCP Server **MUST** be the exact same as the one
-> you have logged in with miactl, including scheme and any possible trailing slash.
+2. Once Docker is installed, you will also need to ensure Docker is running.
+3. Pull the docker image `docker pull ghcr.io/mia-platform/console-mcp-server` at your own preferred version (or `latest` if you want to try the nightly build)
+4. Login to Mia-Platform. You have two options:
+  - (a) *Service Account* - [Create a Mia-Platform Service Account] with `Client Secret Basic` authorization mode (the only one supported at this time) the `Client Secret Basic` one. In that case you can access to just one company at a time.
+  - (b) *User Authentication* - Assuming you have a valid Mia Platform account, you can simply omit the information about the service account and - at the MCP startup - your client will ask you to open for you a webpage where you can execute the login.
+    
 
 ### VS Code
 
-For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by
-pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`. Optionally, you can add it to a file
-called `.vscode/mcp.json` in your workspace.
+For manual installation, add the following JSON block to your MCP Server list file in VS Code.
+You can do this by pressing `Ctrl + Shift + P` and typing `MCP: List Servers`, or you can create a `.vscode/mcp.json` file inside your repository.
 
 Once you have done it, toggle Agent mode (located by the Copilot Chat text input) and the server will start.
 
 :::note
-The `mcp` key is not needed in the `.vscode/mcp.json` file.  
-Also note that you can change the host of the Console instance to your custom installation
+The `mcp` key is not needed in the `.vscode/mcp.json` file.
+Also note that you can change the host of the Console instance to your custom installation.
 :::
 
-This is the configuration if you are using miactl (a)
+This is the configuration if you are using User Authentication with OAuth2 and Dynamic Client Registration.
 
 ```json
 {
@@ -63,7 +50,7 @@ This is the configuration if you are using miactl (a)
 }
 ```
 
-This is the configuration if you are using Service Account (b)
+This is the configuration if you are using a predefined Service Account.
 
 ```json
 {
@@ -110,11 +97,9 @@ This is the configuration if you are using Service Account (b)
 ```
 
 :::tip
-If you want to use User-based authentication with [`miactl`][miactl] you have to omit from the env object:
+If both the environment variables `MIA_PLATFORM_CLIENT_ID` and `MIA_PLATFORM_CLIENT_SECRET` are included, you will be asked to authenticate with your credentials. In this case, make sure you open the web page that Visual Studio Code will prompt you to open.
 
-- `MIA_PLATFORM_CLIENT_ID`
-- `MIA_PLATFORM_CLIENT_SECRET`
-
+If you have issues to authenticate because of an `invalid_client` error, please try to remove the DCR clients registrated using the `Authentication: Remove Dynamic Authentication Providers` option from the application menu.
 :::
 
 More about using MCP server tools in [VS Code's agent mode documentation].

@@ -43,7 +43,7 @@ export default tseslint.config(
           ignoreCase: true,
           ignoreDeclarationSort: false,
           ignoreMemberSort: false,
-          memberSyntaxSortOrder: [ 'none', 'all', 'single', 'multiple' ],
+          memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'],
           allowSeparatedGroups: true,
         },
       ],
