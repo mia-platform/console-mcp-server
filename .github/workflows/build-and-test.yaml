@@ -28,8 +28,7 @@ jobs:
       uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version-file: .nvmrc
-        check-latest: false
-        cache: npm
+        check-latest: true
     - name: Install Dependencies
       run: npm ci
     - name: Run Linter
@@ -56,8 +55,7 @@ jobs:
       uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
       with:
         node-version-file: .nvmrc
-        check-latest: false
-        cache: npm
+        check-latest: true
     - name: Install Dependencies
       run: npm ci
     - name: Run Tests
@@ -187,7 +185,7 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
-          cache: npm
+          check-latest: true
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npm run build
