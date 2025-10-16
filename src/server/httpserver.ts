@@ -76,7 +76,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     // It does not require authentication and proxies some headers as expected in the Mia-Platform Console architecture.
     //
     // Please use the endpoint /mcp for all other use cases.
-    fastify.log.debug({ message: 'Received POST /mcp-internal request', body: request.body })
+    fastify.log.debug({ message: 'Received POST /console-mcp-server/mcp-internal request', body: request.body })
 
     const additionalHeaders: IncomingHttpHeaders = {}
     for (const key of additionalHeadersKeys) {
@@ -90,11 +90,12 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   })
 
   fastify.post('/mcp', async (request, reply) => {
-    fastify.log.debug({ message: 'Received POST /mcp request', body: request.body })
+    fastify.log.debug({ message: 'Received POST /console-mcp-server/mcp request', body: request.body })
 
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
       await connectToMcpServer(request, reply, opts, {})
+      return
     }
 
     const token = request.headers['Authorization'] ?? request.headers['authorization']
