@@ -84,6 +84,34 @@ export class HTTPClient {
     return await returnBody.json() as T
   }
 
+  async put<T> (
+    path: string,
+    body = {},
+    params?: URLSearchParams,
+  ): Promise<T> {
+    const url = new URL(path, this.baseURL)
+    if (params) {
+      url.search = params.toString()
+    }
+
+    const { body: returnBody } = await this.doRequest(url, 'PUT', body)
+    return await returnBody.json() as T
+  }
+
+  async patch<T> (
+    path: string,
+    body = {},
+    params?: URLSearchParams,
+  ): Promise<T> {
+    const url = new URL(path, this.baseURL)
+    if (params) {
+      url.search = params.toString()
+    }
+
+    const { body: returnBody } = await this.doRequest(url, 'PATCH', body)
+    return await returnBody.json() as T
+  }
+
   async getPaginated<T> (
     path: string,
     params = new URLSearchParams(),

@@ -140,7 +140,7 @@ suite('setup marketplace tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 5)
+    t.assert.equal(result.tools.length, 9)
   })
 })
 
@@ -766,6 +766,343 @@ suite('marketplace Item Type Definition info tool', async () => {
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace Item Type Definition info for namespace error and name itdName: error message',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('marketplace categories tool', () => {
+  const getMarketplaceCategoriesMockFn = mock.fn(async () => {
+    return [
+      { categoryId: 'ai-agents', label: 'AI Agents' },
+      { categoryId: 'databases', label: 'Databases' },
+    ]
+  })
+
+  test('should return categories', async (t) => {
+    const client = await getTestMCPServerClient({
+      getMarketplaceCategoriesMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'get_marketplace_categories',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify([
+          { categoryId: 'ai-agents', label: 'AI Agents' },
+          { categoryId: 'databases', label: 'Databases' },
+        ]),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error when categories fetch fails', async (t) => {
+    const getMarketplaceCategoriesErrorMockFn = mock.fn(async () => {
+      throw new Error('categories error')
+    })
+
+    const client = await getTestMCPServerClient({
+      getMarketplaceCategoriesMockFn: getMarketplaceCategoriesErrorMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'get_marketplace_categories',
+        arguments: {},
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching marketplace categories: categories error',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('apply marketplace items tool', () => {
+  const applyMarketplaceItemsMockFn = mock.fn(async (tenantId: string) => {
+    if (tenantId === 'error') {
+      throw new Error('apply error')
+    }
+    return {
+      resources: [
+        {
+          _id: '507f1f77bcf86cd799439011',
+          itemId: 'test-item',
+          tenantId: 'test-tenant',
+          version: '1.0.0',
+          status: 'created' as const,
+        },
+      ],
+    }
+  })
+
+  test('should apply marketplace items', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+      applyMarketplaceItemsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'apply_marketplace_items',
+        arguments: {
+          tenantId: 'test-tenant',
+          items: {
+            resources: [
+              {
+                name: 'Test Item',
+                itemId: 'test-item',
+                tenantId: 'test-tenant',
+                resources: {},
+                lifecycleStatus: 'published',
+              },
+            ],
+          },
+        },
+      },
+    }, CallToolResultSchema)
+
+    const expectedResponse = {
+      resources: [
+        {
+          _id: '507f1f77bcf86cd799439011',
+          itemId: 'test-item',
+          tenantId: 'test-tenant',
+          version: '1.0.0',
+          status: 'created',
+        },
+      ],
+    }
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedResponse),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error - if AI features are not enabled for tenant', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => {
+        throw new Error('AI features not enabled')
+      }),
+      applyMarketplaceItemsMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'apply_marketplace_items',
+        arguments: {
+          tenantId: 'test-tenant',
+          items: { resources: [] },
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error applying marketplace items for tenant test-tenant: AI features not enabled',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('upsert item type definition tool', () => {
+  const upsertItemTypeDefinitionMockFn = mock.fn(async (tenantId: string) => {
+    if (tenantId === 'error') {
+      throw new Error('upsert error')
+    }
+    return {
+      apiVersion: 'software-catalog.mia-platform.eu/v1',
+      kind: 'item-type-definition',
+      metadata: {
+        namespace: { scope: 'tenant', id: tenantId },
+        name: 'custom-plugin',
+        displayName: 'Custom Plugin',
+        visibility: { scope: 'tenant', ids: [ tenantId ] },
+      },
+      spec: {
+        type: 'custom-plugin',
+        scope: 'tenant',
+        validation: {
+          mechanism: 'json-schema',
+          schema: { type: 'object' },
+        },
+      },
+      __v: 0,
+    }
+  })
+
+  test('should upsert item type definition', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+      upsertItemTypeDefinitionMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'upsert_item_type_definition',
+        arguments: {
+          tenantId: 'test-tenant',
+          definition: {
+            apiVersion: 'software-catalog.mia-platform.eu/v1',
+            kind: 'item-type-definition',
+            metadata: {
+              namespace: { scope: 'tenant', id: 'test-tenant' },
+              name: 'custom-plugin',
+            },
+            spec: {
+              type: 'custom-plugin',
+            },
+          },
+        },
+      },
+    }, CallToolResultSchema)
+
+    const expectedResponse = {
+      apiVersion: 'software-catalog.mia-platform.eu/v1',
+      kind: 'item-type-definition',
+      metadata: {
+        namespace: { scope: 'tenant', id: 'test-tenant' },
+        name: 'custom-plugin',
+        displayName: 'Custom Plugin',
+        visibility: { scope: 'tenant', ids: [ 'test-tenant' ] },
+      },
+      spec: {
+        type: 'custom-plugin',
+        scope: 'tenant',
+        validation: {
+          mechanism: 'json-schema',
+          schema: { type: 'object' },
+        },
+      },
+      __v: 0,
+    }
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedResponse),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error - if AI features are not enabled for tenant', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => {
+        throw new Error('AI features not enabled')
+      }),
+      upsertItemTypeDefinitionMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'upsert_item_type_definition',
+        arguments: {
+          tenantId: 'test-tenant',
+          definition: {},
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error upserting Item Type Definition for tenant test-tenant: AI features not enabled',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('upload marketplace file tool', () => {
+  const uploadMarketplaceFileMockFn = mock.fn(async (tenantId: string) => {
+    if (tenantId === 'error') {
+      throw new Error('upload error')
+    }
+    return {
+      _id: '507f1f77bcf86cd799439011',
+      file: 'uploaded-file.png',
+      location: 'https://example.com/files/uploaded-file.png',
+      name: 'uploaded-file.png',
+      originalname: 'my-icon.png',
+      size: 1024,
+    }
+  })
+
+  test('should upload marketplace file', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+      uploadMarketplaceFileMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'upload_marketplace_file',
+        arguments: {
+          tenantId: 'test-tenant',
+          formData: {}, // Note: FormData handling is not fully implemented
+        },
+      },
+    }, CallToolResultSchema)
+
+    const expectedResponse = {
+      _id: '507f1f77bcf86cd799439011',
+      file: 'uploaded-file.png',
+      location: 'https://example.com/files/uploaded-file.png',
+      name: 'uploaded-file.png',
+      originalname: 'my-icon.png',
+      size: 1024,
+    }
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(expectedResponse),
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error - if AI features are not enabled for tenant', async (t) => {
+    const client = await getTestMCPServerClient({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => {
+        throw new Error('AI features not enabled')
+      }),
+      uploadMarketplaceFileMockFn,
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'upload_marketplace_file',
+        arguments: {
+          tenantId: 'test-tenant',
+          formData: {},
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error uploading marketplace file for tenant test-tenant: AI features not enabled',
         type: 'text',
       },
     ])

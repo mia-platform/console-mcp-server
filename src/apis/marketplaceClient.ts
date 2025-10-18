@@ -17,6 +17,12 @@ import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { HTTPClient } from './http-client'
 import { CatalogItemRelease, CatalogItemTypeDefinition, CatalogVersionedItem } from '@mia-platform/console-types'
+import {
+  MarketplaceApplyItemsRequest,
+  MarketplaceApplyItemsResponse,
+  MarketplaceUploadFileResponse,
+  SoftwareCatalogCategory,
+} from './types/marketplace'
 
 export const internalEndpoint = process.env.MARKETPLACE_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
@@ -88,6 +94,25 @@ export class MarketplaceClient {
     return this.#client.get<CatalogItemTypeDefinition>(this.#itemTypeDefinitionInfoPath(tenantID, name))
   }
 
+  async getMarketplaceCategories (): Promise<SoftwareCatalogCategory[]> {
+    return this.#client.get<SoftwareCatalogCategory[]>(this.#categoriesPath())
+  }
+
+  async applyMarketplaceItems (tenantID: string, items: MarketplaceApplyItemsRequest): Promise<MarketplaceApplyItemsResponse> {
+    return this.#client.post<MarketplaceApplyItemsResponse>(this.#applyItemsPath(tenantID), items)
+  }
+
+  async upsertItemTypeDefinition (tenantID: string, definition: CatalogItemTypeDefinition): Promise<CatalogItemTypeDefinition> {
+    return this.#client.put<CatalogItemTypeDefinition>(this.#itemTypeDefinitionsUpsertPath(tenantID), definition)
+  }
+
+  async uploadMarketplaceFile (_tenantID: string, _formData: FormData): Promise<MarketplaceUploadFileResponse> {
+    // Note: This method would need special handling for multipart/form-data
+    // For now, we'll implement a simple version that assumes the formData is properly formatted
+    // The HTTPClient would need to be extended to support FormData
+    throw new Error('File upload not yet implemented - requires multipart/form-data support')
+  }
+
   #marketplacePath (): string {
     return '/api/marketplace/'
   }
@@ -106,5 +131,17 @@ export class MarketplaceClient {
 
   #itemTypeDefinitionInfoPath (tenantID: string, name: string): string {
     return `/api/tenants/${tenantID}/marketplace/item-type-definitions/${name}`
+  }
+
+  #categoriesPath (): string {
+    return '/api/marketplace/categories'
+  }
+
+  #applyItemsPath (tenantID: string): string {
+    return `/api/tenants/${tenantID}/marketplace/items`
+  }
+
+  #itemTypeDefinitionsUpsertPath (tenantID: string): string {
+    return `/api/tenants/${tenantID}/marketplace/item-type-definitions`
   }
 }

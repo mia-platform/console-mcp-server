@@ -25,3 +25,31 @@ export const CatalogItemTypes = [
   'infrastructure-component-runtime',
   '', // allow empty string to indicate no type to filter
 ] as const
+
+export interface SoftwareCatalogCategory {
+  categoryId: string
+  label: string
+}
+
+export interface MarketplaceApplyItemsRequest {
+  resources: Record<string, unknown>[]
+}
+
+export interface MarketplaceApplyItemsResponse {
+  resources: {
+    _id: string
+    itemId: string
+    tenantId: string
+    version: string
+    status: 'created' | 'updated'
+  }[]
+}
+
+export interface MarketplaceUploadFileResponse {
+  _id: string
+  file: string
+  location: string
+  name: string
+  originalname: string
+  size: number
+}

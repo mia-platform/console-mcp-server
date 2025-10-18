@@ -38,6 +38,20 @@ import {
 import { HTTPClient } from './http-client'
 import { BackendClient, BackendClientInternal } from './backendClient'
 import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
+import { DeployClient, DeployClientInternal } from './deployClient'
+import { FeatureToggleClient, FeatureToggleClientInternal } from './featureToggleClient'
+import { IAMClient, IAMClientInternal } from './iamClient'
+import { KubernetesClient, KubernetesClientInternal } from './kubernetesClient'
+import { MarketplaceClient, MarketplaceClientInternal } from './marketplaceClient'
+import { PostProject, Template } from './types/governance'
+
+import {
+  MarketplaceApplyItemsRequest,
+  MarketplaceApplyItemsResponse,
+  MarketplaceUploadFileResponse,
+  SoftwareCatalogCategory,
+} from './types/marketplace'
+
 import {
   Config,
   ConfigToSave,
@@ -47,12 +61,6 @@ import {
   SaveConfigurationOptions,
   SaveResponse,
 } from './types/configuration'
-import { DeployClient, DeployClientInternal } from './deployClient'
-import { FeatureToggleClient, FeatureToggleClientInternal } from './featureToggleClient'
-import { IAMClient, IAMClientInternal } from './iamClient'
-import { KubernetesClient, KubernetesClientInternal } from './kubernetesClient'
-import { MarketplaceClient, MarketplaceClientInternal } from './marketplaceClient'
-import { PostProject, Template } from './types/governance'
 
 export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
@@ -152,6 +160,10 @@ export interface IAPIClient {
   marketplaceItemInfo(tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem>
   listMarketplaceItemTypeDefinitions(namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]>
   marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition>
+  getMarketplaceCategories(): Promise<SoftwareCatalogCategory[]>
+  applyMarketplaceItems(tenantID: string, items: MarketplaceApplyItemsRequest): Promise<MarketplaceApplyItemsResponse>
+  upsertItemTypeDefinition(tenantID: string, definition: CatalogItemTypeDefinition): Promise<CatalogItemTypeDefinition>
+  uploadMarketplaceFile(tenantID: string, formData: FormData): Promise<MarketplaceUploadFileResponse>
   // #endregion
 }
 
@@ -403,6 +415,22 @@ export class APIClient implements IAPIClient {
 
   async marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition> {
     return this.#marketplaceClient.marketplaceItemTypeDefinitionInfo(tenantID, name)
+  }
+
+  async getMarketplaceCategories (): Promise<SoftwareCatalogCategory[]> {
+    return this.#marketplaceClient.getMarketplaceCategories()
+  }
+
+  async applyMarketplaceItems (tenantID: string, items: MarketplaceApplyItemsRequest): Promise<MarketplaceApplyItemsResponse> {
+    return this.#marketplaceClient.applyMarketplaceItems(tenantID, items)
+  }
+
+  async upsertItemTypeDefinition (tenantID: string, definition: CatalogItemTypeDefinition): Promise<CatalogItemTypeDefinition> {
+    return this.#marketplaceClient.upsertItemTypeDefinition(tenantID, definition)
+  }
+
+  async uploadMarketplaceFile (tenantID: string, formData: FormData): Promise<MarketplaceUploadFileResponse> {
+    return this.#marketplaceClient.uploadMarketplaceFile(tenantID, formData)
   }
 
   async #resourceToCreateFromMarketplaceItem (
@@ -852,6 +880,10 @@ export interface APIClientMockFunctions {
   marketplaceItemInfoMockFn?: (tenantID: string, itemID: string, version?: string) => Promise<CatalogVersionedItem>
   listMarketplaceItemTypeDefinitionsMockFn?: (namespace?: string, name?: string, displayName?: string) => Promise<CatalogItemTypeDefinition[]>
   marketplaceItemTypeDefinitionInfoMockFn?: (tenantID: string, name: string) => Promise<CatalogItemTypeDefinition>
+  getMarketplaceCategoriesMockFn?: () => Promise<SoftwareCatalogCategory[]>
+  applyMarketplaceItemsMockFn?: (tenantID: string, items: MarketplaceApplyItemsRequest) => Promise<MarketplaceApplyItemsResponse>
+  upsertItemTypeDefinitionMockFn?: (tenantID: string, definition: CatalogItemTypeDefinition) => Promise<CatalogItemTypeDefinition>
+  uploadMarketplaceFileMockFn?: (tenantID: string, formData: FormData) => Promise<MarketplaceUploadFileResponse>
   // #endregion
 }
 
@@ -1107,6 +1139,38 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.marketplaceItemTypeDefinitionInfoMockFn(tenantID, name)
+  }
+
+  async getMarketplaceCategories (): Promise<SoftwareCatalogCategory[]> {
+    if (!this.mocks.getMarketplaceCategoriesMockFn) {
+      throw new Error('getMarketplaceCategoriesMockFn not mocked')
+    }
+
+    return this.mocks.getMarketplaceCategoriesMockFn()
+  }
+
+  async applyMarketplaceItems (tenantID: string, items: MarketplaceApplyItemsRequest): Promise<MarketplaceApplyItemsResponse> {
+    if (!this.mocks.applyMarketplaceItemsMockFn) {
+      throw new Error('applyMarketplaceItemsMockFn not mocked')
+    }
+
+    return this.mocks.applyMarketplaceItemsMockFn(tenantID, items)
+  }
+
+  async upsertItemTypeDefinition (tenantID: string, definition: CatalogItemTypeDefinition): Promise<CatalogItemTypeDefinition> {
+    if (!this.mocks.upsertItemTypeDefinitionMockFn) {
+      throw new Error('upsertItemTypeDefinitionMockFn not mocked')
+    }
+
+    return this.mocks.upsertItemTypeDefinitionMockFn(tenantID, definition)
+  }
+
+  async uploadMarketplaceFile (tenantID: string, formData: FormData): Promise<MarketplaceUploadFileResponse> {
+    if (!this.mocks.uploadMarketplaceFileMockFn) {
+      throw new Error('uploadMarketplaceFileMockFn not mocked')
+    }
+
+    return this.mocks.uploadMarketplaceFileMockFn(tenantID, formData)
   }
 
   // #endregion

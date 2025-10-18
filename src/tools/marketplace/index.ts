@@ -13,15 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
 import { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+
 import { unset } from 'lodash-es'
 import { z } from 'zod'
 
-import { assertAiFeaturesEnabledForTenant } from '../utils/validations'
-import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
-import { CatalogItemTypes } from '../../apis/types/marketplace'
 import { IAPIClient } from '../../apis/client'
+import { CatalogItemTypes, MarketplaceApplyItemsRequest } from '../../apis/types/marketplace'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 export function addMarketplaceCapabilities (server: McpServer, client: IAPIClient) {
@@ -269,6 +270,144 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
             {
               type: 'text',
               text: `Error fetching marketplace Item Type Definition info for namespace ${marketplaceITDTenantId} and name ${marketplaceITDName}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.GET_MARKETPLACE_CATEGORIES,
+    toolsDescriptions.GET_MARKETPLACE_CATEGORIES,
+    {},
+    async (): Promise<CallToolResult> => {
+      try {
+        const data = await client.getMarketplaceCategories()
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching marketplace categories: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.APPLY_MARKETPLACE_ITEMS,
+    toolsDescriptions.APPLY_MARKETPLACE_ITEMS,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      items: z.object({
+        resources: z.array(z.record(z.unknown())),
+      }).describe(paramsDescriptions.MARKETPLACE_ITEMS_TO_APPLY),
+    },
+    async ({ tenantId, items }): Promise<CallToolResult> => {
+      try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
+        const data = await client.applyMarketplaceItems(tenantId, items as MarketplaceApplyItemsRequest)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error applying marketplace items for tenant ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.UPSERT_ITEM_TYPE_DEFINITION,
+    toolsDescriptions.UPSERT_ITEM_TYPE_DEFINITION,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      definition: z.record(z.unknown()).describe(paramsDescriptions.MARKETPLACE_ITEM_TYPE_DEFINITION),
+    },
+    async ({ tenantId, definition }): Promise<CallToolResult> => {
+      try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
+        const data = await client.upsertItemTypeDefinition(tenantId, definition as CatalogItemTypeDefinition)
+
+        // Remove binary data fields
+        unset(data, 'metadata.icon')
+        unset(data, 'metadata.publisher.image')
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error upserting Item Type Definition for tenant ${tenantId}: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.UPLOAD_MARKETPLACE_FILE,
+    toolsDescriptions.UPLOAD_MARKETPLACE_FILE,
+    {
+      tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
+      formData: z.any().describe(paramsDescriptions.MARKETPLACE_FILE_FORM_DATA),
+    },
+    async ({ tenantId, formData }): Promise<CallToolResult> => {
+      try {
+        await assertAiFeaturesEnabledForTenant(client, tenantId)
+
+        const data = await client.uploadMarketplaceFile(tenantId, formData as FormData)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(data),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error uploading marketplace file for tenant ${tenantId}: ${err.message}`,
             },
           ],
         }
