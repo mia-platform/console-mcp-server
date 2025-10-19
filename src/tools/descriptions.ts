@@ -78,7 +78,7 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS: 'List the metadata of all the marketplace Item Type Definitions the caller has permission to see (i.e., the ones available to all tenants and the private ones of tenants the user has permission to see)',
   MARKETPLACE_ITEM_TYPE_DEFINITION_INFO: 'Get information about a specific Item Type Definition identified by its compound primary key as path parameters (i.e., id of the tenant namespace, and name of the definition)',
   GET_MARKETPLACE_CATEGORIES: 'Get the list of available marketplace categories to help users understand what types of items are available',
-  APPLY_MARKETPLACE_ITEMS: 'Create or update multiple marketplace items in a tenant. This allows bulk operations for managing marketplace content.',
+  APPLY_MARKETPLACE_ITEMS: 'Create or update multiple marketplace items in a tenant. This allows bulk operations for managing marketplace content. IMPORTANT: Check if the Item Type Definition supports versioning (spec.isVersioningSupported) before creating items. Non-versioned items (like ai-prompt) should NOT include version objects.',
   UPSERT_ITEM_TYPE_DEFINITION: 'Create a new Item Type Definition or replace an existing one. Item Type Definitions extend the marketplace capabilities by defining custom types of items.',
   UPLOAD_MARKETPLACE_FILE: 'Upload files related to marketplace items such as icons, documentation, or other assets. Note: Currently not fully implemented due to multipart/form-data requirements.',
 
@@ -164,7 +164,12 @@ export const paramsDescriptions = {
   MARKETPLACE_ITD_NAME: `The name of the marketplace Item Type Definition (it will be matched against metadata.name). Can be found in the metadata.name field of the ${toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS} tool`,
 
   // Marketplace (new tools)
-  MARKETPLACE_ITEMS_TO_APPLY: `The marketplace items to create or update. Should be an array of marketplace item manifests. Each item should follow the software-catalog-item-manifest schema with properties like name, itemId, tenantId, resources, lifecycleStatus, etc.`,
+  MARKETPLACE_ITEMS_TO_APPLY: `The marketplace items to create or update. Should be an array of marketplace item manifests. Each item should follow the software-catalog-item-manifest schema with properties like name, itemId, tenantId, resources, lifecycleStatus, etc.
+
+IMPORTANT: Versioning behavior depends on the Item Type Definition:
+- If the Item Type Definition has spec.isVersioningSupported: true, include a version object with name, releaseDate, lifecycleStatus, and releaseNote
+- If the Item Type Definition does NOT have spec.isVersioningSupported: true (like ai-prompt), do NOT include any version object
+- Use the marketplace_item_type_definition_info tool to check if an Item Type Definition supports versioning before creating items`,
   MARKETPLACE_ITEM_TYPE_DEFINITION: `The Item Type Definition to create or update. Should follow the software-catalog-item-type-definition schema with apiVersion, kind, metadata, and spec properties.`,
   MARKETPLACE_FILE_FORM_DATA: `The form data containing the file to upload. Note: This parameter is currently not fully supported due to multipart/form-data implementation limitations.`,
 

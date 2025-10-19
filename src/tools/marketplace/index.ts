@@ -19,10 +19,12 @@ import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
 import { unset } from 'lodash-es'
+import { validateMarketplaceItemStructure } from './utils'
 import { z } from 'zod'
 
 import { IAPIClient } from '../../apis/client'
 import { CatalogItemTypes, MarketplaceApplyItemsRequest } from '../../apis/types/marketplace'
+
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
 export function addMarketplaceCapabilities (server: McpServer, client: IAPIClient) {
@@ -318,6 +320,36 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
     async ({ tenantId, items }): Promise<CallToolResult> => {
       try {
         await assertAiFeaturesEnabledForTenant(client, tenantId)
+
+        // Validate marketplace items structure for common versioning issues
+        const validationErrors: string[] = []
+        for (const item of items.resources) {
+          if (item.itemTypeDefinitionRef) {
+            try {
+              const itdRef = item.itemTypeDefinitionRef as { name: string, namespace: string }
+              const itemTypeDefinition = await client.marketplaceItemTypeDefinitionInfo(
+                itdRef.namespace,
+                itdRef.name,
+              )
+              const errors = validateMarketplaceItemStructure(item, itemTypeDefinition)
+              validationErrors.push(...errors)
+            } catch {
+              // If we can't fetch the ITD, we'll let the main API call handle the error
+              // This is just best-effort validation
+            }
+          }
+        }
+
+        if (validationErrors.length > 0) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Validation errors found:\n${validationErrors.join('\n')}\n\nPlease fix these issues and try again.`,
+              },
+            ],
+          }
+        }
 
         const data = await client.applyMarketplaceItems(tenantId, items as MarketplaceApplyItemsRequest)
         return {
