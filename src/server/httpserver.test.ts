@@ -119,25 +119,33 @@ suite('test http streaming server', () => {
     t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost/.well-known/oauth-protected-resource/console-mcp-server"')
   })
 
-  test('get request is not allowed for stateless server', async (t) => {
-    const unsupported = await fastify.inject({
+  test('open passive SSE stream with GET /mcp (with auth token)', async (t) => {
+    const response = await fastify.inject({
       method: 'GET',
       path: '/mcp',
       headers: {
-        Accept: 'application/json, text/event-stream',
+        Accept: 'text/event-stream',
+        'X-Test-Mode': 'true',
+        Authorization: 'Bearer test-token',
       },
     })
 
-    t.assert.equal(unsupported.statusCode, 405)
-    t.assert.equal(unsupported.headers['content-type'], 'application/json; charset=utf-8')
-    t.assert.deepEqual(unsupported.json(), {
-      jsonrpc: JSONRPC_VERSION,
-      error: {
-        code: -32000,
-        message: 'Method not allowed.',
+    t.assert.equal(response.statusCode, 200)
+    t.assert.equal(response.headers['content-type'], 'text/event-stream')
+  })
+
+  test('GET /mcp without token is unauthorized', async (t) => {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/mcp',
+      headers: {
+        Accept: 'text/event-stream',
+        'X-Test-Mode': 'true',
       },
-      id: null,
     })
+
+    t.assert.equal(response.statusCode, 401)
+    t.assert.match(response.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
   })
 
   test('delete request is not allowed for stateless server', async (t) => {

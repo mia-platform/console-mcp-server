@@ -125,16 +125,59 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
-  fastify.get('/mcp', async (_, reply) => {
-    reply.code(405)
-    reply.send({
-      jsonrpc: JSONRPC_VERSION,
-      error: {
-        code: ErrorCode.ConnectionClosed,
-        message: 'Method not allowed.',
-      },
-      id: null,
-    })
+  // Open a passive SSE stream to receive server initiated messages (Streamable HTTP transport §2.2)
+  fastify.get('/mcp', async (request, reply) => {
+    fastify.log.debug({ message: 'Received GET /console-mcp-server/mcp request' })
+
+    // Per spec the client MUST include Accept header listing text/event-stream.
+    const acceptHeader = request.headers['accept'] || request.headers['Accept']
+    if (typeof acceptHeader !== 'string' || !acceptHeader.includes('text/event-stream')) {
+      reply.code(400)
+      reply.send({
+        jsonrpc: JSONRPC_VERSION,
+        error: {
+          code: ErrorCode.InternalError,
+          message: 'Missing required Accept: text/event-stream header',
+        },
+        id: null,
+      })
+      return
+    }
+
+    // Authentication logic mirrors POST /mcp: either client credentials (service-to-service) or bearer token.
+    const authenticateViaClientCredentials = clientID && clientSecret
+    if (authenticateViaClientCredentials) {
+      await connectToMcpServer(request, reply, opts, {})
+      return
+    }
+
+    const token = request.headers['Authorization'] ?? request.headers['authorization']
+    if (!token) {
+      const baseUrl = getBaseUrlFromRequest(request)
+      const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
+      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
+
+      reply.
+        header('WWW-Authenticate', headerContent).
+        code(401).
+        send({
+          jsonrpc: JSONRPC_VERSION,
+          error: {
+            code: ErrorCode.InternalError,
+            message: 'Missing or invalid access token',
+          },
+          id: null,
+        })
+      return
+    }
+
+    await connectToMcpServer(request, reply, opts, { Authorization: token })
+
+    // In test mode we immediately close the SSE stream to allow the test runner to collect the response.
+    if (request.headers['x-test-mode'] === 'true') {
+      // Ending the raw response will close the transport via the 'close' listener.
+      reply.raw.end()
+    }
   })
 
   fastify.delete('/mcp', async (_, reply) => {
