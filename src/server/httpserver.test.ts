@@ -147,6 +147,7 @@ suite('test http streaming server', () => {
       },
     })
 
+    console.log(response)
     t.assert.equal(response.status, 401)
     t.assert.match(response.headers.get('www-authenticate') as string, /Bearer realm="Console MCP Server"/)
     t.assert.match(response.headers.get('www-authenticate') as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
