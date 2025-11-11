@@ -132,7 +132,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
   fastify.get('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received GET /console-mcp-server/mcp request' })
-    
 
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
