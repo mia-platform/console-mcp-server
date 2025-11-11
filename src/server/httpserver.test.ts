@@ -206,17 +206,17 @@ suite('test http streaming server', () => {
   })
 
   test('GET /mcp returns 406 when Accept header lacks text/event-stream', async (t) => {
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/mcp`, {
+    const response = await fastify.inject({
       method: 'GET',
+      path: '/mcp',
       headers: {
         Accept: 'application/json',
         Authorization: 'Bearer test-token',
       },
     })
 
-    t.assert.equal(response.status, 406)
-    t.assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
+    t.assert.equal(response.statusCode, 406)
+    t.assert.equal(response.headers['content-type'], 'application/json; charset=utf-8')
     const body = await response.json()
     t.assert.deepEqual(body, {
       jsonrpc: JSONRPC_VERSION,
