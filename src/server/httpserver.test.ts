@@ -139,18 +139,17 @@ suite('test http streaming server', () => {
   })
 
   test('GET /mcp without token is unauthorized', async (t) => {
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/mcp`, {
+    const response = await fastify.inject({
       method: 'GET',
+      path: '/mcp',
       headers: {
         Accept: 'text/event-stream',
       },
     })
 
-    console.log(response)
-    t.assert.equal(response.status, 401)
-    t.assert.match(response.headers.get('www-authenticate') as string, /Bearer realm="Console MCP Server"/)
-    t.assert.match(response.headers.get('www-authenticate') as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
+    t.assert.equal(response.statusCode, 401)
+    t.assert.match(response.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
+    t.assert.match(response.headers['www-authenticate'] as string, /\/\.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('delete request is not allowed for stateless server', async (t) => {
