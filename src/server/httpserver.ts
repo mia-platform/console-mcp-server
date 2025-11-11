@@ -170,12 +170,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     }
 
     await connectToMcpServer(request, reply, opts, { Authorization: token })
-
-    // Test mode to immediately close the connection after opening.
-    // To be used only to verify whether a connection can be possible, or facilitate tests.
-    if (request.headers['x-test-mode'] === 'true') {
-      reply.raw.end()
-    }
   })
 
   fastify.delete('/mcp', async (_, reply) => {

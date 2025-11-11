@@ -117,37 +117,39 @@ suite('test http streaming server', () => {
 
     t.assert.equal(firstInit.statusCode, 401)
     t.assert.match(firstInit.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
-    t.assert.match(firstInit.headers['www-authenticate'] as string, /resource_metadata="http:\/\/localhost\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
+    t.assert.match(firstInit.headers['www-authenticate'] as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('open passive SSE stream with GET /mcp (with auth token)', async (t) => {
-    const response = await fastify.inject({
+    const address = await fastify.listen({ port: 0 })
+    const controller = new AbortController()
+    const response = await fetch(`${address}/mcp`, {
       method: 'GET',
-      path: '/mcp',
       headers: {
         Accept: 'text/event-stream',
-        'X-Test-Mode': 'true',
         Authorization: 'Bearer test-token',
       },
+      signal: controller.signal,
     })
 
-    t.assert.equal(response.statusCode, 200)
-    t.assert.equal(response.headers['content-type'], 'text/event-stream')
+    t.assert.equal(response.status, 200)
+    t.assert.equal(response.headers.get('content-type'), 'text/event-stream')
+
+    controller.abort()
   })
 
   test('GET /mcp without token is unauthorized', async (t) => {
-    const response = await fastify.inject({
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/mcp`, {
       method: 'GET',
-      path: '/mcp',
       headers: {
         Accept: 'text/event-stream',
-        'X-Test-Mode': 'true',
       },
     })
 
-    t.assert.equal(response.statusCode, 401)
-    t.assert.match(response.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
-    t.assert.match(response.headers['www-authenticate'] as string, /resource_metadata="http:\/\/localhost\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
+    t.assert.equal(response.status, 401)
+    t.assert.match(response.headers.get('www-authenticate') as string, /Bearer realm="Console MCP Server"/)
+    t.assert.match(response.headers.get('www-authenticate') as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('delete request is not allowed for stateless server', async (t) => {
@@ -196,7 +198,7 @@ suite('test http streaming server', () => {
     t.assert.deepEqual(response.json(), {
       jsonrpc: JSONRPC_VERSION,
       error: {
-        code: -32603, // InternalError mapped in our server responses
+        code: -32603,
         message: 'Missing required Accept: text/event-stream header',
       },
       id: null,
@@ -204,19 +206,19 @@ suite('test http streaming server', () => {
   })
 
   test('GET /mcp returns 406 when Accept header lacks text/event-stream', async (t) => {
-    const response = await fastify.inject({
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/mcp`, {
       method: 'GET',
-      path: '/mcp',
       headers: {
         Accept: 'application/json',
-        'X-Test-Mode': 'true',
         Authorization: 'Bearer test-token',
       },
     })
 
-    t.assert.equal(response.statusCode, 406)
-    t.assert.equal(response.headers['content-type'], 'application/json; charset=utf-8')
-    t.assert.deepEqual(response.json(), {
+    t.assert.equal(response.status, 406)
+    t.assert.equal(response.headers.get('content-type'), 'application/json; charset=utf-8')
+    const body = await response.json()
+    t.assert.deepEqual(body, {
       jsonrpc: JSONRPC_VERSION,
       error: {
         code: -32603,
