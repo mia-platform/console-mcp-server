@@ -52,18 +52,6 @@ export const sendMissingToken = (request: FastifyRequest, reply: FastifyReply) =
     })
 }
 
-/** Send a 406 response when Accept header does not include text/event-stream. */
-export const sendMissingEventStreamAccept = (reply: FastifyReply) => {
-  reply.code(406).send({
-    jsonrpc: JSONRPC_VERSION,
-    error: {
-      code: ErrorCode.InternalError,
-      message: 'Missing required Accept: text/event-stream header',
-    },
-    id: null,
-  })
-}
-
 const connectToMcpServer = async (
   request: FastifyRequest,
   reply: FastifyReply,
@@ -127,12 +115,6 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   fastify.post('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /console-mcp-server/mcp request', body: request.body })
 
-    const acceptHeader = request.headers['accept'] || request.headers['Accept']
-    if (typeof acceptHeader !== 'string' || !acceptHeader.includes('text/event-stream')) {
-      sendMissingEventStreamAccept(reply)
-      return
-    }
-
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
       await connectToMcpServer(request, reply, opts, {})
@@ -150,12 +132,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
   fastify.get('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received GET /console-mcp-server/mcp request' })
-
-    const acceptHeader = request.headers['accept'] || request.headers['Accept']
-    if (typeof acceptHeader !== 'string' || !acceptHeader.includes('text/event-stream')) {
-      sendMissingEventStreamAccept(reply)
-      return
-    }
+    
 
     const authenticateViaClientCredentials = clientID && clientSecret
     if (authenticateViaClientCredentials) {
