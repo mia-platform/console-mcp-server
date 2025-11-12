@@ -47,7 +47,6 @@ export class ClientCredentialsManager {
     }
 
     this.credentials.set(clientId, clientCredential)
-
     this.cleanupExpired()
 
     return clientCredential
@@ -60,6 +59,7 @@ export class ClientCredentialsManager {
       return null
     }
 
+    this.resetExpiration(credentials)
     return { clientId: credentials.clientId, clientSecret: credentials.clientSecret }
   }
 
@@ -72,17 +72,18 @@ export class ClientCredentialsManager {
    * @returns `true` if the state was added, `false` otherwise (e.g. if the client id does not exist, is expired or already has a state)
    */
   addState (clientId: string, state: string): boolean {
-    const credential = this.credentials.get(clientId)
-    if (!credential || this.isExpired(credential)) {
-      this.credentials.delete(clientId)
+    const credentials = this.credentials.get(clientId)
+    if (!credentials || this.isExpired(credentials)) {
+      this.cleanupExpired()
       return false
     }
 
-    if (credential.state) {
+    if (credentials.state) {
       return false
     }
 
-    credential.state = state
+    this.resetExpiration(credentials)
+    credentials.state = state
     return true
   }
 
@@ -93,13 +94,18 @@ export class ClientCredentialsManager {
    * @returns the client id and the associated state, or `null` if the client id does not exist, is expired or has no state
    */
   getStoredClientIdAndState (clientId: string): Pick<ClientCredentials, 'clientId' | 'state'> | null {
-    const credential = this.credentials.get(clientId)
-    if (!credential || this.isExpired(credential) || !credential.state) {
-      this.credentials.delete(clientId)
+    const credentials = this.credentials.get(clientId)
+    if (!credentials || this.isExpired(credentials) || !credentials.state) {
+      this.cleanupExpired()
       return null
     }
 
-    return { clientId: credential.clientId, state: credential.state }
+    this.resetExpiration(credentials)
+    return { clientId: credentials.clientId, state: credentials.state }
+  }
+
+  private resetExpiration (credential: ClientCredentials): void {
+    credential.expiresAt = Date.now() + this.expiryDuration
   }
 
   private generateClientId (): string {
