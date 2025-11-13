@@ -29,6 +29,29 @@ export interface HTTPServerOptions {
   clientSecret: string
 }
 
+/** Build the WWW-Authenticate header used when the access token is missing. */
+const buildAuthenticateHeader = (baseUrl: string) => {
+  const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
+  return `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}", endpoint="/mcp"`
+}
+
+/** Send a 401 response for missing/invalid token. */
+export const sendMissingToken = (request: FastifyRequest, reply: FastifyReply) => {
+  const baseUrl = getBaseUrlFromRequest(request)
+  const headerContent = buildAuthenticateHeader(baseUrl)
+  reply.
+    header('WWW-Authenticate', headerContent).
+    code(401).
+    send({
+      jsonrpc: JSONRPC_VERSION,
+      error: {
+        code: ErrorCode.InternalError,
+        message: 'Missing or invalid access token',
+      },
+      id: null,
+    })
+}
+
 const connectToMcpServer = async (
   request: FastifyRequest,
   reply: FastifyReply,
@@ -99,42 +122,30 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     }
 
     const token = request.headers['Authorization'] ?? request.headers['authorization']
-
     if (!token) {
-      const baseUrl = getBaseUrlFromRequest(request)
-      const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
-      const headerContent = `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}"`
-
-      reply.
-        header(
-          'WWW-Authenticate',
-          headerContent,
-        ).
-        code(401).
-        send({
-          jsonrpc: JSONRPC_VERSION,
-          error: {
-            code: ErrorCode.InternalError,
-            message: 'Missing or invalid access token',
-          },
-          id: null,
-        })
+      sendMissingToken(request, reply)
       return
     }
 
     await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
-  fastify.get('/mcp', async (_, reply) => {
-    reply.code(405)
-    reply.send({
-      jsonrpc: JSONRPC_VERSION,
-      error: {
-        code: ErrorCode.ConnectionClosed,
-        message: 'Method not allowed.',
-      },
-      id: null,
-    })
+  fastify.get('/mcp', async (request, reply) => {
+    fastify.log.debug({ message: 'Received GET /console-mcp-server/mcp request' })
+
+    const authenticateViaClientCredentials = clientID && clientSecret
+    if (authenticateViaClientCredentials) {
+      await connectToMcpServer(request, reply, opts, {})
+      return
+    }
+
+    const token = request.headers['Authorization'] ?? request.headers['authorization']
+    if (!token) {
+      sendMissingToken(request, reply)
+      return
+    }
+
+    await connectToMcpServer(request, reply, opts, { Authorization: token })
   })
 
   fastify.delete('/mcp', async (_, reply) => {

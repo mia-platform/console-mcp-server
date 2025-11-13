@@ -105,12 +105,8 @@ export async function oauthRouter (fastify: FastifyInstance, options: OAuthRoute
     authorizeParams.set('appId', 'console-mcp-server')
     authorizeParams.set('providerId', 'okta')
 
-    if (query.response_type) authorizeParams.set('response_type', query.response_type)
-    if (query.redirect_uri) authorizeParams.set('redirect_uri', query.redirect_uri)
-    if (query.scope) authorizeParams.set('scope', query.scope)
     if (query.state) authorizeParams.set('state', query.state)
-    if (query.code_challenge) authorizeParams.set('code_challenge', query.code_challenge)
-    if (query.code_challenge_method) authorizeParams.set('code_challenge_method', query.code_challenge_method)
+    if (query.redirect_uri) authorizeParams.set('redirect', query.redirect_uri)
 
     const oktaAuthorizeUrl = new URL(`${OAUTH_AUTHORIZE_PATH}?${authorizeParams.toString()}`, host)
 

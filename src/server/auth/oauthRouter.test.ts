@@ -108,7 +108,7 @@ suite('OAuth Router', () => {
   suite('GET /authorize', () => {
     test('should redirect to auth server when all parameters are valid', async (t) => {
       agent.get(testHost).intercept({
-        path: '/api/authorize?appId=console-mcp-server&providerId=okta&response_type=code&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&scope=openid&state=test-state&code_challenge=challenge&code_challenge_method=S256',
+        path: '/api/authorize?appId=console-mcp-server&providerId=okta&redirect=https%3A%2F%2Fexample.com%2Fcallback&state=test-state',
         method: 'GET',
       }).reply(302, '', { headers: { location: 'https://auth.example.com/oauth/authorize' } })
 
