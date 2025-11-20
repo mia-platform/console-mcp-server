@@ -31,7 +31,8 @@ npm run build
 
 These commands will install all the dependencies and then transpile the typescript code in the `build` folder.
 
-> [!NOTE]
+> **NOTE**
+>
 > The server automatically loads environment variables from a `.env` file if present in the project root. 
 > You can create one by copying `default.env` to `.env` and updating the values as needed.
 
@@ -55,32 +56,30 @@ Once these steps are completed you can setup the MCP server using the `node` com
 }
 ```
 
-:::tip
-
-Alternatively, you start the service after the build with the following command:
-
-```sh
-node mcp-server start
-```
-
-Then add the mcp server to your client simply including the url. As example for VS Code:
-
-```json
-{
-  "mcp": {
-    "servers": {
-      "mia-platform-console": {
-        "type": "http",
-        "url": "http://localhost:3000/console-mcp-server/mcp"
-      }
-    }
-  }
-}
-```
-
-Instead of `3000`, please include the port defined in the environment variable `PORT`. More detail in the [Environment Variables](#environment-variables) section.
-
-:::
+> **TIP**
+>
+> Alternatively, you start the service after the build with the following command:
+> 
+> ```sh
+> node mcp-server start
+> ```
+> 
+> Then add the mcp server to your client simply including the url. As example for VS Code:
+> 
+> ```json
+> {
+>   "mcp": {
+>     "servers": {
+>       "mia-platform-console": {
+>         "type": "http",
+>         "url": "http://localhost:3000/console-mcp-server/mcp"
+>       }
+>     }
+>   }
+> }
+> ```
+> 
+> Instead of `3000`, please include the port defined in the environment variable `PORT`. More detail in the [Environment Variables](#environment-variables) section.
 
 ### Environment Variables
 
