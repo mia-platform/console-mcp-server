@@ -189,7 +189,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm i
       - run: npm run build
-      - run: npm publish --access=public
+      # - run: npm publish --access=public
       
       - name: Install mcp-publisher
         run: |
