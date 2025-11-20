@@ -20,7 +20,8 @@
     "start": "npm run build && node mcp-server start",
     "start:stdio": "npm run start -- --stdio",
     "test": "npm run test-base 'src/**/*.test.ts'",
-    "test-base": "node --test --import tsx "
+    "test-base": "node --test --import tsx",
+    "version": "node scripts/update-server-version.mjs && git add server.json"
   },
   "repository": {
     "type": "git",

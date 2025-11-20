@@ -2,6 +2,9 @@
 
 mcp-server
 
+# MCP Registry files
+.mcpregistry*
+
 # End Custom Gitignore
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,linux,windows,visualstudiocode,webstorm+all,node
