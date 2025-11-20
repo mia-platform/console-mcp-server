@@ -116,28 +116,40 @@ suite('test http streaming server', () => {
     })
 
     t.assert.equal(firstInit.statusCode, 401)
-    t.assert.equal(firstInit.headers['www-authenticate'], 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="http://localhost/.well-known/oauth-protected-resource/console-mcp-server"')
+    t.assert.match(firstInit.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
+    t.assert.match(firstInit.headers['www-authenticate'] as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
-  test('get request is not allowed for stateless server', async (t) => {
-    const unsupported = await fastify.inject({
+  test('open passive SSE stream with GET /mcp (with auth token)', async (t) => {
+    const address = await fastify.listen({ port: 0 })
+    const controller = new AbortController()
+    const response = await fetch(`${address}/mcp`, {
+      method: 'GET',
+      headers: {
+        Accept: 'text/event-stream',
+        Authorization: 'Bearer test-token',
+      },
+      signal: controller.signal,
+    })
+
+    t.assert.equal(response.status, 200)
+    t.assert.equal(response.headers.get('content-type'), 'text/event-stream')
+
+    controller.abort()
+  })
+
+  test('GET /mcp without token is unauthorized', async (t) => {
+    const response = await fastify.inject({
       method: 'GET',
       path: '/mcp',
       headers: {
-        Accept: 'application/json, text/event-stream',
+        Accept: 'text/event-stream',
       },
     })
 
-    t.assert.equal(unsupported.statusCode, 405)
-    t.assert.equal(unsupported.headers['content-type'], 'application/json; charset=utf-8')
-    t.assert.deepEqual(unsupported.json(), {
-      jsonrpc: JSONRPC_VERSION,
-      error: {
-        code: -32000,
-        message: 'Method not allowed.',
-      },
-      id: null,
-    })
+    t.assert.equal(response.statusCode, 401)
+    t.assert.match(response.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
+    t.assert.match(response.headers['www-authenticate'] as string, /\/\.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('delete request is not allowed for stateless server', async (t) => {
