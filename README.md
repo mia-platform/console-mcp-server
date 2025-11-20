@@ -19,7 +19,7 @@ You may decide to access via:
 
 ### How to Run
 
-You can run stable versions of the Mia-Platform Console MCP Server using [Docker](Docker). You can get detailed guide using the [following guide](20-setup).
+You can run stable versions of the Mia-Platform Console MCP Server using [Docker](Docker). You can get detailed guide [in the related page of the Mia-Platform documentation](20_setup).
 
 If you don't have Docker installed, or you simply wish to run it locally, you can use NPM and Node.js. Once you have cloned the
 project you can run the commands:
@@ -147,7 +147,7 @@ node --test --import tsx <FILE_PATH>
 [mcp-intro]: https://modelcontextprotocol.io/introduction
 [mcp-specs-auth]: https://modelcontextprotocol.io/specification/2025-06-18
 [Docker]: https://www.docker.com/
-[20-setup]: /docs/20_setup.md
+[20-setup]: https://docs.mia-platform.eu/docs/products/console/mcp/mcp-server/setup
 [docs-create-service-account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts
 [nvm]: https://github.com/nvm-sh/nvm
 [mise]: https://mise.jdx.dev
