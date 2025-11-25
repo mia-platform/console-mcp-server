@@ -38,6 +38,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
 
         const revisions = await client.getConfigurationRevisions(projectId)
         return {
+          structuredContent: revisions,
           content: [
             {
               type: 'text',
@@ -73,6 +74,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
 
         const config = await client.getConfiguration(projectId, refId)
         return {
+          structuredContent: config,
           content: [
             {
               type: 'text',

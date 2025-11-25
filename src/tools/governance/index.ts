@@ -64,6 +64,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
           }
         })
         return {
+          structuredContent: { projects: mappedData },
           content: [
             {
               type: 'text',
@@ -98,6 +99,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
         await assertAiFeaturesEnabledForProject(client, project)
 
         return {
+          structuredContent: project,
           content: [
             {
               type: 'text',
@@ -181,6 +183,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
           })
 
         return {
+          structuredContent: { tenants: filteredTenants },
           content: [
             {
               type: 'text',
@@ -223,6 +226,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
           }
         })
         return {
+          structuredContent: { templates: mappedBlueprint },
           content: [
             {
               type: 'text',
@@ -257,6 +261,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
 
         const data = await client.companyIAMIdentities(tenantId, identityType)
         return {
+          structuredContent: { identities: data },
           content: [
             {
               type: 'text',
@@ -292,6 +297,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
 
         const data = await client.companyAuditLogs(tenantId, from, to)
         return {
+          structuredContent: { auditLogs: data },
           content: [
             {
               type: 'text',
