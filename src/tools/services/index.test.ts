@@ -49,7 +49,7 @@ async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<C
 }
 
 suite('setup services tools', () => {
-  test('should setup services tools to a server', async (t) => {
+  test('should setup services tools to a server', async (t: it.TestContext) => {
     const client = await TestMCPServer((server) => {
       addServicesCapabilities(server, new APIClientMock({}))
     })
@@ -73,7 +73,7 @@ suite('create service from marketplace tool', () => {
     return saveResponse
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
 
     const expectedError = 'error fetching project info'
@@ -101,6 +101,7 @@ suite('create service from marketplace tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating ${name} service: ${expectedError}`,
@@ -109,7 +110,7 @@ suite('create service from marketplace tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
 
@@ -146,6 +147,7 @@ suite('create service from marketplace tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating ${name} service: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -154,7 +156,7 @@ suite('create service from marketplace tool', () => {
     ])
   })
 
-  test('should create a service from marketplace item', async (t) => {
+  test('should create a service from marketplace item', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
 
@@ -196,7 +198,7 @@ suite('create service from marketplace tool', () => {
     ])
   })
 
-  test('should return error when service creation fails', async (t) => {
+  test('should return error when service creation fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
 
@@ -230,6 +232,7 @@ suite('create service from marketplace tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating ${name} service: error message`,

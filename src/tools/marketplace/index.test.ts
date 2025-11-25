@@ -128,7 +128,7 @@ async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<C
 }
 
 suite('setup marketplace tools', () => {
-  test('should setup marketplace tools to a server', async (t) => {
+  test('should setup marketplace tools to a server', async (t: it.TestContext) => {
     const client = await TestMCPServer((server) => {
       addMarketplaceCapabilities(server, new APIClientMock({}))
     })
@@ -152,7 +152,7 @@ suite('marketplace list tool', () => {
     return elements
   })
 
-  test('should return public elements', async (t) => {
+  test('should return public elements', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       listMarketplaceItemsMockFn,
     })
@@ -173,7 +173,7 @@ suite('marketplace list tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -204,7 +204,7 @@ suite('marketplace list tool', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  test('should return error message if request return error', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       listMarketplaceItemsMockFn,
@@ -221,6 +221,7 @@ suite('marketplace list tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace items for company error: error message',
@@ -237,7 +238,7 @@ suite('marketplace item versions tool', () => {
     return itemVersions as unknown as CatalogItemRelease[]
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -260,6 +261,7 @@ suite('marketplace item versions tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching marketplace item versions for item-id: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -268,7 +270,7 @@ suite('marketplace item versions tool', () => {
     ])
   })
 
-  test('should return item versions', async (t) => {
+  test('should return item versions', async (t: it.TestContext) => {
     const testTenantId = 'tenantID'
 
     const client = await getTestMCPServerClient({
@@ -295,7 +297,7 @@ suite('marketplace item versions tool', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  test('should return error message if request return error', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       marketplaceItemVersionsMockFn,
@@ -312,6 +314,7 @@ suite('marketplace item versions tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace item versions for item-id: error message',
@@ -329,7 +332,7 @@ suite('marketplace item version info tool', () => {
     return itemInfo as unknown as CatalogVersionedItem
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -353,6 +356,7 @@ suite('marketplace item version info tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching marketplace item info for version 1.0.0: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -361,7 +365,7 @@ suite('marketplace item version info tool', () => {
     ])
   })
 
-  test('should return item version info', async (t) => {
+  test('should return item version info', async (t: it.TestContext) => {
     const testTenantId = 'tenantID'
 
     const client = await getTestMCPServerClient({
@@ -389,7 +393,7 @@ suite('marketplace item version info tool', () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  test('should return error message if request return error', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       marketplaceItemInfoMockFn,
@@ -407,6 +411,7 @@ suite('marketplace item version info tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace item info for version 1.0.0: error message',
@@ -425,7 +430,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
     return itemTypeDefinitions
   })
 
-  test('should return ITDs', async (t) => {
+  test('should return ITDs', async (t: it.TestContext) => {
     const isAiFeaturesEnabledForTenantMockFn = mock.fn(async () => true)
 
     const client = await getTestMCPServerClient({
@@ -479,7 +484,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
     t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'my-company' ])
   })
 
-  test('should return ITDs with namespace param if all namespaces have AI features enabled', async (t) => {
+  test('should return ITDs with namespace param if all namespaces have AI features enabled', async (t: it.TestContext) => {
     const isAiFeaturesEnabledForTenantMockFn = mock.fn(async () => true)
 
     const client = await getTestMCPServerClient({
@@ -536,7 +541,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
     t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(2)!.arguments, [ 'other-company' ])
   })
 
-  test('should return error message if namespace param is used and not all namespaces have AI features enabled', async (t) => {
+  test('should return error message if namespace param is used and not all namespaces have AI features enabled', async (t: it.TestContext) => {
     const isAiFeaturesEnabledForTenantMockFn = mock.fn(async (tenantId: string) => {
       if (tenantId === 'other-company') {
         throw new Error('error message')
@@ -560,6 +565,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace item type definitions: error message',
@@ -572,7 +578,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
     t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'other-company' ])
   })
 
-  test('should return ITDs filtering out namespaces without AI features enabled', async (t) => {
+  test('should return ITDs filtering out namespaces without AI features enabled', async (t: it.TestContext) => {
     const isAiFeaturesEnabledForTenantMockFn = mock.fn(async (tenantId: string) => {
       if (tenantId === 'my-company') {
         throw new Error('error message')
@@ -626,7 +632,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
     t.assert.deepEqual(isAiFeaturesEnabledForTenantMockFn.mock.calls.at(1)!.arguments, [ 'my-company' ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  test('should return error message if request return error', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       listMarketplaceItemTypeDefinitionsMockFn,
@@ -640,6 +646,7 @@ suite('marketplace Item Type Definitions list tool', async () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace item type definitions: error message',
@@ -658,7 +665,7 @@ suite('marketplace Item Type Definition info tool', async () => {
     return itemTypeDefinitions.at(0) as CatalogItemTypeDefinition
   })
 
-  test('should return the ITD', async (t) => {
+  test('should return the ITD', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       marketplaceItemTypeDefinitionInfoMockFn,
@@ -715,7 +722,7 @@ suite('marketplace Item Type Definition info tool', async () => {
     ])
   })
 
-  it('should return an error if AI features are not enabled for tenant', async (t) => {
+  it('should return an error if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
 
     const aiFeaturesMockFn = mock.fn(async (tenantId: string) => {
@@ -738,6 +745,7 @@ suite('marketplace Item Type Definition info tool', async () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching marketplace Item Type Definition info for namespace ${testTenantId} and name itdName: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -746,7 +754,7 @@ suite('marketplace Item Type Definition info tool', async () => {
     ])
   })
 
-  test('should return error message if request return error', async (t) => {
+  test('should return error message if request return error', async (t: it.TestContext) => {
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
       marketplaceItemTypeDefinitionInfoMockFn,
@@ -763,6 +771,7 @@ suite('marketplace Item Type Definition info tool', async () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching marketplace Item Type Definition info for namespace error and name itdName: error message',
