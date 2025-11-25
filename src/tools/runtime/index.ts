@@ -36,6 +36,7 @@ export function addRuntimeCapabilities (server: McpServer, client: IAPIClient) {
 
         const pods = await client.listPods(projectId, environmentId)
         return {
+          structuredContent: { pods },
           content: [
             {
               type: 'text',
@@ -74,6 +75,7 @@ export function addRuntimeCapabilities (server: McpServer, client: IAPIClient) {
 
         const logs = await client.podLogs(projectId, environmentId, podName, containerName, 100)
         return {
+          structuredContent: { logs },
           content: [
             {
               type: 'text',

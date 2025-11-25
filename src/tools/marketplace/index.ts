@@ -56,6 +56,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
           }
         })
         return {
+          structuredContent: { marketplaceItems: mappedData },
           content: [
             {
               type: 'text',
@@ -91,6 +92,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
 
         const data = await client.marketplaceItemVersions(marketplaceItemTenantId, marketplaceItemId)
         return {
+          structuredContent: { versions: data },
           content: [
             {
               type: 'text',
@@ -131,6 +133,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
           marketplaceItemVersion,
         )
         return {
+          structuredContent: data,
           content: [
             {
               type: 'text',
@@ -220,6 +223,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
         }, [])
 
         return {
+          structuredContent: { itemTypeDefinitions: mappedData },
           content: [
             {
               type: 'text',
@@ -259,6 +263,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
         unset(data, 'metadata.publisher.image')
 
         return {
+          structuredContent: data,
           content: [
             {
               type: 'text',

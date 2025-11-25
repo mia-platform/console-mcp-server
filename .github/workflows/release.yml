@@ -8,6 +8,7 @@ permissions: {}
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-rc') && !contains(github.ref, '-alpha') && !contains(github.ref, '-beta') }}
     permissions:
       contents: write
     steps:

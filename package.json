@@ -1,6 +1,6 @@
 {
   "name": "@mia-platform/console-mcp-server",
-  "version": "1.2.2",
+  "version": "1.3.0-rc.4",
   "mcpName": "io.github.mia-platform/console-mcp-server",
   "description": "Mia-Platform Console MCP Server",
   "main": "mcp-server/index.js",
