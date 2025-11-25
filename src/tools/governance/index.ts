@@ -194,6 +194,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -237,6 +238,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -272,6 +274,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -308,6 +311,7 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',

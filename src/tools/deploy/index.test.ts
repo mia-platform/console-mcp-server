@@ -51,7 +51,7 @@ async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<C
 }
 
 suite('setup deploy tools', () => {
-  test('should setup deploy tools to a server', async (t) => {
+  test('should setup deploy tools to a server', async (t: it.TestContext) => {
     const client = await TestMCPServer((server) => {
       addDeployCapabilities(server, new APIClientMock({}))
     })
@@ -76,7 +76,7 @@ suite('deploy project tool', () => {
     return triggerDeployResponse
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const revision = 'main'
     const environment = 'development'
@@ -103,7 +103,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${expectedError}`,
@@ -112,7 +112,7 @@ suite('deploy project tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -148,7 +148,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -157,7 +157,7 @@ suite('deploy project tool', () => {
     ])
   })
 
-  it('triggers a deployment correctly', async (t) => {
+  it('triggers a deployment correctly', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -199,7 +199,7 @@ suite('deploy project tool', () => {
     ])
   })
 
-  it('returns error - if deploy request fails', async (t) => {
+  it('returns error - if deploy request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const revision = 'main'
@@ -233,7 +233,7 @@ suite('deploy project tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',
@@ -252,7 +252,7 @@ suite('compare_update_for_deploy tool', () => {
     return compareUpdateResponse
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const revision = 'main'
     const environment = 'development'
@@ -279,7 +279,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error retrieving configuration updates: ${expectedError}`,
@@ -288,7 +288,7 @@ suite('compare_update_for_deploy tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -324,7 +324,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error retrieving configuration updates: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -333,7 +333,7 @@ suite('compare_update_for_deploy tool', () => {
     ])
   })
 
-  test('should retrieve configuration updates for deploy', async (t) => {
+  test('should retrieve configuration updates for deploy', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const revision = 'main'
@@ -374,7 +374,7 @@ suite('compare_update_for_deploy tool', () => {
     ])
   })
 
-  test('should return error message if compare update request returns error', async (t) => {
+  test('should return error message if compare update request returns error', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const revision = 'main'
@@ -407,7 +407,7 @@ suite('compare_update_for_deploy tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error retrieving configuration updates: error message',
@@ -428,7 +428,7 @@ suite('deploy_pipeline_status tool', () => {
     return successStatus
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const pipelineId = '456'
 
@@ -451,7 +451,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${expectedError}`,
@@ -460,7 +460,7 @@ suite('deploy_pipeline_status tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const pipelineId = '456'
@@ -492,7 +492,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -501,7 +501,7 @@ suite('deploy_pipeline_status tool', () => {
     ])
   })
 
-  test('should get pipeline status successfully', async (t) => {
+  test('should get pipeline status successfully', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const pipelineId = '456'
@@ -538,7 +538,7 @@ suite('deploy_pipeline_status tool', () => {
     ])
   })
 
-  test('should return error message if pipeline status request returns error', async (t) => {
+  test('should return error message if pipeline status request returns error', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const pipelineId = '456'
@@ -567,7 +567,7 @@ suite('deploy_pipeline_status tool', () => {
       },
     }, CallToolResultSchema)
 
-    t.assert.equal(result.isError, true)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error deploying project: error message',

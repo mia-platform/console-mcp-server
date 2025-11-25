@@ -49,6 +49,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -85,6 +86,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -128,6 +130,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -279,6 +282,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -324,6 +328,7 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',

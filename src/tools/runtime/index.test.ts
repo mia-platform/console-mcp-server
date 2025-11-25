@@ -46,7 +46,7 @@ async function getTestMCPServerClient (mocks: APIClientMockFunctions): Promise<C
 }
 
 suite('setup runtime tools', () => {
-  test('should setup runtime tools to a server', async (t) => {
+  test('should setup runtime tools to a server', async (t: it.TestContext) => {
     const client = await TestMCPServer((server) => {
       addRuntimeCapabilities(server, new APIClientMock({}))
     })
@@ -71,7 +71,7 @@ suite('list pods tool', () => {
     return pods
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
 
@@ -102,7 +102,7 @@ suite('list pods tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
@@ -134,6 +134,7 @@ suite('list pods tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching pods: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -142,7 +143,7 @@ suite('list pods tool', () => {
     ])
   })
 
-  test('should list pods', async (t) => {
+  test('should list pods', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'test-project'
     const environmentId = 'test-environment'
@@ -179,7 +180,7 @@ suite('list pods tool', () => {
     ])
   })
 
-  test('should return error when pods are not found', async (t) => {
+  test('should return error when pods are not found', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const environmentId = 'test-environment'
@@ -208,6 +209,7 @@ suite('list pods tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching pods: error message',
@@ -226,7 +228,7 @@ suite('get pod logs tool', () => {
     return logs
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
     const podName = 'test-pod'
@@ -253,6 +255,7 @@ suite('get pod logs tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching logs for container ${containerName} in pod ${podName}: ${expectedError}`,
@@ -261,7 +264,7 @@ suite('get pod logs tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const environmentId = 'test-environment'
@@ -297,6 +300,7 @@ suite('get pod logs tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching logs for container ${containerName} in pod ${podName}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -305,7 +309,7 @@ suite('get pod logs tool', () => {
     ])
   })
 
-  test('should return logs', async (t) => {
+  test('should return logs', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'test-project'
     const environmentId = 'test-environment'
@@ -341,7 +345,7 @@ suite('get pod logs tool', () => {
     t.assert.deepEqual(result.content[0].text, `Logs for container ${containerName} in pod ${podName}: ${logs}`)
   })
 
-  test('should return error when logs are not found', async (t) => {
+  test('should return error when logs are not found', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const environmentId = 'test-environment'
@@ -374,6 +378,7 @@ suite('get pod logs tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching logs for container ${containerName} in pod ${podName}: error message`,

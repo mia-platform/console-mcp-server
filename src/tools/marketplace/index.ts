@@ -67,6 +67,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -102,6 +103,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -142,6 +144,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -231,6 +234,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
@@ -270,6 +274,7 @@ export function addMarketplaceCapabilities (server: McpServer, client: IAPIClien
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',

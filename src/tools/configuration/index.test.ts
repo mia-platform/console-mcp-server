@@ -103,7 +103,7 @@ suite('list configuration revisions tool', () => {
       }
     })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
 
     const expectedError = 'error fetching project info'
@@ -132,7 +132,7 @@ suite('list configuration revisions tool', () => {
     ])
   })
 
-  it('returns error - if AI features are not enabled for tenant', async (t) => {
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
 
@@ -172,7 +172,7 @@ suite('list configuration revisions tool', () => {
     ])
   })
 
-  it('returns revisions and tags', async (t) => {
+  it('returns revisions and tags', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
 
@@ -216,7 +216,7 @@ suite('list configuration revisions tool', () => {
     ])
   })
 
-  it('returns error - if request returns error', async (t) => {
+  it('returns error - if request returns error', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
 
@@ -249,6 +249,7 @@ suite('list configuration revisions tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching revisions or versions: error message',
@@ -268,7 +269,7 @@ suite('get configuration tool', () => {
       return mockConfiguration as unknown as RetrievedConfiguration
     })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const refId = 'main'
 
@@ -291,6 +292,7 @@ suite('get configuration tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching configuration: ${expectedError}`,
@@ -299,7 +301,7 @@ suite('get configuration tool', () => {
     ])
   })
 
-  it('should return error if AI features are not enabled for tenant', async (t) => {
+  it('should return error if AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -333,6 +335,7 @@ suite('get configuration tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -341,7 +344,7 @@ suite('get configuration tool', () => {
     ])
   })
 
-  it('should retrieve and return configuration', async (t) => {
+  it('should retrieve and return configuration', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -382,7 +385,7 @@ suite('get configuration tool', () => {
     ])
   })
 
-  it('should return error message if API request fails', async (t) => {
+  it('should return error message if API request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const refId = 'main'
@@ -416,6 +419,7 @@ suite('get configuration tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error fetching configuration: some error',
@@ -435,7 +439,7 @@ suite('configuration save tool', () => {
       return mockSaveResponse
     })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const refId = 'main'
 
@@ -473,6 +477,7 @@ suite('configuration save tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error saving configuration: ${expectedError}`,
@@ -481,7 +486,7 @@ suite('configuration save tool', () => {
     ])
   })
 
-  it('returns error - when AI features are not enabled for tenant', async (t) => {
+  it('returns error - when AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -531,6 +536,7 @@ suite('configuration save tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -539,7 +545,7 @@ suite('configuration save tool', () => {
     ])
   })
 
-  it('saves configuration successfully with multiple resource types', async (t) => {
+  it('saves configuration successfully with multiple resource types', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -636,7 +642,7 @@ suite('configuration save tool', () => {
     ])
   })
 
-  it('should return error message if POST request fails', async (t) => {
+  it('should return error message if POST request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const refId = 'main'
@@ -686,6 +692,7 @@ suite('configuration save tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error saving configuration: some error',
@@ -706,7 +713,7 @@ suite('create collection tool', () => {
       return mockSaveResponse
     })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const refId = 'main'
     const collectionName = 'users'
@@ -736,6 +743,7 @@ suite('create collection tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating collection: ${expectedError}`,
@@ -744,7 +752,7 @@ suite('create collection tool', () => {
     ])
   })
 
-  it('returns error - when AI features are not enabled for tenant', async (t) => {
+  it('returns error - when AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -785,6 +793,7 @@ suite('create collection tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating collection: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -793,7 +802,7 @@ suite('create collection tool', () => {
     ])
   })
 
-  it('creates collection successfully', async (t) => {
+  it('creates collection successfully', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -847,7 +856,7 @@ suite('create collection tool', () => {
     ])
   })
 
-  it('should return error message if POST request fails', async (t) => {
+  it('should return error message if POST request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const refId = 'main'
@@ -888,6 +897,7 @@ suite('create collection tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: 'Error creating collection: some error',
@@ -905,7 +915,7 @@ suite('create endpoints tool', () => {
     return mockSaveResponse
   })
 
-  it('returns error - if getProjectInfo fails', async (t) => {
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
     const testProjectId = 'project123'
     const refId = 'main'
     const endpointType = 'custom' as const
@@ -934,6 +944,7 @@ suite('create endpoints tool', () => {
       },
     }, CallToolResultSchema)
 
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating endpoint "${endpointName}": ${expectedError}`,
@@ -942,7 +953,7 @@ suite('create endpoints tool', () => {
     ])
   })
 
-  it('returns error - when AI features are not enabled for tenant', async (t) => {
+  it('returns error - when AI features are not enabled for tenant', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -982,6 +993,7 @@ suite('create endpoints tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating endpoint "${endpointName}": ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
@@ -990,7 +1002,7 @@ suite('create endpoints tool', () => {
     ])
   })
 
-  it('creates custom endpoint successfully', async (t) => {
+  it('creates custom endpoint successfully', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -1038,7 +1050,7 @@ suite('create endpoints tool', () => {
     ])
   })
 
-  it('creates crud endpoint successfully', async (t) => {
+  it('creates crud endpoint successfully', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'project123'
     const refId = 'main'
@@ -1086,7 +1098,7 @@ suite('create endpoints tool', () => {
     ])
   })
 
-  it('should return error message if POST request fails', async (t) => {
+  it('should return error message if POST request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
     const refId = 'main'
@@ -1126,6 +1138,7 @@ suite('create endpoints tool', () => {
     }, CallToolResultSchema)
 
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
+    t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating endpoint "${endpointName}": some error`,
