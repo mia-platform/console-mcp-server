@@ -60,6 +60,7 @@ export function addServicesCapabilities (server: McpServer, client: IAPIClient) 
       } catch (error) {
         const err = error as Error
         return {
+          isError: true,
           content: [
             {
               type: 'text',
