@@ -76,6 +76,10 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
 
         const data = await client.compareProjectEnvironmentFromRevisionForDeploy(projectId, environment, revision, refType)
         return {
+          structuredContent: {
+            lastDeployedManifests: data.lastDeployedManifests,
+            revisionManifests: data.revisionManifests,
+          },
           content: [
             {
               type: 'text',
@@ -113,6 +117,11 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
         const status = await client.waitProjectDeployForCompletion(projectId, pipelineId)
 
         return {
+
+          structuredContent: {
+            id: status.id,
+            status: status.status,
+          },
           content: [
             {
               type: 'text',
