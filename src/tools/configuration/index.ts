@@ -67,13 +67,17 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
     {
       projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
       refId: z.string().describe(paramsDescriptions.REF_ID),
+      refType: z.enum([ 'revision', 'version' ]).optional().default('revision').describe(paramsDescriptions.REF_TYPE),
     },
-    async ({ projectId, refId }): Promise<CallToolResult> => {
+    async ({ projectId, refId, refType }): Promise<CallToolResult> => {
       try {
         const project = await client.projectInfo(projectId)
         await assertAiFeaturesEnabledForProject(client, project)
 
-        const config = await client.getConfiguration(projectId, refId)
+        const backendRefType = refType === 'version'
+          ? 'versions'
+          : 'revisions'
+        const config = await client.getConfiguration(projectId, refId, backendRefType)
         return {
           structuredContent: config,
           content: [

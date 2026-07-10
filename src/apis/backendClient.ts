@@ -20,7 +20,7 @@ import {
 } from '@mia-platform/console-types'
 
 import { HTTPClient } from './http-client'
-import { ConfigToSave, RetrievedConfiguration, SaveResponse } from './types/configuration'
+import { ConfigToSave, ConfigurationRefType, RetrievedConfiguration, SaveResponse } from './types/configuration'
 import { PostProject, ProjectDraft, Template } from './types/governance'
 
 export const internalEndpoint = process.env.BACKEND_INTERNAL_ENDPOINT || 'http://internal.local:3000'
@@ -92,8 +92,12 @@ export class BackendClient {
     )
   }
 
-  getRevisionBasedConfiguration (prjID: string, refID: string): Promise<RetrievedConfiguration> {
-    return this.#client.get<RetrievedConfiguration>(this.#revisionConfigurationPath(prjID, refID))
+  getRevisionBasedConfiguration (
+    prjID: string,
+    refID: string,
+    refType: ConfigurationRefType = 'revisions',
+  ): Promise<RetrievedConfiguration> {
+    return this.#client.get<RetrievedConfiguration>(this.#revisionConfigurationPath(prjID, refID, refType))
   }
 
   getEnvironmentBasedConfiguration (prjID: string, refID: string): Promise<RetrievedConfiguration> {
@@ -150,8 +154,8 @@ export class BackendClient {
     return this.#client.get<Record<string, unknown>>(this.#companyRulesPath(tenantID), new URLSearchParams({}))
   }
 
-  #revisionConfigurationPath (prjID: string, refID: string): string {
-    return `/api/backend/projects/${prjID}/revisions/${encodeURIComponent(refID)}/configuration`
+  #revisionConfigurationPath (prjID: string, refID: string, refType: ConfigurationRefType = 'revisions'): string {
+    return `/api/backend/projects/${prjID}/${refType}/${encodeURIComponent(refID)}/configuration`
   }
 
   #environmentConfigurationPath (prjID: string, refID: string): string {
