@@ -23,5 +23,4 @@ export const CatalogItemTypes = [
   'sidecar',
   'template',
   'infrastructure-component-runtime',
-  '', // allow empty string to indicate no type to filter
 ] as const
