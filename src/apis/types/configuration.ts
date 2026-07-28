@@ -26,6 +26,8 @@ import {
 
 export type Config = ConfigType
 
+export type ConfigurationRefType = 'revisions' | 'versions'
+
 export type RetrievedConfiguration = ConfigType & {
   fastDataConfig: unknown
   microfrontendPluginsConfig: unknown

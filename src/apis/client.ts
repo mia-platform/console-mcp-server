@@ -41,6 +41,7 @@ import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from 
 import {
   Config,
   ConfigToSave,
+  ConfigurationRefType,
   DockerSuggestionPrefix,
   ResourcesToCreate,
   RetrievedConfiguration,
@@ -89,7 +90,7 @@ export interface IAPIClient {
 
   // #region Configuration Methods
   getConfigurationRevisions(projectId: string): Promise<Record<string, unknown>>
-  getConfiguration(projectId: string, refId: string): Promise<RetrievedConfiguration>
+  getConfiguration(projectId: string, refId: string, refType?: ConfigurationRefType): Promise<RetrievedConfiguration>
   saveConfiguration(
     projectId: string,
     refId: string,
@@ -294,13 +295,17 @@ export class APIClient implements IAPIClient {
     return await this.saveConfiguration(projectID, refID, resourcesToCreate)
   }
 
-  async getConfiguration (prjID: string, refID: string): Promise<RetrievedConfiguration> {
+  async getConfiguration (
+    prjID: string,
+    refID: string,
+    refType: ConfigurationRefType = 'revisions',
+  ): Promise<RetrievedConfiguration> {
     const ft = await this.#featureFlagsClient.getToggles(prjID, [ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT ])
     if (ft[ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT] || false) {
       return this.#backendClient.getEnvironmentBasedConfiguration(prjID, refID)
     }
 
-    return this.#backendClient.getRevisionBasedConfiguration(prjID, refID)
+    return this.#backendClient.getRevisionBasedConfiguration(prjID, refID, refType)
   }
 
   async saveConfiguration (
@@ -808,7 +813,7 @@ export interface APIClientMockFunctions {
 
   // #region Configuration Methods
   getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
-  getConfigurationMockFn?: (projectId: string, refId: string) => Promise<RetrievedConfiguration>
+  getConfigurationMockFn?: (projectId: string, refId: string, refType?: ConfigurationRefType) => Promise<RetrievedConfiguration>
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
   createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
   createEndpointsMockFn?: (projectID: string) => Promise<SaveResponse>
@@ -945,12 +950,12 @@ export class APIClientMock implements IAPIClient {
   }
 
 
-  async getConfiguration (projectId: string, refId: string): Promise<RetrievedConfiguration> {
+  async getConfiguration (projectId: string, refId: string, refType?: ConfigurationRefType): Promise<RetrievedConfiguration> {
     if (!this.mocks.getConfigurationMockFn) {
       throw new Error('getConfigurationMockFn not mocked')
     }
 
-    return this.mocks.getConfigurationMockFn(projectId, refId)
+    return this.mocks.getConfigurationMockFn(projectId, refId, refType)
   }
 
   async saveConfiguration (

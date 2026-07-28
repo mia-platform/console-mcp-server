@@ -323,6 +323,20 @@ suite('Backend Internal Client', () => {
     t.assert.deepStrictEqual(environmentResult, mockedResult)
   })
 
+  test('get configuration by version', async (t: TestContext) => {
+    const mockedResult = {
+      projectId,
+    }
+
+    agent.get(internalEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/${refId}/configuration`,
+      method: 'GET',
+    }).reply(200, mockedResult)
+
+    const versionResult = await client.getRevisionBasedConfiguration(projectId, refId, 'versions')
+    t.assert.deepStrictEqual(versionResult, mockedResult)
+  })
+
   test('get configuration must thrown if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
       path: `/api/backend/projects/${projectId}/revisions/${refId}/configuration`,
@@ -569,6 +583,20 @@ suite('Backend Client', () => {
     }).reply(200, mockedResult)
     const environmentResult = await client.getEnvironmentBasedConfiguration(projectId, refId)
     t.assert.deepStrictEqual(environmentResult, mockedResult)
+  })
+
+  test('get configuration by version', async (t: TestContext) => {
+    const mockedResult = {
+      projectId,
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/${refId}/configuration`,
+      method: 'GET',
+    }).reply(200, mockedResult)
+
+    const versionResult = await client.getRevisionBasedConfiguration(projectId, refId, 'versions')
+    t.assert.deepStrictEqual(versionResult, mockedResult)
   })
 
   test('save configuration', async (t: TestContext) => {
