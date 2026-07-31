@@ -15,7 +15,7 @@ To use the Mia-Platform Console MCP Server in your client (such as Visual Studio
 You may decide to access via:
 
 - Service Account to perform machine-2-machine authentication and have full access to the MCP capabilities to perform operations on the Company where the S.A. has been created (for more information, visit [our official documentation on how to create a Mia-Platform Service Account](docs-create-service-account)). If you do so, you need to include the environment variables `MIA_PLATFORM_CLIENT_ID` and `MIA_PLATFORM_CLIENT_SECRET`.
-- Using your own credentials: Mia-Platform Console MCP Server follows the [Model Context Protocol specifications on authentication](mcp-specs-auth) using OAuth2.1 and Dynamic Client Registration: clients that follow that specifications will be able to discover the authentication endpoints of the selected Mia-Platform instance you want to access to and guide you to perform the log in.
+- Using your own credentials: obtain a valid Mia-Platform Console access token out of band (e.g. from your browser session) and configure your MCP client to send it as a `Bearer` token in the `Authorization` header when calling the `/mcp` endpoint. The server does not perform any authentication flow itself; it forwards the token as-is to the Mia-Platform Console APIs, which validate it.
 
 ### How to Run
 
@@ -92,7 +92,6 @@ Environment variables located inside a file named `.env` are automatically inclu
 | `CONSOLE_HOST` | The host address of the Mia-Platform Console instance | Yes | - |
 | `MIA_PLATFORM_CLIENT_ID` | Client ID for Service Account authentication | No | - |
 | `MIA_PLATFORM_CLIENT_SECRET` | Client secret for Service Account authentication | No | - |
-| `CLIENT_EXPIRY_DURATION` | Duration in seconds of clients generated with the DCR authentication flow. After this time, the client will be expired and cannot be used anylonger. | No | `300` |
 
 
 ## Local Development
@@ -145,7 +144,6 @@ node --test --import tsx <FILE_PATH>
 [build-svg]: https://img.shields.io/github/actions/workflow/status/mia-platform/console-mcp-server/build-and-test.yaml
 [license-svg]: https://img.shields.io/github/license/mia-platform/console-mcp-server
 [mcp-intro]: https://modelcontextprotocol.io/introduction
-[mcp-specs-auth]: https://modelcontextprotocol.io/specification/2025-06-18
 [Docker]: https://www.docker.com/
 [20-setup]: https://docs.mia-platform.eu/docs/products/console/mcp/mcp-server/setup
 [docs-create-service-account]: https://docs.mia-platform.eu/docs/development_suite/identity-and-access-management/manage-service-accounts

@@ -19,9 +19,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
-import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
-import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
 
 export interface HTTPServerOptions {
   host: string
@@ -29,18 +27,10 @@ export interface HTTPServerOptions {
   clientSecret: string
 }
 
-/** Build the WWW-Authenticate header used when the access token is missing. */
-const buildAuthenticateHeader = (baseUrl: string) => {
-  const resourceMetadataUrl = new URL(OAUTH_PROTECTED_RESOURCE_PATH, baseUrl)
-  return `Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request", resource_metadata="${resourceMetadataUrl}", endpoint="/mcp"`
-}
-
 /** Send a 401 response for missing/invalid token. */
-export const sendMissingToken = (request: FastifyRequest, reply: FastifyReply) => {
-  const baseUrl = getBaseUrlFromRequest(request)
-  const headerContent = buildAuthenticateHeader(baseUrl)
+export const sendMissingToken = (reply: FastifyReply) => {
   reply.
-    header('WWW-Authenticate', headerContent).
+    header('WWW-Authenticate', 'Bearer realm="Console MCP Server", error="invalid_request", error_description="No access token was provided in this request"').
     code(401).
     send({
       jsonrpc: JSONRPC_VERSION,
@@ -123,7 +113,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
     const token = request.headers['Authorization'] ?? request.headers['authorization']
     if (!token) {
-      sendMissingToken(request, reply)
+      sendMissingToken(reply)
       return
     }
 
@@ -141,7 +131,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
 
     const token = request.headers['Authorization'] ?? request.headers['authorization']
     if (!token) {
-      sendMissingToken(request, reply)
+      sendMissingToken(reply)
       return
     }
 
