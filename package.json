@@ -11,7 +11,7 @@
     "mcp-server"
   ],
   "scripts": {
-    "build": "rimraf mcp-server && tsc --build",
+    "build": "rimraf mcp-server && NODE_OPTIONS=\"--max-old-space-size=8192\" tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
     "check:types": "tsc --noEmit",
