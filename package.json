@@ -11,7 +11,7 @@
     "mcp-server"
   ],
   "scripts": {
-    "build": "rimraf mcp-server && NODE_OPTIONS=\"--max-old-space-size=8192\" tsc --build",
+    "build": "rimraf mcp-server && tsc --build",
     "coverage": "c8 npm run test",
     "lint": "eslint --ext .ts src",
     "check:types": "tsc --noEmit",
@@ -20,8 +20,7 @@
     "start": "npm run build && node mcp-server start",
     "start:stdio": "npm run start -- --stdio",
     "test": "npm run test-base 'src/**/*.test.ts'",
-    "test-base": "node --test --import tsx",
-    "version": "node scripts/update-server-version.mjs && git add server.json"
+    "test-base": "node --test --import tsx "
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,7 @@
   "homepage": "https://github.com/mia-platform/console-mcp-server#readme",
   "dependencies": {
     "@fastify/formbody": "^8.0.2",
-    "@mia-platform/console-types": "^0.41.0",
+    "@mia-platform/console-types": "^0.39.4",
     "@modelcontextprotocol/sdk": "^1.19.1",
     "commander": "^14.0.1",
     "dotenv": "^17.2.3",
