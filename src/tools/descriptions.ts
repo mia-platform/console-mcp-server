@@ -129,7 +129,7 @@ export const paramsDescriptions = {
   // Marketplace
   MARKETPLACE_ITEM_ID: `The marketplace item to use to create the service. Can be found in the itemId field of the ${toolNames.LIST_MARKETPLACE} tool`,
   MARKETPLACE_ITEM_TYPE: `
-  Type of marketplace item to filter, empty string means no filter.
+  Type of marketplace item to filter, omit this parameter to not filter by type.
   It can be a full Item Type Definition URN (following the pattern \`urn:<itd.metadata.namespace.id>:mktp:itd:<itd.metadata.name>\`), or a just an Item Type Definition name (i.e., \`itd.metadata.name\`) which will be considered belonging to the Mia-Platform default namespace. The relevant Item Type Definition fields can be found in the metadata.namespace.id and metadata.name fields of the ${toolNames.LIST_MARKETPLACE_ITEM_TYPE_DEFINITIONS} tool.
   The following values are built-in types belonging to the default Mia-Platform namespace:
   - application: Applications are bundles of resources that brings together services (i.e., plugins, templates, and examples), endpoints, CRUD collections, and public variables to ease the setup of large-scale artifacts.

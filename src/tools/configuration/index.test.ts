@@ -385,6 +385,81 @@ suite('get configuration tool', () => {
     ])
   })
 
+  it('should default refType to "revisions" when not provided', async (t: it.TestContext) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const refId = 'main'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async () => true)
+    const refTypeAwareGetConfigurationMockFn =
+      mock.fn(async (_projectId: string, _refId: string, _refType?: string): Promise<RetrievedConfiguration> => {
+        return mockConfiguration as unknown as RetrievedConfiguration
+      })
+
+    const client = await getTestMCPServerClient({
+      getConfigurationMockFn: refTypeAwareGetConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_get',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(refTypeAwareGetConfigurationMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(refTypeAwareGetConfigurationMockFn.mock.calls[0].arguments, [ testProjectId, refId, 'revisions' ])
+  })
+
+  it('should map refType "version" to "versions" when retrieving configuration from a version', async (t: it.TestContext) => {
+    const testTenantId = 'tenant123'
+    const testProjectId = 'project123'
+    const refId = 'v1.0.0'
+
+    const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+      return {
+        id: projectId,
+        tenantId: testTenantId,
+      } as unknown as IProject
+    })
+    const aiFeaturesMockFn = mock.fn(async () => true)
+    const refTypeAwareGetConfigurationMockFn =
+      mock.fn(async (_projectId: string, _refId: string, _refType?: string): Promise<RetrievedConfiguration> => {
+        return mockConfiguration as unknown as RetrievedConfiguration
+      })
+
+    const client = await getTestMCPServerClient({
+      getConfigurationMockFn: refTypeAwareGetConfigurationMockFn,
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+    })
+    await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'configuration_get',
+        arguments: {
+          projectId: testProjectId,
+          refId,
+          refType: 'version',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(refTypeAwareGetConfigurationMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(refTypeAwareGetConfigurationMockFn.mock.calls[0].arguments, [ testProjectId, refId, 'versions' ])
+  })
+
   it('should return error message if API request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'
     const testProjectId = 'error-project'
