@@ -260,7 +260,7 @@ suite('get project info', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching project ${testProjectId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching project ${testProjectId}: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -370,7 +370,7 @@ suite('create project from template', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error creating project from template templateID: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error creating project from template templateID: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -614,7 +614,7 @@ suite('company list template', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching templates for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching templates for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -695,7 +695,7 @@ suite('iam list tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching IAM for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching IAM for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -776,7 +776,7 @@ suite('audit log', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching audit logs for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching audit logs for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])

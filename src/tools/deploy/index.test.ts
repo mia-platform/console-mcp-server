@@ -151,7 +151,7 @@ suite('deploy project tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -327,7 +327,7 @@ suite('compare_update_for_deploy tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error retrieving configuration updates: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error retrieving configuration updates: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -495,7 +495,7 @@ suite('deploy_pipeline_status tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error deploying project: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])

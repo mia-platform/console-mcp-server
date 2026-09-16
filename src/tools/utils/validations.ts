@@ -19,9 +19,9 @@ import { IProject } from '@mia-platform/console-types'
 
 import { IAPIClient } from '../../apis/client'
 
-export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for tenant:'
-export const ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS = 'None of specified tenants has AI features enabled'
-export const ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED = 'No tenants found with AI features enabled'
+export const ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS = 'None of the specified companies have AI features enabled (or do not exist, or you do not have access to them)'
+export const ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED = 'No companies found with AI features enabled (they may not exist, may not have AI features enabled, or you may not have access)'
+export const ERR_AI_FEATURES_NOT_ENABLED = 'AI features are not enabled for company {tenantId} (or this company/project may not exist, or you may not have access to it)'
 
 export async function assertAiFeaturesEnabledForTenant (client: IAPIClient, tenantId: string): Promise<void> {
   if (!tenantId) {
@@ -30,7 +30,8 @@ export async function assertAiFeaturesEnabledForTenant (client: IAPIClient, tena
 
   const isEnabled = await client.isAiFeaturesEnabledForTenant(tenantId)
   if (!isEnabled) {
-    throw new Error(`${ERR_AI_FEATURES_NOT_ENABLED} '${tenantId}'`)
+    const message = ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', tenantId)
+    throw new Error(message)
   }
 }
 

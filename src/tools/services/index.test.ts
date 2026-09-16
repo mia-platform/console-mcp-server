@@ -150,7 +150,7 @@ suite('create service from marketplace tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error creating ${name} service: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error creating ${name} service: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
