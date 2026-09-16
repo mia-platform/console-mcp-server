@@ -166,7 +166,7 @@ suite('list configuration revisions tool', () => {
     t.assert.equal(aiFeaturesMockFn.mock.callCount(), 1)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching revisions or versions: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching revisions or versions: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -338,7 +338,7 @@ suite('get configuration tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching configuration: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -614,7 +614,7 @@ suite('configuration save tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error saving configuration: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -871,7 +871,7 @@ suite('create collection tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error creating collection: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error creating collection: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -1071,7 +1071,7 @@ suite('create endpoints tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error creating endpoint "${endpointName}": ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error creating endpoint "${endpointName}": ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])

@@ -198,7 +198,7 @@ suite('marketplace list tool', () => {
 
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching marketplace items for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching marketplace items for company ${testTenantId}: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -264,7 +264,7 @@ suite('marketplace item versions tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching marketplace item versions for item-id: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching marketplace item versions for item-id: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -359,7 +359,7 @@ suite('marketplace item version info tool', () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching marketplace item info for version 1.0.0: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching marketplace item info for version 1.0.0: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
@@ -748,7 +748,7 @@ suite('marketplace Item Type Definition info tool', async () => {
     t.assert.ok(result.isError)
     t.assert.deepEqual(result.content, [
       {
-        text: `Error fetching marketplace Item Type Definition info for namespace ${testTenantId} and name itdName: ${ERR_AI_FEATURES_NOT_ENABLED} '${testTenantId}'`,
+        text: `Error fetching marketplace Item Type Definition info for namespace ${testTenantId} and name itdName: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
         type: 'text',
       },
     ])
