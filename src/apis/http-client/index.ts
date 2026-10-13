@@ -92,6 +92,7 @@ export class HTTPClient {
   ): Promise<T[]> {
     const url = new URL(path, this.baseURL)
     params.set('per_page', '200')
+    params.set('perPage', '200')
 
     const results: T[] = []
     let page = startingPage
