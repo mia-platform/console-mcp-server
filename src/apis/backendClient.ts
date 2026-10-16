@@ -20,7 +20,15 @@ import {
 } from '@mia-platform/console-types'
 
 import { HTTPClient } from './http-client'
-import { ConfigToSave, ConfigurationRefType, RetrievedConfiguration, SaveResponse } from './types/configuration'
+import {
+  ConfigToSave,
+  ConfigurationRefType,
+  CreatedVersion,
+  CreateVersionBody,
+  ProjectVersion,
+  RetrievedConfiguration,
+  SaveResponse,
+} from './types/configuration'
 import { PostProject, ProjectDraft, Template } from './types/governance'
 
 export const internalEndpoint = process.env.BACKEND_INTERNAL_ENDPOINT || 'http://internal.local:3000'
@@ -112,6 +120,18 @@ export class BackendClient {
     return this.#client.get<Record<string, unknown>>(this.#projectVersionsPath(projectID))
   }
 
+  createProjectVersion (projectID: string, body: CreateVersionBody): Promise<CreatedVersion> {
+    return this.#client.post<CreatedVersion>(this.#projectVersionsPath(projectID), body)
+  }
+
+  getProjectVersion (projectID: string, versionName: string): Promise<ProjectVersion> {
+    return this.#client.get<ProjectVersion>(this.#projectVersionPath(projectID, versionName))
+  }
+
+  async deleteProjectVersion (projectID: string, versionName: string): Promise<void> {
+    await this.#client.delete(this.#projectVersionPath(projectID, versionName))
+  }
+
   saveRevisionBasedConfiguration (prjID: string, refID: string, configuration: ConfigToSave): Promise<SaveResponse> {
     return this.#client.post<SaveResponse>(this.#revisionConfigurationPath(prjID, refID), configuration)
   }
@@ -188,6 +208,10 @@ export class BackendClient {
 
   #projectVersionsPath (projectID: string): string {
     return `/api/backend/projects/${projectID}/versions`
+  }
+
+  #projectVersionPath (projectID: string, versionName: string): string {
+    return `/api/backend/projects/${projectID}/versions/${encodeURIComponent(versionName)}`
   }
 
   #projectGitProviderSubgroupsPath (projectID: string, group: string): string {

@@ -67,3 +67,35 @@ export interface SaveConfigurationOptions {
 export interface DockerSuggestionPrefix {
   prefix: string
 }
+
+export interface CreateVersionBody {
+  tagName: string
+  ref: string
+  message?: string
+  releaseDescription?: string
+}
+
+export interface CreatedVersion {
+  name: string
+}
+
+export interface VersionCommitInfo {
+  date: string
+  changesId: string
+  author: string
+  authorEmail: string
+}
+
+export interface ProjectVersion {
+  name: string
+  commit: VersionCommitInfo
+  versionInfo: {
+    description?: string
+    releaseNote?: string
+  }
+  origin: VersionCommitInfo & {
+    name: string
+    type: string
+  }
+  metadata?: Record<string, unknown>
+}

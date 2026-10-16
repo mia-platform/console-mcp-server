@@ -23,6 +23,8 @@ import { IAPIClient } from '../../apis/client'
 import { ResourcesToCreate } from '../../apis/types/configuration'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
+// Same pattern the Console API enforces on version (tag) names.
+const VERSION_NAME_PATTERN = /^[\w.{}-]+$/
 
 export function addConfigurationCapabilities (server: McpServer, client: IAPIClient) {
   server.tool(
@@ -343,4 +345,138 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       }
     },
   )
+
+  server.tool(
+    toolNames.CREATE_VERSION,
+    toolsDescriptions.CREATE_VERSION,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      revisionName: z.string().describe(paramsDescriptions.REVISION_NAME),
+      versionName: z.string().regex(VERSION_NAME_PATTERN).describe(paramsDescriptions.NEW_VERSION_NAME),
+      message: z.string().optional().describe(paramsDescriptions.VERSION_MESSAGE),
+      releaseDescription: z.string().optional().describe(paramsDescriptions.VERSION_RELEASE_DESCRIPTION),
+    },
+    async ({ projectId, revisionName, versionName, message, releaseDescription }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        // The create API answers with a generic error both for a duplicate version name and for an
+        // unknown source revision, so both conditions are checked upfront to return a meaningful message.
+        const { revisions, versions } = await client.getConfigurationRevisions(projectId)
+        if (refNames(versions).includes(versionName)) {
+          throw new Error(`version "${versionName}" already exists in project "${projectId}", choose a different name`)
+        }
+        const revisionNames = refNames(revisions)
+        if (!revisionNames.includes(revisionName)) {
+          throw new Error(`revision "${revisionName}" not found in project "${projectId}", available revisions: ${revisionNames.join(', ')}`)
+        }
+
+        const created = await client.createVersion(projectId, versionName, revisionName, message, releaseDescription)
+        return {
+          structuredContent: { ...created },
+          content: [
+            {
+              type: 'text',
+              text: `Version "${created.name}" created successfully from revision "${revisionName}".`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error creating version "${versionName}": ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.GET_VERSION,
+    toolsDescriptions.GET_VERSION,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      versionName: z.string().describe(paramsDescriptions.VERSION_NAME),
+    },
+    async ({ projectId, versionName }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        const version = await client.getVersion(projectId, versionName)
+        return {
+          structuredContent: { ...version },
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(version),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching version "${versionName}": ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.DELETE_VERSION,
+    toolsDescriptions.DELETE_VERSION,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      versionName: z.string().describe(paramsDescriptions.VERSION_NAME),
+    },
+    async ({ projectId, versionName }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        // The delete API succeeds silently for a version that does not exist, so its existence is
+        // checked upfront: the lookup fails with a "not found" error when the version is missing.
+        await client.getVersion(projectId, versionName)
+        await client.deleteVersion(projectId, versionName)
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Version "${versionName}" deleted successfully.`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error deleting version "${versionName}": ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+}
+
+function refNames (refs: unknown): string[] {
+  if (!Array.isArray(refs)) {
+    return []
+  }
+  return refs.map((ref) => (ref as { name?: unknown }).name).filter((name): name is string => typeof name === 'string')
 }

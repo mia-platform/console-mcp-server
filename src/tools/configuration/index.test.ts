@@ -26,12 +26,12 @@ import { IProject } from '@mia-platform/console-types'
 
 import { addConfigurationCapabilities } from '.'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
-import { RetrievedConfiguration } from '../../apis/types/configuration'
 import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
 } from '../../apis/client'
+import { ProjectVersion, RetrievedConfiguration } from '../../apis/types/configuration'
 
 const revisions = [
   { name: 'main' },
@@ -1217,6 +1217,434 @@ suite('create endpoints tool', () => {
     t.assert.deepEqual(result.content, [
       {
         text: `Error creating endpoint "${endpointName}": some error`,
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('create version tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'project123'
+
+  const getProjectInfoMockFn = async (projectId: string) => {
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+    } as unknown as IProject
+  }
+  const aiFeaturesMockFn = async () => true
+  const getConfigurationRevisionsMockFn = async () => ({
+    revisions,
+    versions: tags,
+  })
+
+  async function callCreateVersion (client: Client, args: Record<string, unknown>) {
+    return client.request({
+      method: 'tools/call',
+      params: {
+        name: 'create_version',
+        arguments: args,
+      },
+    }, CallToolResultSchema)
+  }
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const createVersionMockFn = mock.fn(async () => ({ name: 'v2.0.0' }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: async () => {
+        throw new Error('error fetching project info')
+      },
+      createVersionMockFn,
+    })
+
+    const result = await callCreateVersion(client, { projectId: testProjectId, revisionName: 'main', versionName: 'v2.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error creating version "v2.0.0": error fetching project info',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const createVersionMockFn = mock.fn(async () => ({ name: 'v2.0.0' }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => false,
+      createVersionMockFn,
+    })
+
+    const result = await callCreateVersion(client, { projectId: testProjectId, revisionName: 'main', versionName: 'v2.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating version "v2.0.0": ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('creates the version from the given revision', async (t: it.TestContext) => {
+    const createVersionMockFn = mock.fn(async (_projectId: string, versionName: string) => ({ name: versionName }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      getConfigurationRevisionsMockFn,
+      createVersionMockFn,
+    })
+
+    const result = await callCreateVersion(client, {
+      projectId: testProjectId,
+      revisionName: 'main',
+      versionName: 'v2.0.0',
+      message: 'second release',
+      releaseDescription: 'release note',
+    })
+
+    t.assert.ok(!result.isError)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(createVersionMockFn.mock.calls[0].arguments, [
+      testProjectId,
+      'v2.0.0',
+      'main',
+      'second release',
+      'release note',
+    ])
+    t.assert.deepEqual(result.structuredContent, { name: 'v2.0.0' })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Version "v2.0.0" created successfully from revision "main".',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the version already exists, without calling the create API', async (t: it.TestContext) => {
+    const createVersionMockFn = mock.fn(async () => ({ name: 'v1.0.0' }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      getConfigurationRevisionsMockFn,
+      createVersionMockFn,
+    })
+
+    const result = await callCreateVersion(client, { projectId: testProjectId, revisionName: 'main', versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating version "v1.0.0": version "v1.0.0" already exists in project "${testProjectId}", choose a different name`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the revision does not exist, without calling the create API', async (t: it.TestContext) => {
+    const createVersionMockFn = mock.fn(async () => ({ name: 'v2.0.0' }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      getConfigurationRevisionsMockFn,
+      createVersionMockFn,
+    })
+
+    const result = await callCreateVersion(client, { projectId: testProjectId, revisionName: 'unknown', versionName: 'v2.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error creating version "v2.0.0": revision "unknown" not found in project "${testProjectId}", available revisions: main, feature-branch`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the version name is not valid, without calling any API', async (t: it.TestContext) => {
+    const projectInfoMockFn = mock.fn(getProjectInfoMockFn)
+    const createVersionMockFn = mock.fn(async () => ({ name: 'v2.0.0' }))
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: projectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      getConfigurationRevisionsMockFn,
+      createVersionMockFn,
+    })
+
+    await t.assert.rejects(
+      callCreateVersion(client, { projectId: testProjectId, revisionName: 'main', versionName: 'v2 0/0' }),
+      { code: -32602 },
+    )
+    t.assert.equal(projectInfoMockFn.mock.callCount(), 0)
+    t.assert.equal(createVersionMockFn.mock.callCount(), 0)
+  })
+
+  it('returns error - if the create API fails', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+      getConfigurationRevisionsMockFn,
+      createVersionMockFn: async () => {
+        throw new Error('Unable to create version')
+      },
+    })
+
+    const result = await callCreateVersion(client, { projectId: testProjectId, revisionName: 'main', versionName: 'v2.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error creating version "v2.0.0": Unable to create version',
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('get version tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'project123'
+
+  const version: ProjectVersion = {
+    name: 'v1.0.0',
+    commit: { date: '2026-10-16T10:00:00.000Z', changesId: 'abc', author: 'John', authorEmail: 'john@example.com' },
+    versionInfo: { description: 'first release', releaseNote: 'release note' },
+    origin: { name: 'main', type: 'revision', date: '2026-10-16T09:00:00.000Z', changesId: 'def', author: 'John', authorEmail: 'john@example.com' },
+  }
+
+  const getProjectInfoMockFn = async (projectId: string) => {
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+    } as unknown as IProject
+  }
+  const getVersionMockFn = async (projectId: string, versionName: string) => {
+    if (versionName !== version.name) {
+      throw new Error(`Version '${versionName}' not found for project '${projectId}'`)
+    }
+    return version
+  }
+
+  async function callGetVersion (client: Client, args: Record<string, unknown>) {
+    return client.request({
+      method: 'tools/call',
+      params: {
+        name: 'get_version',
+        arguments: args,
+      },
+    }, CallToolResultSchema)
+  }
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: async () => {
+        throw new Error('error fetching project info')
+      },
+      getVersionMockFn,
+    })
+
+    const result = await callGetVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error fetching version "v1.0.0": error fetching project info',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => false,
+      getVersionMockFn,
+    })
+
+    const result = await callGetVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching version "v1.0.0": ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns the version details', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      getVersionMockFn,
+    })
+
+    const result = await callGetVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(!result.isError)
+    t.assert.deepEqual(result.structuredContent, version)
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(version),
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the version does not exist', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      getVersionMockFn,
+    })
+
+    const result = await callGetVersion(client, { projectId: testProjectId, versionName: 'missing' })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching version "missing": Version 'missing' not found for project '${testProjectId}'`,
+        type: 'text',
+      },
+    ])
+  })
+})
+
+suite('delete version tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'project123'
+
+  const getProjectInfoMockFn = async (projectId: string) => {
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+    } as unknown as IProject
+  }
+  const getVersionMockFn = async (projectId: string, versionName: string) => {
+    if (versionName !== 'v1.0.0') {
+      throw new Error(`Version '${versionName}' not found for project '${projectId}'`)
+    }
+    return { name: versionName } as unknown as ProjectVersion
+  }
+
+  async function callDeleteVersion (client: Client, args: Record<string, unknown>) {
+    return client.request({
+      method: 'tools/call',
+      params: {
+        name: 'delete_version',
+        arguments: args,
+      },
+    }, CallToolResultSchema)
+  }
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const deleteVersionMockFn = mock.fn(async () => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: async () => {
+        throw new Error('error fetching project info')
+      },
+      getVersionMockFn,
+      deleteVersionMockFn,
+    })
+
+    const result = await callDeleteVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(deleteVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error deleting version "v1.0.0": error fetching project info',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const deleteVersionMockFn = mock.fn(async () => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => false,
+      getVersionMockFn,
+      deleteVersionMockFn,
+    })
+
+    const result = await callDeleteVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(deleteVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error deleting version "v1.0.0": ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('deletes the version', async (t: it.TestContext) => {
+    const deleteVersionMockFn = mock.fn(async (_projectId: string, _versionName: string) => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      getVersionMockFn,
+      deleteVersionMockFn,
+    })
+
+    const result = await callDeleteVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(!result.isError)
+    t.assert.equal(deleteVersionMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(deleteVersionMockFn.mock.calls[0].arguments, [ testProjectId, 'v1.0.0' ])
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Version "v1.0.0" deleted successfully.',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the version does not exist, without calling the delete API', async (t: it.TestContext) => {
+    const deleteVersionMockFn = mock.fn(async () => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      getVersionMockFn,
+      deleteVersionMockFn,
+    })
+
+    const result = await callDeleteVersion(client, { projectId: testProjectId, versionName: 'missing' })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(deleteVersionMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error deleting version "missing": Version 'missing' not found for project '${testProjectId}'`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if the delete API fails', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      getVersionMockFn,
+      deleteVersionMockFn: async () => {
+        throw new Error('Unable to delete version')
+      },
+    })
+
+    const result = await callDeleteVersion(client, { projectId: testProjectId, versionName: 'v1.0.0' })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Error deleting version "v1.0.0": Unable to delete version',
         type: 'text',
       },
     ])
