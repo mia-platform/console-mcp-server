@@ -97,4 +97,68 @@ export function addRuntimeCapabilities (server: McpServer, client: IAPIClient) {
       }
     },
   )
+
+  server.tool(
+    toolNames.RESTART_PODS,
+    toolsDescriptions.RESTART_PODS,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      environmentId: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
+      podNames: z.array(z.string()).min(1).describe(paramsDescriptions.POD_NAMES),
+    },
+    async ({ projectId, environmentId, podNames }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        const restartRequests = podNames.map((podName) => client.restartPod(projectId, environmentId, podName))
+        const results = await Promise.allSettled(restartRequests)
+
+        const restarted: string[] = []
+        const failed: { podName: string, error: string }[] = []
+        results.forEach((result, index) => {
+          const podName = podNames[index]
+          if (result.status === 'fulfilled') {
+            restarted.push(podName)
+            return
+          }
+          const { reason } = result
+          const error = reason instanceof Error
+            ? reason.message
+            : String(reason)
+          failed.push({ podName, error })
+        })
+
+        const lines: string[] = []
+        if (restarted.length > 0) {
+          lines.push(`Restarted pods: ${restarted.join(', ')}`)
+        }
+        if (failed.length > 0) {
+          lines.push(`Failed to restart pods: ${failed.map(({ podName, error }) => `${podName} (${error})`).join(', ')}`)
+        }
+
+        return {
+          ...failed.length === podNames.length && { isError: true },
+          structuredContent: { restarted, failed },
+          content: [
+            {
+              type: 'text',
+              text: lines.join('\n'),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error restarting pods: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
 }

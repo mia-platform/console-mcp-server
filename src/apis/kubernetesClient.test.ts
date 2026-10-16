@@ -100,6 +100,25 @@ suite('Feature Toggle Internal Client', () => {
       { name: 'Error' },
     )
   })
+
+  test('restart pod', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}`,
+      method: 'DELETE',
+    }).reply(200, '')
+
+    const result = await client.restartPod(projectID, environmentID, podName)
+    t.assert.equal(result, undefined)
+  })
+
+  test('restart pod must throw if the API call fails', async (t: TestContext) => {
+    agent.get(internalEndpoint).intercept({
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}`,
+      method: 'DELETE',
+    }).reply(500, { error: 'Internal Server Error' })
+
+    await t.assert.rejects(async () => await client.restartPod(projectID, environmentID, podName), { name: 'Error' })
+  })
 })
 
 suite('Feature Toggle Client', () => {
@@ -150,5 +169,15 @@ suite('Feature Toggle Client', () => {
 
     const result = await client.podLogs(projectID, environmentID, podName, containerName, 300)
     t.assert.deepStrictEqual(result, mockResponse)
+  })
+
+  test('restart pod', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}`,
+      method: 'DELETE',
+    }).reply(200, '')
+
+    const result = await client.restartPod(projectID, environmentID, podName)
+    t.assert.equal(result, undefined)
   })
 })

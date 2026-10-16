@@ -51,6 +51,7 @@ export const toolNames = {
   // runtime tools
   LIST_PODS: 'list_pods',
   GET_POD_LOGS: 'get_pod_logs',
+  RESTART_PODS: 'restart_pods',
 }
 
 export const toolsDescriptions = {
@@ -102,6 +103,11 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   GET_POD_LOGS: `
     Get the logs of a specific pod in a project environment.
     It can be useful to debug issues with the running services.
+  `,
+  RESTART_PODS: `
+    Restart one or more pods in a project environment by deleting them, so that their controller (Deployment, StatefulSet, etc.) recreates them.
+    The pod names must come from the response of the ${toolNames.LIST_PODS} tool.
+    This is a disruptive operation: ALWAYS ask the user for explicit confirmation before calling this tool, listing the pods that will be restarted.
   `,
 
   // configuration management tools
@@ -319,4 +325,5 @@ export const paramsDescriptions = {
   // Runtime
   POD_NAME: `The name of the pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
   CONTAINER_NAME: `The name of the container pod to get the logs from. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
+  POD_NAMES: `The names of the pods to restart. Can be found in the response of the ${toolNames.LIST_PODS} tool`,
 }

@@ -145,6 +145,55 @@ suite('http client test suite without authentication', () => {
     t.assert.deepEqual(result, { message: 'test' })
   })
 
+  test('delete request with empty body', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(200, '')
+
+    const result = await client.delete<TestResponse>(testPath)
+    t.assert.equal(result, undefined)
+  })
+
+  test('delete request with json body', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'DELETE',
+      query: {
+        test: 'testValue',
+      },
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(200, { message: 'deleted' })
+
+    const result = await client.delete<TestResponse>(testPath, new URLSearchParams({ test: 'testValue' }))
+    t.assert.deepEqual(result, { message: 'deleted' })
+  })
+
+  test('delete request fails', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(404, {
+      message: 'resource not found',
+    })
+
+    await t.assert.rejects(
+      client.delete(testPath),
+      Error('resource not found'),
+    )
+  })
+
   test('set custom headers, don\'t override fixed ones', async (t) => {
     const customHeadersClient = new HTTPClient(mockedEndpoint, '', '', {
       'custom-header': 'customValue',
