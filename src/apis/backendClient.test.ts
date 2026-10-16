@@ -732,4 +732,97 @@ suite('Backend Client', () => {
     const result = await client.getCompanyRules(tenantId)
     t.assert.deepStrictEqual(result, mockedResult)
   })
+
+  test('create project version', async (t: TestContext) => {
+    const body = {
+      tagName: 'v1.0.0',
+      ref: 'main',
+      message: 'first release',
+      releaseDescription: 'release note',
+    }
+    const mockedResult = { name: 'v1.0.0' }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions`,
+      method: 'POST',
+      body: JSON.stringify(body),
+    }).reply(200, mockedResult)
+
+    const result = await client.createProjectVersion(projectId, body)
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('create project version must throw if the API call fails', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions`,
+      method: 'POST',
+      body: JSON.stringify({ tagName: 'v1.0.0', ref: 'main' }),
+    }).reply(500, { message: 'Unable to create version' })
+
+    await t.assert.rejects(
+      async () => await client.createProjectVersion(projectId, { tagName: 'v1.0.0', ref: 'main' }),
+      { name: 'Error', message: 'Unable to create version' },
+    )
+  })
+
+  test('get project version', async (t: TestContext) => {
+    const mockedResult = {
+      name: 'v1.0.0',
+      commit: { date: '2026-10-16T10:00:00.000Z', changesId: 'abc', author: 'John', authorEmail: 'john@example.com' },
+      versionInfo: { description: 'first release', releaseNote: 'release note' },
+      origin: { name: 'main', type: 'revision', date: '2026-10-16T09:00:00.000Z', changesId: 'def', author: 'John', authorEmail: 'john@example.com' },
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/v1.0.0`,
+      method: 'GET',
+    }).reply(200, mockedResult)
+
+    const result = await client.getProjectVersion(projectId, 'v1.0.0')
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('get project version encodes the version name', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/%7Bv1%7D`,
+      method: 'GET',
+    }).reply(200, { name: '{v1}' })
+
+    const result = await client.getProjectVersion(projectId, '{v1}')
+    t.assert.deepStrictEqual(result, { name: '{v1}' })
+  })
+
+  test('get project version must throw if the version does not exist', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/missing`,
+      method: 'GET',
+    }).reply(404, { message: `Version 'missing' not found for project '${projectId}'` })
+
+    await t.assert.rejects(
+      async () => await client.getProjectVersion(projectId, 'missing'),
+      { name: 'Error', message: `Version 'missing' not found for project '${projectId}'` },
+    )
+  })
+
+  test('delete project version with empty 204 response', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/%7Bv1%7D`,
+      method: 'DELETE',
+    }).reply(204, '')
+
+    const result = await client.deleteProjectVersion(projectId, '{v1}')
+    t.assert.equal(result, undefined)
+  })
+
+  test('delete project version must throw if the API call fails', async (t: TestContext) => {
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/backend/projects/${projectId}/versions/v1.0.0`,
+      method: 'DELETE',
+    }).reply(500, { message: 'Unable to delete version' })
+
+    await t.assert.rejects(
+      async () => await client.deleteProjectVersion(projectId, 'v1.0.0'),
+      { name: 'Error', message: 'Unable to delete version' },
+    )
+  })
 })

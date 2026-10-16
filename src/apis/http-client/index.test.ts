@@ -159,6 +159,20 @@ suite('http client test suite without authentication', () => {
     t.assert.equal(result, undefined)
   })
 
+  test('delete request with 204 no content response', async (t) => {
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'DELETE',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': `${name}/${version}`,
+      },
+    }).reply(204, '')
+
+    const result = await client.delete<TestResponse>(testPath)
+    t.assert.equal(result, undefined)
+  })
+
   test('delete request with json body', async (t) => {
     agent.get(mockedEndpoint).intercept({
       path: testPath,

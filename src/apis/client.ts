@@ -42,7 +42,9 @@ import {
   Config,
   ConfigToSave,
   ConfigurationRefType,
+  CreatedVersion,
   DockerSuggestionPrefix,
+  ProjectVersion,
   ResourcesToCreate,
   RetrievedConfiguration,
   SaveConfigurationOptions,
@@ -113,6 +115,15 @@ export interface IAPIClient {
     endpointName: string,
     endpointTarget: string,
   ): Promise<SaveResponse>
+  createVersion(
+    projectID: string,
+    versionName: string,
+    revisionName: string,
+    message?: string,
+    releaseDescription?: string,
+  ): Promise<CreatedVersion>
+  getVersion(projectID: string, versionName: string): Promise<ProjectVersion>
+  deleteVersion(projectID: string, versionName: string): Promise<void>
   // #endregion
 
   // #region Deploy Methods
@@ -348,6 +359,29 @@ export class APIClient implements IAPIClient {
       revisions,
       versions,
     }
+  }
+
+  async createVersion (
+    projectID: string,
+    versionName: string,
+    revisionName: string,
+    message?: string,
+    releaseDescription?: string,
+  ): Promise<CreatedVersion> {
+    return await this.#backendClient.createProjectVersion(projectID, {
+      tagName: versionName,
+      ref: revisionName,
+      ...message && { message },
+      ...releaseDescription && { releaseDescription },
+    })
+  }
+
+  async getVersion (projectID: string, versionName: string): Promise<ProjectVersion> {
+    return await this.#backendClient.getProjectVersion(projectID, versionName)
+  }
+
+  async deleteVersion (projectID: string, versionName: string): Promise<void> {
+    return await this.#backendClient.deleteProjectVersion(projectID, versionName)
   }
 
   async deployProjectEnvironmentFromRevision (
@@ -822,6 +856,15 @@ export interface APIClientMockFunctions {
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
   createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
   createEndpointsMockFn?: (projectID: string) => Promise<SaveResponse>
+  createVersionMockFn?: (
+    projectID: string,
+    versionName: string,
+    revisionName: string,
+    message?: string,
+    releaseDescription?: string,
+  ) => Promise<CreatedVersion>
+  getVersionMockFn?: (projectID: string, versionName: string) => Promise<ProjectVersion>
+  deleteVersionMockFn?: (projectID: string, versionName: string) => Promise<void>
   // #endregion
 
   // #region Deploy Methods
@@ -1005,6 +1048,36 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.createEndpointsMockFn(projectID)
+  }
+
+  async createVersion (
+    projectID: string,
+    versionName: string,
+    revisionName: string,
+    message?: string,
+    releaseDescription?: string,
+  ): Promise<CreatedVersion> {
+    if (!this.mocks.createVersionMockFn) {
+      throw new Error('createVersionMockFn not mocked')
+    }
+
+    return this.mocks.createVersionMockFn(projectID, versionName, revisionName, message, releaseDescription)
+  }
+
+  async getVersion (projectID: string, versionName: string): Promise<ProjectVersion> {
+    if (!this.mocks.getVersionMockFn) {
+      throw new Error('getVersionMockFn not mocked')
+    }
+
+    return this.mocks.getVersionMockFn(projectID, versionName)
+  }
+
+  async deleteVersion (projectID: string, versionName: string): Promise<void> {
+    if (!this.mocks.deleteVersionMockFn) {
+      throw new Error('deleteVersionMockFn not mocked')
+    }
+
+    return this.mocks.deleteVersionMockFn(projectID, versionName)
   }
 
   // #endregion

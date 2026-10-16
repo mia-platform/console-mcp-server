@@ -47,6 +47,9 @@ export const toolNames = {
   GET_CONFIGURATION: 'configuration_get',
   CREATE_COLLECTION: 'create_collection',
   CREATE_ENDPOINTS: 'create_endpoints',
+  CREATE_VERSION: 'create_version',
+  GET_VERSION: 'get_version',
+  DELETE_VERSION: 'delete_version',
 
   // runtime tools
   LIST_PODS: 'list_pods',
@@ -116,6 +119,17 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   GET_CONFIGURATION: 'Get the actual configuration for a project for a specific revision or tag',
   CREATE_COLLECTION: `Create a new CRUD collection in a project. This tool accepts the collection name and user-defined fields, then automatically generates the complete collection structure including all mandatory fields (_id, creatorId, createdAt, updaterId, updatedAt, __STATE__), indexes, internal endpoints, and tags. If the crud-service does not exist in the project, it should be created first using the ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.`,
   CREATE_ENDPOINTS: 'Create endpoints in a Mia-Platform Console project. This tool accepts endpoint type (custom or crud), name, and target (service name for custom endpoints or collection name for crud endpoints), then automatically generates the complete endpoint structure with all required fields, routes, and configurations.',
+  CREATE_VERSION: `
+    Create a new version of a project configuration starting from a revision.
+    A version is an immutable snapshot (a tag) of the configuration of a revision at the moment of its creation, and it can be deployed with the ${toolNames.DEPLOY_PROJECT} tool using refType "version".
+    The source revision must exist and the version name must not be already used: both can be checked with the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool.
+    Before calling this tool, ask the user to confirm the version name and the source revision.
+  `,
+  GET_VERSION: `Get the details of a version of a project configuration: the commit it points to, its description and release note, and the revision it was created from. Version names can be found with the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool.`,
+  DELETE_VERSION: `
+    Delete a version of a project configuration. The revision the version was created from is not affected.
+    This is a destructive and irreversible operation: ALWAYS ask the user for explicit confirmation before calling this tool, stating the name of the version that will be deleted.
+  `,
 }
 
 export const paramsDescriptions = {
@@ -180,6 +194,11 @@ export const paramsDescriptions = {
   ENDPOINT_TYPE: `The type of endpoint to create. Can be "custom" for service endpoints or "crud" for collection endpoints.`,
   ENDPOINT_NAME: `The name of the endpoint to create. This will be used as the basePath (e.g., "/customer" for name "customer").`,
   ENDPOINT_TARGET: `The target for the endpoint. For custom endpoints, this is the service name. For crud endpoints, this is the collection name.`,
+  REVISION_NAME: `The name of the revision to create the version from. Can be found in the revisions field of the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
+  NEW_VERSION_NAME: 'The name of the version to create. It must be unique in the project and can contain only letters, numbers, underscores, dots, dashes and curly braces',
+  VERSION_NAME: `The name of the version. Can be found in the versions field of the ${toolNames.LIST_CONFIGURATION_REVISIONS} tool`,
+  VERSION_MESSAGE: 'Optional message describing the version',
+  VERSION_RELEASE_DESCRIPTION: 'Optional release note of the version',
   SERVICES: `The services to create or update. The key is the name of the service, the value is the service object. If the service not exists in the project, create it with ${toolNames.CREATE_SERVICE_FROM_MARKETPLACE} tool.
   An example of a service is:
   {
