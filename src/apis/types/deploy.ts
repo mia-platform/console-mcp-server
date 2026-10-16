@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+export type DeployType = 'smart_deploy' | 'deploy_all'
+
 export interface TriggerDeployResponse {
   id: number
   url: string

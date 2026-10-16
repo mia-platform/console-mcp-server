@@ -68,7 +68,14 @@ suite('setup deploy tools', () => {
 })
 
 suite('deploy project tool', () => {
-  const deployProjectEnvironmentFromRevisionMockFn = mock.fn(async (projectId: string, _environment: string, _revision: string, _refType: string) => {
+  const deployProjectEnvironmentFromRevisionMockFn = mock.fn(async (
+    projectId: string,
+    _environment: string,
+    _revision: string,
+    _refType: string,
+    _deployType?: string,
+    _forceDeployWhenNoSemver?: boolean,
+  ) => {
     if (projectId === 'error-project') {
       throw new Error('error message')
     }
@@ -198,6 +205,57 @@ suite('deploy project tool', () => {
       },
     ])
   })
+
+  const deployOptionsCases = [
+    { name: 'defaults to deploy_all without forcing non-semver services', args: {}, expected: [ 'deploy_all', false ] },
+    { name: 'forwards smart_deploy', args: { deployType: 'smart_deploy' }, expected: [ 'smart_deploy', false ] },
+    {
+      name: 'forwards deploy_all with forced deploy of non-semver services',
+      args: { deployType: 'deploy_all', forceDeployWhenNoSemver: true },
+      expected: [ 'deploy_all', true ],
+    },
+  ]
+
+  for (const { name, args, expected } of deployOptionsCases) {
+    it(`deploy options - ${name}`, async (t: it.TestContext) => {
+      const testProjectId = 'project123'
+      const revision = 'main'
+      const environment = 'development'
+      const refType = 'revision'
+
+      const deployMockFn = mock.fn(async (
+        _projectId: string,
+        _environment: string,
+        _revision: string,
+        _refType: string,
+        _deployType?: string,
+        _forceDeployWhenNoSemver?: boolean,
+      ) => triggerDeployResponse)
+
+      const client = await getTestMCPServerClient({
+        getProjectInfoMockFn: async (projectId: string) => ({ id: projectId, tenantId: 'tenant123' } as unknown as IProject),
+        isAiFeaturesEnabledForTenantMockFn: async () => true,
+        deployProjectEnvironmentFromRevisionMockFn: deployMockFn,
+      })
+      const result = await client.request({
+        method: 'tools/call',
+        params: {
+          name: 'deploy_project',
+          arguments: {
+            projectId: testProjectId,
+            revision,
+            refType,
+            environment,
+            ...args,
+          },
+        },
+      }, CallToolResultSchema)
+
+      t.assert.ok(!result.isError)
+      t.assert.equal(deployMockFn.mock.callCount(), 1)
+      t.assert.deepEqual(deployMockFn.mock.calls[0].arguments, [ testProjectId, environment, revision, refType, ...expected ])
+    })
+  }
 
   it('returns error - if deploy request fails', async (t: it.TestContext) => {
     const testTenantId = 'tenant123'

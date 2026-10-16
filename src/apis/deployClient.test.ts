@@ -48,10 +48,34 @@ suite('Deploy Internal Client', () => {
         revision: refId,
         refType: revisionType,
         environment,
+        deployType: 'deploy_all',
+        forceDeployWhenNoSemver: false,
       }),
     }).reply(200, mockedResult)
 
     const result = await client.triggerDeploy(projectID, environment, refId, revisionType)
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('trigger deploy with explicit deploy type and forced deploy of non-semver services', async (t: TestContext) => {
+    const mockedResult = {
+      id: 123,
+      url: 'http://example.com/deploy/123',
+    }
+
+    agent.get(internalEndpoint).intercept({
+      path: `/projects/${projectID}/trigger/pipeline/`,
+      method: 'POST',
+      body: JSON.stringify({
+        revision: refId,
+        refType: revisionType,
+        environment,
+        deployType: 'smart_deploy',
+        forceDeployWhenNoSemver: true,
+      }),
+    }).reply(200, mockedResult)
+
+    const result = await client.triggerDeploy(projectID, environment, refId, revisionType, 'smart_deploy', true)
     t.assert.deepStrictEqual(result, mockedResult)
   })
 
@@ -63,6 +87,8 @@ suite('Deploy Internal Client', () => {
         revision: refId,
         refType: revisionType,
         environment,
+        deployType: 'deploy_all',
+        forceDeployWhenNoSemver: false,
       }),
     }).reply(500, { error: 'Internal Server Error' })
 
@@ -178,10 +204,34 @@ suite('Deploy Client', () => {
         revision: refId,
         refType: revisionType,
         environment,
+        deployType: 'deploy_all',
+        forceDeployWhenNoSemver: false,
       }),
     }).reply(200, mockedResult)
 
     const result = await client.triggerDeploy(projectID, environment, refId, revisionType)
+    t.assert.deepStrictEqual(result, mockedResult)
+  })
+
+  test('trigger deploy with explicit deploy type and forced deploy of non-semver services', async (t: TestContext) => {
+    const mockedResult = {
+      id: 123,
+      url: 'http://example.com/deploy/123',
+    }
+
+    agent.get(mockedEndpoint).intercept({
+      path: `/api/deploy/projects/${projectID}/trigger/pipeline/`,
+      method: 'POST',
+      body: JSON.stringify({
+        revision: refId,
+        refType: revisionType,
+        environment,
+        deployType: 'smart_deploy',
+        forceDeployWhenNoSemver: true,
+      }),
+    }).reply(200, mockedResult)
+
+    const result = await client.triggerDeploy(projectID, environment, refId, revisionType, 'smart_deploy', true)
     t.assert.deepStrictEqual(result, mockedResult)
   })
 

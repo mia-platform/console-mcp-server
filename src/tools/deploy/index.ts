@@ -30,13 +30,22 @@ export function addDeployCapabilities (server: McpServer, client: IAPIClient) {
       revision: z.string().describe(paramsDescriptions.REF_ID),
       refType: z.enum([ 'revision', 'version' ]).describe(paramsDescriptions.REF_TYPE),
       environment: z.string().describe(paramsDescriptions.PROJECT_ENVIRONMENT_ID),
+      deployType: z.enum([ 'smart_deploy', 'deploy_all' ]).optional().describe(paramsDescriptions.DEPLOY_TYPE),
+      forceDeployWhenNoSemver: z.boolean().optional().describe(paramsDescriptions.FORCE_DEPLOY_WHEN_NO_SEMVER),
     },
-    async ({ projectId, environment, revision, refType }): Promise<CallToolResult> => {
+    async ({ projectId, environment, revision, refType, deployType = 'deploy_all', forceDeployWhenNoSemver = false }): Promise<CallToolResult> => {
       try {
         const project = await client.projectInfo(projectId)
         await assertAiFeaturesEnabledForProject(client, project)
 
-        const data = await client.deployProjectEnvironmentFromRevision(projectId, environment, revision, refType)
+        const data = await client.deployProjectEnvironmentFromRevision(
+          projectId,
+          environment,
+          revision,
+          refType,
+          deployType,
+          forceDeployWhenNoSemver,
+        )
         return {
           content: [
             {

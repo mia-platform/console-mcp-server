@@ -94,7 +94,9 @@ Do never attemp to fetch all the logs without a date range filter, as it could l
   CREATE_SERVICE_FROM_MARKETPLACE: `Create a new service in a Mia-Platform Console project starting from an element of the marketplace. If the service is already in the project, ask confirmation to the user if he wants to create another one or use the existing one.`,
 
   // deploy tools
-  DEPLOY_PROJECT: `Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool ${toolNames.COMPARE_UPDATE_FOR_DEPLOY}. After running deploy, check the status of the pipeline using the tool ${toolNames.PIPELINE_STATUS}`,
+  DEPLOY_PROJECT: `Deploy a project in a specific environment for the given company or tenant. Before running deploy, check differences using the tool ${toolNames.COMPARE_UPDATE_FOR_DEPLOY}. After running deploy, check the status of the pipeline using the tool ${toolNames.PIPELINE_STATUS}.
+  The deploy type defaults to deploy_all, which deploys all services but restarts services whose image tag is not a semantic version (e.g. latest) only when forceDeployWhenNoSemver is true; smart_deploy deploys only the services whose configuration changed since the last deploy.
+  For a full deploy that redeploys every service, including those with non-semver image tags, use deployType deploy_all with forceDeployWhenNoSemver true.`,
   COMPARE_UPDATE_FOR_DEPLOY: 'Compare the current deployed configuration with the new configuration to be deployed. This is useful to see what will change in the project after the deployment',
   PIPELINE_STATUS: `Get the status of a pipeline given a pipeline id. This is useful to check if the deployment is finished or if it failed. After running ${toolNames.DEPLOY_PROJECT} tool, check the status of the pipeline using the tool ${toolNames.PIPELINE_STATUS}`,
 
@@ -320,6 +322,8 @@ export const paramsDescriptions = {
 `,
 
   // Deploy
+  DEPLOY_TYPE: 'The deploy strategy: deploy_all (default) deploys all services, smart_deploy deploys only the services whose configuration changed since the last deploy',
+  FORCE_DEPLOY_WHEN_NO_SEMVER: 'Only with deploy_all: when true, also redeploys services whose image tag is not a semantic version (e.g. latest). Defaults to false',
   PIPELINE_ID: `The id of the pipeline to check the status of. Can be found in the response of the ${toolNames.DEPLOY_PROJECT} tool`,
 
   // Runtime

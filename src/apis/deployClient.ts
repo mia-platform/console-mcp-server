@@ -16,7 +16,7 @@
 import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { HTTPClient } from './http-client'
-import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
+import { CompareForDeployResponse, DeployType, PipelineStatus, TriggerDeployResponse } from './types/deploy'
 
 export const internalEndpoint = process.env.DEPLOY_INTERNAL_ENDPOINT || 'http://internal.local:3000'
 
@@ -43,11 +43,15 @@ export class DeployClient {
     environment: string,
     revision: string,
     revisionType: string,
+    deployType: DeployType = 'deploy_all',
+    forceDeployWhenNoSemver = false,
   ): Promise<TriggerDeployResponse> {
     const body = {
       revision,
       refType: revisionType,
       environment,
+      deployType,
+      forceDeployWhenNoSemver,
     }
 
     return await this.#client.post<TriggerDeployResponse>(this.#deployPath(projectID), body)
