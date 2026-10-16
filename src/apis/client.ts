@@ -37,7 +37,7 @@ import {
 
 import { HTTPClient } from './http-client'
 import { BackendClient, BackendClientInternal } from './backendClient'
-import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
+import { CompareForDeployResponse, DeployType, PipelineStatus, TriggerDeployResponse } from './types/deploy'
 import {
   Config,
   ConfigToSave,
@@ -132,6 +132,8 @@ export interface IAPIClient {
     environment: string,
     revision: string,
     revisionType: string,
+    deployType?: DeployType,
+    forceDeployWhenNoSemver?: boolean,
   ): Promise<TriggerDeployResponse>
   compareProjectEnvironmentFromRevisionForDeploy(
     projectID: string,
@@ -389,8 +391,10 @@ export class APIClient implements IAPIClient {
     environment: string,
     revision: string,
     revisionType: string,
+    deployType?: DeployType,
+    forceDeployWhenNoSemver?: boolean,
   ): Promise<TriggerDeployResponse> {
-    return await this.#deployClient.triggerDeploy(projectID, environment, revision, revisionType)
+    return await this.#deployClient.triggerDeploy(projectID, environment, revision, revisionType, deployType, forceDeployWhenNoSemver)
   }
 
   async compareProjectEnvironmentFromRevisionForDeploy (
@@ -873,6 +877,8 @@ export interface APIClientMockFunctions {
     environment: string,
     revision: string,
     revisionType: string,
+    deployType?: DeployType,
+    forceDeployWhenNoSemver?: boolean,
   ) => Promise<TriggerDeployResponse>
   compareProjectEnvironmentFromRevisionForDeployMockFn?: (
     projectID: string,
@@ -1089,12 +1095,14 @@ export class APIClientMock implements IAPIClient {
     environment: string,
     revision: string,
     revisionType: string,
+    deployType?: DeployType,
+    forceDeployWhenNoSemver?: boolean,
   ): Promise<TriggerDeployResponse> {
     if (!this.mocks.deployProjectEnvironmentFromRevisionMockFn) {
       throw new Error('deployProjectEnvironmentFromRevisionMockFn not mocked')
     }
 
-    return this.mocks.deployProjectEnvironmentFromRevisionMockFn(projectID, environment, revision, revisionType)
+    return this.mocks.deployProjectEnvironmentFromRevisionMockFn(projectID, environment, revision, revisionType, deployType, forceDeployWhenNoSemver)
   }
 
   async compareProjectEnvironmentFromRevisionForDeploy (
