@@ -55,8 +55,16 @@ export class KubernetesClient {
     return await this.#client.getPlain<string>(this.#logsPath(projectID, environmentID, podName, containerName), params)
   }
 
+  async restartPod (projectID: string, environmentID: string, podName: string): Promise<void> {
+    await this.#client.delete(this.#podPath(projectID, environmentID, podName))
+  }
+
   #podsPath (projectID: string, environmentID: string): string {
     return `/api/projects/${projectID}/environments/${environmentID}/pods/describe/`
+  }
+
+  #podPath (projectID: string, environmentID: string, podName: string): string {
+    return `/api/projects/${projectID}/environments/${environmentID}/pods/${podName}`
   }
 
   #logsPath (projectID: string, environmentID: string, podName: string, containerName: string): string {

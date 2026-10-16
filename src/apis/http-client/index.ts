@@ -84,6 +84,23 @@ export class HTTPClient {
     return await returnBody.json() as T
   }
 
+  /**
+   * Sends a DELETE request. Endpoints that reply without a body resolve to undefined.
+   */
+  async delete<T> (path: string, params?: URLSearchParams): Promise<T | undefined> {
+    const url = new URL(path, this.baseURL)
+    if (params) {
+      url.search = params.toString()
+    }
+
+    const { body } = await this.doRequest(url, 'DELETE')
+    const text = await body.text()
+    if (text.length === 0) {
+      return undefined
+    }
+    return JSON.parse(text) as T
+  }
+
   async getPaginated<T> (
     path: string,
     params = new URLSearchParams(),

@@ -58,7 +58,8 @@ suite('setup runtime tools', () => {
       ListToolsResultSchema,
     )
 
-    t.assert.equal(result.tools.length, 2)
+    t.assert.equal(result.tools.length, 3)
+    t.assert.ok(result.tools.some((tool) => tool.name === toolNames.RESTART_PODS))
   })
 })
 
@@ -385,5 +386,167 @@ suite('get pod logs tool', () => {
         type: 'text',
       },
     ])
+  })
+})
+
+suite('restart pods tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'test-project'
+  const environmentId = 'test-environment'
+
+  const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+    assert.equal(projectId, testProjectId)
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+    } as unknown as IProject
+  })
+
+  const restartPodMockFn = mock.fn(async (projectId: string, envId: string, podName: string) => {
+    assert.equal(projectId, testProjectId)
+    assert.equal(envId, environmentId)
+    if (podName.startsWith('failing-')) {
+      throw new Error(`cannot delete ${podName}`)
+    }
+  })
+
+  async function callRestartPods (client: Client, podNames: string[]) {
+    return client.request({
+      method: 'tools/call',
+      params: {
+        name: toolNames.RESTART_PODS,
+        arguments: {
+          projectId: testProjectId,
+          environmentId,
+          podNames,
+        },
+      },
+    }, CallToolResultSchema)
+  }
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const expectedError = 'error fetching project info'
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: async () => {
+        throw new Error(expectedError)
+      },
+      restartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, [ 'test-pod' ])
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error restarting pods: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const localRestartPodMockFn = mock.fn(async () => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async (tenantId: string) => {
+        assert.strictEqual(tenantId, testTenantId)
+        return false
+      },
+      restartPodMockFn: localRestartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, [ 'test-pod' ])
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error restarting pods: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+    t.assert.equal(localRestartPodMockFn.mock.callCount(), 0)
+  })
+
+  test('should restart all pods', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      restartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, [ 'test-pod', 'test-pod-2' ])
+
+    t.assert.ok(!result.isError)
+    t.assert.deepEqual(result.structuredContent, {
+      restarted: [ 'test-pod', 'test-pod-2' ],
+      failed: [],
+    })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Restarted pods: test-pod, test-pod-2',
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should report partial failures without flagging the result as error', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      restartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, [ 'test-pod', 'failing-pod' ])
+
+    t.assert.ok(!result.isError)
+    t.assert.deepEqual(result.structuredContent, {
+      restarted: [ 'test-pod' ],
+      failed: [ { podName: 'failing-pod', error: 'cannot delete failing-pod' } ],
+    })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Restarted pods: test-pod\nFailed to restart pods: failing-pod (cannot delete failing-pod)',
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should return error when all pods fail to restart', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      restartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, [ 'failing-pod', 'failing-pod-2' ])
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.structuredContent, {
+      restarted: [],
+      failed: [
+        { podName: 'failing-pod', error: 'cannot delete failing-pod' },
+        { podName: 'failing-pod-2', error: 'cannot delete failing-pod-2' },
+      ],
+    })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Failed to restart pods: failing-pod (cannot delete failing-pod), failing-pod-2 (cannot delete failing-pod-2)',
+        type: 'text',
+      },
+    ])
+  })
+
+  test('should reject an empty list of pods', async (t: it.TestContext) => {
+    const localRestartPodMockFn = mock.fn(async () => undefined)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: async () => true,
+      restartPodMockFn: localRestartPodMockFn,
+    })
+
+    const result = await callRestartPods(client, []).catch((error: Error) => ({ isError: true, error }))
+
+    t.assert.ok(result.isError)
+    t.assert.equal(localRestartPodMockFn.mock.callCount(), 0)
   })
 })

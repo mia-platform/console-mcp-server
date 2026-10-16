@@ -145,6 +145,7 @@ export interface IAPIClient {
     containerName: string,
     lines?: number,
   ): Promise<string>
+  restartPod(projectID: string, environmentID: string, podName: string): Promise<void>
   // #endregion
 
   // #region Marketplace Methods
@@ -388,6 +389,10 @@ export class APIClient implements IAPIClient {
     lines?: number,
   ): Promise<string> {
     return await this.#kubernetesClient.podLogs(projectID, environmentID, podName, containerName, lines)
+  }
+
+  async restartPod (projectID: string, environmentID: string, podName: string): Promise<void> {
+    return await this.#kubernetesClient.restartPod(projectID, environmentID, podName)
   }
 
   async listMarketplaceItems (tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
@@ -849,6 +854,7 @@ export interface APIClientMockFunctions {
     containerName: string,
     lines?: number,
   ) => Promise<string>
+  restartPodMockFn?: (projectID: string, environmentID: string, podName: string) => Promise<void>
   // #endregion
 
   // #region Marketplace Methods
@@ -1068,6 +1074,14 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.podLogsMockFn(projectID, environmentID, podName, containerName, lines)
+  }
+
+  async restartPod (projectID: string, environmentID: string, podName: string): Promise<void> {
+    if (!this.mocks.restartPodMockFn) {
+      throw new Error('restartPodMockFn not mocked')
+    }
+
+    return this.mocks.restartPodMockFn(projectID, environmentID, podName)
   }
 
   // #endregion
