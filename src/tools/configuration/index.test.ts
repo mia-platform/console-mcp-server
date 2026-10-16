@@ -26,12 +26,13 @@ import { IProject } from '@mia-platform/console-types'
 
 import { addConfigurationCapabilities } from '.'
 import { ERR_AI_FEATURES_NOT_ENABLED } from '../utils/validations'
-import { RetrievedConfiguration } from '../../apis/types/configuration'
 import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
+  applyPublicVariablesChanges,
 } from '../../apis/client'
+import { PublicVariablesChanges, RetrievedConfiguration } from '../../apis/types/configuration'
 
 const revisions = [
   { name: 'main' },
@@ -1219,6 +1220,335 @@ suite('create endpoints tool', () => {
         text: `Error creating endpoint "${endpointName}": some error`,
         type: 'text',
       },
+    ])
+  })
+})
+
+suite('list public variables tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'project123'
+  const publicVariables = [
+    { name: 'API_URL', environments: { DEV: { value: 'https://dev.api' }, PROD: { value: 'https://api' } } },
+    { name: 'LOCKED', environments: { DEV: { value: 'locked' } }, readOnly: true },
+  ]
+
+  const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+    assert.equal(projectId, testProjectId)
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+    } as unknown as IProject
+  })
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const expectedError = 'error fetching project info'
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn: mock.fn(async () => {
+        throw new Error(expectedError)
+      }),
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_public_variables',
+        arguments: { projectId: testProjectId, refId: 'main' },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching public variables: ${expectedError}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const getConfigurationMockFn = mock.fn(async () => ({}) as RetrievedConfiguration)
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      getConfigurationMockFn,
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => false),
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_public_variables',
+        arguments: { projectId: testProjectId, refId: 'main' },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.ok(result.isError)
+    t.assert.equal(getConfigurationMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error fetching public variables: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns only the public variables of the configuration', async (t: it.TestContext) => {
+    const getConfigurationMockFn = mock.fn(async (projectId: string, refId: string, refType?: string) => {
+      assert.equal(projectId, testProjectId)
+      assert.equal(refId, 'v1.0.0')
+      assert.equal(refType, 'versions')
+      return { ...mockConfiguration, unsecretedVariables: publicVariables } as unknown as RetrievedConfiguration
+    })
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      getConfigurationMockFn,
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_public_variables',
+        arguments: { projectId: testProjectId, refId: 'v1.0.0', refType: 'version' },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.equal(getConfigurationMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(result.structuredContent, { publicVariables })
+    t.assert.deepEqual(result.content, [
+      {
+        text: JSON.stringify(publicVariables),
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns an empty list when the configuration has no public variables', async (t: it.TestContext) => {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      getConfigurationMockFn: mock.fn(async () => mockConfiguration as unknown as RetrievedConfiguration),
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+    })
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_public_variables',
+        arguments: { projectId: testProjectId, refId: 'main' },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.deepEqual(result.structuredContent, { publicVariables: [] })
+  })
+})
+
+suite('save public variables tool', () => {
+  const testTenantId = 'tenant123'
+  const testProjectId = 'project123'
+  const refId = 'main'
+  const currentPublicVariables = [
+    { name: 'API_URL', environments: { DEV: { value: 'https://dev.api' }, PROD: { value: 'https://api' } } },
+    { name: 'LOG_LEVEL', environments: { DEV: { value: 'debug' } } },
+    { name: 'LOCKED', environments: { DEV: { value: 'locked' } }, readOnly: true },
+  ]
+
+  const getProjectInfoMockFn = mock.fn(async (projectId: string) => {
+    assert.equal(projectId, testProjectId)
+    return {
+      id: projectId,
+      tenantId: testTenantId,
+      environments: [ { envId: 'DEV' }, { envId: 'PROD' } ],
+    } as unknown as IProject
+  })
+
+  // applies the changes to a fixed configuration, as the real client does after reading it
+  function updatePublicVariablesMock () {
+    return mock.fn(async (projectId: string, ref: string, changes: PublicVariablesChanges) => {
+      assert.equal(projectId, testProjectId)
+      assert.equal(ref, refId)
+      const { created, updated, deleted } = applyPublicVariablesChanges(currentPublicVariables, changes)
+      return { saveResponse: mockSaveResponse, created, updated, deleted }
+    })
+  }
+
+  async function callSaveTool (mocks: APIClientMockFunctions, args: Record<string, unknown>) {
+    const client = await getTestMCPServerClient({
+      getProjectInfoMockFn,
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => true),
+      ...mocks,
+    })
+    return client.request({
+      method: 'tools/call',
+      params: {
+        name: 'save_public_variables',
+        arguments: { projectId: testProjectId, refId, ...args },
+      },
+    }, CallToolResultSchema)
+  }
+
+  it('returns error - if getProjectInfo fails', async (t: it.TestContext) => {
+    const expectedError = 'error fetching project info'
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({
+      getProjectInfoMockFn: mock.fn(async () => {
+        throw new Error(expectedError)
+      }),
+      updatePublicVariablesMockFn,
+    }, { delete: [ 'LOG_LEVEL' ] })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      { text: `Error saving public variables: ${expectedError}`, type: 'text' },
+    ])
+  })
+
+  it('returns error - if AI features are not enabled for tenant', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({
+      isAiFeaturesEnabledForTenantMockFn: mock.fn(async () => false),
+      updatePublicVariablesMockFn,
+    }, { delete: [ 'LOG_LEVEL' ] })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      {
+        text: `Error saving public variables: ${ERR_AI_FEATURES_NOT_ENABLED.replace('{tenantId}', testTenantId)}`,
+        type: 'text',
+      },
+    ])
+  })
+
+  it('creates a new public variable', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const upsert = [ { name: 'NEW_VAR', environments: { DEV: 'a', PROD: 'b' } } ]
+    const result = await callSaveTool({ updatePublicVariablesMockFn }, { upsert })
+
+    t.assert.equal(result.isError, undefined)
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 1)
+    t.assert.deepEqual(updatePublicVariablesMockFn.mock.calls[0].arguments[2], { upsert, delete: undefined })
+    t.assert.deepEqual(result.structuredContent, { created: [ 'NEW_VAR' ], updated: [], deleted: [] })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Public variables saved successfully. Created: NEW_VAR. Updated: none. Deleted: none. The changes take effect on the environments only after the next deploy.',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('updates an existing public variable for a single environment', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({ updatePublicVariablesMockFn }, {
+      upsert: [ { name: 'API_URL', environments: { DEV: 'https://new-dev.api' } } ],
+    })
+
+    t.assert.equal(result.isError, undefined)
+    t.assert.deepEqual(result.structuredContent, { created: [], updated: [ 'API_URL' ], deleted: [] })
+  })
+
+  it('deletes a public variable', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({ updatePublicVariablesMockFn }, { delete: [ 'LOG_LEVEL' ] })
+
+    t.assert.equal(result.isError, undefined)
+    t.assert.deepEqual(result.structuredContent, { created: [], updated: [], deleted: [ 'LOG_LEVEL' ] })
+    t.assert.deepEqual(result.content, [
+      {
+        text: 'Public variables saved successfully. Created: none. Updated: none. Deleted: LOG_LEVEL. The changes take effect on the environments only after the next deploy.',
+        type: 'text',
+      },
+    ])
+  })
+
+  it('returns error - when deleting a public variable that does not exist', async (t: it.TestContext) => {
+    const result = await callSaveTool({ updatePublicVariablesMockFn: updatePublicVariablesMock() }, {
+      delete: [ 'MISSING' ],
+    })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      { text: 'Error saving public variables: public variables to delete not found: MISSING', type: 'text' },
+    ])
+  })
+
+  it('returns error - when modifying or deleting a read-only public variable', async (t: it.TestContext) => {
+    const upsertResult = await callSaveTool({ updatePublicVariablesMockFn: updatePublicVariablesMock() }, {
+      upsert: [ { name: 'LOCKED', environments: { DEV: 'x' } } ],
+    })
+    t.assert.ok(upsertResult.isError)
+    t.assert.deepEqual(upsertResult.content, [
+      { text: 'Error saving public variables: read-only public variables cannot be modified or deleted: LOCKED', type: 'text' },
+    ])
+
+    const deleteResult = await callSaveTool({ updatePublicVariablesMockFn: updatePublicVariablesMock() }, {
+      delete: [ 'LOCKED' ],
+    })
+    t.assert.ok(deleteResult.isError)
+    t.assert.deepEqual(deleteResult.content, [
+      { text: 'Error saving public variables: read-only public variables cannot be modified or deleted: LOCKED', type: 'text' },
+    ])
+  })
+
+  it('returns error - when an environment does not belong to the project', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({ updatePublicVariablesMockFn }, {
+      upsert: [ { name: 'API_URL', environments: { DEV: 'x', STAGING: 'y' } } ],
+    })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      { text: 'Error saving public variables: unknown environments: STAGING. Available environments: DEV, PROD', type: 'text' },
+    ])
+  })
+
+  it('returns error - when a public variable is both upserted and deleted', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    const result = await callSaveTool({ updatePublicVariablesMockFn }, {
+      upsert: [ { name: 'LOG_LEVEL', environments: { DEV: 'info' } } ],
+      delete: [ 'LOG_LEVEL' ],
+    })
+
+    t.assert.ok(result.isError)
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+    t.assert.deepEqual(result.content, [
+      { text: 'Error saving public variables: public variables cannot be both upserted and deleted: LOG_LEVEL', type: 'text' },
+    ])
+  })
+
+  it('returns error - when no change is requested', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    for (const args of [ {}, { upsert: [], delete: [] } ]) {
+      const result = await callSaveTool({ updatePublicVariablesMockFn }, args)
+
+      t.assert.ok(result.isError)
+      t.assert.deepEqual(result.content, [
+        { text: 'Error saving public variables: at least one public variable to upsert or delete is required', type: 'text' },
+      ])
+    }
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+  })
+
+  it('returns error - when a public variable name is invalid', async (t: it.TestContext) => {
+    const updatePublicVariablesMockFn = updatePublicVariablesMock()
+    for (const args of [
+      { upsert: [ { name: 'lower-case', environments: { DEV: 'x' } } ] },
+      { delete: [ '1_STARTS_WITH_DIGIT' ] },
+    ]) {
+      await t.assert.rejects(
+        async () => await callSaveTool({ updatePublicVariablesMockFn }, args),
+        /Invalid arguments for tool save_public_variables[\s\S]*must start with an uppercase letter/,
+      )
+    }
+    t.assert.equal(updatePublicVariablesMockFn.mock.callCount(), 0)
+  })
+
+  it('returns error - if the save fails', async (t: it.TestContext) => {
+    const result = await callSaveTool({
+      updatePublicVariablesMockFn: mock.fn(async () => {
+        throw new Error('save failed')
+      }),
+    }, { delete: [ 'LOG_LEVEL' ] })
+
+    t.assert.ok(result.isError)
+    t.assert.deepEqual(result.content, [
+      { text: 'Error saving public variables: save failed', type: 'text' },
     ])
   })
 })

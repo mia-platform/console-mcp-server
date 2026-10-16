@@ -19,9 +19,11 @@ import { z } from 'zod'
 import { Collections, ConfigMaps, ServiceAccounts, Services } from '@mia-platform/console-types'
 
 import { assertAiFeaturesEnabledForProject } from '../utils/validations'
-import { IAPIClient } from '../../apis/client'
-import { ResourcesToCreate } from '../../apis/types/configuration'
+import { IAPIClient, PUBLIC_VARIABLE_NAME_REGEX, validatePublicVariablesChanges } from '../../apis/client'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
+import { PublicVariablesChanges, ResourcesToCreate } from '../../apis/types/configuration'
+
+const publicVariableNameError = `must start with an uppercase letter and contain only uppercase letters, digits and underscores (${PUBLIC_VARIABLE_NAME_REGEX.source})`
 
 
 export function addConfigurationCapabilities (server: McpServer, client: IAPIClient) {
@@ -343,4 +345,104 @@ export function addConfigurationCapabilities (server: McpServer, client: IAPICli
       }
     },
   )
+
+  server.tool(
+    toolNames.LIST_PUBLIC_VARIABLES,
+    toolsDescriptions.LIST_PUBLIC_VARIABLES,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      refId: z.string().describe(paramsDescriptions.REF_ID),
+      refType: z.enum([ 'revision', 'version' ]).optional().default('revision').describe(paramsDescriptions.REF_TYPE),
+    },
+    async ({ projectId, refId, refType }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        const backendRefType = refType === 'version'
+          ? 'versions'
+          : 'revisions'
+        const config = await client.getConfiguration(projectId, refId, backendRefType)
+        const publicVariables = config.unsecretedVariables || []
+        return {
+          structuredContent: { publicVariables },
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(publicVariables),
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error fetching public variables: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    toolNames.SAVE_PUBLIC_VARIABLES,
+    toolsDescriptions.SAVE_PUBLIC_VARIABLES,
+    {
+      projectId: z.string().describe(paramsDescriptions.PROJECT_ID),
+      refId: z.string().describe(paramsDescriptions.REVISION_ID),
+      upsert: z.array(z.object({
+        name: z.string().regex(PUBLIC_VARIABLE_NAME_REGEX, publicVariableNameError),
+        environments: z.record(z.string(), z.string()),
+      })).optional().describe(paramsDescriptions.PUBLIC_VARIABLES_UPSERT),
+      delete: z.array(z.string().regex(PUBLIC_VARIABLE_NAME_REGEX, publicVariableNameError)).optional().describe(paramsDescriptions.PUBLIC_VARIABLES_DELETE),
+    },
+    async ({ projectId, refId, upsert, delete: toDelete }): Promise<CallToolResult> => {
+      try {
+        const project = await client.projectInfo(projectId)
+        await assertAiFeaturesEnabledForProject(client, project)
+
+        const changes: PublicVariablesChanges = { upsert, delete: toDelete }
+        validatePublicVariablesChanges(changes)
+
+        const projectEnvIds = new Set((project.environments || []).map(({ envId }) => envId))
+        const requestedEnvIds = new Set((upsert || []).flatMap(({ environments }) => Object.keys(environments)))
+        const unknownEnvIds = [ ...requestedEnvIds ].filter((envId) => !projectEnvIds.has(envId))
+        if (unknownEnvIds.length > 0) {
+          throw new Error(`unknown environments: ${unknownEnvIds.join(', ')}. Available environments: ${[ ...projectEnvIds ].join(', ')}`)
+        }
+
+        const { created, updated, deleted } = await client.updatePublicVariables(projectId, refId, changes)
+        return {
+          structuredContent: { created, updated, deleted },
+          content: [
+            {
+              type: 'text',
+              text: `Public variables saved successfully. Created: ${formatNames(created)}. Updated: ${formatNames(updated)}. Deleted: ${formatNames(deleted)}. The changes take effect on the environments only after the next deploy.`,
+            },
+          ],
+        }
+      } catch (error) {
+        const err = error as Error
+        return {
+          isError: true,
+          content: [
+            {
+              type: 'text',
+              text: `Error saving public variables: ${err.message}`,
+            },
+          ],
+        }
+      }
+    },
+  )
+}
+
+function formatNames (names: string[]): string {
+  return names.length > 0
+    ? names.join(', ')
+    : 'none'
 }

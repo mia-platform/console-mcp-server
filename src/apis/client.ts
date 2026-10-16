@@ -33,21 +33,26 @@ import {
   IProject,
   ITenant,
   Listeners,
+  PublicVariable,
+  variableKey,
 } from '@mia-platform/console-types'
 
 import { HTTPClient } from './http-client'
-import { BackendClient, BackendClientInternal } from './backendClient'
-import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
 import {
+  AppliedPublicVariablesChanges,
   Config,
   ConfigToSave,
   ConfigurationRefType,
   DockerSuggestionPrefix,
+  PublicVariablesChanges,
   ResourcesToCreate,
   RetrievedConfiguration,
   SaveConfigurationOptions,
   SaveResponse,
+  UpdatePublicVariablesResponse,
 } from './types/configuration'
+import { BackendClient, BackendClientInternal } from './backendClient'
+import { CompareForDeployResponse, PipelineStatus, TriggerDeployResponse } from './types/deploy'
 import { DeployClient, DeployClientInternal } from './deployClient'
 import { FeatureToggleClient, FeatureToggleClientInternal } from './featureToggleClient'
 import { IAMClient, IAMClientInternal } from './iamClient'
@@ -57,6 +62,9 @@ import { PostProject, Template } from './types/governance'
 
 export const DEFAULT_DOCUMENTATION_PATH = '/documentation/json'
 const ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT = 'ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT'
+const DEFAULT_SAVE_TITLE = '[mcp] created resources'
+const PUBLIC_VARIABLES_SAVE_TITLE = '[mcp] updated public variables'
+export const PUBLIC_VARIABLE_NAME_REGEX = new RegExp(variableKey.pattern)
 const { DOCKER_IMAGE_NAME_SUGGESTION_TYPES, ServiceTypes, EndpointTypes, Verbs } = constants
 
 interface AISettings {
@@ -97,6 +105,11 @@ export interface IAPIClient {
     resourcesToCreate: ResourcesToCreate,
     options?: SaveConfigurationOptions,
   ): Promise<SaveResponse>
+  updatePublicVariables(
+    projectId: string,
+    refId: string,
+    changes: PublicVariablesChanges,
+  ): Promise<UpdatePublicVariablesResponse>
   createServiceFromMarketplaceItem(
     projectID: string,
     name: string,
@@ -314,6 +327,46 @@ export class APIClient implements IAPIClient {
     resourcesToCreate: ResourcesToCreate,
     options?: SaveConfigurationOptions,
   ): Promise<SaveResponse> {
+    return this.#saveUpdatedConfiguration(
+      prjID,
+      refID,
+      DEFAULT_SAVE_TITLE,
+      (currentConfig) => mergeConfigWithResources(currentConfig, resourcesToCreate, options),
+    )
+  }
+
+  async updatePublicVariables (
+    prjID: string,
+    refID: string,
+    changes: PublicVariablesChanges,
+  ): Promise<UpdatePublicVariablesResponse> {
+    let applied: AppliedPublicVariablesChanges | undefined
+    const saveResponse = await this.#saveUpdatedConfiguration(
+      prjID,
+      refID,
+      PUBLIC_VARIABLES_SAVE_TITLE,
+      (currentConfig) => {
+        applied = applyPublicVariablesChanges(currentConfig.unsecretedVariables || [], changes)
+        return { ...currentConfig, unsecretedVariables: applied.publicVariables }
+      },
+    )
+
+    const { created, updated, deleted } = applied as AppliedPublicVariablesChanges
+    return { saveResponse, created, updated, deleted }
+  }
+
+  /**
+   * Reads the latest configuration of the given ref, builds the new configuration from it and saves it.
+   * The read and the save happen within the same call to keep the window for concurrent changes as small
+   * as possible: the backend does not reject saves based on a stale `previousSave`.
+   * Any error thrown by `buildConfig` aborts the operation before anything is saved.
+   */
+  async #saveUpdatedConfiguration (
+    prjID: string,
+    refID: string,
+    title: string,
+    buildConfig: (currentConfig: RetrievedConfiguration) => Config,
+  ): Promise<SaveResponse> {
     const tf = await this.#featureFlagsClient.getToggles(prjID, [ ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT ])
     let currentConfig: RetrievedConfiguration
     if (tf[ENABLE_ENVIRONMENT_BASED_CONFIGURATION_MANAGEMENT] || false) {
@@ -322,13 +375,12 @@ export class APIClient implements IAPIClient {
       currentConfig = await this.#backendClient.getRevisionBasedConfiguration(prjID, refID)
     }
 
-    const mergedConfigWithResourceToCreate = mergeConfigWithResources(currentConfig, resourcesToCreate, options)
     const newConfig: ConfigToSave = {
-      title: '[mcp] created resources',
+      title,
       fastDataConfig: currentConfig.fastDataConfig,
       microfrontendPluginsConfig: currentConfig.microfrontendPluginsConfig || {},
       extensionsConfig: currentConfig.extensionsConfig || { files: {} },
-      config: mergedConfigWithResourceToCreate,
+      config: buildConfig(currentConfig),
       previousSave: currentConfig.commitId,
       deletedElements: {},
     }
@@ -815,6 +867,11 @@ export interface APIClientMockFunctions {
   getConfigurationRevisionsMockFn?: (projectId: string) => Promise<Record<string, unknown>>
   getConfigurationMockFn?: (projectId: string, refId: string, refType?: ConfigurationRefType) => Promise<RetrievedConfiguration>
   saveConfigurationMockFn?: (projectId: string) => Promise<SaveResponse>
+  updatePublicVariablesMockFn?: (
+    projectId: string,
+    refId: string,
+    changes: PublicVariablesChanges,
+  ) => Promise<UpdatePublicVariablesResponse>
   createServiceFromMarketplaceItemMockFn?: (projectID: string) => Promise<SaveResponse>
   createEndpointsMockFn?: (projectID: string) => Promise<SaveResponse>
   // #endregion
@@ -969,6 +1026,18 @@ export class APIClientMock implements IAPIClient {
     }
 
     return this.mocks.saveConfigurationMockFn(projectId)
+  }
+
+  async updatePublicVariables (
+    projectId: string,
+    refId: string,
+    changes: PublicVariablesChanges,
+  ): Promise<UpdatePublicVariablesResponse> {
+    if (!this.mocks.updatePublicVariablesMockFn) {
+      throw new Error('updatePublicVariablesMockFn not mocked')
+    }
+
+    return this.mocks.updatePublicVariablesMockFn(projectId, refId, changes)
   }
 
   async createServiceFromMarketplaceItem (
@@ -1166,6 +1235,109 @@ function mergeConfigWithResources (previousConfig: Config, resourcesToCreate: Re
       ...resourcesToCreate.collections,
     },
   }
+}
+
+/**
+ * Validates the structure of the requested public variables changes, independently of the current configuration.
+ * Throws if no change is requested, if a name is invalid or repeated, if a variable is both upserted and
+ * deleted, or if an upserted variable has no environment.
+ */
+export function validatePublicVariablesChanges (changes: PublicVariablesChanges): void {
+  const upsert = changes.upsert || []
+  const toDelete = changes.delete || []
+  const upsertNames = upsert.map(({ name }) => name)
+
+  if (upsert.length === 0 && toDelete.length === 0) {
+    throw new Error('at least one public variable to upsert or delete is required')
+  }
+
+  const invalidNames = [ ...upsertNames, ...toDelete ].filter((name) => !PUBLIC_VARIABLE_NAME_REGEX.test(name))
+  if (invalidNames.length > 0) {
+    throw new Error(`invalid public variable names: ${invalidNames.join(', ')}. Names must match ${variableKey.pattern}`)
+  }
+
+  const duplicatedNames = [ ...findDuplicates(upsertNames), ...findDuplicates(toDelete) ]
+  if (duplicatedNames.length > 0) {
+    throw new Error(`public variables listed more than once: ${duplicatedNames.join(', ')}`)
+  }
+
+  const deleteSet = new Set(toDelete)
+  const upsertedAndDeleted = upsertNames.filter((name) => deleteSet.has(name))
+  if (upsertedAndDeleted.length > 0) {
+    throw new Error(`public variables cannot be both upserted and deleted: ${upsertedAndDeleted.join(', ')}`)
+  }
+
+  const withoutEnvironments = upsert.
+    filter(({ environments }) => Object.keys(environments).length === 0).
+    map(({ name }) => name)
+  if (withoutEnvironments.length > 0) {
+    throw new Error(`public variables to upsert must set a value for at least one environment: ${withoutEnvironments.join(', ')}`)
+  }
+}
+
+/**
+ * Applies the requested changes to the given public variables, without mutating them.
+ * Upserted variables are merged per environment: values of environments not listed in the change are kept.
+ * New variables are appended in the order they are requested.
+ * Throws, so that nothing gets saved, if the changes are structurally invalid, if a variable to delete
+ * does not exist, or if a read-only variable would be modified or deleted.
+ */
+export function applyPublicVariablesChanges (
+  currentVariables: PublicVariable[],
+  changes: PublicVariablesChanges,
+): AppliedPublicVariablesChanges {
+  validatePublicVariablesChanges(changes)
+  const upsert = changes.upsert || []
+  const toDelete = changes.delete || []
+
+  const currentByName = new Map(currentVariables.map((variable) => [ variable.name, variable ]))
+
+  const notFound = toDelete.filter((name) => !currentByName.has(name))
+  if (notFound.length > 0) {
+    throw new Error(`public variables to delete not found: ${notFound.join(', ')}`)
+  }
+
+  const readOnly = [ ...upsert.map(({ name }) => name), ...toDelete ].
+    filter((name) => currentByName.get(name)?.readOnly === true)
+  if (readOnly.length > 0) {
+    throw new Error(`read-only public variables cannot be modified or deleted: ${readOnly.join(', ')}`)
+  }
+
+  const deleteSet = new Set(toDelete)
+  const upsertByName = new Map(upsert.map((variable) => [ variable.name, variable ]))
+  const updated: string[] = []
+  const publicVariables: PublicVariable[] = currentVariables.
+    filter(({ name }) => !deleteSet.has(name)).
+    map((variable) => {
+      const change = upsertByName.get(variable.name)
+      if (!change) {
+        return variable
+      }
+
+      updated.push(variable.name)
+      return {
+        ...variable,
+        environments: { ...variable.environments, ...toPublicVariableEnvironments(change.environments) },
+      }
+    })
+
+  const created: string[] = []
+  for (const change of upsert) {
+    if (!currentByName.has(change.name)) {
+      created.push(change.name)
+      publicVariables.push({ name: change.name, environments: toPublicVariableEnvironments(change.environments) })
+    }
+  }
+
+  return { publicVariables, created, updated, deleted: [ ...toDelete ] }
+}
+
+function toPublicVariableEnvironments (environments: Record<string, string>): PublicVariable['environments'] {
+  return Object.fromEntries(Object.entries(environments).map(([ envId, value ]) => [ envId, { value } ]))
+}
+
+function findDuplicates (values: string[]): string[] {
+  return [ ...new Set(values.filter((value, index) => values.indexOf(value) !== index)) ]
 }
 
 export function servicePayloadFromMarketplaceItem (
