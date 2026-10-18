@@ -43,6 +43,7 @@ suite('IAM Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         identityType: 'type',
       },
@@ -58,6 +59,7 @@ suite('IAM Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
       },
     }).reply(500, { error: 'Internal Server Error' })
@@ -75,6 +77,7 @@ suite('IAM Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         from: '1710154800000',
         to: '1710156600000',
@@ -95,6 +98,7 @@ suite('IAM Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         from: '1710154800000',
         to: '1710156600000',
@@ -111,6 +115,7 @@ suite('IAM Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
       },
     }).reply(500, { error: 'Internal Server Error' })
@@ -140,6 +145,7 @@ suite('IAM Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         identityType: 'type',
       },
@@ -159,6 +165,7 @@ suite('IAM Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         from: '1710154800000',
         to: '1710156600000',
@@ -179,6 +186,7 @@ suite('IAM Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '0',
         from: '1710154800000',
         to: '1710156600000',
