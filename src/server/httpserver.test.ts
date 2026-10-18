@@ -117,7 +117,6 @@ suite('test http streaming server', () => {
 
     t.assert.equal(firstInit.statusCode, 401)
     t.assert.match(firstInit.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
-    t.assert.match(firstInit.headers['www-authenticate'] as string, /\/.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('open passive SSE stream with GET /mcp (with auth token)', async (t) => {
@@ -149,7 +148,6 @@ suite('test http streaming server', () => {
 
     t.assert.equal(response.statusCode, 401)
     t.assert.match(response.headers['www-authenticate'] as string, /Bearer realm="Console MCP Server"/)
-    t.assert.match(response.headers['www-authenticate'] as string, /\/\.well-known\/oauth-protected-resource\/console-mcp-server"/)
   })
 
   test('delete request is not allowed for stateless server', async (t) => {

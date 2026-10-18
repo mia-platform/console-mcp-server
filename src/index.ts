@@ -18,13 +18,10 @@ import { Command, Option } from 'commander'
 
 import 'dotenv/config'
 import Fastify from 'fastify'
-import formbody from '@fastify/formbody'
 
 import { httpServer } from './server/httpserver'
-import { oauthRouter } from './server/auth/oauthRouter'
 import { runStdioServer } from './server/stdio'
 import { statusRoutes } from './server/statusRoutes'
-import { wellKnownRouter } from './server/auth/wellKnownRouter'
 import { description, version } from '../package.json'
 
 const program = new Command()
@@ -45,9 +42,6 @@ program.
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
     const logLevel = process.env.LOG_LEVEL || 'info'
-    const clientExpiryDuration = process.env.CLIENT_EXPIRY_DURATION
-      ? parseInt(process.env.CLIENT_EXPIRY_DURATION, 10)
-      : undefined
 
     if (stdio) {
       return runStdioServer(host, clientID, clientSecret).catch((error) => {
@@ -61,14 +55,9 @@ program.
       trustProxy: true,
     })
 
-    // Register plugins
-    await fastify.register(formbody)
-
     // Registering routes
-    fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(statusRoutes, { prefix: '/-/' })
     fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
-    fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
       if (err) {
