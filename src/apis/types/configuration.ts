@@ -20,6 +20,7 @@ import {
   Config as ConfigType,
   Endpoints,
   Listeners,
+  PublicVariable,
   ServiceAccounts,
   Services,
 } from '@mia-platform/console-types'
@@ -62,6 +63,31 @@ export interface SaveResponse {
 
 export interface SaveConfigurationOptions {
   throwIfServiceAlreadyExists?: boolean
+}
+
+export interface PublicVariableToUpsert {
+  name: string
+  // value of the variable keyed by environment id
+  environments: Record<string, string>
+}
+
+export interface PublicVariablesChanges {
+  upsert?: PublicVariableToUpsert[]
+  delete?: string[]
+}
+
+export interface PublicVariablesChangesSummary {
+  created: string[]
+  updated: string[]
+  deleted: string[]
+}
+
+export interface AppliedPublicVariablesChanges extends PublicVariablesChangesSummary {
+  publicVariables: PublicVariable[]
+}
+
+export interface UpdatePublicVariablesResponse extends PublicVariablesChangesSummary {
+  saveResponse: SaveResponse
 }
 
 export interface DockerSuggestionPrefix {
