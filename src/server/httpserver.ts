@@ -25,6 +25,9 @@ import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
 
 export interface HTTPServerOptions {
   host: string
+
+  /** Base URL for outbound Console API calls on /mcp; falls back to host when unset or empty. */
+  apiHost?: string
   clientID: string
   clientSecret: string
 }
@@ -86,10 +89,23 @@ const connectToMcpServer = async (
   }
 }
 
+const pickHeaders = (request: FastifyRequest, keys: string[]): IncomingHttpHeaders => {
+  const headers: IncomingHttpHeaders = {}
+  for (const key of keys) {
+    if (key in request.headers) {
+      headers[key] = request.headers[key]
+    }
+  }
+  return headers
+}
+
 export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   const { clientID, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
-
+  const apiOpts = { ...opts, host: opts.apiHost || opts.host }
+  // On /mcp identity comes only from the user token: never forward identity headers or the inbound host.
+  const apiHeadersKeys = additionalHeadersKeys.filter((key) => key !== 'host' && !key.startsWith('miauser'))
+  let deprecationLogged = false
 
   fastify.post('/mcp-internal', async (request, reply) => {
     // This is an internal endpoint for the MCP Server. It is intended to be used ONLY in case the MCP
@@ -101,12 +117,12 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     // Please use the endpoint /mcp for all other use cases.
     fastify.log.debug({ message: 'Received POST /console-mcp-server/mcp-internal request', body: request.body })
 
-    const additionalHeaders: IncomingHttpHeaders = {}
-    for (const key of additionalHeadersKeys) {
-      if (key in request.headers) {
-        additionalHeaders[key] = request.headers[key]
-      }
+    if (!deprecationLogged) {
+      deprecationLogged = true
+      fastify.log.warn('/console-mcp-server/mcp-internal is deprecated and will be removed: use /console-mcp-server/mcp')
     }
+
+    const additionalHeaders = pickHeaders(request, additionalHeadersKeys)
 
     // We include an empty host to avoid any authentication mechanism to be triggered.
     await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
@@ -127,7 +143,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    await connectToMcpServer(request, reply, opts, { Authorization: token })
+    await connectToMcpServer(request, reply, apiOpts, { Authorization: token, ...pickHeaders(request, apiHeadersKeys) })
   })
 
   fastify.get('/mcp', async (request, reply) => {
@@ -145,7 +161,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
       return
     }
 
-    await connectToMcpServer(request, reply, opts, { Authorization: token })
+    await connectToMcpServer(request, reply, apiOpts, { Authorization: token, ...pickHeaders(request, apiHeadersKeys) })
   })
 
   fastify.delete('/mcp', async (_, reply) => {

@@ -90,9 +90,13 @@ Environment variables located inside a file named `.env` are automatically inclu
 | `LOG_LEVEL` | Log level of the application | No | `info` |
 | `PORT` | Port number for the HTTP server | No | `3000` |
 | `CONSOLE_HOST` | The host address of the Mia-Platform Console instance | Yes | - |
+| `CONSOLE_API_URL` | Base URL used by the `/mcp` endpoint for Console API calls (e.g. the in-cluster API Gateway). When unset or empty, `CONSOLE_HOST` is used | No | - |
+| `HEADERS_TO_PROXY` | Comma-separated list of request headers forwarded to the Console API, in addition to `Authorization` on `/mcp` | No | - |
 | `MIA_PLATFORM_CLIENT_ID` | Client ID for Service Account authentication | No | - |
 | `MIA_PLATFORM_CLIENT_SECRET` | Client secret for Service Account authentication | No | - |
 | `CLIENT_EXPIRY_DURATION` | Duration in seconds of clients generated with the DCR authentication flow. After this time, the client will be expired and cannot be used anylonger. | No | `300` |
+
+The `/console-mcp-server/mcp-internal` endpoint is deprecated and will be removed: use `/console-mcp-server/mcp`.
 
 
 ## Local Development

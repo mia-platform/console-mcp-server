@@ -41,7 +41,8 @@ program.
   option('--server-host <serverHost>', 'host to expose the server on', '0.0.0.0').
   addOption(new Option('-p, --port <port>', 'port to run the server on').env('PORT').default('3000')).
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
-  action(async ({ host, stdio, port, serverHost }) => {
+  addOption(new Option('--api-url <apiUrl>', 'base URL for Console API calls on /mcp (defaults to --host)').env('CONSOLE_API_URL')).
+  action(async ({ host, apiUrl, stdio, port, serverHost }) => {
     const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
     const logLevel = process.env.LOG_LEVEL || 'info'
@@ -67,7 +68,7 @@ program.
     // Registering routes
     fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(statusRoutes, { prefix: '/-/' })
-    fastify.register(httpServer, { prefix: '/console-mcp-server', host, clientID, clientSecret })
+    fastify.register(httpServer, { prefix: '/console-mcp-server', host, apiHost: apiUrl, clientID, clientSecret })
     fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {
