@@ -43,15 +43,16 @@ program.
   addOption(new Option('--host <host>', 'Mia-Platform Console host').env('CONSOLE_HOST')).
   addOption(new Option('--api-url <apiUrl>', 'base URL for Console API calls on /mcp (defaults to --host)').env('CONSOLE_API_URL')).
   action(async ({ host, apiUrl, stdio, port, serverHost }) => {
-    const clientID = process.env.MIA_PLATFORM_CLIENT_ID || ''
+    const clientId = process.env.MIA_PLATFORM_CLIENT_ID || ''
     const clientSecret = process.env.MIA_PLATFORM_CLIENT_SECRET || ''
     const logLevel = process.env.LOG_LEVEL || 'info'
     const clientExpiryDuration = process.env.CLIENT_EXPIRY_DURATION
       ? parseInt(process.env.CLIENT_EXPIRY_DURATION, 10)
       : undefined
+    const enableCentralizedUserManagement = process.env.ENABLE_CENTRALIZED_USER_MANAGEMENT === 'true'
 
     if (stdio) {
-      return runStdioServer(host, clientID, clientSecret).catch((error) => {
+      return runStdioServer(host, { clientId, clientSecret, enableCentralizedUserManagement }).catch((error) => {
         console.error('Fatal error:', error)
         process.exit(1)
       })
@@ -68,7 +69,7 @@ program.
     // Registering routes
     fastify.register(wellKnownRouter, { prefix: '/', host })
     fastify.register(statusRoutes, { prefix: '/-/' })
-    fastify.register(httpServer, { prefix: '/console-mcp-server', host, apiHost: apiUrl, clientID, clientSecret })
+    fastify.register(httpServer, { prefix: '/console-mcp-server', host, apiHost: apiUrl, clientId, clientSecret, enableCentralizedUserManagement })
     fastify.register(oauthRouter, { prefix: '/console-mcp-server/oauth', host, clientExpiryDuration })
 
     return fastify.listen({ port: parseInt(port, 10), host: serverHost }, function (err) {

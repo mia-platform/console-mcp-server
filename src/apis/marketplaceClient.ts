@@ -38,9 +38,9 @@ export class MarketplaceClient {
     // this.#internal = internal
   }
 
-  async listMarketplaceItems (tenantID?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
+  async listMarketplaceItems (tenantId?: string, type?: string, search?: string): Promise<Record<string, unknown>[]> {
     const params = new URLSearchParams({
-      ...tenantID && { includeTenantId: tenantID },
+      ...tenantId && { includeTenantId: tenantId },
       ...type && { types: type },
       ...search && { name: search },
     })
@@ -48,16 +48,16 @@ export class MarketplaceClient {
     return this.#client.getPaginated<Record<string, unknown>>(this.#marketplacePath(), params)
   }
 
-  async marketplaceItemVersions (tenantID: string, itemID: string): Promise<CatalogItemRelease[]> {
-    return this.#client.getPaginated<CatalogItemRelease>(this.#itemVersionsPath(tenantID, itemID))
+  async marketplaceItemVersions (tenantId: string, itemID: string): Promise<CatalogItemRelease[]> {
+    return this.#client.getPaginated<CatalogItemRelease>(this.#itemVersionsPath(tenantId, itemID))
   }
 
-  async marketplaceItemInfo (tenantID: string, itemID: string, version?: string): Promise<CatalogVersionedItem> {
+  async marketplaceItemInfo (tenantId: string, itemID: string, version?: string): Promise<CatalogVersionedItem> {
     let itemVersion = version
     if (!itemVersion) {
-      const versions = await this.marketplaceItemVersions(tenantID, itemID)
+      const versions = await this.marketplaceItemVersions(tenantId, itemID)
       if (versions.length === 0) {
-        throw new Error(`No versions found for marketplace item ${itemID} in tenant ${tenantID}`)
+        throw new Error(`No versions found for marketplace item ${itemID} in tenant ${tenantId}`)
       }
       for (const version of versions) {
         if (version.isLatest) {
@@ -70,7 +70,7 @@ export class MarketplaceClient {
       }
     }
 
-    return this.#client.get<CatalogVersionedItem>(this.#itemInfoPath(tenantID, itemID, itemVersion))
+    return this.#client.get<CatalogVersionedItem>(this.#itemInfoPath(tenantId, itemID, itemVersion))
   }
 
   async listMarketplaceItemTypeDefinitions (namespace?: string, name?: string, displayName?: string): Promise<CatalogItemTypeDefinition[]> {
@@ -84,27 +84,27 @@ export class MarketplaceClient {
     return this.#client.getPaginated<CatalogItemTypeDefinition>(this.#itemTypeDefinitionsPath(), params)
   }
 
-  async marketplaceItemTypeDefinitionInfo (tenantID: string, name: string): Promise<CatalogItemTypeDefinition> {
-    return this.#client.get<CatalogItemTypeDefinition>(this.#itemTypeDefinitionInfoPath(tenantID, name))
+  async marketplaceItemTypeDefinitionInfo (tenantId: string, name: string): Promise<CatalogItemTypeDefinition> {
+    return this.#client.get<CatalogItemTypeDefinition>(this.#itemTypeDefinitionInfoPath(tenantId, name))
   }
 
   #marketplacePath (): string {
     return '/api/marketplace/'
   }
 
-  #itemVersionsPath (tenantID: string, itemID: string): string {
-    return `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`
+  #itemVersionsPath (tenantId: string, itemID: string): string {
+    return `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`
   }
 
-  #itemInfoPath (tenantID: string, itemID: string, version: string): string {
-    return `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`
+  #itemInfoPath (tenantId: string, itemID: string, version: string): string {
+    return `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`
   }
 
   #itemTypeDefinitionsPath (): string {
     return '/api/marketplace/item-type-definitions'
   }
 
-  #itemTypeDefinitionInfoPath (tenantID: string, name: string): string {
-    return `/api/tenants/${tenantID}/marketplace/item-type-definitions/${name}`
+  #itemTypeDefinitionInfoPath (tenantId: string, name: string): string {
+    return `/api/tenants/${tenantId}/marketplace/item-type-definitions/${name}`
   }
 }

@@ -19,17 +19,16 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { ErrorCode, JSONRPC_VERSION } from '@modelcontextprotocol/sdk/types.js'
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 
+import { ConsoleMCPServerOptions } from './types'
 import { getBaseUrlFromRequest } from './utils'
 import { getMcpServer } from './server'
 import { OAUTH_PROTECTED_RESOURCE_PATH } from './auth/wellKnownRouter'
 
-export interface HTTPServerOptions {
+export type HTTPServerOptions = ConsoleMCPServerOptions & {
   host: string
 
   /** Base URL for outbound Console API calls on /mcp; falls back to host when unset or empty. */
   apiHost?: string
-  clientID: string
-  clientSecret: string
 }
 
 /** Build the WWW-Authenticate header used when the access token is missing. */
@@ -61,9 +60,9 @@ const connectToMcpServer = async (
   options: HTTPServerOptions,
   headers: IncomingHttpHeaders = {},
 ) => {
-  const { host, clientID, clientSecret } = options
+  const { clientId, clientSecret, enableCentralizedUserManagement, host } = options
   try {
-    const server = getMcpServer(host, clientID, clientSecret, headers)
+    const server = getMcpServer(host, { clientId, clientSecret, enableCentralizedUserManagement, additionalHeaders: headers })
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
     })
@@ -100,11 +99,13 @@ const pickHeaders = (request: FastifyRequest, keys: string[]): IncomingHttpHeade
 }
 
 export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
-  const { clientID, clientSecret } = opts
+  const { clientId, clientSecret } = opts
   const additionalHeadersKeys = env.HEADERS_TO_PROXY?.split(',') || []
   const apiOpts = { ...opts, host: opts.apiHost || opts.host }
+
   // On /mcp identity comes only from the user token: never forward identity headers or the inbound host.
   const apiHeadersKeys = additionalHeadersKeys.filter((key) => key !== 'host' && !key.startsWith('miauser'))
+
   let deprecationLogged = false
 
   fastify.post('/mcp-internal', async (request, reply) => {
@@ -125,13 +126,13 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
     const additionalHeaders = pickHeaders(request, additionalHeadersKeys)
 
     // We include an empty host to avoid any authentication mechanism to be triggered.
-    await connectToMcpServer(request, reply, { host: '', clientID, clientSecret }, additionalHeaders)
+    await connectToMcpServer(request, reply, { host: '', clientId, clientSecret }, additionalHeaders)
   })
 
   fastify.post('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received POST /console-mcp-server/mcp request', body: request.body })
 
-    const authenticateViaClientCredentials = clientID && clientSecret
+    const authenticateViaClientCredentials = clientId && clientSecret
     if (authenticateViaClientCredentials) {
       await connectToMcpServer(request, reply, opts, {})
       return
@@ -149,7 +150,7 @@ export function httpServer (fastify: FastifyInstance, opts: HTTPServerOptions) {
   fastify.get('/mcp', async (request, reply) => {
     fastify.log.debug({ message: 'Received GET /console-mcp-server/mcp request' })
 
-    const authenticateViaClientCredentials = clientID && clientSecret
+    const authenticateViaClientCredentials = clientId && clientSecret
     if (authenticateViaClientCredentials) {
       await connectToMcpServer(request, reply, opts, {})
       return

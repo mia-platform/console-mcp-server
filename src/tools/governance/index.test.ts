@@ -32,7 +32,7 @@ import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
-} from '../../apis/client'
+} from '../../apis/client.mock'
 import {
   ERR_AI_FEATURES_NOT_ENABLED,
   ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS,
@@ -51,7 +51,7 @@ const project = {
   id: 1,
   name: 'Name',
   projectId: 'name',
-  tenantId: 'tenantID',
+  tenantId: 'tenantId',
   templateId: 'templateID',
   description: 'description',
 }
@@ -267,7 +267,7 @@ suite('get project info', () => {
   })
 
   it('returns project info', async (t: it.TestContext) => {
-    const testTenantId = 'tenantID'
+    const testTenantId = 'tenantId'
     const testProjectId = 'projectID'
 
     const getProjectInfoForValidationMockFn = mock.fn(async (projectId: string) => {
@@ -304,7 +304,7 @@ suite('get project info', () => {
   })
 
   it('returns error message if request return error', async (t: it.TestContext) => {
-    const testTenantId = 'tenantID'
+    const testTenantId = 'tenantId'
     const testProjectId = 'error'
 
     const getProjectInfoForValidationMockFn = mock.fn(async (projectId: string) => {
@@ -386,7 +386,7 @@ suite('create project from template', () => {
       params: {
         name: 'create_project_from_template',
         arguments: {
-          tenantId: 'tenantID',
+          tenantId: 'tenantId',
           templateId: 'templateID',
           projectName: 'Name',
           projectDescription: 'description',
@@ -435,17 +435,17 @@ suite('create project from template', () => {
 // Tenant tools tests
 
 const companies = [
-  { tenantId: 'tenant1', name: 'name', defaultTemplateId: 'template-id-1' },
-  { tenantId: 'tenant2', name: 'name2', defaultTemplateId: 'template-id-2' },
-  { tenantId: 'tenant3', name: 'name3', defaultTemplateId: 'template-id-3' },
+  { tenantId: 'tenant1', name: 'name' },
+  { tenantId: 'tenant2', name: 'name2' },
+  { tenantId: 'tenant3', name: 'name3' },
 ] as ITenant[]
 
 const templates: Template[] = [
   {
-    templateId: 'template-1-id', name: 'template1', tenantId: 'tenantID', deploy: {},
+    templateId: 'template-1-id', name: 'template1', tenantId: 'tenantId', deploy: {},
   },
   {
-    templateId: 'template-2-id', name: 'template2', tenantId: 'tenantID', deploy: {},
+    templateId: 'template-2-id', name: 'template2', tenantId: 'tenantId', deploy: {},
   },
 ]
 
@@ -525,14 +525,12 @@ suite('companies list tool', () => {
       {
         tenantId: 'tenant1',
         name: 'name',
-        defaultTemplateId: 'template-id-1',
       },
 
       // NOTE: this one triggers the error in the mock function
       {
         tenantId: 'error',
         name: 'error',
-        defaultTemplateId: 'template-id-error',
       },
     ] as ITenant[]
 
@@ -587,6 +585,72 @@ suite('companies list tool', () => {
       },
     ])
   })
+
+  suite('with centralized user management', () => {
+    const userCompanies = [
+      { companyId: 'tenant1', companyName: 'name', organization: 'org', organizationName: 'Org' },
+      { companyId: 'tenant2', companyName: 'name2', organization: 'org', organizationName: 'Org' },
+      { companyId: 'tenant3', companyName: 'name3', organization: 'org', organizationName: 'Org' },
+    ]
+
+    const getClient = (mocks: APIClientMockFunctions) => TestMCPServer((server) => {
+      addGovernanceCapabilities(server, new APIClientMock(mocks), { enableCentralizedUserManagement: true })
+    })
+
+    it('maps companies to tenants and returns only those with AI features enabled', async (t: it.TestContext) => {
+      const client = await getClient({
+        isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+        listCompaniesMockFn: async () => userCompanies,
+      })
+
+      const result = await client.request({
+        method: 'tools/call',
+        params: { name: 'list_tenants', arguments: {} },
+      }, CallToolResultSchema)
+
+      const expected = [
+        { tenantId: 'tenant1', name: 'name' },
+        { tenantId: 'tenant3', name: 'name3' },
+      ]
+      t.assert.ok(!result.isError)
+      t.assert.deepEqual(result.structuredContent, { tenants: expected })
+      t.assert.deepEqual(result.content, [ { text: JSON.stringify(expected), type: 'text' } ])
+    })
+
+    it('returns error - if no company has AI features enabled', async (t: it.TestContext) => {
+      const client = await getClient({
+        isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+        listCompaniesMockFn: async () => userCompanies.filter((c) => !aiFeaturesRulesForTenant[c.companyId]),
+      })
+
+      const result = await client.request({
+        method: 'tools/call',
+        params: { name: 'list_tenants', arguments: {} },
+      }, CallToolResultSchema)
+
+      t.assert.ok(result.isError)
+      t.assert.deepEqual(result.content, [
+        { text: `Error fetching companies: ${ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED}`, type: 'text' },
+      ])
+    })
+
+    it('returns error - if the user has no companies', async (t: it.TestContext) => {
+      const client = await getClient({
+        isAiFeaturesEnabledForTenantMockFn: aiFeaturesMockFn,
+        listCompaniesMockFn: async () => [],
+      })
+
+      const result = await client.request({
+        method: 'tools/call',
+        params: { name: 'list_tenants', arguments: {} },
+      }, CallToolResultSchema)
+
+      t.assert.ok(result.isError)
+      t.assert.deepEqual(result.content, [
+        { text: `Error fetching companies: ${ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED}`, type: 'text' },
+      ])
+    })
+  })
 })
 
 suite('company list template', () => {
@@ -630,7 +694,7 @@ suite('company list template', () => {
       params: {
         name: 'list_tenant_templates',
         arguments: {
-          tenantId: 'tenantID',
+          tenantId: 'tenantId',
         },
       },
     }, CallToolResultSchema)
@@ -711,7 +775,7 @@ suite('iam list tool', () => {
       params: {
         name: 'list_tenant_iam',
         arguments: {
-          tenantId: 'tenantID',
+          tenantId: 'tenantId',
         },
       },
     }, CallToolResultSchema)
@@ -748,6 +812,31 @@ suite('iam list tool', () => {
         type: 'text',
       },
     ])
+  })
+
+  it('forwards limit and continue token to principals with centralized user management', async (t: it.TestContext) => {
+    const getPrincipalsMockFn = mock.fn(async () => iamList)
+    const client = await TestMCPServer((server) => {
+      addGovernanceCapabilities(server, new APIClientMock({
+        getPrincipalsMockFn,
+        isAiFeaturesEnabledForTenantMockFn: async () => true,
+      }), { enableCentralizedUserManagement: true })
+    })
+
+    const result = await client.request({
+      method: 'tools/call',
+      params: {
+        name: 'list_tenant_iam',
+        arguments: {
+          tenantId: 'tenantId',
+          limit: 10,
+          continue: 'next-token',
+        },
+      },
+    }, CallToolResultSchema)
+
+    t.assert.ok(!result.isError)
+    t.assert.deepEqual(getPrincipalsMockFn.mock.calls[0].arguments, [ 'tenantId', 'next-token', 10 ])
   })
 })
 
@@ -792,7 +881,7 @@ suite('audit log', () => {
       params: {
         name: 'view_audit_logs',
         arguments: {
-          tenantId: 'tenantID',
+          tenantId: 'tenantId',
           to: '1234567890',
           from: '1234567890',
         },

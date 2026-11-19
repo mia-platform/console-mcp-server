@@ -26,7 +26,7 @@ import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
-} from '../../apis/client'
+} from '../../apis/client.mock'
 
 const triggerDeployResponse = {
   id: 123,

@@ -18,6 +18,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 
 import { IAPIClient } from '../../apis/client'
+import { ICompany } from '../../apis/tenantClient.types'
+import { ITenant } from '@mia-platform/console-types'
 import { assertAiFeaturesEnabledForProject, assertAiFeaturesEnabledForTenant, ERR_AI_FEATURES_NOT_ENABLED_MULTIPLE_TENANTS, ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED } from '../utils/validations'
 import { paramsDescriptions, toolNames, toolsDescriptions } from '../descriptions'
 
@@ -34,7 +36,9 @@ async function filterTenantsWithAiFeaturesEnabled (client: IAPIClient, tenantIds
   return results.filter((tenantId) => tenantId !== null) as string[]
 }
 
-export function addGovernanceCapabilities (server: McpServer, client: IAPIClient) {
+export function addGovernanceCapabilities (server: McpServer, client: IAPIClient, options?: { enableCentralizedUserManagement: boolean }) {
+  const { enableCentralizedUserManagement = false } = options ?? {}
+
   // Project tools
   server.tool(
     toolNames.LIST_PROJECTS,
@@ -165,22 +169,42 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
     toolsDescriptions.LIST_TENANTS,
     {},
     async (): Promise<CallToolResult> => {
+      const isCompany = (_lst: unknown): _lst is ICompany[] => enableCentralizedUserManagement
+
       try {
         const allTenants = await client.listCompanies()
-        const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.tenantId))
-        if (enabledTenantIds.length === 0) {
-          throw new Error(ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED)
+
+        let filteredTenants: ITenant[] | ICompany[] = []
+        if (isCompany(allTenants)) {
+          const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.companyId))
+          if (enabledTenantIds.length === 0) {
+            throw new Error(ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED)
+          }
+
+          filteredTenants = allTenants.
+            filter((c) => enabledTenantIds.includes(c.companyId)).
+            map((tenant) => {
+              return {
+                tenantId: tenant.companyId,
+                name: tenant.companyName,
+              }
+            })
+        } else {
+          const enabledTenantIds = await filterTenantsWithAiFeaturesEnabled(client, allTenants.map((c) => c.tenantId))
+          if (enabledTenantIds.length === 0) {
+            throw new Error(ERR_NO_TENANTS_FOUND_WITH_AI_FEATURES_ENABLED)
+          }
+
+          filteredTenants = allTenants.
+            filter((c) => enabledTenantIds.includes(c.tenantId)).
+            map((tenant) => {
+              return {
+                tenantId: tenant.tenantId,
+                name: tenant.name,
+              }
+            })
         }
 
-        const filteredTenants = allTenants.
-          filter((c) => enabledTenantIds.includes(c.tenantId)).
-          map((tenant) => {
-            return {
-              tenantId: tenant.tenantId,
-              name: tenant.name,
-              defaultTemplateId: tenant.defaultTemplateId,
-            }
-          })
 
         return {
           structuredContent: { tenants: filteredTenants },
@@ -255,13 +279,29 @@ export function addGovernanceCapabilities (server: McpServer, client: IAPIClient
     toolsDescriptions.LIST_TENANTS_IAM,
     {
       tenantId: z.string().describe(paramsDescriptions.TENANT_ID),
-      identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramsDescriptions.IAM_IDENTITY_TYPE),
+      ...enableCentralizedUserManagement
+        ? {
+          limit: z.number().optional().default(25).describe(paramsDescriptions.LIMIT),
+          continue: z.string().optional().describe(paramsDescriptions.CONTINUE_TOKEN),
+        }
+        : {
+          identityType: z.enum([ 'user', 'group', 'serviceAccount' ]).optional().describe(paramsDescriptions.IAM_IDENTITY_TYPE),
+        },
     },
-    async ({ tenantId, identityType }): Promise<CallToolResult> => {
+    async (params: { tenantId: string, identityType: string } | { tenantId: string, limit?: number, continue?: string }): Promise<CallToolResult> => {
+      const hasEnableCentralizedUserManagerment = (_opts: unknown): _opts is { tenantId: string, limit?: number, continue?: string } => enableCentralizedUserManagement
+      const { tenantId } = params
+
       try {
         await assertAiFeaturesEnabledForTenant(client, tenantId)
 
-        const data = await client.companyIAMIdentities(tenantId, identityType)
+        let data: unknown[] = []
+        if (hasEnableCentralizedUserManagerment(params)) {
+          data = await client.getPrincipals(tenantId, params.continue, params.limit)
+        } else {
+          const { identityType } = params
+          data = await client.companyIAMIdentities(tenantId, identityType)
+        }
         return {
           structuredContent: { identities: data },
           content: [

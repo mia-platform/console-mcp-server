@@ -18,7 +18,7 @@ import { beforeEach, suite, test, TestContext } from 'node:test'
 import { ConfigMaps, constants, EnvironmentVariablesTypes, ICatalogPlugin, ICatalogTemplate, IProject } from '@mia-platform/console-types'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 
-import { generateImageName, servicePayloadFromMarketplaceItem } from './client'
+import { APIClient, generateImageName, servicePayloadFromMarketplaceItem } from './client'
 
 const { ServiceTypes, DOCKER_IMAGE_NAME_SUGGESTION_TYPES } = constants
 
@@ -642,5 +642,39 @@ suite('generate image names', () => {
     }
     const imageName = await generateImageName('name', project, 'group')
     t.assert.strictEqual(imageName, `prefix/name`)
+  })
+})
+
+suite('list companies', () => {
+  const mockedEndpoint = 'http://localhost:3000'
+  let agent: MockAgent
+
+  beforeEach(() => {
+    agent = new MockAgent()
+    agent.disableNetConnect()
+    setGlobalDispatcher(agent)
+  })
+
+  test('uses the backend tenants API without centralized user management', async (t: TestContext) => {
+    const tenants = [ { tenantId: 'tenant1', name: 'Tenant 1' } ]
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/backend/tenants/',
+      method: 'GET',
+      query: { per_page: '200', page: '1' },
+    }).reply(200, tenants)
+
+    const client = new APIClient(mockedEndpoint, {})
+    t.assert.deepStrictEqual(await client.listCompanies(), tenants)
+  })
+
+  test('uses the user companies API with centralized user management', async (t: TestContext) => {
+    const companies = [ { companyId: 'company1', companyName: 'Company 1', organization: 'org', organizationName: 'Org' } ]
+    agent.get(mockedEndpoint).intercept({
+      path: '/api/user/companies',
+      method: 'GET',
+    }).reply(200, companies)
+
+    const client = new APIClient(mockedEndpoint, { enableCentralizedUserManagement: true })
+    t.assert.deepStrictEqual(await client.listCompanies(), companies)
   })
 })

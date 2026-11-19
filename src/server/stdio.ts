@@ -15,10 +15,11 @@
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
+import { ConsoleMCPServerOptions } from './types'
 import { getMcpServer } from './server'
 
-export async function runStdioServer (host: string, clientID: string, clientSecret: string) {
-  const server = getMcpServer(host, clientID, clientSecret)
+export async function runStdioServer (host: string, opts: ConsoleMCPServerOptions) {
+  const server = getMcpServer(host, opts)
   const transport = new StdioServerTransport()
 
   await server.connect(transport)

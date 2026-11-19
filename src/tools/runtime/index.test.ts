@@ -27,7 +27,7 @@ import { toolNames } from '../descriptions'
 import {
   APIClientMock,
   APIClientMockFunctions,
-} from '../../apis/client'
+} from '../../apis/client.mock'
 
 const pods = [
   { name: 'test-pod', status: 'running' },

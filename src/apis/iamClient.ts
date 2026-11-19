@@ -38,34 +38,34 @@ export class IAMClient {
     this.#internal = internal
   }
 
-  companyIAMIdentities (tenantID: string, type?: string): Promise<Record<string, unknown>[]> {
+  companyIAMIdentities (tenantId: string, type?: string): Promise<unknown[]> {
     const params = new URLSearchParams({
       ...type && { identityType: type },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyIAMPath(tenantID), params, 0)
+    return this.#client.getPaginated<unknown>(this.#companyIAMPath(tenantId), params, 0)
   }
 
-  companyAuditLogs (tenantID: string, from?: string, to?: string): Promise<Record<string, unknown>[]> {
+  companyAuditLogs (tenantId: string, from?: string, to?: string): Promise<unknown[]> {
     const params = new URLSearchParams({
       ...from && { from: formatQueryParamToUnixTimestamp(from) },
       ...to && { to: formatQueryParamToUnixTimestamp(to) },
     })
 
-    return this.#client.getPaginated<Record<string, unknown>>(this.#companyAuditLogsPath(tenantID), params, 0)
+    return this.#client.getPaginated<unknown>(this.#companyAuditLogsPath(tenantId), params, 0)
   }
 
-  #companyIAMPath (tenantID: string): string {
+  #companyIAMPath (tenantId: string): string {
     if (this.#internal) {
-      return `/companies/${tenantID}/identities`
+      return `/companies/${tenantId}/identities`
     }
-    return `/api/companies/${tenantID}/identities`
+    return `/api/companies/${tenantId}/identities`
   }
 
-  #companyAuditLogsPath (tenantID: string): string {
+  #companyAuditLogsPath (tenantId: string): string {
     if (this.#internal) {
-      return `/tenants/${tenantID}/audit-logs`
+      return `/tenants/${tenantId}/audit-logs`
     }
-    return `/api/tenants/${tenantID}/audit-logs`
+    return `/api/tenants/${tenantId}/audit-logs`
   }
 }

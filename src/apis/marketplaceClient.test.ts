@@ -20,7 +20,7 @@ import { CatalogItemTypeDefinition } from '@mia-platform/console-types'
 import { HTTPClient } from './http-client'
 import { internalEndpoint, MarketplaceClient, MarketplaceClientInternal } from './marketplaceClient'
 
-const tenantID = 'tenantID'
+const tenantId = 'tenantId'
 const itemID = 'itemid'
 const itdName = 'itdName'
 const search = 'item1'
@@ -105,10 +105,10 @@ suite('Marketplace Internal Client', () => {
       query: {
         per_page: 200,
         page: 1,
-        includeTenantId: tenantID,
+        includeTenantId: tenantId,
       },
     }).reply(200, [ ...publicItems, ...tenantItems ])
-    t.assert.deepEqual(await client.listMarketplaceItems(tenantID), [ ...publicItems, ...tenantItems ])
+    t.assert.deepEqual(await client.listMarketplaceItems(tenantId), [ ...publicItems, ...tenantItems ])
 
     agent.get(internalEndpoint).intercept({
       path: '/api/marketplace/',
@@ -116,12 +116,12 @@ suite('Marketplace Internal Client', () => {
       query: {
         per_page: 200,
         page: 1,
-        includeTenantId: tenantID,
+        includeTenantId: tenantId,
         types: type,
         name: search,
       },
     }).reply(200, tenantItems)
-    t.assert.deepEqual(await client.listMarketplaceItems(tenantID, type, search), tenantItems)
+    t.assert.deepEqual(await client.listMarketplaceItems(tenantId, type, search), tenantItems)
   })
 
   test('list marketplace items must throw if the API call fails', async (t: TestContext) => {
@@ -143,7 +143,7 @@ suite('Marketplace Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -151,31 +151,31 @@ suite('Marketplace Internal Client', () => {
       },
     }).reply(200, versions)
 
-    const result = await client.marketplaceItemVersions(tenantID, itemID)
+    const result = await client.marketplaceItemVersions(tenantId, itemID)
     t.assert.deepEqual(result, versions)
   })
 
   test('list marketplace item versions must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
         page: 1,
       },
     }).reply(500, { error: 'Internal Server Error' })
-    await t.assert.rejects(async () => await client.marketplaceItemVersions(tenantID, itemID), { name: 'Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemVersions(tenantId, itemID), { name: 'Error' })
   })
 
   test('marketplace item info', async (t: TestContext) => {
     const mockedResponse = { version: version, itemId: 'item-id-1', tenantId: 'public' }
 
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
-    const result = await client.marketplaceItemInfo(tenantID, itemID, version)
+    const result = await client.marketplaceItemInfo(tenantId, itemID, version)
     t.assert.deepEqual(result, mockedResponse)
   })
 
@@ -187,7 +187,7 @@ suite('Marketplace Internal Client', () => {
     ]
 
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -196,20 +196,20 @@ suite('Marketplace Internal Client', () => {
     }).reply(200, versions)
 
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
-    const result = await client.marketplaceItemInfo(tenantID, itemID)
+    const result = await client.marketplaceItemInfo(tenantId, itemID)
     t.assert.deepEqual(result, mockedResponse)
   })
 
   test('marketplace item info must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
-    await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantId, itemID, version), { name: 'Error' })
   })
 
   test('list marketplace Item Type Definitions', async (t: TestContext) => {
@@ -254,18 +254,18 @@ suite('Marketplace Internal Client', () => {
 
   test('marketplace Item Type Definition info', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      path: `/api/tenants/${tenantId}/marketplace/item-type-definitions/${itdName}`,
       method: 'GET',
     }).reply(200, itemTypeDefinitions.at(0))
-    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), itemTypeDefinitions.at(0))
+    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantId, itdName), itemTypeDefinitions.at(0))
   })
 
   test('marketplace Item Type Definitions info must throw if the API call fails', async (t: TestContext) => {
     agent.get(internalEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      path: `/api/tenants/${tenantId}/marketplace/item-type-definitions/${itdName}`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
-    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), { name: 'Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantId, itdName), { name: 'Error' })
   })
 })
 
@@ -297,10 +297,10 @@ suite('Marketplace Client', () => {
       query: {
         per_page: 200,
         page: 1,
-        includeTenantId: tenantID,
+        includeTenantId: tenantId,
       },
     }).reply(200, [ ...publicItems, ...tenantItems ])
-    t.assert.deepEqual(await client.listMarketplaceItems(tenantID), [ ...publicItems, ...tenantItems ])
+    t.assert.deepEqual(await client.listMarketplaceItems(tenantId), [ ...publicItems, ...tenantItems ])
 
     agent.get(mockedEndpoint).intercept({
       path: '/api/marketplace/',
@@ -308,12 +308,12 @@ suite('Marketplace Client', () => {
       query: {
         per_page: 200,
         page: 1,
-        includeTenantId: tenantID,
+        includeTenantId: tenantId,
         types: type,
         name: search,
       },
     }).reply(200, tenantItems)
-    t.assert.deepEqual(await client.listMarketplaceItems(tenantID, type, search), tenantItems)
+    t.assert.deepEqual(await client.listMarketplaceItems(tenantId, type, search), tenantItems)
   })
 
   test('list marketplace item versions', async (t: TestContext) => {
@@ -323,7 +323,7 @@ suite('Marketplace Client', () => {
     ]
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -331,7 +331,7 @@ suite('Marketplace Client', () => {
       },
     }).reply(200, versions)
 
-    const result = await client.marketplaceItemVersions(tenantID, itemID)
+    const result = await client.marketplaceItemVersions(tenantId, itemID)
     t.assert.deepEqual(result, versions)
   })
 
@@ -339,11 +339,11 @@ suite('Marketplace Client', () => {
     const mockedResponse = { version: version, itemId: 'item-id-1', tenantId: 'public' }
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
-    const result = await client.marketplaceItemInfo(tenantID, itemID, version)
+    const result = await client.marketplaceItemInfo(tenantId, itemID, version)
     t.assert.deepEqual(result, mockedResponse)
   })
 
@@ -355,7 +355,7 @@ suite('Marketplace Client', () => {
     ]
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions`,
       method: 'GET',
       query: {
         per_page: 200,
@@ -364,20 +364,20 @@ suite('Marketplace Client', () => {
     }).reply(200, versions)
 
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(200, mockedResponse)
 
-    const result = await client.marketplaceItemInfo(tenantID, itemID)
+    const result = await client.marketplaceItemInfo(tenantId, itemID)
     t.assert.deepEqual(result, mockedResponse)
   })
 
   test('marketplace item info must throw if the API call fails', async (t: TestContext) => {
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/items/${itemID}/versions/${version}`,
+      path: `/api/tenants/${tenantId}/marketplace/items/${itemID}/versions/${version}`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
-    await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantID, itemID, version), { name: 'Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemInfo(tenantId, itemID, version), { name: 'Error' })
   })
 
   test('list marketplace Item Type Definitions', async (t: TestContext) => {
@@ -422,17 +422,17 @@ suite('Marketplace Client', () => {
 
   test('marketplace Item Type Definition info', async (t: TestContext) => {
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      path: `/api/tenants/${tenantId}/marketplace/item-type-definitions/${itdName}`,
       method: 'GET',
     }).reply(200, itemTypeDefinitions.at(0))
-    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), itemTypeDefinitions.at(0))
+    t.assert.deepEqual(await client.marketplaceItemTypeDefinitionInfo(tenantId, itdName), itemTypeDefinitions.at(0))
   })
 
   test('marketplace Item Type Definitions info must throw if the API call fails', async (t: TestContext) => {
     agent.get(mockedEndpoint).intercept({
-      path: `/api/tenants/${tenantID}/marketplace/item-type-definitions/${itdName}`,
+      path: `/api/tenants/${tenantId}/marketplace/item-type-definitions/${itdName}`,
       method: 'GET',
     }).reply(500, { error: 'Internal Server Error' })
-    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantID, itdName), { name: 'Error' })
+    await t.assert.rejects(async () => await client.marketplaceItemTypeDefinitionInfo(tenantId, itdName), { name: 'Error' })
   })
 })

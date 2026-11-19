@@ -39,30 +39,28 @@ export function BackendClientInternal (
   additionalHeaders: UndiciHeaders = {},
 ): BackendClient {
   const client = new HTTPClient(internalEndpoint, clientID, clientSecret, additionalHeaders)
-  return new BackendClient(client, true)
+  return new BackendClient(client)
 }
 
 export class BackendClient {
   #client: HTTPClient
-  // #internal: boolean
 
-  constructor (client: HTTPClient, _internal = false) {
+  constructor (client: HTTPClient) {
     this.#client = client
-    // this.#internal = internal
   }
 
   listCompanies (): Promise<ITenant[]> {
     return this.#client.getPaginated<ITenant>(this.#companiesPath())
   }
 
-  companyTemplates (tenantID: string): Promise<Template[]> {
-    const params = new URLSearchParams({ tenantId: tenantID })
+  companyTemplates (tenantId: string): Promise<Template[]> {
+    const params = new URLSearchParams({ tenantId: tenantId })
     return this.#client.getPaginated<Template>(this.#companyTemplatesPath(), params)
   }
 
-  listProjects (tenantIDs: string[], search?: string): Promise<Record<string, unknown>[]> {
+  listProjects (tenantIds: string[], search?: string): Promise<Record<string, unknown>[]> {
     const params = new URLSearchParams({
-      ...tenantIDs.length > 0 && { tenantIds: tenantIDs.join(',') },
+      ...tenantIds.length > 0 && { tenantIds: tenantIds.join(',') },
       ...search && { search },
     })
     return this.#client.getPaginated<Record<string, unknown>>(this.#projectsPath(), params)
@@ -72,9 +70,9 @@ export class BackendClient {
     return this.#client.get<IProject>(this.#projectInfoPath(projectID))
   }
 
-  projectDraft (tenantID: string, projectID: string, templateID: string, projectName: string, description?: string): Promise<ProjectDraft> {
+  projectDraft (tenantId: string, projectID: string, templateID: string, projectName: string, description?: string): Promise<ProjectDraft> {
     const params = new URLSearchParams({
-      tenantId: tenantID,
+      tenantId: tenantId,
       projectId: projectID,
       templateId: templateID,
       projectName,
@@ -170,8 +168,8 @@ export class BackendClient {
     return this.#client.post<Record<string, unknown>>(this.#createRepositoryPath(projectID), createServiceRepositoryBody)
   }
 
-  getCompanyRules (tenantID: string): Promise<Record<string, unknown>> {
-    return this.#client.get<Record<string, unknown>>(this.#companyRulesPath(tenantID), new URLSearchParams({}))
+  getCompanyRules (tenantId: string): Promise<Record<string, unknown>> {
+    return this.#client.get<Record<string, unknown>>(this.#companyRulesPath(tenantId), new URLSearchParams({}))
   }
 
   #revisionConfigurationPath (prjID: string, refID: string, refType: ConfigurationRefType = 'revisions'): string {
@@ -222,7 +220,7 @@ export class BackendClient {
     return `/api/backend/projects/${projectID}/service`
   }
 
-  #companyRulesPath (tenantID: string): string {
-    return `api/backend/tenants/${encodeURIComponent(tenantID)}/rules`
+  #companyRulesPath (tenantId: string): string {
+    return `api/backend/tenants/${encodeURIComponent(tenantId)}/rules`
   }
 }

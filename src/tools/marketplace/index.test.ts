@@ -26,20 +26,20 @@ import { TestMCPServer } from '../../server/utils.test'
 import {
   APIClientMock,
   APIClientMockFunctions,
-} from '../../apis/client'
+} from '../../apis/client.mock'
 
 const elements = [
   { _id: 1, name: 'item1', tenantId: 'public', itemId: 'item-id-1' },
   { _id: 2, name: 'item2', tenantId: 'public', itemId: 'item-id-2' },
   { _id: 3, name: 'item3', tenantId: 'public', itemId: 'item-id-3' },
-  { _id: 4, name: 'item4', tenantId: 'tenantID', itemId: 'item-id-4' },
+  { _id: 4, name: 'item4', tenantId: 'tenantId', itemId: 'item-id-4' },
 ]
 
 const expectedElements = [
   { itemId: 'item-id-1', name: 'item1', tenantId: 'public' },
   { itemId: 'item-id-2', name: 'item2', tenantId: 'public' },
   { itemId: 'item-id-3', name: 'item3', tenantId: 'public' },
-  { itemId: 'item-id-4', name: 'item4', tenantId: 'tenantID' },
+  { itemId: 'item-id-4', name: 'item4', tenantId: 'tenantId' },
 ]
 
 const itemVersions = [
@@ -232,8 +232,8 @@ suite('marketplace list tool', () => {
 })
 
 suite('marketplace item versions tool', () => {
-  const marketplaceItemVersionsMockFn = mock.fn(async (tenantID: string, _itemID: string): Promise<CatalogItemRelease[]> => {
-    if (tenantID === 'error') throw new Error('error message')
+  const marketplaceItemVersionsMockFn = mock.fn(async (tenantId: string, _itemID: string): Promise<CatalogItemRelease[]> => {
+    if (tenantId === 'error') throw new Error('error message')
 
     return itemVersions as unknown as CatalogItemRelease[]
   })
@@ -271,7 +271,7 @@ suite('marketplace item versions tool', () => {
   })
 
   test('should return item versions', async (t: it.TestContext) => {
-    const testTenantId = 'tenantID'
+    const testTenantId = 'tenantId'
 
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
@@ -325,8 +325,8 @@ suite('marketplace item versions tool', () => {
 })
 
 suite('marketplace item version info tool', () => {
-  const marketplaceItemInfoMockFn = mock.fn(async (tenantID: string, _itemID: string, _version?: string): Promise<CatalogVersionedItem> => {
-    if (tenantID === 'error') {
+  const marketplaceItemInfoMockFn = mock.fn(async (tenantId: string, _itemID: string, _version?: string): Promise<CatalogVersionedItem> => {
+    if (tenantId === 'error') {
       throw new Error('error message')
     }
     return itemInfo as unknown as CatalogVersionedItem
@@ -366,7 +366,7 @@ suite('marketplace item version info tool', () => {
   })
 
   test('should return item version info', async (t: it.TestContext) => {
-    const testTenantId = 'tenantID'
+    const testTenantId = 'tenantId'
 
     const client = await getTestMCPServerClient({
       isAiFeaturesEnabledForTenantMockFn: async () => true,
@@ -657,8 +657,8 @@ suite('marketplace Item Type Definitions list tool', async () => {
 })
 
 suite('marketplace Item Type Definition info tool', async () => {
-  const marketplaceItemTypeDefinitionInfoMockFn = mock.fn(async (tenantID?: string) => {
-    if (tenantID === 'error') {
+  const marketplaceItemTypeDefinitionInfoMockFn = mock.fn(async (tenantId?: string) => {
+    if (tenantId === 'error') {
       throw new Error('error message')
     }
 
@@ -676,7 +676,7 @@ suite('marketplace Item Type Definition info tool', async () => {
       params: {
         name: 'marketplace_item_type_definition_info',
         arguments: {
-          marketplaceITDTenantId: 'tenantID',
+          marketplaceITDTenantId: 'tenantId',
           marketplaceITDName: 'itdName',
         },
       },

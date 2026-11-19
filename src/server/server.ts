@@ -16,7 +16,6 @@
 import { Implementation } from '@modelcontextprotocol/sdk/types'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { ServerOptions } from '@modelcontextprotocol/sdk/server/index'
-import { UndiciHeaders } from 'undici/types/dispatcher'
 
 import { addConfigurationCapabilities } from '../tools/configuration'
 import { addDeployCapabilities } from '../tools/deploy'
@@ -26,13 +25,12 @@ import { addMarketplaceCapabilities } from '../tools/marketplace'
 import { addRuntimeCapabilities } from '../tools/runtime'
 import { addServicesCapabilities } from '../tools/services'
 import { APIClient } from '../apis/client'
+import { ConsoleMCPServerOptions } from './types'
 import { description, name, version } from '../../package.json'
 
 export function getMcpServer (
   host: string,
-  clientID: string,
-  clientSecret: string,
-  additionalHeaders: UndiciHeaders = {},
+  opts: ConsoleMCPServerOptions,
 ): McpServer {
   const implementation: Implementation = {
     name,
@@ -51,11 +49,11 @@ export function getMcpServer (
 
   const server = new McpServer(implementation, options)
 
-  const apiClient = new APIClient(host, clientID, clientSecret, additionalHeaders)
+  const apiClient = new APIClient(host, opts)
 
   // Tools
   addMarketplaceCapabilities(server, apiClient)
-  addGovernanceCapabilities(server, apiClient)
+  addGovernanceCapabilities(server, apiClient, { enableCentralizedUserManagement: opts.enableCentralizedUserManagement ?? false })
   addServicesCapabilities(server, apiClient)
   addConfigurationCapabilities(server, apiClient)
   addDeployCapabilities(server, apiClient)

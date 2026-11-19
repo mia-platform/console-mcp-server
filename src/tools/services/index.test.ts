@@ -27,7 +27,7 @@ import { toolNames } from '../descriptions'
 import {
   APIClientMock,
   APIClientMockFunctions,
-} from '../../apis/client'
+} from '../../apis/client.mock'
 
 const name = 'name'
 const description = 'description'
