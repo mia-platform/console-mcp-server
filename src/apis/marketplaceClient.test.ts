@@ -94,6 +94,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, publicItems)
@@ -104,6 +105,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeTenantId: tenantID,
       },
@@ -115,6 +117,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeTenantId: tenantID,
         types: type,
@@ -130,6 +133,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(500, { error: 'Internal Server Error' })
@@ -147,6 +151,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, versions)
@@ -161,6 +166,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(500, { error: 'Internal Server Error' })
@@ -191,6 +197,7 @@ suite('Marketplace Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, versions)
@@ -286,6 +293,7 @@ suite('Marketplace Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, publicItems)
@@ -296,6 +304,7 @@ suite('Marketplace Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeTenantId: tenantID,
       },
@@ -307,6 +316,7 @@ suite('Marketplace Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeTenantId: tenantID,
         types: type,
@@ -327,6 +337,7 @@ suite('Marketplace Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, versions)
@@ -359,6 +370,7 @@ suite('Marketplace Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
       },
     }).reply(200, versions)

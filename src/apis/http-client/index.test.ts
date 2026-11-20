@@ -81,6 +81,7 @@ suite('http client test suite without authentication', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         test: 'testValue',
       },
@@ -98,6 +99,7 @@ suite('http client test suite without authentication', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 2,
         test: 'testValue',
       },
@@ -116,6 +118,33 @@ suite('http client test suite without authentication', () => {
       { message: 'first' },
       { message: 'second' },
     ])
+  })
+
+  test('uses the same page size for both pagination parameters', async (t) => {
+    agent.disableNetConnect()
+    agent.get(mockedEndpoint).intercept({
+      path: testPath,
+      method: 'GET',
+      query: {
+        per_page: 200,
+        perPage: 200,
+        page: 3,
+        test: 'testValue',
+      },
+    }).reply(200, [ { message: 'third' } ], {
+      headers: {
+        [API_CONSOLE_TOTAL_PAGES_HEADER_KEY]: '5',
+      },
+    })
+
+    const result = await client.getPaginated<TestResponse>(testPath, new URLSearchParams({
+      per_page: '25',
+      perPage: '50',
+      test: 'testValue',
+    }), 3, 3)
+
+    t.assert.deepEqual(result, [ { message: 'third' } ])
+    agent.assertNoPendingInterceptors()
   })
 
   test('post request', async (t) => {

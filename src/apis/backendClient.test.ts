@@ -46,6 +46,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
       },
     }).reply(200, mockedResult)
@@ -60,6 +61,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
       },
     }).reply(500, { error: 'Internal Server Error' })
@@ -78,6 +80,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         tenantId,
       },
@@ -93,6 +96,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         tenantId,
       },
@@ -112,6 +116,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         tenantIds: tenantId,
       },
@@ -127,6 +132,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         search: 'test',
       },
@@ -277,6 +283,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeSelf: true,
       },
@@ -294,6 +301,7 @@ suite('Backend Internal Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeSelf: true,
       },
@@ -415,6 +423,7 @@ suite('Backend Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
       },
     }).reply(200, mockedResult)
@@ -434,6 +443,7 @@ suite('Backend Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         tenantId,
       },
@@ -454,6 +464,7 @@ suite('Backend Client', () => {
       method: 'GET',
       query: {
         per_page: '200',
+        perPage: '200',
         page: '1',
         tenantIds: tenantId,
         search: 'test',
@@ -555,6 +566,7 @@ suite('Backend Client', () => {
       method: 'GET',
       query: {
         per_page: 200,
+        perPage: 200,
         page: 1,
         includeSelf: true,
       },
